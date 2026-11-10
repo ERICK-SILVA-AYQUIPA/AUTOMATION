@@ -144,6 +144,8 @@ model User {
   failedLoginCount Int        @default(0) @map("failed_login_count")
   lockedUntil      DateTime?  @map("locked_until") @db.Timestamptz(3)
   lastLoginAt      DateTime?  @map("last_login_at") @db.Timestamptz(3)
+  /// Usuario agente en Chatwoot (inicio de sesión único desde el panel)
+  chatwootUserId   Int?       @map("chatwoot_user_id")
   createdAt        DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt        DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
 
@@ -395,6 +397,9 @@ model Customer {
   waUserId      String?   @map("wa_user_id")
   /// Nombre de perfil de WhatsApp (no confiable: lo escribe el usuario)
   waProfileName String?   @map("wa_profile_name")
+  /// Contacto espejo en Chatwoot y su source_id en el buzón API (FASE 5)
+  chatwootContactId Int?  @map("chatwoot_contact_id")
+  chatwootSourceId  String? @map("chatwoot_source_id")
   email         String?
   documentId    String?   @map("document_id")
   address       String?
@@ -620,11 +625,14 @@ model Message {
   providerTimestamp DateTime?        @map("provider_timestamp") @db.Timestamptz(3)
   /// Mensaje de salida que generó este registro
   outboundId        String?          @unique @map("outbound_id") @db.Uuid
+  /// Id del mensaje espejo en Chatwoot (FASE 5)
+  chatwootMessageId Int?             @map("chatwoot_message_id")
   createdAt         DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, providerMessageId])
+  @@unique([tenantId, chatwootMessageId])
   @@index([conversationId, createdAt])
   @@map("messages")
 }
@@ -760,6 +768,8 @@ model TenantIntegration {
   /// Secretos cifrados (AES-256-GCM)
   secretsEnc String?          @map("secrets_enc")
   status     ConnectionStatus @default(PENDING)
+  /// Clave de la URL de webhook (Chatwoot): /webhooks/chatwoot/<clave>
+  webhookKey String?          @unique @map("webhook_key")
   lastError  String?          @map("last_error")
   updatedAt  DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
 

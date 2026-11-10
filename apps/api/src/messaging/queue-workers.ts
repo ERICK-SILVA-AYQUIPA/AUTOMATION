@@ -4,6 +4,8 @@ import { ENV, type Env } from '../config/env.js';
 import { QUEUE, Queues, queueConnection } from '../queues/queues.module.js';
 import { InboundService } from './inbound.service.js';
 import { OutboundService, PermanentSendError } from './outbound.service.js';
+import { ChatwootSyncService, ChatwootPermanentError } from '../chatwoot/chatwoot-sync.service.js';
+import type { ChatwootJob } from '../queues/queues.module.js';
 
 /**
  * Consumidores de las colas. Solo se instancian en el proceso worker (src/worker.ts),
@@ -20,11 +22,21 @@ export class QueueWorkers implements OnApplicationBootstrap, OnApplicationShutdo
     private readonly inbound: InboundService,
     private readonly outbound: OutboundService,
     private readonly queues: Queues,
+    private readonly chatwootSync: ChatwootSyncService,
   ) {}
 
   onApplicationBootstrap() {
     const connection = queueConnection(this.env);
-    const inbound = new Worker<{ eventId: string }>(QUEUE.WA_INBOUND, (job) => this.inbound.processEvent(job.data.eventId), { connection, prefix: this.env.QUEUE_PREFIX, concurrency: 10 });
+    const inbound = new Worker<{ eventId: string }>(
+      QUEUE.WA_INBOUND,
+      async (job) => {
+        const r = await this.inbound.processEvent(job.data.eventId);
+        // Espejo en Chatwoot: mensaje nuevo del cliente o cambio de estado de uno nuestro
+        if (r.outcome === 'processed' && r.messageId && r.tenantId) await this.queues.mirrorToChatwoot(r.tenantId, r.messageId, r.kind === 'status' ? 'status' : 'mirror');
+        return r;
+      },
+      { connection, prefix: this.env.QUEUE_PREFIX, concurrency: 10 },
+    );
     inbound.on('failed', (job, err) => {
       if (job && job.attemptsMade >= (job.opts.attempts ?? 1)) {
         this.log.error(`Evento ${job.data.eventId} sin procesar tras ${job.attemptsMade} intentos: ${err.message}`);
@@ -51,12 +63,29 @@ export class QueueWorkers implements OnApplicationBootstrap, OnApplicationShutdo
       }
     });
 
-    for (const w of [inbound, outbound]) w.on('error', (e) => this.log.error(`Cola: ${e.message}`));
-    this.workers = [inbound, outbound];
+    // Un solo consumidor: los mensajes llegan a Chatwoot en el mismo orden que a WhatsApp
+    const chatwoot = new Worker<ChatwootJob>(
+      QUEUE.CHATWOOT_SYNC,
+      async (job) => {
+        try {
+          return await this.chatwootSync.run(job.data.kind, job.data.tenantId, job.data.messageId);
+        } catch (e) {
+          if (e instanceof ChatwootPermanentError) throw new UnrecoverableError(e.message);
+          throw e;
+        }
+      },
+      { connection, prefix: this.env.QUEUE_PREFIX, concurrency: 1 },
+    );
+    chatwoot.on('failed', (job, err) => {
+      if (job && job.attemptsMade >= (job.opts.attempts ?? 1)) this.log.warn(`Chatwoot (${job.data.kind} ${job.data.messageId}) sin éxito: ${err.message}`);
+    });
+
+    for (const w of [inbound, outbound, chatwoot]) w.on('error', (e) => this.log.error(`Cola: ${e.message}`));
+    this.workers = [inbound, outbound, chatwoot];
 
     // Recupera eventos guardados que no llegaron a encolarse (p. ej. Redis caído)
     this.sweeper = setInterval(() => void this.sweep().catch((e) => this.log.warn(`Barrido: ${(e as Error).message}`)), 60_000);
-    this.log.log('Worker listo: colas wa-inbound y wa-outbound');
+    this.log.log('Worker listo: colas wa-inbound, wa-outbound y chatwoot-sync');
   }
 
   async sweep() {

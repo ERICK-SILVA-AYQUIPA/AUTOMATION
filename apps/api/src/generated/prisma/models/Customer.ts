@@ -20,8 +20,18 @@ export type CustomerModel = runtime.Types.Result.DefaultSelection<Prisma.$Custom
 
 export type AggregateCustomer = {
   _count: CustomerCountAggregateOutputType | null
+  _avg: CustomerAvgAggregateOutputType | null
+  _sum: CustomerSumAggregateOutputType | null
   _min: CustomerMinAggregateOutputType | null
   _max: CustomerMaxAggregateOutputType | null
+}
+
+export type CustomerAvgAggregateOutputType = {
+  chatwootContactId: number | null
+}
+
+export type CustomerSumAggregateOutputType = {
+  chatwootContactId: number | null
 }
 
 export type CustomerMinAggregateOutputType = {
@@ -31,6 +41,8 @@ export type CustomerMinAggregateOutputType = {
   phone: string | null
   waUserId: string | null
   waProfileName: string | null
+  chatwootContactId: number | null
+  chatwootSourceId: string | null
   email: string | null
   documentId: string | null
   address: string | null
@@ -48,6 +60,8 @@ export type CustomerMaxAggregateOutputType = {
   phone: string | null
   waUserId: string | null
   waProfileName: string | null
+  chatwootContactId: number | null
+  chatwootSourceId: string | null
   email: string | null
   documentId: string | null
   address: string | null
@@ -65,6 +79,8 @@ export type CustomerCountAggregateOutputType = {
   phone: number
   waUserId: number
   waProfileName: number
+  chatwootContactId: number
+  chatwootSourceId: number
   email: number
   documentId: number
   address: number
@@ -78,6 +94,14 @@ export type CustomerCountAggregateOutputType = {
 }
 
 
+export type CustomerAvgAggregateInputType = {
+  chatwootContactId?: true
+}
+
+export type CustomerSumAggregateInputType = {
+  chatwootContactId?: true
+}
+
 export type CustomerMinAggregateInputType = {
   id?: true
   tenantId?: true
@@ -85,6 +109,8 @@ export type CustomerMinAggregateInputType = {
   phone?: true
   waUserId?: true
   waProfileName?: true
+  chatwootContactId?: true
+  chatwootSourceId?: true
   email?: true
   documentId?: true
   address?: true
@@ -102,6 +128,8 @@ export type CustomerMaxAggregateInputType = {
   phone?: true
   waUserId?: true
   waProfileName?: true
+  chatwootContactId?: true
+  chatwootSourceId?: true
   email?: true
   documentId?: true
   address?: true
@@ -119,6 +147,8 @@ export type CustomerCountAggregateInputType = {
   phone?: true
   waUserId?: true
   waProfileName?: true
+  chatwootContactId?: true
+  chatwootSourceId?: true
   email?: true
   documentId?: true
   address?: true
@@ -169,6 +199,18 @@ export type CustomerAggregateArgs<ExtArgs extends runtime.Types.Extensions.Inter
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: CustomerAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: CustomerSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: CustomerMinAggregateInputType
@@ -199,6 +241,8 @@ export type CustomerGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   _count?: CustomerCountAggregateInputType | true
+  _avg?: CustomerAvgAggregateInputType
+  _sum?: CustomerSumAggregateInputType
   _min?: CustomerMinAggregateInputType
   _max?: CustomerMaxAggregateInputType
 }
@@ -210,6 +254,8 @@ export type CustomerGroupByOutputType = {
   phone: string | null
   waUserId: string | null
   waProfileName: string | null
+  chatwootContactId: number | null
+  chatwootSourceId: string | null
   email: string | null
   documentId: string | null
   address: string | null
@@ -220,6 +266,8 @@ export type CustomerGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   _count: CustomerCountAggregateOutputType | null
+  _avg: CustomerAvgAggregateOutputType | null
+  _sum: CustomerSumAggregateOutputType | null
   _min: CustomerMinAggregateOutputType | null
   _max: CustomerMaxAggregateOutputType | null
 }
@@ -249,6 +297,8 @@ export type CustomerWhereInput = {
   phone?: Prisma.StringNullableFilter<"Customer"> | string | null
   waUserId?: Prisma.StringNullableFilter<"Customer"> | string | null
   waProfileName?: Prisma.StringNullableFilter<"Customer"> | string | null
+  chatwootContactId?: Prisma.IntNullableFilter<"Customer"> | number | null
+  chatwootSourceId?: Prisma.StringNullableFilter<"Customer"> | string | null
   email?: Prisma.StringNullableFilter<"Customer"> | string | null
   documentId?: Prisma.StringNullableFilter<"Customer"> | string | null
   address?: Prisma.StringNullableFilter<"Customer"> | string | null
@@ -269,6 +319,8 @@ export type CustomerOrderByWithRelationInput = {
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   waUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   waProfileName?: Prisma.SortOrderInput | Prisma.SortOrder
+  chatwootContactId?: Prisma.SortOrderInput | Prisma.SortOrder
+  chatwootSourceId?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   documentId?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -294,6 +346,8 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   phone?: Prisma.StringNullableFilter<"Customer"> | string | null
   waUserId?: Prisma.StringNullableFilter<"Customer"> | string | null
   waProfileName?: Prisma.StringNullableFilter<"Customer"> | string | null
+  chatwootContactId?: Prisma.IntNullableFilter<"Customer"> | number | null
+  chatwootSourceId?: Prisma.StringNullableFilter<"Customer"> | string | null
   email?: Prisma.StringNullableFilter<"Customer"> | string | null
   documentId?: Prisma.StringNullableFilter<"Customer"> | string | null
   address?: Prisma.StringNullableFilter<"Customer"> | string | null
@@ -314,6 +368,8 @@ export type CustomerOrderByWithAggregationInput = {
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   waUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   waProfileName?: Prisma.SortOrderInput | Prisma.SortOrder
+  chatwootContactId?: Prisma.SortOrderInput | Prisma.SortOrder
+  chatwootSourceId?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   documentId?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -324,8 +380,10 @@ export type CustomerOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CustomerCountOrderByAggregateInput
+  _avg?: Prisma.CustomerAvgOrderByAggregateInput
   _max?: Prisma.CustomerMaxOrderByAggregateInput
   _min?: Prisma.CustomerMinOrderByAggregateInput
+  _sum?: Prisma.CustomerSumOrderByAggregateInput
 }
 
 export type CustomerScalarWhereWithAggregatesInput = {
@@ -338,6 +396,8 @@ export type CustomerScalarWhereWithAggregatesInput = {
   phone?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   waUserId?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   waProfileName?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
+  chatwootContactId?: Prisma.IntNullableWithAggregatesFilter<"Customer"> | number | null
+  chatwootSourceId?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   email?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   documentId?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   address?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
@@ -356,6 +416,8 @@ export type CustomerCreateInput = {
   phone?: string | null
   waUserId?: string | null
   waProfileName?: string | null
+  chatwootContactId?: number | null
+  chatwootSourceId?: string | null
   email?: string | null
   documentId?: string | null
   address?: string | null
@@ -376,6 +438,8 @@ export type CustomerUncheckedCreateInput = {
   phone?: string | null
   waUserId?: string | null
   waProfileName?: string | null
+  chatwootContactId?: number | null
+  chatwootSourceId?: string | null
   email?: string | null
   documentId?: string | null
   address?: string | null
@@ -396,6 +460,8 @@ export type CustomerUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waProfileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatwootContactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chatwootSourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -416,6 +482,8 @@ export type CustomerUncheckedUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waProfileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatwootContactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chatwootSourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -436,6 +504,8 @@ export type CustomerCreateManyInput = {
   phone?: string | null
   waUserId?: string | null
   waProfileName?: string | null
+  chatwootContactId?: number | null
+  chatwootSourceId?: string | null
   email?: string | null
   documentId?: string | null
   address?: string | null
@@ -454,6 +524,8 @@ export type CustomerUpdateManyMutationInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waProfileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatwootContactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chatwootSourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -472,6 +544,8 @@ export type CustomerUncheckedUpdateManyInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waProfileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatwootContactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chatwootSourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -508,6 +582,8 @@ export type CustomerCountOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   waUserId?: Prisma.SortOrder
   waProfileName?: Prisma.SortOrder
+  chatwootContactId?: Prisma.SortOrder
+  chatwootSourceId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
   address?: Prisma.SortOrder
@@ -519,6 +595,10 @@ export type CustomerCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
+export type CustomerAvgOrderByAggregateInput = {
+  chatwootContactId?: Prisma.SortOrder
+}
+
 export type CustomerMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
@@ -526,6 +606,8 @@ export type CustomerMaxOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   waUserId?: Prisma.SortOrder
   waProfileName?: Prisma.SortOrder
+  chatwootContactId?: Prisma.SortOrder
+  chatwootSourceId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
   address?: Prisma.SortOrder
@@ -543,6 +625,8 @@ export type CustomerMinOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   waUserId?: Prisma.SortOrder
   waProfileName?: Prisma.SortOrder
+  chatwootContactId?: Prisma.SortOrder
+  chatwootSourceId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
   address?: Prisma.SortOrder
@@ -551,6 +635,10 @@ export type CustomerMinOrderByAggregateInput = {
   lastContactAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type CustomerSumOrderByAggregateInput = {
+  chatwootContactId?: Prisma.SortOrder
 }
 
 export type CustomerScalarRelationFilter = {
@@ -602,6 +690,8 @@ export type CustomerCreateWithoutOrdersInput = {
   phone?: string | null
   waUserId?: string | null
   waProfileName?: string | null
+  chatwootContactId?: number | null
+  chatwootSourceId?: string | null
   email?: string | null
   documentId?: string | null
   address?: string | null
@@ -621,6 +711,8 @@ export type CustomerUncheckedCreateWithoutOrdersInput = {
   phone?: string | null
   waUserId?: string | null
   waProfileName?: string | null
+  chatwootContactId?: number | null
+  chatwootSourceId?: string | null
   email?: string | null
   documentId?: string | null
   address?: string | null
@@ -656,6 +748,8 @@ export type CustomerUpdateWithoutOrdersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waProfileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatwootContactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chatwootSourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -675,6 +769,8 @@ export type CustomerUncheckedUpdateWithoutOrdersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waProfileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatwootContactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chatwootSourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -694,6 +790,8 @@ export type CustomerCreateWithoutConversationsInput = {
   phone?: string | null
   waUserId?: string | null
   waProfileName?: string | null
+  chatwootContactId?: number | null
+  chatwootSourceId?: string | null
   email?: string | null
   documentId?: string | null
   address?: string | null
@@ -713,6 +811,8 @@ export type CustomerUncheckedCreateWithoutConversationsInput = {
   phone?: string | null
   waUserId?: string | null
   waProfileName?: string | null
+  chatwootContactId?: number | null
+  chatwootSourceId?: string | null
   email?: string | null
   documentId?: string | null
   address?: string | null
@@ -748,6 +848,8 @@ export type CustomerUpdateWithoutConversationsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waProfileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatwootContactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chatwootSourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -767,6 +869,8 @@ export type CustomerUncheckedUpdateWithoutConversationsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   waProfileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatwootContactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chatwootSourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -826,6 +930,8 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   phone?: boolean
   waUserId?: boolean
   waProfileName?: boolean
+  chatwootContactId?: boolean
+  chatwootSourceId?: boolean
   email?: boolean
   documentId?: boolean
   address?: boolean
@@ -847,6 +953,8 @@ export type CustomerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   phone?: boolean
   waUserId?: boolean
   waProfileName?: boolean
+  chatwootContactId?: boolean
+  chatwootSourceId?: boolean
   email?: boolean
   documentId?: boolean
   address?: boolean
@@ -865,6 +973,8 @@ export type CustomerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   phone?: boolean
   waUserId?: boolean
   waProfileName?: boolean
+  chatwootContactId?: boolean
+  chatwootSourceId?: boolean
   email?: boolean
   documentId?: boolean
   address?: boolean
@@ -883,6 +993,8 @@ export type CustomerSelectScalar = {
   phone?: boolean
   waUserId?: boolean
   waProfileName?: boolean
+  chatwootContactId?: boolean
+  chatwootSourceId?: boolean
   email?: boolean
   documentId?: boolean
   address?: boolean
@@ -894,7 +1006,7 @@ export type CustomerSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "name" | "phone" | "waUserId" | "waProfileName" | "email" | "documentId" | "address" | "notes" | "tags" | "source" | "lastContactAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
+export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "name" | "phone" | "waUserId" | "waProfileName" | "chatwootContactId" | "chatwootSourceId" | "email" | "documentId" | "address" | "notes" | "tags" | "source" | "lastContactAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
 export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orders?: boolean | Prisma.Customer$ordersArgs<ExtArgs>
   conversations?: boolean | Prisma.Customer$conversationsArgs<ExtArgs>
@@ -926,6 +1038,11 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
      * Nombre de perfil de WhatsApp (no confiable: lo escribe el usuario)
      */
     waProfileName: string | null
+    /**
+     * Contacto espejo en Chatwoot y su source_id en el buzón API (FASE 5)
+     */
+    chatwootContactId: number | null
+    chatwootSourceId: string | null
     email: string | null
     documentId: string | null
     address: string | null
@@ -1366,6 +1483,8 @@ export interface CustomerFieldRefs {
   readonly phone: Prisma.FieldRef<"Customer", 'String'>
   readonly waUserId: Prisma.FieldRef<"Customer", 'String'>
   readonly waProfileName: Prisma.FieldRef<"Customer", 'String'>
+  readonly chatwootContactId: Prisma.FieldRef<"Customer", 'Int'>
+  readonly chatwootSourceId: Prisma.FieldRef<"Customer", 'String'>
   readonly email: Prisma.FieldRef<"Customer", 'String'>
   readonly documentId: Prisma.FieldRef<"Customer", 'String'>
   readonly address: Prisma.FieldRef<"Customer", 'String'>

@@ -4,13 +4,14 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, ArrowLeft, Check, CheckCheck, Clock, MessagesSquare, Search, SendHorizontal, XCircle } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Check, CheckCheck, Clock, MessagesSquare, PauseCircle, Search, SendHorizontal, XCircle } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { customerLabel, dateTime, phoneLabel } from '@/lib/format';
 import { Badge, Button, Card, EmptyState, ErrorBox, Input, Loading, Textarea, cn } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
 import { RequirePermission } from '@/components/guard';
+import { OpenInChatwoot } from '@/components/chatwoot';
 import type { CustomerRef, Paged } from '@/lib/types';
 
 interface ConversationRow {
@@ -26,6 +27,7 @@ interface ConversationDetail extends Omit<ConversationRow, 'messages'> {
   customer: CustomerRef & { waUserId: string | null };
   whatsappNumber: { id: string; displayPhone: string | null; label: string | null; isActive: boolean } | null;
   messages: Msg[]; serviceWindowEndsAt: string | null;
+  botStatus: 'ACTIVE' | 'PAUSED'; handoffReason: string | null; handoffAt: string | null;
 }
 
 const time = (v: string) => new Intl.DateTimeFormat('es-PE', { hour: '2-digit', minute: '2-digit' }).format(new Date(v));
@@ -93,7 +95,12 @@ function Thread({ id, onBack }: { id: string; onBack: () => void }) {
           <Link href={`/clientes/${c.customer.id}`} className="block truncate font-medium hover:underline">{customerLabel(c.customer)}</Link>
           <p className="truncate text-xs text-muted">{phoneLabel(c.customer.phone)}{c.whatsappNumber && ` · vía ${c.whatsappNumber.label ?? c.whatsappNumber.displayPhone ?? 'WhatsApp'}`}</p>
         </div>
+        {/* El asistente IA llega en la FASE 6; aquí solo se muestra la pausa, que ya es real */}
+        {c.botStatus === 'PAUSED' && (
+          <span title={c.handoffAt ? `Atendida por una persona desde ${dateTime(c.handoffAt)}` : undefined}><Badge tone="warning"><PauseCircle className="mr-1 size-3" aria-hidden />Atención humana</Badge></span>
+        )}
         <Badge tone={c.status === 'OPEN' ? 'info' : 'neutral'}>{c.status === 'OPEN' ? 'Abierta' : 'Resuelta'}</Badge>
+        <span className="hidden sm:inline-flex"><OpenInChatwoot /></span>
       </div>
       <div className="min-h-0 flex-1 space-y-2 overflow-y-auto bg-surface-2/40 px-4 py-4">
         {c.messages.map((m) => (

@@ -44,6 +44,7 @@ git clone <repo> ai-sales-assistant && cd ai-sales-assistant
 docker compose up -d --wait postgres redis
 ./infrastructure/scripts/chatwoot-init.sh  # solo la primera vez
 ./infrastructure/scripts/up.sh             # levanta todo y espera a que esté sano
+bash services/chatwoot/setup-platform.sh   # solo la primera vez: cierra el asistente de Chatwoot y crea su token
 ./infrastructure/scripts/healthcheck.sh
 
 # Backend (apps/api)
@@ -108,8 +109,12 @@ MAILPIT_URL=http://localhost:8025 pnpm --filter @aisa/web test:e2e
 # WHATSAPP_GRAPH_BASE_URL=http://127.0.0.1:4999 (el script levanta ahí un servidor
 # local que responde como la Graph API de Meta; no se conecta a Meta)
 MAILPIT_URL=http://localhost:8025 node apps/web/e2e/whatsapp.mjs
+
+# Chatwoot real de punta a punta (mismo requisito de WHATSAPP_GRAPH_BASE_URL)
+MAILPIT_URL=http://localhost:8025 CHATWOOT_URL=http://localhost:3100 node apps/web/e2e/chatwoot.mjs
 ```
 Conectar un número real de WhatsApp: [`docs/integrations/whatsapp-cloud-api.md`](docs/integrations/whatsapp-cloud-api.md).
+Bandeja de agentes (Chatwoot): [`docs/integrations/chatwoot.md`](docs/integrations/chatwoot.md).
 La prueba de humo usa `playwright` instalado en el sistema; en la FASE 8 se
 integra como dependencia de desarrollo y en CI.
 

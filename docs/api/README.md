@@ -73,6 +73,22 @@ Contraseñas: mínimo 10 caracteres con letras y números; hash Argon2id.
 | GET | `/conversations/:id` | `conversations:read` (últimos 500 mensajes y fin de la ventana de 24 h) |
 | POST | `/conversations/:id/messages` | `conversations:reply`. `{text, idempotencyKey}`; fuera de la ventana responde `OUTSIDE_SERVICE_WINDOW` |
 
+## Chatwoot (`/integrations/chatwoot`)
+
+| Método | Ruta | Permiso |
+|---|---|---|
+| GET | `/integrations/chatwoot` | `conversations:read`. `{available, status, lastError, accountId, inboxId, updatedAt}` (sin secretos) |
+| POST | `/integrations/chatwoot/connect` | `integrations:manage`. Crea o completa la cuenta de Chatwoot de la empresa; idempotente. `503 CHATWOOT_ERROR` si Chatwoot falla |
+| POST | `/integrations/chatwoot/sso` | `conversations:reply`. `{url}`: enlace de acceso único a Chatwoot para el usuario actual |
+
+`PATCH /users/:id` con `status: DISABLED` o un rol nuevo también retira el acceso a Chatwoot; si Chatwoot falla responde `503 CHATWOOT_ERROR` (el cambio queda guardado; repetirlo reintenta la retirada).
+
+## Webhook de Chatwoot (público)
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | `/webhooks/chatwoot/:key` | Exige `X-Chatwoot-Signature` y `X-Chatwoot-Timestamp` válidos (HMAC con el secreto del buzón, 5 min). Respuestas de agentes → WhatsApp; cambios de estado/asignación → pausa o reactivación del asistente |
+
 ## API interna para n8n (`/internal`) — no se publica por la web
 
 | Método | Ruta | Descripción |

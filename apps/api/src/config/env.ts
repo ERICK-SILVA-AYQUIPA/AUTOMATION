@@ -60,6 +60,12 @@ const schema = z.object({
   /** URL de la API vista desde el contenedor de n8n (para que n8n llame a /internal) */
   N8N_API_BASE_URL: z.url().default('http://host.docker.internal:4000'),
 
+  /** Chatwoot (FASE 5, docs/integrations/chatwoot.md). Vacío el token = integración desactivada */
+  CHATWOOT_BASE_URL: z.url().default('http://127.0.0.1:3100'),
+  CHATWOOT_PLATFORM_TOKEN: z.string().default(''),
+  /** URL de la API vista desde Chatwoot (sus webhooks) */
+  CHATWOOT_WEBHOOK_BASE_URL: z.url().default('http://host.docker.internal:4000'),
+
   /** Carpeta de archivos subidos (volumen persistente en despliegue) */
   STORAGE_DIR: z.string().default('./storage'),
   TRIAL_DAYS: z.coerce.number().int().nonnegative().default(14),

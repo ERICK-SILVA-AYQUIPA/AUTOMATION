@@ -13,6 +13,8 @@ export interface InboundResult {
   conversationId?: string;
   messageId?: string;
   newConversation?: boolean;
+  tenantId?: string;
+  kind?: 'message' | 'status';
 }
 
 /**
@@ -32,7 +34,7 @@ export class InboundService {
     const payload = ev.payload as unknown as StoredEvent;
     try {
       const r = payload.kind === 'message' ? await this.message(ev.tenantId, payload) : await this.status(ev.tenantId, payload, ev.receivedAt);
-      return this.finish(eventId, r.outcome === 'ignored' ? 'IGNORED' : 'PROCESSED', r);
+      return this.finish(eventId, r.outcome === 'ignored' ? 'IGNORED' : 'PROCESSED', { ...r, tenantId: ev.tenantId, kind: payload.kind === 'message' ? 'message' : 'status' });
     } catch (e) {
       await this.db.system.inboundEvent.update({ where: { id: eventId }, data: { attempts: { increment: 1 }, error: (e as Error).message.slice(0, 1000) } });
       throw e; // BullMQ reintenta

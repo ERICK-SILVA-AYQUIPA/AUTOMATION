@@ -17,6 +17,8 @@ export interface EnqueueText {
   sender: { type: 'BOT' | 'AGENT'; userId?: string | null };
   /** Repetir la misma clave no crea otro envío */
   idempotencyKey: string;
+  /** El mensaje ya existe en Chatwoot (respuesta de un agente): no se vuelve a copiar */
+  chatwootMessageId?: number;
 }
 
 /** Error definitivo: el worker no debe reintentar */
@@ -44,7 +46,7 @@ export class OutboundService {
     if (text.length > 4096) throw new BadRequestException('Máximo 4096 caracteres');
     const out = await this.db.tenant(input.tenantId, async (tx) => {
       const existing = await tx.outboundMessage.findUnique({ where: { tenantId_idempotencyKey: { tenantId: input.tenantId, idempotencyKey: input.idempotencyKey } } });
-      if (existing) return { outbound: existing, created: false };
+      if (existing) return { outbound: existing, created: false, messageId: null };
       const conv = await tx.conversation.findFirst({ where: { id: input.conversationId, tenantId: input.tenantId }, include: { whatsappNumber: true } });
       if (!conv) throw new NotFoundException('Conversación no encontrada');
       if (!conv.whatsappNumber.isActive) throw new BadRequestException('El número de WhatsApp de esta conversación está desactivado');
@@ -55,16 +57,19 @@ export class OutboundService {
       const outbound = await tx.outboundMessage.create({
         data: { tenantId: input.tenantId, conversationId: conv.id, idempotencyKey: input.idempotencyKey, payload: { type: 'text', text } as Prisma.InputJsonValue },
       });
-      await tx.message.create({
+      const msg = await tx.message.create({
         data: {
           tenantId: input.tenantId, conversationId: conv.id, direction: 'OUTBOUND', senderType: input.sender.type, senderUserId: input.sender.userId ?? null,
-          type: 'text', content: text, status: 'queued', outboundId: outbound.id,
+          type: 'text', content: text, status: 'queued', outboundId: outbound.id, chatwootMessageId: input.chatwootMessageId ?? null,
         },
       });
       await tx.conversation.update({ where: { id: conv.id }, data: { lastMessageAt: new Date() } });
-      return { outbound, created: true };
+      return { outbound, created: true, messageId: msg.id };
     });
-    if (out.created) await this.queues.outbound.add('send', { tenantId: input.tenantId, outboundId: out.outbound.id }, { jobId: out.outbound.id });
+    if (out.created) {
+      await this.queues.outbound.add('send', { tenantId: input.tenantId, outboundId: out.outbound.id }, { jobId: out.outbound.id });
+      if (!input.chatwootMessageId && out.messageId) await this.queues.mirrorToChatwoot(input.tenantId, out.messageId);
+    }
     return out;
   }
 
@@ -88,6 +93,7 @@ export class OutboundService {
         // FLUJO 7: alerta administrativa
         await this.automations.emit(tx, tenantId, 'ERROR_ALERT', { source: 'whatsapp.send', conversationId: o.conversationId, outboundId: o.id, code, error });
       });
+      await this.statusToChatwoot(tenantId, o.id);
     };
 
     if (n.provider !== 'CLOUD_API' || !n.phoneNumberId || !n.accessTokenEnc) {
@@ -108,6 +114,7 @@ export class OutboundService {
         await tx.message.updateMany({ where: { outboundId: o.id, status: 'queued' }, data: { status: 'sent' } });
         await tx.message.updateMany({ where: { outboundId: o.id }, data: { providerMessageId: wamid } });
       });
+      await this.statusToChatwoot(tenantId, o.id);
       return 'sent';
     } catch (e) {
       if (!(e instanceof WhatsappApiError)) throw e;
@@ -137,5 +144,12 @@ export class OutboundService {
       await tx.message.updateMany({ where: { outboundId: o.id }, data: { status: 'failed', errorCode: o.errorCode, errorMessage: error } });
       await this.automations.emit(tx, tenantId, 'ERROR_ALERT', { source: 'whatsapp.send', conversationId: o.conversationId, outboundId: o.id, code: o.errorCode, error });
     });
+    await this.statusToChatwoot(tenantId, outboundId);
+  }
+
+  /** Copia el estado de entrega al mensaje espejo de Chatwoot (si existe la integración) */
+  private async statusToChatwoot(tenantId: string, outboundId: string) {
+    const m = await this.db.tenant(tenantId, (tx) => tx.message.findFirst({ where: { outboundId, tenantId }, select: { id: true } }));
+    if (m) await this.queues.mirrorToChatwoot(tenantId, m.id, 'status');
   }
 }

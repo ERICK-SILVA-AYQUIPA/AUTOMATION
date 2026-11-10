@@ -22,6 +22,7 @@ import { DashboardModule } from './dashboard/dashboard.module.js';
 import { RedisModule } from './health/redis.provider.js';
 import { QueuesModule } from './queues/queues.module.js';
 import { AutomationsModule } from './automations/automations.module.js';
+import { ChatwootModule } from './chatwoot/chatwoot.module.js';
 import { InternalModule } from './automations/internal.module.js';
 import { MessagingModule } from './messaging/messaging.module.js';
 import { AuthGuard } from './common/guards/auth.guard.js';
@@ -75,6 +76,7 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
     MessagingModule,
     AutomationsModule,
     InternalModule,
+    ChatwootModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

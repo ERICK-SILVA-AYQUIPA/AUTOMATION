@@ -8,7 +8,11 @@ export const QUEUE = {
   WA_INBOUND: 'wa-inbound',
   /** Mensajes a enviar por WhatsApp (outbound_messages) */
   WA_OUTBOUND: 'wa-outbound',
+  /** Espejo de mensajes y estados en Chatwoot (FASE 5); un solo consumidor para mantener el orden */
+  CHATWOOT_SYNC: 'chatwoot-sync',
 } as const;
+
+export type ChatwootJob = { kind: 'mirror' | 'status'; tenantId: string; messageId: string };
 
 export const queueConnection = (env: Env): ConnectionOptions => ({
   host: env.REDIS_HOST,
@@ -22,6 +26,7 @@ export const queueConnection = (env: Env): ConnectionOptions => ({
 export class Queues implements OnModuleDestroy {
   readonly inbound: Queue;
   readonly outbound: Queue;
+  readonly chatwoot: Queue<ChatwootJob>;
 
   constructor(@Inject(ENV) env: Env) {
     const connection = queueConnection(env);
@@ -33,10 +38,17 @@ export class Queues implements OnModuleDestroy {
       // Backoff exponencial desde 4 s (4, 8, 16, 32 s…): respeta el límite por usuario de Meta (131056)
       defaultJobOptions: { ...defaults, attempts: env.WHATSAPP_SEND_MAX_ATTEMPTS, backoff: { type: 'exponential', delay: 4_000 } },
     });
+    this.chatwoot = new Queue<ChatwootJob>(QUEUE.CHATWOOT_SYNC, { connection, prefix: env.QUEUE_PREFIX, defaultJobOptions: { ...defaults, attempts: 10, backoff: { type: 'exponential', delay: 3_000 } } });
+  }
+
+  /** Encola el espejo en Chatwoot; si Redis falla no se interrumpe el flujo principal */
+  async mirrorToChatwoot(tenantId: string, messageId: string, kind: ChatwootJob['kind'] = 'mirror') {
+    const jobId = kind === 'mirror' ? `mirror-${messageId}` : `status-${messageId}-${Date.now()}`;
+    await this.chatwoot.add(kind, { kind, tenantId, messageId }, { jobId }).catch(() => undefined);
   }
 
   async onModuleDestroy() {
-    await Promise.all([this.inbound.close(), this.outbound.close()]);
+    await Promise.all([this.inbound.close(), this.outbound.close(), this.chatwoot.close()]);
   }
 }
 

@@ -28,10 +28,12 @@ export type AggregateMessage = {
 
 export type MessageAvgAggregateOutputType = {
   errorCode: number | null
+  chatwootMessageId: number | null
 }
 
 export type MessageSumAggregateOutputType = {
   errorCode: number | null
+  chatwootMessageId: number | null
 }
 
 export type MessageMinAggregateOutputType = {
@@ -49,6 +51,7 @@ export type MessageMinAggregateOutputType = {
   errorMessage: string | null
   providerTimestamp: Date | null
   outboundId: string | null
+  chatwootMessageId: number | null
   createdAt: Date | null
 }
 
@@ -67,6 +70,7 @@ export type MessageMaxAggregateOutputType = {
   errorMessage: string | null
   providerTimestamp: Date | null
   outboundId: string | null
+  chatwootMessageId: number | null
   createdAt: Date | null
 }
 
@@ -85,6 +89,7 @@ export type MessageCountAggregateOutputType = {
   errorMessage: number
   providerTimestamp: number
   outboundId: number
+  chatwootMessageId: number
   createdAt: number
   _all: number
 }
@@ -92,10 +97,12 @@ export type MessageCountAggregateOutputType = {
 
 export type MessageAvgAggregateInputType = {
   errorCode?: true
+  chatwootMessageId?: true
 }
 
 export type MessageSumAggregateInputType = {
   errorCode?: true
+  chatwootMessageId?: true
 }
 
 export type MessageMinAggregateInputType = {
@@ -113,6 +120,7 @@ export type MessageMinAggregateInputType = {
   errorMessage?: true
   providerTimestamp?: true
   outboundId?: true
+  chatwootMessageId?: true
   createdAt?: true
 }
 
@@ -131,6 +139,7 @@ export type MessageMaxAggregateInputType = {
   errorMessage?: true
   providerTimestamp?: true
   outboundId?: true
+  chatwootMessageId?: true
   createdAt?: true
 }
 
@@ -149,6 +158,7 @@ export type MessageCountAggregateInputType = {
   errorMessage?: true
   providerTimestamp?: true
   outboundId?: true
+  chatwootMessageId?: true
   createdAt?: true
   _all?: true
 }
@@ -254,6 +264,7 @@ export type MessageGroupByOutputType = {
   errorMessage: string | null
   providerTimestamp: Date | null
   outboundId: string | null
+  chatwootMessageId: number | null
   createdAt: Date
   _count: MessageCountAggregateOutputType | null
   _avg: MessageAvgAggregateOutputType | null
@@ -295,6 +306,7 @@ export type MessageWhereInput = {
   errorMessage?: Prisma.StringNullableFilter<"Message"> | string | null
   providerTimestamp?: Prisma.DateTimeNullableFilter<"Message"> | Date | string | null
   outboundId?: Prisma.UuidNullableFilter<"Message"> | string | null
+  chatwootMessageId?: Prisma.IntNullableFilter<"Message"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Message"> | Date | string
   conversation?: Prisma.XOR<Prisma.ConversationScalarRelationFilter, Prisma.ConversationWhereInput>
 }
@@ -314,6 +326,7 @@ export type MessageOrderByWithRelationInput = {
   errorMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   providerTimestamp?: Prisma.SortOrderInput | Prisma.SortOrder
   outboundId?: Prisma.SortOrderInput | Prisma.SortOrder
+  chatwootMessageId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   conversation?: Prisma.ConversationOrderByWithRelationInput
 }
@@ -322,6 +335,7 @@ export type MessageWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   outboundId?: string
   tenantId_providerMessageId?: Prisma.MessageTenantIdProviderMessageIdCompoundUniqueInput
+  tenantId_chatwootMessageId?: Prisma.MessageTenantIdChatwootMessageIdCompoundUniqueInput
   AND?: Prisma.MessageWhereInput | Prisma.MessageWhereInput[]
   OR?: Prisma.MessageWhereInput[]
   NOT?: Prisma.MessageWhereInput | Prisma.MessageWhereInput[]
@@ -337,9 +351,10 @@ export type MessageWhereUniqueInput = Prisma.AtLeast<{
   errorCode?: Prisma.IntNullableFilter<"Message"> | number | null
   errorMessage?: Prisma.StringNullableFilter<"Message"> | string | null
   providerTimestamp?: Prisma.DateTimeNullableFilter<"Message"> | Date | string | null
+  chatwootMessageId?: Prisma.IntNullableFilter<"Message"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Message"> | Date | string
   conversation?: Prisma.XOR<Prisma.ConversationScalarRelationFilter, Prisma.ConversationWhereInput>
-}, "id" | "outboundId" | "tenantId_providerMessageId">
+}, "id" | "outboundId" | "tenantId_providerMessageId" | "tenantId_chatwootMessageId">
 
 export type MessageOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -356,6 +371,7 @@ export type MessageOrderByWithAggregationInput = {
   errorMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   providerTimestamp?: Prisma.SortOrderInput | Prisma.SortOrder
   outboundId?: Prisma.SortOrderInput | Prisma.SortOrder
+  chatwootMessageId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.MessageCountOrderByAggregateInput
   _avg?: Prisma.MessageAvgOrderByAggregateInput
@@ -382,6 +398,7 @@ export type MessageScalarWhereWithAggregatesInput = {
   errorMessage?: Prisma.StringNullableWithAggregatesFilter<"Message"> | string | null
   providerTimestamp?: Prisma.DateTimeNullableWithAggregatesFilter<"Message"> | Date | string | null
   outboundId?: Prisma.UuidNullableWithAggregatesFilter<"Message"> | string | null
+  chatwootMessageId?: Prisma.IntNullableWithAggregatesFilter<"Message"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Message"> | Date | string
 }
 
@@ -399,6 +416,7 @@ export type MessageCreateInput = {
   errorMessage?: string | null
   providerTimestamp?: Date | string | null
   outboundId?: string | null
+  chatwootMessageId?: number | null
   createdAt?: Date | string
   conversation: Prisma.ConversationCreateNestedOneWithoutMessagesInput
 }
@@ -418,6 +436,7 @@ export type MessageUncheckedCreateInput = {
   errorMessage?: string | null
   providerTimestamp?: Date | string | null
   outboundId?: string | null
+  chatwootMessageId?: number | null
   createdAt?: Date | string
 }
 
@@ -435,6 +454,7 @@ export type MessageUpdateInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   providerTimestamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outboundId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatwootMessageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   conversation?: Prisma.ConversationUpdateOneRequiredWithoutMessagesNestedInput
 }
@@ -454,6 +474,7 @@ export type MessageUncheckedUpdateInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   providerTimestamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outboundId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatwootMessageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -472,6 +493,7 @@ export type MessageCreateManyInput = {
   errorMessage?: string | null
   providerTimestamp?: Date | string | null
   outboundId?: string | null
+  chatwootMessageId?: number | null
   createdAt?: Date | string
 }
 
@@ -489,6 +511,7 @@ export type MessageUpdateManyMutationInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   providerTimestamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outboundId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatwootMessageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -507,6 +530,7 @@ export type MessageUncheckedUpdateManyInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   providerTimestamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outboundId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatwootMessageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -525,6 +549,11 @@ export type MessageTenantIdProviderMessageIdCompoundUniqueInput = {
   providerMessageId: string
 }
 
+export type MessageTenantIdChatwootMessageIdCompoundUniqueInput = {
+  tenantId: string
+  chatwootMessageId: number
+}
+
 export type MessageCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
@@ -540,11 +569,13 @@ export type MessageCountOrderByAggregateInput = {
   errorMessage?: Prisma.SortOrder
   providerTimestamp?: Prisma.SortOrder
   outboundId?: Prisma.SortOrder
+  chatwootMessageId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type MessageAvgOrderByAggregateInput = {
   errorCode?: Prisma.SortOrder
+  chatwootMessageId?: Prisma.SortOrder
 }
 
 export type MessageMaxOrderByAggregateInput = {
@@ -562,6 +593,7 @@ export type MessageMaxOrderByAggregateInput = {
   errorMessage?: Prisma.SortOrder
   providerTimestamp?: Prisma.SortOrder
   outboundId?: Prisma.SortOrder
+  chatwootMessageId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -580,11 +612,13 @@ export type MessageMinOrderByAggregateInput = {
   errorMessage?: Prisma.SortOrder
   providerTimestamp?: Prisma.SortOrder
   outboundId?: Prisma.SortOrder
+  chatwootMessageId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type MessageSumOrderByAggregateInput = {
   errorCode?: Prisma.SortOrder
+  chatwootMessageId?: Prisma.SortOrder
 }
 
 export type MessageCreateNestedManyWithoutConversationInput = {
@@ -651,6 +685,7 @@ export type MessageCreateWithoutConversationInput = {
   errorMessage?: string | null
   providerTimestamp?: Date | string | null
   outboundId?: string | null
+  chatwootMessageId?: number | null
   createdAt?: Date | string
 }
 
@@ -668,6 +703,7 @@ export type MessageUncheckedCreateWithoutConversationInput = {
   errorMessage?: string | null
   providerTimestamp?: Date | string | null
   outboundId?: string | null
+  chatwootMessageId?: number | null
   createdAt?: Date | string
 }
 
@@ -715,6 +751,7 @@ export type MessageScalarWhereInput = {
   errorMessage?: Prisma.StringNullableFilter<"Message"> | string | null
   providerTimestamp?: Prisma.DateTimeNullableFilter<"Message"> | Date | string | null
   outboundId?: Prisma.UuidNullableFilter<"Message"> | string | null
+  chatwootMessageId?: Prisma.IntNullableFilter<"Message"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Message"> | Date | string
 }
 
@@ -732,6 +769,7 @@ export type MessageCreateManyConversationInput = {
   errorMessage?: string | null
   providerTimestamp?: Date | string | null
   outboundId?: string | null
+  chatwootMessageId?: number | null
   createdAt?: Date | string
 }
 
@@ -749,6 +787,7 @@ export type MessageUpdateWithoutConversationInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   providerTimestamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outboundId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatwootMessageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -766,6 +805,7 @@ export type MessageUncheckedUpdateWithoutConversationInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   providerTimestamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outboundId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatwootMessageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -783,6 +823,7 @@ export type MessageUncheckedUpdateManyWithoutConversationInput = {
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   providerTimestamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   outboundId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatwootMessageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -803,6 +844,7 @@ export type MessageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   errorMessage?: boolean
   providerTimestamp?: boolean
   outboundId?: boolean
+  chatwootMessageId?: boolean
   createdAt?: boolean
   conversation?: boolean | Prisma.ConversationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["message"]>
@@ -822,6 +864,7 @@ export type MessageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   errorMessage?: boolean
   providerTimestamp?: boolean
   outboundId?: boolean
+  chatwootMessageId?: boolean
   createdAt?: boolean
   conversation?: boolean | Prisma.ConversationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["message"]>
@@ -841,6 +884,7 @@ export type MessageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   errorMessage?: boolean
   providerTimestamp?: boolean
   outboundId?: boolean
+  chatwootMessageId?: boolean
   createdAt?: boolean
   conversation?: boolean | Prisma.ConversationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["message"]>
@@ -860,10 +904,11 @@ export type MessageSelectScalar = {
   errorMessage?: boolean
   providerTimestamp?: boolean
   outboundId?: boolean
+  chatwootMessageId?: boolean
   createdAt?: boolean
 }
 
-export type MessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "conversationId" | "direction" | "senderType" | "senderUserId" | "type" | "content" | "providerMessageId" | "status" | "errorCode" | "errorMessage" | "providerTimestamp" | "outboundId" | "createdAt", ExtArgs["result"]["message"]>
+export type MessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "conversationId" | "direction" | "senderType" | "senderUserId" | "type" | "content" | "providerMessageId" | "status" | "errorCode" | "errorMessage" | "providerTimestamp" | "outboundId" | "chatwootMessageId" | "createdAt", ExtArgs["result"]["message"]>
 export type MessageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   conversation?: boolean | Prisma.ConversationDefaultArgs<ExtArgs>
 }
@@ -906,6 +951,10 @@ export type $MessagePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
      * Mensaje de salida que generó este registro
      */
     outboundId: string | null
+    /**
+     * Id del mensaje espejo en Chatwoot (FASE 5)
+     */
+    chatwootMessageId: number | null
     createdAt: Date
   }, ExtArgs["result"]["message"]>
   composites: {}
@@ -1345,6 +1394,7 @@ export interface MessageFieldRefs {
   readonly errorMessage: Prisma.FieldRef<"Message", 'String'>
   readonly providerTimestamp: Prisma.FieldRef<"Message", 'DateTime'>
   readonly outboundId: Prisma.FieldRef<"Message", 'String'>
+  readonly chatwootMessageId: Prisma.FieldRef<"Message", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Message", 'DateTime'>
 }
     

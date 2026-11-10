@@ -2856,6 +2856,7 @@ export const UserScalarFieldEnum = {
   failedLoginCount: 'failedLoginCount',
   lockedUntil: 'lockedUntil',
   lastLoginAt: 'lastLoginAt',
+  chatwootUserId: 'chatwootUserId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -3024,6 +3025,8 @@ export const CustomerScalarFieldEnum = {
   phone: 'phone',
   waUserId: 'waUserId',
   waProfileName: 'waProfileName',
+  chatwootContactId: 'chatwootContactId',
+  chatwootSourceId: 'chatwootSourceId',
   email: 'email',
   documentId: 'documentId',
   address: 'address',
@@ -3155,6 +3158,7 @@ export const MessageScalarFieldEnum = {
   errorMessage: 'errorMessage',
   providerTimestamp: 'providerTimestamp',
   outboundId: 'outboundId',
+  chatwootMessageId: 'chatwootMessageId',
   createdAt: 'createdAt'
 } as const
 
@@ -3245,6 +3249,7 @@ export const TenantIntegrationScalarFieldEnum = {
   config: 'config',
   secretsEnc: 'secretsEnc',
   status: 'status',
+  webhookKey: 'webhookKey',
   lastError: 'lastError',
   updatedAt: 'updatedAt'
 } as const

@@ -28,10 +28,12 @@ export type AggregateUser = {
 
 export type UserAvgAggregateOutputType = {
   failedLoginCount: number | null
+  chatwootUserId: number | null
 }
 
 export type UserSumAggregateOutputType = {
   failedLoginCount: number | null
+  chatwootUserId: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -46,6 +48,7 @@ export type UserMinAggregateOutputType = {
   failedLoginCount: number | null
   lockedUntil: Date | null
   lastLoginAt: Date | null
+  chatwootUserId: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -62,6 +65,7 @@ export type UserMaxAggregateOutputType = {
   failedLoginCount: number | null
   lockedUntil: Date | null
   lastLoginAt: Date | null
+  chatwootUserId: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -78,6 +82,7 @@ export type UserCountAggregateOutputType = {
   failedLoginCount: number
   lockedUntil: number
   lastLoginAt: number
+  chatwootUserId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -86,10 +91,12 @@ export type UserCountAggregateOutputType = {
 
 export type UserAvgAggregateInputType = {
   failedLoginCount?: true
+  chatwootUserId?: true
 }
 
 export type UserSumAggregateInputType = {
   failedLoginCount?: true
+  chatwootUserId?: true
 }
 
 export type UserMinAggregateInputType = {
@@ -104,6 +111,7 @@ export type UserMinAggregateInputType = {
   failedLoginCount?: true
   lockedUntil?: true
   lastLoginAt?: true
+  chatwootUserId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -120,6 +128,7 @@ export type UserMaxAggregateInputType = {
   failedLoginCount?: true
   lockedUntil?: true
   lastLoginAt?: true
+  chatwootUserId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -136,6 +145,7 @@ export type UserCountAggregateInputType = {
   failedLoginCount?: true
   lockedUntil?: true
   lastLoginAt?: true
+  chatwootUserId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -239,6 +249,7 @@ export type UserGroupByOutputType = {
   failedLoginCount: number
   lockedUntil: Date | null
   lastLoginAt: Date | null
+  chatwootUserId: number | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -278,6 +289,7 @@ export type UserWhereInput = {
   failedLoginCount?: Prisma.IntFilter<"User"> | number
   lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  chatwootUserId?: Prisma.IntNullableFilter<"User"> | number | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantNullableScalarRelationFilter, Prisma.TenantWhereInput> | null
@@ -297,6 +309,7 @@ export type UserOrderByWithRelationInput = {
   failedLoginCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  chatwootUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
@@ -319,6 +332,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   failedLoginCount?: Prisma.IntFilter<"User"> | number
   lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  chatwootUserId?: Prisma.IntNullableFilter<"User"> | number | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantNullableScalarRelationFilter, Prisma.TenantWhereInput> | null
@@ -338,6 +352,7 @@ export type UserOrderByWithAggregationInput = {
   failedLoginCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  chatwootUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -362,6 +377,7 @@ export type UserScalarWhereWithAggregatesInput = {
   failedLoginCount?: Prisma.IntWithAggregatesFilter<"User"> | number
   lockedUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   lastLoginAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  chatwootUserId?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -377,6 +393,7 @@ export type UserCreateInput = {
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
+  chatwootUserId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
@@ -396,6 +413,7 @@ export type UserUncheckedCreateInput = {
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
+  chatwootUserId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
@@ -413,6 +431,7 @@ export type UserUpdateInput = {
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  chatwootUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
@@ -432,6 +451,7 @@ export type UserUncheckedUpdateInput = {
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  chatwootUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
@@ -450,6 +470,7 @@ export type UserCreateManyInput = {
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
+  chatwootUserId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -465,6 +486,7 @@ export type UserUpdateManyMutationInput = {
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  chatwootUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -481,6 +503,7 @@ export type UserUncheckedUpdateManyInput = {
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  chatwootUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -507,12 +530,14 @@ export type UserCountOrderByAggregateInput = {
   failedLoginCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
+  chatwootUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type UserAvgOrderByAggregateInput = {
   failedLoginCount?: Prisma.SortOrder
+  chatwootUserId?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -527,6 +552,7 @@ export type UserMaxOrderByAggregateInput = {
   failedLoginCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
+  chatwootUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -543,12 +569,14 @@ export type UserMinOrderByAggregateInput = {
   failedLoginCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
+  chatwootUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type UserSumOrderByAggregateInput = {
   failedLoginCount?: Prisma.SortOrder
+  chatwootUserId?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -606,6 +634,14 @@ export type EnumUserStatusFieldUpdateOperationsInput = {
   set?: $Enums.UserStatus
 }
 
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type UserCreateNestedOneWithoutSessionsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutSessionsInput, Prisma.UserUncheckedCreateWithoutSessionsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutSessionsInput
@@ -645,6 +681,7 @@ export type UserCreateWithoutTenantInput = {
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
+  chatwootUserId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
@@ -662,6 +699,7 @@ export type UserUncheckedCreateWithoutTenantInput = {
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
+  chatwootUserId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
@@ -709,6 +747,7 @@ export type UserScalarWhereInput = {
   failedLoginCount?: Prisma.IntFilter<"User"> | number
   lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  chatwootUserId?: Prisma.IntNullableFilter<"User"> | number | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
 }
@@ -724,6 +763,7 @@ export type UserCreateWithoutSessionsInput = {
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
+  chatwootUserId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
@@ -742,6 +782,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
+  chatwootUserId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
@@ -774,6 +815,7 @@ export type UserUpdateWithoutSessionsInput = {
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  chatwootUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
@@ -792,6 +834,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  chatwootUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -808,6 +851,7 @@ export type UserCreateWithoutAuthTokensInput = {
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
+  chatwootUserId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant?: Prisma.TenantCreateNestedOneWithoutUsersInput
@@ -826,6 +870,7 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
+  chatwootUserId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
@@ -858,6 +903,7 @@ export type UserUpdateWithoutAuthTokensInput = {
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  chatwootUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneWithoutUsersNestedInput
@@ -876,6 +922,7 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  chatwootUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
@@ -892,6 +939,7 @@ export type UserCreateManyTenantInput = {
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   lastLoginAt?: Date | string | null
+  chatwootUserId?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -907,6 +955,7 @@ export type UserUpdateWithoutTenantInput = {
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  chatwootUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
@@ -924,6 +973,7 @@ export type UserUncheckedUpdateWithoutTenantInput = {
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  chatwootUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
@@ -941,6 +991,7 @@ export type UserUncheckedUpdateManyWithoutTenantInput = {
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  chatwootUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -997,6 +1048,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   failedLoginCount?: boolean
   lockedUntil?: boolean
   lastLoginAt?: boolean
+  chatwootUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.User$tenantArgs<ExtArgs>
@@ -1017,6 +1069,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   failedLoginCount?: boolean
   lockedUntil?: boolean
   lastLoginAt?: boolean
+  chatwootUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.User$tenantArgs<ExtArgs>
@@ -1034,6 +1087,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   failedLoginCount?: boolean
   lockedUntil?: boolean
   lastLoginAt?: boolean
+  chatwootUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.User$tenantArgs<ExtArgs>
@@ -1051,11 +1105,12 @@ export type UserSelectScalar = {
   failedLoginCount?: boolean
   lockedUntil?: boolean
   lastLoginAt?: boolean
+  chatwootUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "email" | "name" | "passwordHash" | "role" | "status" | "emailVerifiedAt" | "failedLoginCount" | "lockedUntil" | "lastLoginAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "email" | "name" | "passwordHash" | "role" | "status" | "emailVerifiedAt" | "failedLoginCount" | "lockedUntil" | "lastLoginAt" | "chatwootUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.User$tenantArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
@@ -1094,6 +1149,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     failedLoginCount: number
     lockedUntil: Date | null
     lastLoginAt: Date | null
+    /**
+     * Usuario agente en Chatwoot (inicio de sesión único desde el panel)
+     */
+    chatwootUserId: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1533,6 +1592,7 @@ export interface UserFieldRefs {
   readonly failedLoginCount: Prisma.FieldRef<"User", 'Int'>
   readonly lockedUntil: Prisma.FieldRef<"User", 'DateTime'>
   readonly lastLoginAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly chatwootUserId: Prisma.FieldRef<"User", 'Int'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }

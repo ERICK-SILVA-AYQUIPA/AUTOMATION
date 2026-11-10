@@ -9,6 +9,7 @@ import { dateTime } from '@/lib/format';
 import { Badge, Button, Card, Dialog, EmptyState, ErrorBox, Field, Input, Loading, PageHeader } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
 import { RequirePermission } from '@/components/guard';
+import { ChatwootCard } from '@/components/chatwoot';
 
 interface WaNumber {
   id: string; provider: 'CLOUD_API' | 'EVOLUTION'; label: string | null; displayPhone: string | null; phoneNumberId: string | null; wabaId: string | null;
@@ -259,7 +260,7 @@ function Integrations() {
     <>
       <PageHeader
         title="Integraciones"
-        description="Conecta los números de WhatsApp de tu negocio mediante la API oficial de WhatsApp Cloud (Meta)."
+        description="Conecta los números de WhatsApp de tu negocio (API oficial de WhatsApp Cloud de Meta) y la bandeja de agentes."
         actions={<Button icon={<Plus className="size-4" />} onClick={() => setDlg({ kind: 'new' })}>Conectar número</Button>}
       />
       {list.isLoading ? <Loading /> : list.error ? <ErrorBox error={list.error} /> : !list.data?.length ? (
@@ -278,6 +279,9 @@ function Integrations() {
           ))}
         </div>
       )}
+
+      <h2 className="mb-3 mt-8 text-sm font-semibold uppercase tracking-wide text-muted">Atención humana</h2>
+      <ChatwootCard />
 
       {dlg?.kind === 'new' && (
         <NewNumberDialog

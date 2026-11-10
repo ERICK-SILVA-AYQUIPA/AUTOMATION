@@ -43,7 +43,13 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
 - [ ] Prueba con un número de prueba real de Meta (requiere tus credenciales; guía en `docs/integrations/whatsapp-cloud-api.md`)
 
 ## FASE 5: Chatwoot
-- [ ] Provisión de Account/inbox API por empresa, espejo de mensajes, webhooks, pausa/reanudación del bot
+- [x] Cuenta, usuario técnico y buzón API por empresa desde Integraciones (Platform API), reanudable si falla a mitad
+- [x] Copia de mensajes y estados de WhatsApp a Chatwoot (cola `chatwoot-sync`)
+- [x] Respuestas de agentes en Chatwoot salen por WhatsApp (webhook firmado, sin duplicados, error visible fuera de 24 h)
+- [x] Pausa/reactivación del asistente según lo que haga el agente; aviso "Atención humana" en el panel
+- [x] "Abrir en Chatwoot" con acceso único; retirada de acceso al desactivar o cambiar el rol
+- [x] Cierre del asistente de instalación de Chatwoot (`setup-platform.sh`)
+- [ ] Adjuntos reales (FASE 7) y publicación segura de Chatwoot por HTTPS (FASE 8)
 
 ## FASE 6: Dify + IA
 - [ ] App de Dify (interpretación + redacción), herramientas seguras en backend, validación de salida

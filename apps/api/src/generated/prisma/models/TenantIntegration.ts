@@ -30,6 +30,7 @@ export type TenantIntegrationMinAggregateOutputType = {
   type: $Enums.IntegrationType | null
   secretsEnc: string | null
   status: $Enums.ConnectionStatus | null
+  webhookKey: string | null
   lastError: string | null
   updatedAt: Date | null
 }
@@ -40,6 +41,7 @@ export type TenantIntegrationMaxAggregateOutputType = {
   type: $Enums.IntegrationType | null
   secretsEnc: string | null
   status: $Enums.ConnectionStatus | null
+  webhookKey: string | null
   lastError: string | null
   updatedAt: Date | null
 }
@@ -51,6 +53,7 @@ export type TenantIntegrationCountAggregateOutputType = {
   config: number
   secretsEnc: number
   status: number
+  webhookKey: number
   lastError: number
   updatedAt: number
   _all: number
@@ -63,6 +66,7 @@ export type TenantIntegrationMinAggregateInputType = {
   type?: true
   secretsEnc?: true
   status?: true
+  webhookKey?: true
   lastError?: true
   updatedAt?: true
 }
@@ -73,6 +77,7 @@ export type TenantIntegrationMaxAggregateInputType = {
   type?: true
   secretsEnc?: true
   status?: true
+  webhookKey?: true
   lastError?: true
   updatedAt?: true
 }
@@ -84,6 +89,7 @@ export type TenantIntegrationCountAggregateInputType = {
   config?: true
   secretsEnc?: true
   status?: true
+  webhookKey?: true
   lastError?: true
   updatedAt?: true
   _all?: true
@@ -168,6 +174,7 @@ export type TenantIntegrationGroupByOutputType = {
   config: runtime.JsonValue
   secretsEnc: string | null
   status: $Enums.ConnectionStatus
+  webhookKey: string | null
   lastError: string | null
   updatedAt: Date
   _count: TenantIntegrationCountAggregateOutputType | null
@@ -200,6 +207,7 @@ export type TenantIntegrationWhereInput = {
   config?: Prisma.JsonFilter<"TenantIntegration">
   secretsEnc?: Prisma.StringNullableFilter<"TenantIntegration"> | string | null
   status?: Prisma.EnumConnectionStatusFilter<"TenantIntegration"> | $Enums.ConnectionStatus
+  webhookKey?: Prisma.StringNullableFilter<"TenantIntegration"> | string | null
   lastError?: Prisma.StringNullableFilter<"TenantIntegration"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"TenantIntegration"> | Date | string
 }
@@ -211,12 +219,14 @@ export type TenantIntegrationOrderByWithRelationInput = {
   config?: Prisma.SortOrder
   secretsEnc?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  webhookKey?: Prisma.SortOrderInput | Prisma.SortOrder
   lastError?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type TenantIntegrationWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  webhookKey?: string
   tenantId_type?: Prisma.TenantIntegrationTenantIdTypeCompoundUniqueInput
   AND?: Prisma.TenantIntegrationWhereInput | Prisma.TenantIntegrationWhereInput[]
   OR?: Prisma.TenantIntegrationWhereInput[]
@@ -228,7 +238,7 @@ export type TenantIntegrationWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumConnectionStatusFilter<"TenantIntegration"> | $Enums.ConnectionStatus
   lastError?: Prisma.StringNullableFilter<"TenantIntegration"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"TenantIntegration"> | Date | string
-}, "id" | "tenantId_type">
+}, "id" | "webhookKey" | "tenantId_type">
 
 export type TenantIntegrationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -237,6 +247,7 @@ export type TenantIntegrationOrderByWithAggregationInput = {
   config?: Prisma.SortOrder
   secretsEnc?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  webhookKey?: Prisma.SortOrderInput | Prisma.SortOrder
   lastError?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TenantIntegrationCountOrderByAggregateInput
@@ -254,6 +265,7 @@ export type TenantIntegrationScalarWhereWithAggregatesInput = {
   config?: Prisma.JsonWithAggregatesFilter<"TenantIntegration">
   secretsEnc?: Prisma.StringNullableWithAggregatesFilter<"TenantIntegration"> | string | null
   status?: Prisma.EnumConnectionStatusWithAggregatesFilter<"TenantIntegration"> | $Enums.ConnectionStatus
+  webhookKey?: Prisma.StringNullableWithAggregatesFilter<"TenantIntegration"> | string | null
   lastError?: Prisma.StringNullableWithAggregatesFilter<"TenantIntegration"> | string | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"TenantIntegration"> | Date | string
 }
@@ -265,6 +277,7 @@ export type TenantIntegrationCreateInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   secretsEnc?: string | null
   status?: $Enums.ConnectionStatus
+  webhookKey?: string | null
   lastError?: string | null
   updatedAt?: Date | string
 }
@@ -276,6 +289,7 @@ export type TenantIntegrationUncheckedCreateInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   secretsEnc?: string | null
   status?: $Enums.ConnectionStatus
+  webhookKey?: string | null
   lastError?: string | null
   updatedAt?: Date | string
 }
@@ -287,6 +301,7 @@ export type TenantIntegrationUpdateInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   secretsEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConnectionStatusFieldUpdateOperationsInput | $Enums.ConnectionStatus
+  webhookKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -298,6 +313,7 @@ export type TenantIntegrationUncheckedUpdateInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   secretsEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConnectionStatusFieldUpdateOperationsInput | $Enums.ConnectionStatus
+  webhookKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -309,6 +325,7 @@ export type TenantIntegrationCreateManyInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   secretsEnc?: string | null
   status?: $Enums.ConnectionStatus
+  webhookKey?: string | null
   lastError?: string | null
   updatedAt?: Date | string
 }
@@ -320,6 +337,7 @@ export type TenantIntegrationUpdateManyMutationInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   secretsEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConnectionStatusFieldUpdateOperationsInput | $Enums.ConnectionStatus
+  webhookKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -331,6 +349,7 @@ export type TenantIntegrationUncheckedUpdateManyInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   secretsEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConnectionStatusFieldUpdateOperationsInput | $Enums.ConnectionStatus
+  webhookKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -347,6 +366,7 @@ export type TenantIntegrationCountOrderByAggregateInput = {
   config?: Prisma.SortOrder
   secretsEnc?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  webhookKey?: Prisma.SortOrder
   lastError?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -357,6 +377,7 @@ export type TenantIntegrationMaxOrderByAggregateInput = {
   type?: Prisma.SortOrder
   secretsEnc?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  webhookKey?: Prisma.SortOrder
   lastError?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -367,6 +388,7 @@ export type TenantIntegrationMinOrderByAggregateInput = {
   type?: Prisma.SortOrder
   secretsEnc?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  webhookKey?: Prisma.SortOrder
   lastError?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -384,6 +406,7 @@ export type TenantIntegrationSelect<ExtArgs extends runtime.Types.Extensions.Int
   config?: boolean
   secretsEnc?: boolean
   status?: boolean
+  webhookKey?: boolean
   lastError?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["tenantIntegration"]>
@@ -395,6 +418,7 @@ export type TenantIntegrationSelectCreateManyAndReturn<ExtArgs extends runtime.T
   config?: boolean
   secretsEnc?: boolean
   status?: boolean
+  webhookKey?: boolean
   lastError?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["tenantIntegration"]>
@@ -406,6 +430,7 @@ export type TenantIntegrationSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   config?: boolean
   secretsEnc?: boolean
   status?: boolean
+  webhookKey?: boolean
   lastError?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["tenantIntegration"]>
@@ -417,11 +442,12 @@ export type TenantIntegrationSelectScalar = {
   config?: boolean
   secretsEnc?: boolean
   status?: boolean
+  webhookKey?: boolean
   lastError?: boolean
   updatedAt?: boolean
 }
 
-export type TenantIntegrationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "type" | "config" | "secretsEnc" | "status" | "lastError" | "updatedAt", ExtArgs["result"]["tenantIntegration"]>
+export type TenantIntegrationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "type" | "config" | "secretsEnc" | "status" | "webhookKey" | "lastError" | "updatedAt", ExtArgs["result"]["tenantIntegration"]>
 
 export type $TenantIntegrationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "TenantIntegration"
@@ -439,6 +465,10 @@ export type $TenantIntegrationPayload<ExtArgs extends runtime.Types.Extensions.I
      */
     secretsEnc: string | null
     status: $Enums.ConnectionStatus
+    /**
+     * Clave de la URL de webhook (Chatwoot): /webhooks/chatwoot/<clave>
+     */
+    webhookKey: string | null
     lastError: string | null
     updatedAt: Date
   }, ExtArgs["result"]["tenantIntegration"]>
@@ -870,6 +900,7 @@ export interface TenantIntegrationFieldRefs {
   readonly config: Prisma.FieldRef<"TenantIntegration", 'Json'>
   readonly secretsEnc: Prisma.FieldRef<"TenantIntegration", 'String'>
   readonly status: Prisma.FieldRef<"TenantIntegration", 'ConnectionStatus'>
+  readonly webhookKey: Prisma.FieldRef<"TenantIntegration", 'String'>
   readonly lastError: Prisma.FieldRef<"TenantIntegration", 'String'>
   readonly updatedAt: Prisma.FieldRef<"TenantIntegration", 'DateTime'>
 }

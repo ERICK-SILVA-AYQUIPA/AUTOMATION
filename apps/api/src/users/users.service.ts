@@ -7,6 +7,7 @@ import { AuthTokenType } from '../generated/prisma/enums.js';
 import { assertWithinLimit, getPlanLimits } from '../plans/plan-limits.js';
 import type { TenantPrincipal } from '../common/context/principal.js';
 import type { InviteUserInput, UpdateUserInput } from './users.schemas.js';
+import { ChatwootService } from '../chatwoot/chatwoot.service.js';
 import { Inject } from '@nestjs/common';
 import { ENV, type Env } from '../config/env.js';
 
@@ -26,6 +27,7 @@ export class UsersService {
     private readonly mail: MailService,
     private readonly audit: AuditService,
     @Inject(ENV) private readonly env: Env,
+    private readonly chatwoot: ChatwootService,
   ) {}
 
   list(p: TenantPrincipal) {
@@ -83,7 +85,8 @@ export class UsersService {
     if (id === p.userId && (input.role || input.status)) {
       throw new BadRequestException('No puedes cambiar tu propio rol ni tu estado');
     }
-    return this.db.tenant(p.tenantId, async (tx) => {
+    let revokeChatwoot = false;
+    const updated = await this.db.tenant(p.tenantId, async (tx) => {
       const current = await tx.user.findFirst({ where: { id, tenantId: p.tenantId } });
       if (!current) throw new NotFoundException('Usuario no encontrado');
       if (input.status === 'ACTIVE' && current.status === 'INVITED') {
@@ -97,6 +100,7 @@ export class UsersService {
       const updated = await tx.user.update({ where: { id }, data: input, select: PUBLIC_FIELDS });
       if (input.status === 'DISABLED' || (input.role && input.role !== current.role)) {
         await tx.session.updateMany({ where: { userId: id, revokedAt: null }, data: { revokedAt: new Date() } });
+        revokeChatwoot = true;
       }
       await this.audit.inTx(tx, {
         tenantId: p.tenantId, userId: p.userId, action: 'user.updated', entityType: 'user', entityId: id,
@@ -104,5 +108,8 @@ export class UsersService {
       });
       return updated;
     });
+    // Como con las sesiones del panel: desactivar o cambiar el rol corta también el acceso a Chatwoot
+    if (revokeChatwoot) await this.chatwoot.revokeUser(p.tenantId, id);
+    return updated;
   }
 }

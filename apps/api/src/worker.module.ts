@@ -8,6 +8,7 @@ import { QueuesModule } from './queues/queues.module.js';
 import { MessagingModule } from './messaging/messaging.module.js';
 import { QueueWorkers } from './messaging/queue-workers.js';
 import { AutomationsModule } from './automations/automations.module.js';
+import { ChatwootModule } from './chatwoot/chatwoot.module.js';
 import { AutomationDispatcher } from './automations/automation-dispatcher.js';
 
 /** Proceso worker: consume las colas de WhatsApp y entrega eventos a n8n. No expone HTTP. */
@@ -29,6 +30,7 @@ import { AutomationDispatcher } from './automations/automation-dispatcher.js';
     QueuesModule,
     MessagingModule,
     AutomationsModule,
+    ChatwootModule,
   ],
   providers: [QueueWorkers, AutomationDispatcher],
 })

@@ -46,6 +46,8 @@ x-chatwoot-env: &chatwoot-env
   SMTP_PORT: ${SMTP_PORT:-587}
   SMTP_USERNAME: ${SMTP_USER:-}
   SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+  # Protección SSRF de Chatwoot: por defecto no llama a IPs privadas (ver .env)
+  SAFE_FETCH_ALLOW_PRIVATE_NETWORK: ${CHATWOOT_ALLOW_PRIVATE_NETWORK:-false}
 
 services:
   # ---------------------------------------------------------------------------
@@ -173,6 +175,8 @@ services:
     environment: *chatwoot-env
     entrypoint: docker/entrypoints/rails.sh
     command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - chatwoot_storage:/app/storage
     ports:
@@ -196,6 +200,9 @@ services:
         condition: service_healthy
     environment: *chatwoot-env
     command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+    # Los webhooks los envía sidekiq
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - chatwoot_storage:/app/storage
     logging: *default-logging
