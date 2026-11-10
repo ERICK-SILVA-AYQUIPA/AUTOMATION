@@ -1,0 +1,8 @@
+# Override oficial de Compose (se copia junto al compose de Dify).
+# Dify publica el puerto de depuración de plugins en 0.0.0.0:5003; aquí se
+# limita a localhost. No se puede hacer con EXPOSE_PLUGIN_DEBUGGING_PORT porque
+# la API de Dify lo valida como número de puerto puro.
+services:
+  plugin_daemon:
+    ports: !override
+      - "127.0.0.1:5003:5003"

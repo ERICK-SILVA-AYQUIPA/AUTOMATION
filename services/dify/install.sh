@@ -53,4 +53,5 @@ EOT
   chmod 600 "$ENVF"
   echo ">> Creado $ENVF"
 fi
+cp "$HERE/docker-compose.override.yaml" "$DEST/docker/docker-compose.override.yaml"
 echo "OK: Dify $VERSION listo. Arranca con: ./services/dify/dify.sh up"
