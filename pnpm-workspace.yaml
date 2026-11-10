@@ -1,3 +1,12 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+# Solo estos paquetes pueden ejecutar scripts de instalación (revisados):
+onlyBuiltDependencies:
+  - "@prisma/engines"
+  - prisma
+  - argon2
+# @scarf/scarf es telemetría de descargas: bloqueado.
+ignoredBuiltDependencies:
+  - "@scarf/scarf"

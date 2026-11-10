@@ -11,15 +11,18 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
 - [x] `.env.example` + `setup.sh` que genera secretos aleatorios
 - [x] Scripts: up, down, healthcheck, chatwoot-init, backup, restore
 - [x] Dify: instalador del compose oficial fijado a 1.19.0
-- [~] Arranque de Dify verificado (bloqueado temporalmente por límite de Docker Hub en este entorno)
+- [~] Arranque de Dify: instalador listo; descarga de imágenes bloqueada por el límite anónimo de Docker Hub en el entorno de construcción (pendiente de verificar)
 
 ## FASE 2: backend, BD, auth, multiempresa
-- [ ] apps/api NestJS, configuración validada, logs estructurados (pino), health
-- [ ] Esquema Prisma: tenants, plans, subscriptions, users, roles, sessions, categories, products, variants, images, product_history, inventory_movements, customers, orders, order_items, conversations, messages, inbound_events, outbound_messages, whatsapp_numbers, ai_settings, automations, audit_logs, usage_counters
-- [ ] Rol de BD sin BYPASSRLS + políticas RLS + migraciones
-- [ ] Registro de empresa, login, logout, refresh, verificación de correo, recuperación de contraseña
-- [ ] RBAC y guards; rate limiting; CORS; Helmet; CSRF
-- [ ] Tests: registro, usuario, aislamiento entre empresas
+- [x] apps/api NestJS 12, configuración validada con Zod, logs estructurados (pino) con redacción de secretos, health live/ready
+- [x] Esquema Prisma (30 tablas): planes, suscripciones, uso, usuarios, sesiones, tokens, sucursales, categorías, productos, variantes, imágenes, historial, stock por sucursal, movimientos, clientes, pedidos, conversaciones, mensajes, webhooks, outbox, WhatsApp, IA, automatizaciones, integraciones, notificaciones, auditoría
+- [x] Roles de BD (propietario / ejecución sin BYPASSRLS / sistema) + 32 políticas RLS + restricciones CHECK
+- [x] Registro de empresa, login, logout, refresh rotatorio, verificación de correo, recuperación de contraseña, invitaciones, gestión de sesiones
+- [x] RBAC con guards; rate limiting; CORS; Helmet; CSRF double-submit; bloqueo por intentos
+- [x] Panel de plataforma: empresas, planes, suspensión, métricas
+- [x] Tests: 10 unitarios + 26 e2e contra PostgreSQL real (casos 1, 2 y 11)
+- [ ] Rate limiting con almacenamiento en Redis para varias instancias (FASE 8)
+- [ ] Mailpit en compose para ver correos en desarrollo (imagen no descargable en este entorno por el límite de Docker Hub)
 
 ## FASE 3: frontend
 - [ ] Next.js + Tailwind, layout con sidebar, tema claro/oscuro

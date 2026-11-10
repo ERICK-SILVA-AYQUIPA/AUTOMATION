@@ -12,3 +12,8 @@ Este documento es un análisis técnico, **no asesoramiento legal**.
 
 Dependencias npm propias: se auditan en cada fase (`pnpm licenses list`,
 `pnpm audit`) y solo se aceptan licencias permisivas (MIT, Apache-2.0, BSD, ISC).
+
+Resultado de la auditoría de dependencias de producción (2026-11-10, `pnpm audit --prod`:
+sin vulnerabilidades conocidas). Todas son MIT, ISC, Apache-2.0, BSD, 0BSD, MIT-0 o
+Unlicense, salvo `elkjs` (EPL-2.0), que llega solo a través de Prisma Studio (herramienta
+de desarrollo del CLI de Prisma) y no forma parte de la imagen de ejecución.

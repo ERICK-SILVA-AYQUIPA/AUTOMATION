@@ -12,9 +12,15 @@ Estado: `aceptada` | `pendiente` (requiere confirmación del propietario) | `ree
 | 006 | Dify con el **compose oficial** en proyecto separado | aceptada | 15+ contenedores; reescribirlo crearía deriva en cada actualización. |
 | 007 | Dify con **pgvector** en lugar de Weaviate | aceptada | Menos RAM en el Mac; imagen de Docker Hub. Mecanismo oficial (`VECTOR_STORE`, `COMPOSE_PROFILES`). |
 | 008 | Evolution con `CORS_ORIGIN="*"` | aceptada | Con lista de orígenes rechaza llamadas sin cabecera Origin (HTTP 500, comprobado). Solo uso servidor-servidor; protección real = API key + red privada. |
-| 009 | Proveedor WhatsApp: **Cloud API oficial** + Evolution como adaptador opcional | **pendiente** | Cloud API es oficial y apta para uso comercial; Evolution/Baileys conlleva riesgo de bloqueo. |
-| 010 | Orquestación del camino crítico (mensaje → IA → respuesta → pedido) en **worker propio**; n8n para flujos secundarios (notificaciones, stock bajo, alertas, reportes) | **pendiente** | Transacciones, idempotencia y tests automatizados; n8n sigue documentando y ejecutando los 7 flujos donde aporta. |
-| 011 | IA: **Dify interpreta y redacta; el backend ejecuta las herramientas** con el tenant de la sesión | **pendiente** | El modelo nunca decide el tenant ni toca la BD; cumple "Dify no es fuente de datos". |
-| 012 | Chatwoot: una Account por empresa vía Platform API, inbox de tipo **API**, solo nuestro worker envía a WhatsApp | aceptada (condicionada a 009) | Evita respuestas duplicadas bot/agente y mantiene el control del estado de atención. |
+| 009 | Proveedor WhatsApp: **Cloud API oficial** + Evolution como adaptador opcional | aceptada (2026-11-10) | Cloud API es oficial y apta para uso comercial; Evolution/Baileys conlleva riesgo de bloqueo. |
+| 010 | Orquestación del camino crítico (mensaje → IA → respuesta → pedido) en **worker propio**; n8n para flujos secundarios (notificaciones, stock bajo, alertas, reportes) | aceptada (2026-11-10) | Transacciones, idempotencia y tests automatizados; n8n sigue documentando y ejecutando los 7 flujos donde aporta. |
+| 011 | IA: **Dify interpreta y redacta; el backend ejecuta las herramientas** con el tenant de la sesión | aceptada (2026-11-10) | El modelo nunca decide el tenant ni toca la BD; cumple "Dify no es fuente de datos". |
+| 012 | Chatwoot: una Account por empresa vía Platform API, inbox de tipo **API**, solo nuestro worker envía a WhatsApp | aceptada | Evita respuestas duplicadas bot/agente y mantiene el control del estado de atención. |
 | 013 | Autenticación propia (Argon2id, JWT corto + refresh rotatorio en cookie HttpOnly) | aceptada | Sin dependencia de terceros de pago; control de sesiones y revocación. |
 | 014 | Pagos: estructura de planes/límites sin cobros reales | aceptada | Requisito explícito; proveedor (Stripe/Mercado Pago/etc.) se elige después. |
+| 015 | Tres roles de BD para la app: propietario (migra), ejecución (RLS) y sistema (BYPASSRLS acotado a login, registro, webhooks y plataforma) | aceptada | RLS sin FORCE para que las migraciones funcionen; la API nunca usa el propietario. |
+| 016 | NestJS 12 (ESM) + Vitest + oxlint, validación con Zod 4 vía `StandardSchemaValidationPipe` | aceptada | Versión estable actual de NestJS; esquemas Zod reutilizables en frontend. |
+| 017 | Prisma 7 con `@prisma/adapter-pg`; esquema en `database/schema`, migraciones en `database/migrations` | aceptada | Estructura del encargo; cliente generado en cada app. |
+| 018 | Stock por variante y sucursal (`stock_levels`) con libro de movimientos inmutable | aceptada | Permite transferencias y multi-sucursal (plan Empresarial). |
+| 019 | Login exige correo verificado; refresh token rotatorio con detección de reutilización | aceptada | Seguridad de sesiones. |
+| 020 | Base `ai_sales_test` separada para pruebas automatizadas | aceptada | Las pruebas vacían tablas; nunca tocan la base de desarrollo. |

@@ -4,8 +4,9 @@ Plataforma SaaS multiempresa de ventas y atención al cliente por WhatsApp con
 inteligencia artificial: catálogo, inventario, pedidos, clientes, bandeja humana
 y automatizaciones.
 
-> **Estado:** FASE 1 completada (infraestructura y arquitectura). El backend, el
-> frontend y las integraciones se construyen en las fases 2–8 (ver
+> **Estado:** FASE 1 (infraestructura) y FASE 2 (backend: base de datos,
+> autenticación, multiempresa con RLS) completadas y probadas. El frontend y las
+> integraciones se construyen en las fases 3–8 (ver
 > [`docs/architecture/PLAN.md`](docs/architecture/PLAN.md)). Este README solo
 > describe lo que ya existe y está probado.
 
@@ -45,6 +46,12 @@ docker compose up -d --wait postgres redis
 ./infrastructure/scripts/up.sh             # levanta todo y espera a que esté sano
 ./infrastructure/scripts/healthcheck.sh
 
+# Backend (apps/api)
+corepack enable && pnpm install
+pnpm --filter @aisa/api db:deploy      # aplica migraciones
+pnpm --filter @aisa/api db:seed        # planes + administrador general
+pnpm --filter @aisa/api start:dev      # http://localhost:4000/api/v1/health/ready
+
 # Dify (proyecto compose separado, opcional hasta FASE 6)
 ./services/dify/install.sh && ./services/dify/dify.sh up
 ```
@@ -65,6 +72,17 @@ Los perfiles activos se eligen con `COMPOSE_PROFILES` en `.env`.
 Documentadas en [`.env.example`](.env.example). Los valores `__GENERATE__` los
 sustituye `setup.sh` por secretos de 256 bits. `.env` nunca se sube al
 repositorio. Las credenciales de Meta, Dify y SMTP se rellenan en sus fases.
+
+## Pruebas
+
+```bash
+# Una vez: migraciones en la base de pruebas (la crea el init de Postgres)
+APP_DB_NAME=ai_sales_test pnpm --filter @aisa/api exec prisma migrate deploy
+pnpm --filter @aisa/api test        # unitarias
+pnpm --filter @aisa/api test:e2e    # integración contra PostgreSQL real (base ai_sales_test)
+```
+
+Endpoints documentados en [`docs/api/README.md`](docs/api/README.md).
 
 ## Copias de seguridad
 
