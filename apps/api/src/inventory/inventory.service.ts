@@ -1,3 +1,4 @@
+import { AutomationEvents } from '../automations/automation-events.service.js';
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import type { Tx } from '../database/database.service.js';
 import { MovementType } from '../generated/prisma/enums.js';
@@ -59,6 +60,8 @@ export class InsufficientStockError extends ConflictException {
  */
 @Injectable()
 export class InventoryService {
+  constructor(private readonly automations: AutomationEvents) {}
+
   async apply(tx: Tx, m: MovementInput): Promise<MovementResult> {
     if (!Number.isInteger(m.quantity) || m.quantity === 0) throw new BadRequestException('La cantidad debe ser un entero distinto de 0');
     const sign = SIGN[m.type];
@@ -119,6 +122,8 @@ export class InventoryService {
           data: { productId: variant.productId, stock: totalAfter, minStock },
         },
       });
+      // FLUJO 4: n8n avisa por correo a los administradores
+      await this.automations.emit(tx, m.tenantId, 'LOW_STOCK_ALERT', { productId: variant.productId, productName: product.name, sku: product.sku, stock: totalAfter, minStock });
     }
     return { movementId: movement.id, stockBefore: before, stockAfter: after, applied: true, lowStock };
   }

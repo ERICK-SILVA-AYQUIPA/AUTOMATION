@@ -53,6 +53,13 @@ const schema = z.object({
   /** Prefijo de las colas en Redis (las pruebas usan otro para no mezclarse) */
   QUEUE_PREFIX: z.string().regex(/^[a-z0-9-]{1,30}$/).default('aisa'),
 
+  /** n8n (services/n8n/README.md). Base de sus webhooks vista desde la API; vacío = automatizaciones desactivadas */
+  N8N_WEBHOOK_BASE_URL: z.union([z.literal(''), z.url()]).default(''),
+  /** Secreto compartido API <-> n8n (cabecera X-Internal-Token) */
+  N8N_INTERNAL_TOKEN: z.union([z.literal(''), z.string().min(32, 'mínimo 32 caracteres')]).default(''),
+  /** URL de la API vista desde el contenedor de n8n (para que n8n llame a /internal) */
+  N8N_API_BASE_URL: z.url().default('http://host.docker.internal:4000'),
+
   /** Carpeta de archivos subidos (volumen persistente en despliegue) */
   STORAGE_DIR: z.string().default('./storage'),
   TRIAL_DAYS: z.coerce.number().int().nonnegative().default(14),

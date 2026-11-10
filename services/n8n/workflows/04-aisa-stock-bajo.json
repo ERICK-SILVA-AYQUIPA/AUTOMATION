@@ -1,0 +1,152 @@
+{
+  "id": "aisaFlujo04Stock",
+  "name": "04 · Stock bajo",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "id": "72998937-9e21-5ffd-9053-67ceb3a0f7c5",
+      "name": "Nota",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        -220
+      ],
+      "parameters": {
+        "content": "## FLUJO 4 · Stock bajo\nMovimiento de inventario → el backend comprueba el stock mínimo (solo al CRUZAR el umbral) → evento → este flujo → correo a los administradores.\nn8n no lee ni modifica el inventario.",
+        "height": 200,
+        "width": 720
+      }
+    },
+    {
+      "id": "6b460d21-201c-5d45-832b-284dc3aabc7a",
+      "name": "Evento del backend",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -200,
+        80
+      ],
+      "webhookId": "5b0e5d1c-6a9f-4c42-9a43-0f6c1d0e3a04",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "aisa-stock-bajo",
+        "authentication": "headerAuth",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aisaInternalTok1",
+          "name": "AISA token interno"
+        }
+      }
+    },
+    {
+      "id": "00c568b0-c6f1-5977-9229-cbadf9755d09",
+      "name": "Armar aviso",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        60,
+        80
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "eventId",
+              "value": "={{ $json.body.eventId }}",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "callbackUrl",
+              "value": "={{ $json.body.callbackUrl }}",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "subject",
+              "value": "=Stock bajo: {{ $json.body.payload.productName }} ({{ $json.body.payload.stock }} uds.)",
+              "type": "string"
+            },
+            {
+              "id": "a4",
+              "name": "text",
+              "value": "=El producto {{ $json.body.payload.productName }} (SKU {{ $json.body.payload.sku }}) bajó a {{ $json.body.payload.stock }} unidades. El mínimo configurado es {{ $json.body.payload.minStock }}.\n\nRevisa el inventario y programa la reposición.\n\n—\nEmpresa: {{ $json.body.tenantName }}\nEvento: {{ $json.body.eventId }} ({{ $json.body.occurredAt }})\nMensaje automático de AI Sales Assistant.",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      }
+    },
+    {
+      "id": "552c2876-29d3-5e90-8d1f-d579523d19e3",
+      "name": "Avisar a administradores",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        320,
+        80
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.callbackUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ eventId: $json.eventId, subject: $json.subject, text: $json.text }) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aisaInternalTok1",
+          "name": "AISA token interno"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Evento del backend": {
+      "main": [
+        [
+          {
+            "node": "Armar aviso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar aviso": {
+      "main": [
+        [
+          {
+            "node": "Avisar a administradores",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "all"
+  },
+  "pinData": {},
+  "tags": []
+}

@@ -78,6 +78,7 @@ export const ModelName = {
   OutboundMessage: 'OutboundMessage',
   AiSettings: 'AiSettings',
   Automation: 'Automation',
+  AutomationEvent: 'AutomationEvent',
   TenantIntegration: 'TenantIntegration',
   Notification: 'Notification',
   AuditLog: 'AuditLog'
@@ -538,6 +539,23 @@ export const AutomationScalarFieldEnum = {
 } as const
 
 export type AutomationScalarFieldEnum = (typeof AutomationScalarFieldEnum)[keyof typeof AutomationScalarFieldEnum]
+
+
+export const AutomationEventScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  key: 'key',
+  payload: 'payload',
+  status: 'status',
+  attempts: 'attempts',
+  nextAttemptAt: 'nextAttemptAt',
+  lastError: 'lastError',
+  sentAt: 'sentAt',
+  notifiedAt: 'notifiedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type AutomationEventScalarFieldEnum = (typeof AutomationEventScalarFieldEnum)[keyof typeof AutomationEventScalarFieldEnum]
 
 
 export const TenantIntegrationScalarFieldEnum = {

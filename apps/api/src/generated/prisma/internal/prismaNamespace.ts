@@ -424,6 +424,7 @@ export const ModelName = {
   OutboundMessage: 'OutboundMessage',
   AiSettings: 'AiSettings',
   Automation: 'Automation',
+  AutomationEvent: 'AutomationEvent',
   TenantIntegration: 'TenantIntegration',
   Notification: 'Notification',
   AuditLog: 'AuditLog'
@@ -442,7 +443,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "plan" | "tenant" | "subscription" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "automation" | "tenantIntegration" | "notification" | "auditLog"
+    modelProps: "plan" | "tenant" | "subscription" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2444,6 +2445,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AutomationEvent: {
+      payload: Prisma.$AutomationEventPayload<ExtArgs>
+      fields: Prisma.AutomationEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AutomationEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutomationEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AutomationEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutomationEventPayload>
+        }
+        findFirst: {
+          args: Prisma.AutomationEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutomationEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AutomationEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutomationEventPayload>
+        }
+        findMany: {
+          args: Prisma.AutomationEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutomationEventPayload>[]
+        }
+        create: {
+          args: Prisma.AutomationEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutomationEventPayload>
+        }
+        createMany: {
+          args: Prisma.AutomationEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AutomationEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutomationEventPayload>[]
+        }
+        delete: {
+          args: Prisma.AutomationEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutomationEventPayload>
+        }
+        update: {
+          args: Prisma.AutomationEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutomationEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.AutomationEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AutomationEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AutomationEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutomationEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.AutomationEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutomationEventPayload>
+        }
+        aggregate: {
+          args: Prisma.AutomationEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAutomationEvent>
+        }
+        groupBy: {
+          args: Prisma.AutomationEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AutomationEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AutomationEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AutomationEventCountAggregateOutputType> | number
+        }
+      }
+    }
     TenantIntegration: {
       payload: Prisma.$TenantIntegrationPayload<ExtArgs>
       fields: Prisma.TenantIntegrationFieldRefs
@@ -3146,6 +3221,23 @@ export const AutomationScalarFieldEnum = {
 export type AutomationScalarFieldEnum = (typeof AutomationScalarFieldEnum)[keyof typeof AutomationScalarFieldEnum]
 
 
+export const AutomationEventScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  key: 'key',
+  payload: 'payload',
+  status: 'status',
+  attempts: 'attempts',
+  nextAttemptAt: 'nextAttemptAt',
+  lastError: 'lastError',
+  sentAt: 'sentAt',
+  notifiedAt: 'notifiedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type AutomationEventScalarFieldEnum = (typeof AutomationEventScalarFieldEnum)[keyof typeof AutomationEventScalarFieldEnum]
+
+
 export const TenantIntegrationScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
@@ -3581,6 +3673,20 @@ export type ListEnumAutomationKeyFieldRefInput<$PrismaModel> = FieldRefInputType
 
 
 /**
+ * Reference to a field of type 'AutomationEventStatus'
+ */
+export type EnumAutomationEventStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AutomationEventStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'AutomationEventStatus[]'
+ */
+export type ListEnumAutomationEventStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AutomationEventStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'IntegrationType'
  */
 export type EnumIntegrationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IntegrationType'>
@@ -3785,6 +3891,7 @@ export type GlobalOmitConfig = {
   outboundMessage?: Prisma.OutboundMessageOmit
   aiSettings?: Prisma.AiSettingsOmit
   automation?: Prisma.AutomationOmit
+  automationEvent?: Prisma.AutomationEventOmit
   tenantIntegration?: Prisma.TenantIntegrationOmit
   notification?: Prisma.NotificationOmit
   auditLog?: Prisma.AuditLogOmit

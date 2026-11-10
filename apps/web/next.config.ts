@@ -19,7 +19,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: 'standalone',
   async rewrites() {
-    return [{ source: '/api/v1/:path*', destination: `${API_INTERNAL_URL}/api/v1/:path*` }];
+    // /api/v1/internal (API para n8n) nunca se publica a través de la web
+    return [{ source: '/api/v1/:path((?!internal(?:/|$)).*)', destination: `${API_INTERNAL_URL}/api/v1/:path` }];
   },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];

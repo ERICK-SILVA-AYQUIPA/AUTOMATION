@@ -177,6 +177,13 @@ export type AiSettings = Prisma.AiSettingsModel
  */
 export type Automation = Prisma.AutomationModel
 /**
+ * Model AutomationEvent
+ * Bandeja de salida hacia n8n (patrón outbox): se escribe en la MISMA transacción
+ * que el cambio de negocio y el worker la entrega con reintentos. n8n responde
+ * llamando a /internal/notify, que es idempotente por id de evento.
+ */
+export type AutomationEvent = Prisma.AutomationEventModel
+/**
  * Model TenantIntegration
  * 
  */

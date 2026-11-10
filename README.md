@@ -51,6 +51,12 @@ corepack enable && pnpm install
 pnpm --filter @aisa/api db:deploy      # aplica migraciones
 pnpm --filter @aisa/api db:seed        # planes + administrador general
 pnpm --filter @aisa/api start:dev      # http://localhost:4000/api/v1/health/ready
+pnpm --filter @aisa/api start:worker:dev  # worker: colas de WhatsApp y eventos para n8n
+# (producción: pnpm --filter @aisa/api build && start:prod + start:worker)
+
+# n8n: importa la credencial interna y los flujos 3, 4 y 7, y los publica (una vez,
+# y de nuevo tras cambiar N8N_INTERNAL_TOKEN o los flujos)
+./services/n8n/setup.sh
 
 # Panel web (apps/web): reenvía /api/v1 a la API, así web y API comparten origen
 pnpm --filter @aisa/web dev            # desarrollo: http://localhost:3000
@@ -97,7 +103,13 @@ pnpm --filter @aisa/api test:e2e    # integración contra PostgreSQL real (base 
 # Crea una empresa nueva con correo único; lee los enlaces de correo desde Mailpit.
 set -a; . ./.env; set +a
 MAILPIT_URL=http://localhost:8025 pnpm --filter @aisa/web test:e2e
+
+# WhatsApp de punta a punta en navegador: la API y el worker deben arrancar con
+# WHATSAPP_GRAPH_BASE_URL=http://127.0.0.1:4999 (el script levanta ahí un servidor
+# local que responde como la Graph API de Meta; no se conecta a Meta)
+MAILPIT_URL=http://localhost:8025 node apps/web/e2e/whatsapp.mjs
 ```
+Conectar un número real de WhatsApp: [`docs/integrations/whatsapp-cloud-api.md`](docs/integrations/whatsapp-cloud-api.md).
 La prueba de humo usa `playwright` instalado en el sistema; en la FASE 8 se
 integra como dependencia de desarrollo y en CI.
 

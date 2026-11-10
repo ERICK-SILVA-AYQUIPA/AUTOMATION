@@ -27,3 +27,8 @@ Panel web (`@aisa/web`, `pnpm licenses list --prod`, 2026-11-10): 78 MIT, 17 ISC
 - `caniuse-lite` (CC-BY-4.0): datos de compatibilidad de navegadores usados en la
   compilación; requiere solo atribución.
 - Se retiraron `react-hook-form`, `@hookform/resolvers` y `zod` del panel por no usarse.
+
+API (`@aisa/api`), dependencias nuevas de la FASE 4 (2026-11-10): `bullmq` 6.5.0 (MIT) y sus
+dependencias `ioredis` (MIT), `cron-parser` (MIT), `msgpackr` (MIT), `node-abort-controller` (MIT),
+`semver` (ISC), `tslib` (0BSD), `uuid` (MIT); `express` 5.3.0 (MIT, ya presente a través de Nest,
+declarada para leer el cuerpo sin procesar del webhook).

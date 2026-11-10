@@ -47,6 +47,38 @@ Contraseñas: mínimo 10 caracteres con letras y números; hash Argon2id.
 | PATCH | `/platform/tenants/:id/plan` | Cambio manual de plan (sin cobro) |
 | GET | `/platform/metrics` | Métricas globales |
 
+## WhatsApp (`/whatsapp/numbers`) — permiso `integrations:manage`
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/whatsapp/numbers` | Números de la empresa (nunca devuelve secretos) |
+| POST | `/whatsapp/numbers` | `{phoneNumberId, accessToken, appSecret, wabaId?, label?}`. Verifica con Meta antes de guardar; respeta `maxWhatsappNumbers` del plan |
+| PATCH | `/whatsapp/numbers/:id` | `{label?, accessToken?, appSecret?, isActive?}` |
+| GET | `/whatsapp/numbers/:id/webhook` | URL de webhook y token de verificación para Meta |
+| POST | `/whatsapp/numbers/:id/check` | Vuelve a comprobar las credenciales con Meta |
+| POST | `/whatsapp/numbers/:id/test-message` | `{to, template, language}`: envía una plantilla aprobada |
+
+## Webhook de Meta (público)
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/webhooks/whatsapp/:key` | Verificación (`hub.mode`, `hub.verify_token`, `hub.challenge`) |
+| POST | `/webhooks/whatsapp/:key` | Eventos. Exige `X-Hub-Signature-256` válida; responde `EVENT_RECEIVED` y procesa en el worker |
+
+## Conversaciones (`/conversations`)
+
+| Método | Ruta | Permiso |
+|---|---|---|
+| GET | `/conversations?status=&q=&page=&pageSize=` | `conversations:read` |
+| GET | `/conversations/:id` | `conversations:read` (últimos 500 mensajes y fin de la ventana de 24 h) |
+| POST | `/conversations/:id/messages` | `conversations:reply`. `{text, idempotencyKey}`; fuera de la ventana responde `OUTSIDE_SERVICE_WINDOW` |
+
+## API interna para n8n (`/internal`) — no se publica por la web
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | `/internal/notify` | Cabecera `X-Internal-Token` y origen en red privada. `{eventId, subject, text}`: correo a los administradores de la empresa del evento, una sola vez por evento |
+
 ## Salud
 
 `GET /health/live` (proceso vivo) y `GET /health/ready` (PostgreSQL y Redis), públicos.

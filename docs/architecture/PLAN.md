@@ -35,9 +35,12 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
 - [ ] Conversaciones, asistente IA, automatizaciones e integraciones: se muestran como "Pronto" hasta sus fases
 
 ## FASE 4: WhatsApp + n8n
-- [ ] Adaptador Cloud API (webhook verificado, envío, plantillas) y adaptador Evolution opcional
-- [ ] Flujos n8n versionados en `services/n8n/workflows`
-- [ ] Pruebas con número de prueba de Meta
+- [x] Adaptador Cloud API: números por empresa (credenciales cifradas y verificadas con Meta), webhook firmado por número, envío de texto y plantillas, estados de entrega, ventana de 24 h, BSUID
+- [x] Worker con colas BullMQ (entrada y salida) y reintentos según los códigos de Meta
+- [x] Panel: Integraciones (conectar número, datos del webhook, comprobar, prueba, desactivar) y bandeja de conversaciones con respuesta manual
+- [x] Flujos n8n versionados en `services/n8n/workflows` (3 pedido nuevo, 4 stock bajo, 7 alerta de error) con bandeja de salida y API interna; probados con el n8n real
+- [ ] Adaptador Evolution opcional (pendiente; ver reporte de la fase)
+- [ ] Prueba con un número de prueba real de Meta (requiere tus credenciales; guía en `docs/integrations/whatsapp-cloud-api.md`)
 
 ## FASE 5: Chatwoot
 - [ ] Provisión de Account/inbox API por empresa, espejo de mensajes, webhooks, pausa/reanudación del bot

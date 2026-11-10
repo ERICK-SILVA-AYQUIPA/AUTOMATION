@@ -188,6 +188,15 @@ export const AutomationKey = {
 export type AutomationKey = (typeof AutomationKey)[keyof typeof AutomationKey]
 
 
+export const AutomationEventStatus = {
+  PENDING: 'PENDING',
+  SENT: 'SENT',
+  FAILED: 'FAILED'
+} as const
+
+export type AutomationEventStatus = (typeof AutomationEventStatus)[keyof typeof AutomationEventStatus]
+
+
 export const IntegrationType = {
   CHATWOOT: 'CHATWOOT',
   DIFY: 'DIFY',

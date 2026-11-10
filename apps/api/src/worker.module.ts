@@ -7,8 +7,10 @@ import { AuditModule } from './audit/audit.module.js';
 import { QueuesModule } from './queues/queues.module.js';
 import { MessagingModule } from './messaging/messaging.module.js';
 import { QueueWorkers } from './messaging/queue-workers.js';
+import { AutomationsModule } from './automations/automations.module.js';
+import { AutomationDispatcher } from './automations/automation-dispatcher.js';
 
-/** Proceso worker: consume las colas de WhatsApp. No expone HTTP. */
+/** Proceso worker: consume las colas de WhatsApp y entrega eventos a n8n. No expone HTTP. */
 @Module({
   imports: [
     ConfigModule,
@@ -26,7 +28,8 @@ import { QueueWorkers } from './messaging/queue-workers.js';
     AuditModule,
     QueuesModule,
     MessagingModule,
+    AutomationsModule,
   ],
-  providers: [QueueWorkers],
+  providers: [QueueWorkers, AutomationDispatcher],
 })
 export class WorkerModule {}

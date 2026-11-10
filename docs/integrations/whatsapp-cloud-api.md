@@ -81,3 +81,37 @@ Fuente: .../whatsapp/support/error-codes
 
 ## Sin confirmar (no implementado aún)
 - Cuerpo exacto de "marcar como leído".
+
+## Cómo conectar un número (modo "cada empresa con su app de Meta")
+
+1. En https://developers.facebook.com crea una app de tipo **Empresa** y añade el producto **WhatsApp**.
+   Meta te da un número de prueba y permite registrar hasta 5 teléfonos de destino.
+2. En **WhatsApp → Configuración de la API** copia el **Phone number ID** (y, si quieres, el
+   **WhatsApp Business Account ID**).
+3. Crea un **usuario del sistema** en el Business Manager (Configuración del negocio → Usuarios →
+   Usuarios del sistema), asígnale la app y la cuenta de WhatsApp, y genera un token con los permisos
+   `whatsapp_business_messaging` y `whatsapp_business_management`. El token temporal de la página de
+   la API caduca en 24 h: sirve para probar, no para producción.
+4. En **Configuración de la app → Básica** copia el **App Secret**.
+5. En el panel de AI Sales Assistant: **Integraciones → Conectar número** y pega los datos.
+   Se comprueban con Meta antes de guardarse y se guardan cifrados.
+6. Se abre el diálogo **Configurar el webhook en Meta** con la URL y el token de verificación.
+   En **WhatsApp → Configuración → Webhook** pulsa *Editar*, pégalos, *Verificar y guardar* y
+   suscribe el campo `messages`.
+7. Escribe al número desde un teléfono registrado. En Integraciones verás la hora del último aviso
+   recibido y el mensaje aparecerá en **Conversaciones**.
+
+Requisitos: la URL debe ser **HTTPS pública** (`API_PUBLIC_URL`). En desarrollo usa un túnel
+(por ejemplo Cloudflare Tunnel o ngrok) hacia `http://localhost:4000` y pon su URL en `API_PUBLIC_URL`.
+El **worker** debe estar en marcha (`pnpm --filter @aisa/api start:worker`), si no los mensajes
+quedan en cola.
+
+## Qué está probado y cómo
+- Pruebas de integración (`apps/api/test/whatsapp.e2e-spec.ts`, 14 casos) contra la base real y un
+  servidor HTTP local que responde como la Graph API: firma, verificación, duplicados, BSUID,
+  aislamiento entre empresas, reintentos, errores permanentes, token caducado, ventana de 24 h.
+- Prueba en navegador (`apps/web/e2e/whatsapp.mjs`, 10 pasos): conectar número, verificación del
+  webhook, mensaje entrante firmado, respuesta desde la bandeja, estado "leído".
+- **Falta**: la prueba con Meta real, que necesita tus credenciales. Nada en el panel afirma que un
+  número esté conectado hasta que Meta acepta sus credenciales, y el aviso "último aviso de Meta"
+  solo aparece cuando llega un webhook firmado de verdad.

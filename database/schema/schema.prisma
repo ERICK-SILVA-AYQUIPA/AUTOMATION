@@ -717,6 +717,34 @@ model Automation {
   @@map("automations")
 }
 
+enum AutomationEventStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+/// Bandeja de salida hacia n8n (patrón outbox): se escribe en la MISMA transacción
+/// que el cambio de negocio y el worker la entrega con reintentos. n8n responde
+/// llamando a /internal/notify, que es idempotente por id de evento.
+model AutomationEvent {
+  id            String                @id @default(uuid(7)) @db.Uuid
+  tenantId      String                @map("tenant_id") @db.Uuid
+  key           AutomationKey
+  payload       Json
+  status        AutomationEventStatus @default(PENDING)
+  attempts      Int                   @default(0)
+  nextAttemptAt DateTime              @default(now()) @map("next_attempt_at") @db.Timestamptz(3)
+  lastError     String?               @map("last_error")
+  sentAt        DateTime?             @map("sent_at") @db.Timestamptz(3)
+  /// Primera (y única) entrega del aviso por correo pedida por n8n
+  notifiedAt    DateTime?             @map("notified_at") @db.Timestamptz(3)
+  createdAt     DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([status, nextAttemptAt])
+  @@index([tenantId, createdAt])
+  @@map("automation_events")
+}
+
 enum IntegrationType {
   CHATWOOT
   DIFY

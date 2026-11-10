@@ -14,3 +14,6 @@
 | Consumo de recursos en el Mac (Dify + Chatwoot). | Medio | Perfiles de compose; ≥16 GB RAM recomendado. |
 | Límite de descargas anónimas de Docker Hub (HTTP 429). | Bajo | Iniciar sesión con `docker login`; reintentar. Observado en este entorno. |
 | Coste del proveedor LLM. | Medio | Límites de conversaciones por plan, caché de catálogo, modelos económicos para clasificación. |
+| Envío duplicado si el worker muere justo después de que Meta acepte un mensaje y antes de guardar el `wamid`. | Bajo | La ventana es de milisegundos; BullMQ reintenta el trabajo y el mensaje podría salir dos veces. Meta no ofrece clave de idempotencia en el envío. Se registra cada intento; se revisará con métricas en la FASE 8. |
+| La cabecera `X-Forwarded-For` que llega a la web se reenvía tal cual a la API. | Medio | En producción el reverse proxy debe sobrescribirla (FASE 8). La API interna ya no pasa por la web (ADR 029). |
+| Errores de Meta en inglés dentro de los avisos por correo. | Bajo | Se muestra el texto original junto al código; la tabla de códigos está en `docs/integrations/whatsapp-cloud-api.md`. |

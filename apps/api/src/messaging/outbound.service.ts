@@ -1,3 +1,4 @@
+import { AutomationEvents } from '../automations/automation-events.service.js';
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ENV, type Env } from '../config/env.js';
 import { DatabaseService } from '../database/database.service.js';
@@ -34,6 +35,7 @@ export class OutboundService {
     private readonly db: DatabaseService,
     private readonly queues: Queues,
     private readonly cloud: CloudApiClient,
+    private readonly automations: AutomationEvents,
   ) {}
 
   async enqueueText(input: EnqueueText) {
@@ -83,6 +85,8 @@ export class OutboundService {
       await this.db.tenant(tenantId, async (tx) => {
         await tx.outboundMessage.update({ where: { id: o.id }, data: { status: 'FAILED', errorCode: code, error, attempts: { increment: 1 } } });
         await tx.message.updateMany({ where: { outboundId: o.id }, data: { status: 'failed', errorCode: code, errorMessage: error } });
+        // FLUJO 7: alerta administrativa
+        await this.automations.emit(tx, tenantId, 'ERROR_ALERT', { source: 'whatsapp.send', conversationId: o.conversationId, outboundId: o.id, code, error });
       });
     };
 
@@ -116,6 +120,7 @@ export class OutboundService {
         // Token caducado o revocado: se marca el número y se avisa a los administradores
         await this.db.tenant(tenantId, async (tx) => {
           await tx.whatsappNumber.update({ where: { id: n.id }, data: { status: 'ERROR', lastError: 'El token de acceso de Meta caducó o fue revocado' } });
+          await this.automations.emit(tx, tenantId, 'ERROR_ALERT', { source: 'whatsapp.token_expired', whatsappNumberId: n.id, displayPhone: n.displayPhone, code: 190, error: e.message });
           await tx.notification.create({ data: { tenantId, type: 'whatsapp.token_expired', title: 'WhatsApp desconectado', body: `El token de acceso del número ${n.displayPhone} ya no es válido. Actualízalo en Integraciones.`, data: { whatsappNumberId: n.id } } });
         });
       }
@@ -130,6 +135,7 @@ export class OutboundService {
       if (!o || o.status !== 'QUEUED') return;
       await tx.outboundMessage.update({ where: { id: o.id }, data: { status: 'FAILED', error } });
       await tx.message.updateMany({ where: { outboundId: o.id }, data: { status: 'failed', errorCode: o.errorCode, errorMessage: error } });
+      await this.automations.emit(tx, tenantId, 'ERROR_ALERT', { source: 'whatsapp.send', conversationId: o.conversationId, outboundId: o.id, code: o.errorCode, error });
     });
   }
 }

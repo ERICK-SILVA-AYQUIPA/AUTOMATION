@@ -21,6 +21,8 @@ import { OrdersModule } from './orders/orders.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
 import { RedisModule } from './health/redis.provider.js';
 import { QueuesModule } from './queues/queues.module.js';
+import { AutomationsModule } from './automations/automations.module.js';
+import { InternalModule } from './automations/internal.module.js';
 import { MessagingModule } from './messaging/messaging.module.js';
 import { AuthGuard } from './common/guards/auth.guard.js';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
@@ -40,7 +42,7 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
           },
           // Nunca registrar credenciales ni tokens
           redact: {
-            paths: ['req.headers.authorization', 'req.headers.cookie', 'res.headers["set-cookie"]', '*.password', '*.token', '*.refreshToken', '*.accessToken'],
+            paths: ['req.headers.authorization', 'req.headers["x-internal-token"]', 'req.headers.cookie', 'res.headers["set-cookie"]', '*.password', '*.token', '*.refreshToken', '*.accessToken'],
             censor: '[REDACTED]',
           },
           transport: env.isProd || env.NODE_ENV === 'test' ? undefined : { target: 'pino-pretty', options: { singleLine: true } },
@@ -71,6 +73,8 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
     DashboardModule,
     QueuesModule,
     MessagingModule,
+    AutomationsModule,
+    InternalModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

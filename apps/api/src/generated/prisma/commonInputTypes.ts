@@ -701,6 +701,23 @@ export type EnumAutomationKeyWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumAutomationKeyFilter<$PrismaModel>
 }
 
+export type EnumAutomationEventStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.AutomationEventStatus | Prisma.EnumAutomationEventStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AutomationEventStatus[] | Prisma.ListEnumAutomationEventStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AutomationEventStatus[] | Prisma.ListEnumAutomationEventStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAutomationEventStatusFilter<$PrismaModel> | $Enums.AutomationEventStatus
+}
+
+export type EnumAutomationEventStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AutomationEventStatus | Prisma.EnumAutomationEventStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AutomationEventStatus[] | Prisma.ListEnumAutomationEventStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AutomationEventStatus[] | Prisma.ListEnumAutomationEventStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAutomationEventStatusWithAggregatesFilter<$PrismaModel> | $Enums.AutomationEventStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAutomationEventStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAutomationEventStatusFilter<$PrismaModel>
+}
+
 export type EnumIntegrationTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.IntegrationType | Prisma.EnumIntegrationTypeFieldRefInput<$PrismaModel>
   in?: $Enums.IntegrationType[] | Prisma.ListEnumIntegrationTypeFieldRefInput<$PrismaModel>
@@ -1385,6 +1402,23 @@ export type NestedEnumAutomationKeyWithAggregatesFilter<$PrismaModel = never> = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumAutomationKeyFilter<$PrismaModel>
   _max?: Prisma.NestedEnumAutomationKeyFilter<$PrismaModel>
+}
+
+export type NestedEnumAutomationEventStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.AutomationEventStatus | Prisma.EnumAutomationEventStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AutomationEventStatus[] | Prisma.ListEnumAutomationEventStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AutomationEventStatus[] | Prisma.ListEnumAutomationEventStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAutomationEventStatusFilter<$PrismaModel> | $Enums.AutomationEventStatus
+}
+
+export type NestedEnumAutomationEventStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AutomationEventStatus | Prisma.EnumAutomationEventStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AutomationEventStatus[] | Prisma.ListEnumAutomationEventStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AutomationEventStatus[] | Prisma.ListEnumAutomationEventStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAutomationEventStatusWithAggregatesFilter<$PrismaModel> | $Enums.AutomationEventStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAutomationEventStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAutomationEventStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumIntegrationTypeFilter<$PrismaModel = never> = {

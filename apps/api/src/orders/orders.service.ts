@@ -1,3 +1,4 @@
+import { AutomationEvents } from '../automations/automation-events.service.js';
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService, type Tx } from '../database/database.service.js';
 import { InventoryService } from '../inventory/inventory.service.js';
@@ -55,6 +56,7 @@ export class OrdersService {
   constructor(
     private readonly db: DatabaseService,
     private readonly inventory: InventoryService,
+    private readonly automations: AutomationEvents,
   ) {}
 
   async create(actor: OrderActor, input: CreateOrderInput): Promise<{ order: Prisma.OrderGetPayload<{ include: typeof orderInclude }>; created: boolean }> {
@@ -90,7 +92,7 @@ export class OrdersService {
       qty.set(it.variantId, (qty.get(it.variantId) ?? 0) + it.quantity);
     }
     const tenant = await tx.tenant.findUniqueOrThrow({ where: { id: actor.tenantId }, select: { currency: true } });
-    const customer = await tx.customer.findFirst({ where: { id: input.customerId, tenantId: actor.tenantId }, select: { id: true } });
+    const customer = await tx.customer.findFirst({ where: { id: input.customerId, tenantId: actor.tenantId }, select: { id: true, name: true, waProfileName: true, phone: true } });
     if (!customer) throw new NotFoundException('Cliente no encontrado');
     const variants = await tx.productVariant.findMany({
       where: { id: { in: [...qty.keys()] }, tenantId: actor.tenantId },
@@ -122,6 +124,13 @@ export class OrdersService {
         items: { create: lines.map((l) => ({ ...l, tenantId: actor.tenantId })) },
         statusHistory: { create: { tenantId: actor.tenantId, toStatus: 'PENDING', userId: actor.userId, note: input.channel === 'WHATSAPP' ? 'Creado desde WhatsApp' : null } },
       },
+    });
+    // FLUJO 3 (notificación): n8n avisa del pedido nuevo
+    await this.automations.emit(tx, actor.tenantId, 'NEW_ORDER_NOTIFICATION', {
+      orderId: order.id, number: order.number, channel: input.channel, total: subtotal.toFixed(2), currency: tenant.currency,
+      customerName: customer.name ?? customer.waProfileName ?? (customer.phone ? `+${customer.phone}` : 'Cliente de WhatsApp'),
+      // La variante única de un producto simple no aporta nada al nombre
+      items: lines.map((l) => ({ name: l.variantName === 'Única' ? l.productName : `${l.productName} (${l.variantName})`, quantity: l.quantity })),
     });
     if (input.confirm) await this.transitionInTx(tx, actor, order.id, 'CONFIRMED', null);
     return tx.order.findUniqueOrThrow({ where: { id: order.id }, include: orderInclude });
