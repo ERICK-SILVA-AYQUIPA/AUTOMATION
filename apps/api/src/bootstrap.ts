@@ -1,6 +1,7 @@
 import { INestApplication, StandardSchemaValidationPipe, BadRequestException } from '@nestjs/common';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import cookieParser from 'cookie-parser';
+import { raw } from 'express';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 import { ENV, type Env } from './config/env.js';
@@ -15,6 +16,9 @@ export function configureApp(app: INestApplication) {
   const tp = env.TRUST_PROXY;
   express.set('trust proxy', /^\d+$/.test(tp) ? Number(tp) : tp === 'false' ? false : tp.split(',').map((x) => x.trim()));
   express.disable('x-powered-by');
+  // Webhooks: cuerpo CRUDO (Buffer) para verificar la firma HMAC sobre los bytes exactos.
+  // Se registra antes que el parser JSON de Nest, que lo omite al ver el cuerpo ya leído.
+  express.use('/api/v1/webhooks', raw({ type: () => true, limit: '3mb' }));
   app.useLogger(app.get(Logger));
   app.setGlobalPrefix('api/v1');
   app.use(helmet());

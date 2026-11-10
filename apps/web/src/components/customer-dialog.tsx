@@ -25,7 +25,8 @@ export function CustomerDialog({ open, onClose, customer, onSaved }: { open: boo
     setBusy(true);
     setError(null);
     const n = (s: string) => s.trim() || null;
-    const body = { phone: f.phone, name: n(f.name), email: n(f.email), documentId: n(f.documentId), address: n(f.address), notes: n(f.notes), tags: f.tags.split(',').map((t) => t.trim()).filter(Boolean) };
+    // Un contacto que llegó solo con su identificador de WhatsApp puede quedarse sin teléfono
+    const body = { ...(f.phone.trim() ? { phone: f.phone } : {}), name: n(f.name), email: n(f.email), documentId: n(f.documentId), address: n(f.address), notes: n(f.notes), tags: f.tags.split(',').map((t) => t.trim()).filter(Boolean) };
     try {
       const c = customer ? await api<Customer>(`/customers/${customer.id}`, { method: 'PATCH', body }) : await api<Customer>('/customers', { method: 'POST', body });
       qc.invalidateQueries({ queryKey: ['customers'] });
@@ -43,7 +44,7 @@ export function CustomerDialog({ open, onClose, customer, onSaved }: { open: boo
   return (
     <Dialog open={open} onClose={onClose} title={customer ? 'Editar cliente' : 'Nuevo cliente'} footer={<><Button variant="secondary" onClick={onClose}>Cancelar</Button><Button type="submit" form="customer-form" loading={busy}>Guardar</Button></>}>
       <form id="customer-form" onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
-        <Field label="Teléfono WhatsApp" error={errors.phone} hint="Con código de país, p. ej. 51987654321"><Input value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} required inputMode="tel" invalid={!!errors.phone} /></Field>
+        <Field label="Teléfono WhatsApp" error={errors.phone} hint={customer && !customer.phone ? 'WhatsApp no compartió su número. Puedes añadirlo si lo conoces.' : 'Con código de país, p. ej. 51987654321'}><Input value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} required={!customer || !!customer.phone} inputMode="tel" invalid={!!errors.phone} /></Field>
         <Field label="Nombre" error={errors.name}><Input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} maxLength={120} /></Field>
         <Field label="Correo" error={errors.email}><Input type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} invalid={!!errors.email} /></Field>
         <Field label="Documento (DNI/RUC)" error={errors.documentId}><Input value={f.documentId} onChange={(e) => setF({ ...f, documentId: e.target.value })} maxLength={30} /></Field>

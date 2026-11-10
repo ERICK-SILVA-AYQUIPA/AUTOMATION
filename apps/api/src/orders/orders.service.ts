@@ -38,7 +38,7 @@ export const TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 const STOCK_COMMITTED: OrderStatus[] = ['CONFIRMED', 'PREPARING', 'SHIPPED', 'DELIVERED'];
 
 export const orderInclude = {
-  customer: { select: { id: true, name: true, phone: true } },
+  customer: { select: { id: true, name: true, phone: true, waProfileName: true } },
   items: true,
   statusHistory: { orderBy: { createdAt: 'asc' } },
 } satisfies Prisma.OrderInclude;

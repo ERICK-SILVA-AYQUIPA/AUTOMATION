@@ -7,7 +7,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Plus, Search, Users } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
-import { dateTime } from '@/lib/format';
+import { dateTime, phoneLabel } from '@/lib/format';
 import type { Customer, Paged } from '@/lib/types';
 import { Badge, Button, Card, EmptyState, ErrorBox, Input, Loading, PageHeader, Pagination, Table, Td, Th } from '@/components/ui';
 import { RequirePermission } from '@/components/guard';
@@ -46,8 +46,8 @@ function Customers() {
               <tbody>
                 {list.data.items.map((c) => (
                   <tr key={c.id} className="cursor-pointer hover:bg-surface-2/60" onClick={() => router.push(`/clientes/${c.id}`)}>
-                    <Td><Link href={`/clientes/${c.id}`} onClick={(e) => e.stopPropagation()} className="font-medium hover:underline">{c.name ?? 'Sin nombre'}</Link>{c.email && <span className="block text-xs text-muted">{c.email}</span>}</Td>
-                    <Td className="tabular-nums">+{c.phone}</Td>
+                    <Td><Link href={`/clientes/${c.id}`} onClick={(e) => e.stopPropagation()} className="font-medium hover:underline">{c.name ?? c.waProfileName ?? 'Sin nombre'}</Link>{c.email && <span className="block text-xs text-muted">{c.email}</span>}</Td>
+                    <Td className="tabular-nums">{phoneLabel(c.phone)}</Td>
                     <Td><div className="flex flex-wrap gap-1">{c.tags.map((t) => <Badge key={t}>{t}</Badge>)}</div></Td>
                     <Td className="text-right tabular-nums">{c._count?.orders ?? 0}</Td>
                     <Td className="text-muted">{dateTime(c.lastContactAt)}</Td>

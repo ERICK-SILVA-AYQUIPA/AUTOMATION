@@ -7,7 +7,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Download, Plus, Search, ShoppingCart } from 'lucide-react';
 import { api, download } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
-import { dateTime, money, ORDER_STATUS } from '@/lib/format';
+import { dateTime, money, ORDER_STATUS, phoneLabel } from '@/lib/format';
 import type { Order, Paged } from '@/lib/types';
 import { Badge, Button, Card, EmptyState, ErrorBox, Input, Loading, PageHeader, Pagination, Select, Table, Td, Th } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
@@ -76,7 +76,7 @@ function Orders() {
                   <tr key={o.id} className="cursor-pointer hover:bg-surface-2/60" onClick={() => router.push(`/pedidos/${o.id}`)}>
                     <Td className="font-medium"><Link href={`/pedidos/${o.id}`} onClick={(e) => e.stopPropagation()} className="hover:underline">#{o.number}</Link></Td>
                     <Td className="whitespace-nowrap text-muted">{dateTime(o.createdAt)}</Td>
-                    <Td>{o.customer.name ?? '—'}<span className="block text-xs text-muted">+{o.customer.phone}</span></Td>
+                    <Td>{o.customer.name ?? o.customer.waProfileName ?? '—'}<span className="block text-xs text-muted">{phoneLabel(o.customer.phone)}</span></Td>
                     <Td><Badge tone={o.channel === 'WHATSAPP' ? 'success' : 'neutral'}>{o.channel === 'WHATSAPP' ? 'WhatsApp' : 'Manual'}</Badge></Td>
                     <Td className="text-right tabular-nums">{money(o.total, o.currency)}</Td>
                     <Td><Badge tone={ORDER_STATUS[o.status]?.tone}>{ORDER_STATUS[o.status]?.label ?? o.status}</Badge></Td>

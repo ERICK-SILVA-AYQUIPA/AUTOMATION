@@ -33,8 +33,11 @@ export interface Product {
   variants: Variant[]; images: { id: string; url: string; alt: string | null }[]; stock: number; lowStock: boolean;
 }
 
+/** Con el identificador de usuario de WhatsApp (BSUID) el teléfono puede no llegar */
+export interface CustomerRef { id: string; name: string | null; phone: string | null; waProfileName?: string | null }
+
 export interface Customer {
-  id: string; name: string | null; phone: string; email: string | null; documentId: string | null; address: string | null;
+  id: string; name: string | null; phone: string | null; waProfileName: string | null; email: string | null; documentId: string | null; address: string | null;
   notes: string | null; tags: string[]; source: string; lastContactAt: string | null; createdAt: string; _count?: { orders: number };
 }
 
@@ -43,7 +46,7 @@ export interface OrderItem { id: string; variantId: string; productName: string;
 export interface Order {
   id: string; number: number; status: string; channel: 'WHATSAPP' | 'MANUAL'; currency: string; subtotal: string; discount: string; total: string;
   notes: string | null; deliveryAddress: string | null; createdAt: string; confirmedAt: string | null;
-  customer: { id: string; name: string | null; phone: string }; items?: OrderItem[]; _count?: { items: number };
+  customer: CustomerRef; items?: OrderItem[]; _count?: { items: number };
   statusHistory?: { id: string; fromStatus: string | null; toStatus: string; note: string | null; createdAt: string }[];
 }
 

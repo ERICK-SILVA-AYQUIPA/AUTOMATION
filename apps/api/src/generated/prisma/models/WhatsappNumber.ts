@@ -31,6 +31,13 @@ export type WhatsappNumberMinAggregateOutputType = {
   displayPhone: string | null
   phoneNumberId: string | null
   wabaId: string | null
+  label: string | null
+  webhookKey: string | null
+  verifyTokenEnc: string | null
+  appSecretEnc: string | null
+  evolutionApiKeyEnc: string | null
+  lastWebhookAt: Date | null
+  isActive: boolean | null
   evolutionInstance: string | null
   accessTokenEnc: string | null
   status: $Enums.ConnectionStatus | null
@@ -46,6 +53,13 @@ export type WhatsappNumberMaxAggregateOutputType = {
   displayPhone: string | null
   phoneNumberId: string | null
   wabaId: string | null
+  label: string | null
+  webhookKey: string | null
+  verifyTokenEnc: string | null
+  appSecretEnc: string | null
+  evolutionApiKeyEnc: string | null
+  lastWebhookAt: Date | null
+  isActive: boolean | null
   evolutionInstance: string | null
   accessTokenEnc: string | null
   status: $Enums.ConnectionStatus | null
@@ -61,6 +75,13 @@ export type WhatsappNumberCountAggregateOutputType = {
   displayPhone: number
   phoneNumberId: number
   wabaId: number
+  label: number
+  webhookKey: number
+  verifyTokenEnc: number
+  appSecretEnc: number
+  evolutionApiKeyEnc: number
+  lastWebhookAt: number
+  isActive: number
   evolutionInstance: number
   accessTokenEnc: number
   status: number
@@ -78,6 +99,13 @@ export type WhatsappNumberMinAggregateInputType = {
   displayPhone?: true
   phoneNumberId?: true
   wabaId?: true
+  label?: true
+  webhookKey?: true
+  verifyTokenEnc?: true
+  appSecretEnc?: true
+  evolutionApiKeyEnc?: true
+  lastWebhookAt?: true
+  isActive?: true
   evolutionInstance?: true
   accessTokenEnc?: true
   status?: true
@@ -93,6 +121,13 @@ export type WhatsappNumberMaxAggregateInputType = {
   displayPhone?: true
   phoneNumberId?: true
   wabaId?: true
+  label?: true
+  webhookKey?: true
+  verifyTokenEnc?: true
+  appSecretEnc?: true
+  evolutionApiKeyEnc?: true
+  lastWebhookAt?: true
+  isActive?: true
   evolutionInstance?: true
   accessTokenEnc?: true
   status?: true
@@ -108,6 +143,13 @@ export type WhatsappNumberCountAggregateInputType = {
   displayPhone?: true
   phoneNumberId?: true
   wabaId?: true
+  label?: true
+  webhookKey?: true
+  verifyTokenEnc?: true
+  appSecretEnc?: true
+  evolutionApiKeyEnc?: true
+  lastWebhookAt?: true
+  isActive?: true
   evolutionInstance?: true
   accessTokenEnc?: true
   status?: true
@@ -196,6 +238,13 @@ export type WhatsappNumberGroupByOutputType = {
   displayPhone: string
   phoneNumberId: string | null
   wabaId: string | null
+  label: string | null
+  webhookKey: string
+  verifyTokenEnc: string | null
+  appSecretEnc: string | null
+  evolutionApiKeyEnc: string | null
+  lastWebhookAt: Date | null
+  isActive: boolean
   evolutionInstance: string | null
   accessTokenEnc: string | null
   status: $Enums.ConnectionStatus
@@ -232,6 +281,13 @@ export type WhatsappNumberWhereInput = {
   displayPhone?: Prisma.StringFilter<"WhatsappNumber"> | string
   phoneNumberId?: Prisma.StringNullableFilter<"WhatsappNumber"> | string | null
   wabaId?: Prisma.StringNullableFilter<"WhatsappNumber"> | string | null
+  label?: Prisma.StringNullableFilter<"WhatsappNumber"> | string | null
+  webhookKey?: Prisma.StringFilter<"WhatsappNumber"> | string
+  verifyTokenEnc?: Prisma.StringNullableFilter<"WhatsappNumber"> | string | null
+  appSecretEnc?: Prisma.StringNullableFilter<"WhatsappNumber"> | string | null
+  evolutionApiKeyEnc?: Prisma.StringNullableFilter<"WhatsappNumber"> | string | null
+  lastWebhookAt?: Prisma.DateTimeNullableFilter<"WhatsappNumber"> | Date | string | null
+  isActive?: Prisma.BoolFilter<"WhatsappNumber"> | boolean
   evolutionInstance?: Prisma.StringNullableFilter<"WhatsappNumber"> | string | null
   accessTokenEnc?: Prisma.StringNullableFilter<"WhatsappNumber"> | string | null
   status?: Prisma.EnumConnectionStatusFilter<"WhatsappNumber"> | $Enums.ConnectionStatus
@@ -248,6 +304,13 @@ export type WhatsappNumberOrderByWithRelationInput = {
   displayPhone?: Prisma.SortOrder
   phoneNumberId?: Prisma.SortOrderInput | Prisma.SortOrder
   wabaId?: Prisma.SortOrderInput | Prisma.SortOrder
+  label?: Prisma.SortOrderInput | Prisma.SortOrder
+  webhookKey?: Prisma.SortOrder
+  verifyTokenEnc?: Prisma.SortOrderInput | Prisma.SortOrder
+  appSecretEnc?: Prisma.SortOrderInput | Prisma.SortOrder
+  evolutionApiKeyEnc?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastWebhookAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   evolutionInstance?: Prisma.SortOrderInput | Prisma.SortOrder
   accessTokenEnc?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -260,6 +323,7 @@ export type WhatsappNumberOrderByWithRelationInput = {
 export type WhatsappNumberWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   phoneNumberId?: string
+  webhookKey?: string
   evolutionInstance?: string
   AND?: Prisma.WhatsappNumberWhereInput | Prisma.WhatsappNumberWhereInput[]
   OR?: Prisma.WhatsappNumberWhereInput[]
@@ -268,13 +332,19 @@ export type WhatsappNumberWhereUniqueInput = Prisma.AtLeast<{
   provider?: Prisma.EnumWhatsappProviderFilter<"WhatsappNumber"> | $Enums.WhatsappProvider
   displayPhone?: Prisma.StringFilter<"WhatsappNumber"> | string
   wabaId?: Prisma.StringNullableFilter<"WhatsappNumber"> | string | null
+  label?: Prisma.StringNullableFilter<"WhatsappNumber"> | string | null
+  verifyTokenEnc?: Prisma.StringNullableFilter<"WhatsappNumber"> | string | null
+  appSecretEnc?: Prisma.StringNullableFilter<"WhatsappNumber"> | string | null
+  evolutionApiKeyEnc?: Prisma.StringNullableFilter<"WhatsappNumber"> | string | null
+  lastWebhookAt?: Prisma.DateTimeNullableFilter<"WhatsappNumber"> | Date | string | null
+  isActive?: Prisma.BoolFilter<"WhatsappNumber"> | boolean
   accessTokenEnc?: Prisma.StringNullableFilter<"WhatsappNumber"> | string | null
   status?: Prisma.EnumConnectionStatusFilter<"WhatsappNumber"> | $Enums.ConnectionStatus
   lastError?: Prisma.StringNullableFilter<"WhatsappNumber"> | string | null
   createdAt?: Prisma.DateTimeFilter<"WhatsappNumber"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"WhatsappNumber"> | Date | string
   conversations?: Prisma.ConversationListRelationFilter
-}, "id" | "phoneNumberId" | "evolutionInstance">
+}, "id" | "phoneNumberId" | "webhookKey" | "evolutionInstance">
 
 export type WhatsappNumberOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -283,6 +353,13 @@ export type WhatsappNumberOrderByWithAggregationInput = {
   displayPhone?: Prisma.SortOrder
   phoneNumberId?: Prisma.SortOrderInput | Prisma.SortOrder
   wabaId?: Prisma.SortOrderInput | Prisma.SortOrder
+  label?: Prisma.SortOrderInput | Prisma.SortOrder
+  webhookKey?: Prisma.SortOrder
+  verifyTokenEnc?: Prisma.SortOrderInput | Prisma.SortOrder
+  appSecretEnc?: Prisma.SortOrderInput | Prisma.SortOrder
+  evolutionApiKeyEnc?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastWebhookAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   evolutionInstance?: Prisma.SortOrderInput | Prisma.SortOrder
   accessTokenEnc?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -304,6 +381,13 @@ export type WhatsappNumberScalarWhereWithAggregatesInput = {
   displayPhone?: Prisma.StringWithAggregatesFilter<"WhatsappNumber"> | string
   phoneNumberId?: Prisma.StringNullableWithAggregatesFilter<"WhatsappNumber"> | string | null
   wabaId?: Prisma.StringNullableWithAggregatesFilter<"WhatsappNumber"> | string | null
+  label?: Prisma.StringNullableWithAggregatesFilter<"WhatsappNumber"> | string | null
+  webhookKey?: Prisma.StringWithAggregatesFilter<"WhatsappNumber"> | string
+  verifyTokenEnc?: Prisma.StringNullableWithAggregatesFilter<"WhatsappNumber"> | string | null
+  appSecretEnc?: Prisma.StringNullableWithAggregatesFilter<"WhatsappNumber"> | string | null
+  evolutionApiKeyEnc?: Prisma.StringNullableWithAggregatesFilter<"WhatsappNumber"> | string | null
+  lastWebhookAt?: Prisma.DateTimeNullableWithAggregatesFilter<"WhatsappNumber"> | Date | string | null
+  isActive?: Prisma.BoolWithAggregatesFilter<"WhatsappNumber"> | boolean
   evolutionInstance?: Prisma.StringNullableWithAggregatesFilter<"WhatsappNumber"> | string | null
   accessTokenEnc?: Prisma.StringNullableWithAggregatesFilter<"WhatsappNumber"> | string | null
   status?: Prisma.EnumConnectionStatusWithAggregatesFilter<"WhatsappNumber"> | $Enums.ConnectionStatus
@@ -319,6 +403,13 @@ export type WhatsappNumberCreateInput = {
   displayPhone: string
   phoneNumberId?: string | null
   wabaId?: string | null
+  label?: string | null
+  webhookKey: string
+  verifyTokenEnc?: string | null
+  appSecretEnc?: string | null
+  evolutionApiKeyEnc?: string | null
+  lastWebhookAt?: Date | string | null
+  isActive?: boolean
   evolutionInstance?: string | null
   accessTokenEnc?: string | null
   status?: $Enums.ConnectionStatus
@@ -335,6 +426,13 @@ export type WhatsappNumberUncheckedCreateInput = {
   displayPhone: string
   phoneNumberId?: string | null
   wabaId?: string | null
+  label?: string | null
+  webhookKey: string
+  verifyTokenEnc?: string | null
+  appSecretEnc?: string | null
+  evolutionApiKeyEnc?: string | null
+  lastWebhookAt?: Date | string | null
+  isActive?: boolean
   evolutionInstance?: string | null
   accessTokenEnc?: string | null
   status?: $Enums.ConnectionStatus
@@ -351,6 +449,13 @@ export type WhatsappNumberUpdateInput = {
   displayPhone?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   wabaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookKey?: Prisma.StringFieldUpdateOperationsInput | string
+  verifyTokenEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evolutionApiKeyEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastWebhookAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   evolutionInstance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessTokenEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConnectionStatusFieldUpdateOperationsInput | $Enums.ConnectionStatus
@@ -367,6 +472,13 @@ export type WhatsappNumberUncheckedUpdateInput = {
   displayPhone?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   wabaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookKey?: Prisma.StringFieldUpdateOperationsInput | string
+  verifyTokenEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evolutionApiKeyEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastWebhookAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   evolutionInstance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessTokenEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConnectionStatusFieldUpdateOperationsInput | $Enums.ConnectionStatus
@@ -383,6 +495,13 @@ export type WhatsappNumberCreateManyInput = {
   displayPhone: string
   phoneNumberId?: string | null
   wabaId?: string | null
+  label?: string | null
+  webhookKey: string
+  verifyTokenEnc?: string | null
+  appSecretEnc?: string | null
+  evolutionApiKeyEnc?: string | null
+  lastWebhookAt?: Date | string | null
+  isActive?: boolean
   evolutionInstance?: string | null
   accessTokenEnc?: string | null
   status?: $Enums.ConnectionStatus
@@ -398,6 +517,13 @@ export type WhatsappNumberUpdateManyMutationInput = {
   displayPhone?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   wabaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookKey?: Prisma.StringFieldUpdateOperationsInput | string
+  verifyTokenEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evolutionApiKeyEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastWebhookAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   evolutionInstance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessTokenEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConnectionStatusFieldUpdateOperationsInput | $Enums.ConnectionStatus
@@ -413,6 +539,13 @@ export type WhatsappNumberUncheckedUpdateManyInput = {
   displayPhone?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   wabaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookKey?: Prisma.StringFieldUpdateOperationsInput | string
+  verifyTokenEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evolutionApiKeyEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastWebhookAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   evolutionInstance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessTokenEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConnectionStatusFieldUpdateOperationsInput | $Enums.ConnectionStatus
@@ -428,6 +561,13 @@ export type WhatsappNumberCountOrderByAggregateInput = {
   displayPhone?: Prisma.SortOrder
   phoneNumberId?: Prisma.SortOrder
   wabaId?: Prisma.SortOrder
+  label?: Prisma.SortOrder
+  webhookKey?: Prisma.SortOrder
+  verifyTokenEnc?: Prisma.SortOrder
+  appSecretEnc?: Prisma.SortOrder
+  evolutionApiKeyEnc?: Prisma.SortOrder
+  lastWebhookAt?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   evolutionInstance?: Prisma.SortOrder
   accessTokenEnc?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -443,6 +583,13 @@ export type WhatsappNumberMaxOrderByAggregateInput = {
   displayPhone?: Prisma.SortOrder
   phoneNumberId?: Prisma.SortOrder
   wabaId?: Prisma.SortOrder
+  label?: Prisma.SortOrder
+  webhookKey?: Prisma.SortOrder
+  verifyTokenEnc?: Prisma.SortOrder
+  appSecretEnc?: Prisma.SortOrder
+  evolutionApiKeyEnc?: Prisma.SortOrder
+  lastWebhookAt?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   evolutionInstance?: Prisma.SortOrder
   accessTokenEnc?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -458,6 +605,13 @@ export type WhatsappNumberMinOrderByAggregateInput = {
   displayPhone?: Prisma.SortOrder
   phoneNumberId?: Prisma.SortOrder
   wabaId?: Prisma.SortOrder
+  label?: Prisma.SortOrder
+  webhookKey?: Prisma.SortOrder
+  verifyTokenEnc?: Prisma.SortOrder
+  appSecretEnc?: Prisma.SortOrder
+  evolutionApiKeyEnc?: Prisma.SortOrder
+  lastWebhookAt?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   evolutionInstance?: Prisma.SortOrder
   accessTokenEnc?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -500,6 +654,13 @@ export type WhatsappNumberCreateWithoutConversationsInput = {
   displayPhone: string
   phoneNumberId?: string | null
   wabaId?: string | null
+  label?: string | null
+  webhookKey: string
+  verifyTokenEnc?: string | null
+  appSecretEnc?: string | null
+  evolutionApiKeyEnc?: string | null
+  lastWebhookAt?: Date | string | null
+  isActive?: boolean
   evolutionInstance?: string | null
   accessTokenEnc?: string | null
   status?: $Enums.ConnectionStatus
@@ -515,6 +676,13 @@ export type WhatsappNumberUncheckedCreateWithoutConversationsInput = {
   displayPhone: string
   phoneNumberId?: string | null
   wabaId?: string | null
+  label?: string | null
+  webhookKey: string
+  verifyTokenEnc?: string | null
+  appSecretEnc?: string | null
+  evolutionApiKeyEnc?: string | null
+  lastWebhookAt?: Date | string | null
+  isActive?: boolean
   evolutionInstance?: string | null
   accessTokenEnc?: string | null
   status?: $Enums.ConnectionStatus
@@ -546,6 +714,13 @@ export type WhatsappNumberUpdateWithoutConversationsInput = {
   displayPhone?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   wabaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookKey?: Prisma.StringFieldUpdateOperationsInput | string
+  verifyTokenEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evolutionApiKeyEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastWebhookAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   evolutionInstance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessTokenEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConnectionStatusFieldUpdateOperationsInput | $Enums.ConnectionStatus
@@ -561,6 +736,13 @@ export type WhatsappNumberUncheckedUpdateWithoutConversationsInput = {
   displayPhone?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   wabaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookKey?: Prisma.StringFieldUpdateOperationsInput | string
+  verifyTokenEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evolutionApiKeyEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastWebhookAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   evolutionInstance?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessTokenEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConnectionStatusFieldUpdateOperationsInput | $Enums.ConnectionStatus
@@ -607,6 +789,13 @@ export type WhatsappNumberSelect<ExtArgs extends runtime.Types.Extensions.Intern
   displayPhone?: boolean
   phoneNumberId?: boolean
   wabaId?: boolean
+  label?: boolean
+  webhookKey?: boolean
+  verifyTokenEnc?: boolean
+  appSecretEnc?: boolean
+  evolutionApiKeyEnc?: boolean
+  lastWebhookAt?: boolean
+  isActive?: boolean
   evolutionInstance?: boolean
   accessTokenEnc?: boolean
   status?: boolean
@@ -624,6 +813,13 @@ export type WhatsappNumberSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   displayPhone?: boolean
   phoneNumberId?: boolean
   wabaId?: boolean
+  label?: boolean
+  webhookKey?: boolean
+  verifyTokenEnc?: boolean
+  appSecretEnc?: boolean
+  evolutionApiKeyEnc?: boolean
+  lastWebhookAt?: boolean
+  isActive?: boolean
   evolutionInstance?: boolean
   accessTokenEnc?: boolean
   status?: boolean
@@ -639,6 +835,13 @@ export type WhatsappNumberSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   displayPhone?: boolean
   phoneNumberId?: boolean
   wabaId?: boolean
+  label?: boolean
+  webhookKey?: boolean
+  verifyTokenEnc?: boolean
+  appSecretEnc?: boolean
+  evolutionApiKeyEnc?: boolean
+  lastWebhookAt?: boolean
+  isActive?: boolean
   evolutionInstance?: boolean
   accessTokenEnc?: boolean
   status?: boolean
@@ -654,6 +857,13 @@ export type WhatsappNumberSelectScalar = {
   displayPhone?: boolean
   phoneNumberId?: boolean
   wabaId?: boolean
+  label?: boolean
+  webhookKey?: boolean
+  verifyTokenEnc?: boolean
+  appSecretEnc?: boolean
+  evolutionApiKeyEnc?: boolean
+  lastWebhookAt?: boolean
+  isActive?: boolean
   evolutionInstance?: boolean
   accessTokenEnc?: boolean
   status?: boolean
@@ -662,7 +872,7 @@ export type WhatsappNumberSelectScalar = {
   updatedAt?: boolean
 }
 
-export type WhatsappNumberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "provider" | "displayPhone" | "phoneNumberId" | "wabaId" | "evolutionInstance" | "accessTokenEnc" | "status" | "lastError" | "createdAt" | "updatedAt", ExtArgs["result"]["whatsappNumber"]>
+export type WhatsappNumberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "provider" | "displayPhone" | "phoneNumberId" | "wabaId" | "label" | "webhookKey" | "verifyTokenEnc" | "appSecretEnc" | "evolutionApiKeyEnc" | "lastWebhookAt" | "isActive" | "evolutionInstance" | "accessTokenEnc" | "status" | "lastError" | "createdAt" | "updatedAt", ExtArgs["result"]["whatsappNumber"]>
 export type WhatsappNumberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   conversations?: boolean | Prisma.WhatsappNumber$conversationsArgs<ExtArgs>
   _count?: boolean | Prisma.WhatsappNumberCountOutputTypeDefaultArgs<ExtArgs>
@@ -685,6 +895,28 @@ export type $WhatsappNumberPayload<ExtArgs extends runtime.Types.Extensions.Inte
      */
     phoneNumberId: string | null
     wabaId: string | null
+    /**
+     * Nombre interno (p. ej. "Ventas Lima")
+     */
+    label: string | null
+    /**
+     * Identificador aleatorio de la URL de webhook propia del número: /webhooks/whatsapp/<webhookKey>
+     */
+    webhookKey: string
+    /**
+     * Verify token del webhook, cifrado
+     */
+    verifyTokenEnc: string | null
+    /**
+     * App Secret de la app de Meta de la empresa (firma X-Hub-Signature-256), cifrado
+     */
+    appSecretEnc: string | null
+    /**
+     * Evolution: API key de la instancia, cifrada
+     */
+    evolutionApiKeyEnc: string | null
+    lastWebhookAt: Date | null
+    isActive: boolean
     /**
      * Evolution: nombre de instancia. Único global.
      */
@@ -1127,6 +1359,13 @@ export interface WhatsappNumberFieldRefs {
   readonly displayPhone: Prisma.FieldRef<"WhatsappNumber", 'String'>
   readonly phoneNumberId: Prisma.FieldRef<"WhatsappNumber", 'String'>
   readonly wabaId: Prisma.FieldRef<"WhatsappNumber", 'String'>
+  readonly label: Prisma.FieldRef<"WhatsappNumber", 'String'>
+  readonly webhookKey: Prisma.FieldRef<"WhatsappNumber", 'String'>
+  readonly verifyTokenEnc: Prisma.FieldRef<"WhatsappNumber", 'String'>
+  readonly appSecretEnc: Prisma.FieldRef<"WhatsappNumber", 'String'>
+  readonly evolutionApiKeyEnc: Prisma.FieldRef<"WhatsappNumber", 'String'>
+  readonly lastWebhookAt: Prisma.FieldRef<"WhatsappNumber", 'DateTime'>
+  readonly isActive: Prisma.FieldRef<"WhatsappNumber", 'Boolean'>
   readonly evolutionInstance: Prisma.FieldRef<"WhatsappNumber", 'String'>
   readonly accessTokenEnc: Prisma.FieldRef<"WhatsappNumber", 'String'>
   readonly status: Prisma.FieldRef<"WhatsappNumber", 'ConnectionStatus'>

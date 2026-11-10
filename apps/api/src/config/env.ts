@@ -42,6 +42,17 @@ const schema = z.object({
   SMTP_SECURE: z.enum(['true', 'false']).default('false'),
   MAIL_FROM: z.string().default('AI Sales Assistant <no-reply@localhost>'),
 
+  /** WhatsApp Cloud API (docs/integrations/whatsapp-cloud-api.md) */
+  WHATSAPP_GRAPH_BASE_URL: z.url().default('https://graph.facebook.com'),
+  WHATSAPP_GRAPH_API_VERSION: z.string().regex(/^v\d+\.\d+$/, 'formato vNN.N, p. ej. v26.0').default('v26.0'),
+  /** Solo si la plataforma usa UNA app de Meta para todas las empresas (Embedded Signup). Vacío = cada número aporta el suyo. */
+  WHATSAPP_APP_SECRET: z.string().default(''),
+  /** Envíos a WhatsApp: intentos máximos ante errores temporales (130429, 131056, 131000…) */
+  WHATSAPP_SEND_MAX_ATTEMPTS: z.coerce.number().int().min(1).max(20).default(8),
+
+  /** Prefijo de las colas en Redis (las pruebas usan otro para no mezclarse) */
+  QUEUE_PREFIX: z.string().regex(/^[a-z0-9-]{1,30}$/).default('aisa'),
+
   /** Carpeta de archivos subidos (volumen persistente en despliegue) */
   STORAGE_DIR: z.string().default('./storage'),
   TRIAL_DAYS: z.coerce.number().int().nonnegative().default(14),

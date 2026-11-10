@@ -56,7 +56,7 @@ export class OrdersController {
     return this.db.tenant(p.tenantId, async (tx) => {
       const where = this.where(p, q);
       const [items, total] = await Promise.all([
-        tx.order.findMany({ where, orderBy: { createdAt: 'desc' }, skip: (q.page - 1) * q.pageSize, take: q.pageSize, include: { customer: { select: { id: true, name: true, phone: true } }, _count: { select: { items: true } } } }),
+        tx.order.findMany({ where, orderBy: { createdAt: 'desc' }, skip: (q.page - 1) * q.pageSize, take: q.pageSize, include: { customer: { select: { id: true, name: true, phone: true, waProfileName: true } }, _count: { select: { items: true } } } }),
         tx.order.count({ where }),
       ]);
       return paged(items, total, q.page, q.pageSize);
@@ -76,7 +76,7 @@ export class OrdersController {
     };
     const header = ['numero', 'fecha', 'estado', 'canal', 'cliente', 'telefono', 'productos', 'subtotal', 'descuento', 'total', 'moneda'];
     const lines = rows.map((o) =>
-      [o.number, o.createdAt.toISOString(), o.status, o.channel, o.customer.name, o.customer.phone, o.items.map((i) => `${i.quantity}x ${i.productName} ${i.variantName}`).join(' | '), o.subtotal, o.discount, o.total, o.currency].map(esc).join(','),
+      [o.number, o.createdAt.toISOString(), o.status, o.channel, o.customer.name ?? o.customer.waProfileName, o.customer.phone ?? '', o.items.map((i) => `${i.quantity}x ${i.productName} ${i.variantName}`).join(' | '), o.subtotal, o.discount, o.total, o.currency].map(esc).join(','),
     );
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="pedidos-${new Date().toISOString().slice(0, 10)}.csv"`);

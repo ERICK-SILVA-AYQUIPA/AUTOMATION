@@ -28,10 +28,12 @@ export type AggregateOutboundMessage = {
 
 export type OutboundMessageAvgAggregateOutputType = {
   attempts: number | null
+  errorCode: number | null
 }
 
 export type OutboundMessageSumAggregateOutputType = {
   attempts: number | null
+  errorCode: number | null
 }
 
 export type OutboundMessageMinAggregateOutputType = {
@@ -43,6 +45,7 @@ export type OutboundMessageMinAggregateOutputType = {
   attempts: number | null
   providerMessageId: string | null
   error: string | null
+  errorCode: number | null
   createdAt: Date | null
   sentAt: Date | null
 }
@@ -56,6 +59,7 @@ export type OutboundMessageMaxAggregateOutputType = {
   attempts: number | null
   providerMessageId: string | null
   error: string | null
+  errorCode: number | null
   createdAt: Date | null
   sentAt: Date | null
 }
@@ -70,6 +74,7 @@ export type OutboundMessageCountAggregateOutputType = {
   attempts: number
   providerMessageId: number
   error: number
+  errorCode: number
   createdAt: number
   sentAt: number
   _all: number
@@ -78,10 +83,12 @@ export type OutboundMessageCountAggregateOutputType = {
 
 export type OutboundMessageAvgAggregateInputType = {
   attempts?: true
+  errorCode?: true
 }
 
 export type OutboundMessageSumAggregateInputType = {
   attempts?: true
+  errorCode?: true
 }
 
 export type OutboundMessageMinAggregateInputType = {
@@ -93,6 +100,7 @@ export type OutboundMessageMinAggregateInputType = {
   attempts?: true
   providerMessageId?: true
   error?: true
+  errorCode?: true
   createdAt?: true
   sentAt?: true
 }
@@ -106,6 +114,7 @@ export type OutboundMessageMaxAggregateInputType = {
   attempts?: true
   providerMessageId?: true
   error?: true
+  errorCode?: true
   createdAt?: true
   sentAt?: true
 }
@@ -120,6 +129,7 @@ export type OutboundMessageCountAggregateInputType = {
   attempts?: true
   providerMessageId?: true
   error?: true
+  errorCode?: true
   createdAt?: true
   sentAt?: true
   _all?: true
@@ -221,6 +231,7 @@ export type OutboundMessageGroupByOutputType = {
   attempts: number
   providerMessageId: string | null
   error: string | null
+  errorCode: number | null
   createdAt: Date
   sentAt: Date | null
   _count: OutboundMessageCountAggregateOutputType | null
@@ -258,6 +269,7 @@ export type OutboundMessageWhereInput = {
   attempts?: Prisma.IntFilter<"OutboundMessage"> | number
   providerMessageId?: Prisma.StringNullableFilter<"OutboundMessage"> | string | null
   error?: Prisma.StringNullableFilter<"OutboundMessage"> | string | null
+  errorCode?: Prisma.IntNullableFilter<"OutboundMessage"> | number | null
   createdAt?: Prisma.DateTimeFilter<"OutboundMessage"> | Date | string
   sentAt?: Prisma.DateTimeNullableFilter<"OutboundMessage"> | Date | string | null
 }
@@ -272,6 +284,7 @@ export type OutboundMessageOrderByWithRelationInput = {
   attempts?: Prisma.SortOrder
   providerMessageId?: Prisma.SortOrderInput | Prisma.SortOrder
   error?: Prisma.SortOrderInput | Prisma.SortOrder
+  errorCode?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
 }
@@ -290,6 +303,7 @@ export type OutboundMessageWhereUniqueInput = Prisma.AtLeast<{
   attempts?: Prisma.IntFilter<"OutboundMessage"> | number
   providerMessageId?: Prisma.StringNullableFilter<"OutboundMessage"> | string | null
   error?: Prisma.StringNullableFilter<"OutboundMessage"> | string | null
+  errorCode?: Prisma.IntNullableFilter<"OutboundMessage"> | number | null
   createdAt?: Prisma.DateTimeFilter<"OutboundMessage"> | Date | string
   sentAt?: Prisma.DateTimeNullableFilter<"OutboundMessage"> | Date | string | null
 }, "id" | "tenantId_idempotencyKey">
@@ -304,6 +318,7 @@ export type OutboundMessageOrderByWithAggregationInput = {
   attempts?: Prisma.SortOrder
   providerMessageId?: Prisma.SortOrderInput | Prisma.SortOrder
   error?: Prisma.SortOrderInput | Prisma.SortOrder
+  errorCode?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.OutboundMessageCountOrderByAggregateInput
@@ -326,6 +341,7 @@ export type OutboundMessageScalarWhereWithAggregatesInput = {
   attempts?: Prisma.IntWithAggregatesFilter<"OutboundMessage"> | number
   providerMessageId?: Prisma.StringNullableWithAggregatesFilter<"OutboundMessage"> | string | null
   error?: Prisma.StringNullableWithAggregatesFilter<"OutboundMessage"> | string | null
+  errorCode?: Prisma.IntNullableWithAggregatesFilter<"OutboundMessage"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"OutboundMessage"> | Date | string
   sentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"OutboundMessage"> | Date | string | null
 }
@@ -340,6 +356,7 @@ export type OutboundMessageCreateInput = {
   attempts?: number
   providerMessageId?: string | null
   error?: string | null
+  errorCode?: number | null
   createdAt?: Date | string
   sentAt?: Date | string | null
 }
@@ -354,6 +371,7 @@ export type OutboundMessageUncheckedCreateInput = {
   attempts?: number
   providerMessageId?: string | null
   error?: string | null
+  errorCode?: number | null
   createdAt?: Date | string
   sentAt?: Date | string | null
 }
@@ -368,6 +386,7 @@ export type OutboundMessageUpdateInput = {
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
   providerMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  errorCode?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -382,6 +401,7 @@ export type OutboundMessageUncheckedUpdateInput = {
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
   providerMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  errorCode?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -396,6 +416,7 @@ export type OutboundMessageCreateManyInput = {
   attempts?: number
   providerMessageId?: string | null
   error?: string | null
+  errorCode?: number | null
   createdAt?: Date | string
   sentAt?: Date | string | null
 }
@@ -410,6 +431,7 @@ export type OutboundMessageUpdateManyMutationInput = {
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
   providerMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  errorCode?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -424,6 +446,7 @@ export type OutboundMessageUncheckedUpdateManyInput = {
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
   providerMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  errorCode?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -443,12 +466,14 @@ export type OutboundMessageCountOrderByAggregateInput = {
   attempts?: Prisma.SortOrder
   providerMessageId?: Prisma.SortOrder
   error?: Prisma.SortOrder
+  errorCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
 }
 
 export type OutboundMessageAvgOrderByAggregateInput = {
   attempts?: Prisma.SortOrder
+  errorCode?: Prisma.SortOrder
 }
 
 export type OutboundMessageMaxOrderByAggregateInput = {
@@ -460,6 +485,7 @@ export type OutboundMessageMaxOrderByAggregateInput = {
   attempts?: Prisma.SortOrder
   providerMessageId?: Prisma.SortOrder
   error?: Prisma.SortOrder
+  errorCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
 }
@@ -473,12 +499,14 @@ export type OutboundMessageMinOrderByAggregateInput = {
   attempts?: Prisma.SortOrder
   providerMessageId?: Prisma.SortOrder
   error?: Prisma.SortOrder
+  errorCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
 }
 
 export type OutboundMessageSumOrderByAggregateInput = {
   attempts?: Prisma.SortOrder
+  errorCode?: Prisma.SortOrder
 }
 
 export type EnumOutboundStatusFieldUpdateOperationsInput = {
@@ -497,6 +525,7 @@ export type OutboundMessageSelect<ExtArgs extends runtime.Types.Extensions.Inter
   attempts?: boolean
   providerMessageId?: boolean
   error?: boolean
+  errorCode?: boolean
   createdAt?: boolean
   sentAt?: boolean
 }, ExtArgs["result"]["outboundMessage"]>
@@ -511,6 +540,7 @@ export type OutboundMessageSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   attempts?: boolean
   providerMessageId?: boolean
   error?: boolean
+  errorCode?: boolean
   createdAt?: boolean
   sentAt?: boolean
 }, ExtArgs["result"]["outboundMessage"]>
@@ -525,6 +555,7 @@ export type OutboundMessageSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   attempts?: boolean
   providerMessageId?: boolean
   error?: boolean
+  errorCode?: boolean
   createdAt?: boolean
   sentAt?: boolean
 }, ExtArgs["result"]["outboundMessage"]>
@@ -539,11 +570,12 @@ export type OutboundMessageSelectScalar = {
   attempts?: boolean
   providerMessageId?: boolean
   error?: boolean
+  errorCode?: boolean
   createdAt?: boolean
   sentAt?: boolean
 }
 
-export type OutboundMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "conversationId" | "idempotencyKey" | "payload" | "status" | "attempts" | "providerMessageId" | "error" | "createdAt" | "sentAt", ExtArgs["result"]["outboundMessage"]>
+export type OutboundMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "conversationId" | "idempotencyKey" | "payload" | "status" | "attempts" | "providerMessageId" | "error" | "errorCode" | "createdAt" | "sentAt", ExtArgs["result"]["outboundMessage"]>
 
 export type $OutboundMessagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "OutboundMessage"
@@ -558,6 +590,7 @@ export type $OutboundMessagePayload<ExtArgs extends runtime.Types.Extensions.Int
     attempts: number
     providerMessageId: string | null
     error: string | null
+    errorCode: number | null
     createdAt: Date
     sentAt: Date | null
   }, ExtArgs["result"]["outboundMessage"]>
@@ -992,6 +1025,7 @@ export interface OutboundMessageFieldRefs {
   readonly attempts: Prisma.FieldRef<"OutboundMessage", 'Int'>
   readonly providerMessageId: Prisma.FieldRef<"OutboundMessage", 'String'>
   readonly error: Prisma.FieldRef<"OutboundMessage", 'String'>
+  readonly errorCode: Prisma.FieldRef<"OutboundMessage", 'Int'>
   readonly createdAt: Prisma.FieldRef<"OutboundMessage", 'DateTime'>
   readonly sentAt: Prisma.FieldRef<"OutboundMessage", 'DateTime'>
 }

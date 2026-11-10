@@ -7,7 +7,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Minus, Plus, ScanBarcode, Trash2 } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
 import { useCurrency } from '@/lib/auth';
-import { money, num } from '@/lib/format';
+import { money, num, phoneLabel } from '@/lib/format';
 import type { Customer, Order, Paged, Product } from '@/lib/types';
 import { Button, Card, ErrorBox, Field, Input, PageHeader, Textarea } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
@@ -24,7 +24,7 @@ function NewOrder() {
   const toast = useToast();
   const qc = useQueryClient();
   const [lines, setLines] = useState<Line[]>([]);
-  const [picked, setPicked] = useState<Pick<Customer, 'id' | 'name' | 'phone'> | null>(null);
+  const [picked, setPicked] = useState<Pick<Customer, 'id' | 'name' | 'phone' | 'waProfileName'> | null>(null);
   const [presetDismissed, setPresetDismissed] = useState(false);
   const [cq, setCq] = useState('');
   const [newCustomer, setNewCustomer] = useState({ phone: '', name: '' });
@@ -41,7 +41,7 @@ function NewOrder() {
   const preset = useQuery({ queryKey: ['customer', presetCustomer], queryFn: () => api<Customer>(`/customers/${presetCustomer}`), enabled: !!presetCustomer });
   // Cliente elegido, o el que viene en ?cliente= mientras no se cambie
   const customer = picked ?? (presetDismissed ? null : (preset.data ?? null));
-  const setCustomer = (c: Pick<Customer, 'id' | 'name' | 'phone'> | null) => {
+  const setCustomer = (c: Pick<Customer, 'id' | 'name' | 'phone' | 'waProfileName'> | null) => {
     setPicked(c);
     setPresetDismissed(true);
   };
@@ -136,7 +136,7 @@ function NewOrder() {
             <h2 className="mb-3 font-medium">Cliente</h2>
             {customer ? (
               <div className="flex items-center justify-between rounded-lg bg-surface-2 px-3 py-2 text-sm">
-                <span><span className="font-medium">{customer.name ?? 'Sin nombre'}</span><span className="block text-xs text-muted">+{customer.phone}</span></span>
+                <span><span className="font-medium">{customer.name ?? customer.waProfileName ?? 'Sin nombre'}</span><span className="block text-xs text-muted">{phoneLabel(customer.phone)}</span></span>
                 <button type="button" className="text-xs underline" onClick={() => setCustomer(null)}>Cambiar</button>
               </div>
             ) : (
@@ -146,7 +146,7 @@ function NewOrder() {
                   <div className="rounded-lg border border-border">
                     {customers.data.items.map((c) => (
                       <button type="button" key={c.id} onClick={() => setCustomer(c)} className="block w-full border-b border-border px-3 py-2 text-left text-sm last:border-0 hover:bg-surface-2">
-                        {c.name ?? 'Sin nombre'} <span className="text-muted">+{c.phone}</span>
+                        {c.name ?? c.waProfileName ?? 'Sin nombre'} <span className="text-muted">{phoneLabel(c.phone)}</span>
                       </button>
                     ))}
                   </div>

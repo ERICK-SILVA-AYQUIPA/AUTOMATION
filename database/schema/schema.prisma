@@ -388,8 +388,13 @@ model Customer {
   id            String    @id @default(uuid(7)) @db.Uuid
   tenantId      String    @map("tenant_id") @db.Uuid
   name          String?
-  /// E.164 sin "+", tal como lo entrega WhatsApp (p. ej. 51987654321)
-  phone         String
+  /// E.164 sin "+", tal como lo entrega WhatsApp (p. ej. 51987654321).
+  /// Puede faltar: WhatsApp omite el teléfono si el usuario usa nombre de usuario.
+  phone         String?
+  /// WhatsApp business-scoped user ID (BSUID), p. ej. "US.1349…". Estable por portafolio de negocio.
+  waUserId      String?   @map("wa_user_id")
+  /// Nombre de perfil de WhatsApp (no confiable: lo escribe el usuario)
+  waProfileName String?   @map("wa_profile_name")
   email         String?
   documentId    String?   @map("document_id")
   address       String?
@@ -404,6 +409,7 @@ model Customer {
   conversations Conversation[]
 
   @@unique([tenantId, phone])
+  @@unique([tenantId, waUserId])
   @@index([tenantId, createdAt])
   @@map("customers")
 }
@@ -518,6 +524,18 @@ model WhatsappNumber {
   /// Cloud API: phone_number_id (enruta webhooks a la empresa). Único global.
   phoneNumberId     String?          @unique @map("phone_number_id")
   wabaId            String?          @map("waba_id")
+  /// Nombre interno (p. ej. "Ventas Lima")
+  label             String?
+  /// Identificador aleatorio de la URL de webhook propia del número: /webhooks/whatsapp/<webhookKey>
+  webhookKey        String           @unique @map("webhook_key")
+  /// Verify token del webhook, cifrado
+  verifyTokenEnc    String?          @map("verify_token_enc")
+  /// App Secret de la app de Meta de la empresa (firma X-Hub-Signature-256), cifrado
+  appSecretEnc      String?          @map("app_secret_enc")
+  /// Evolution: API key de la instancia, cifrada
+  evolutionApiKeyEnc String?         @map("evolution_api_key_enc")
+  lastWebhookAt     DateTime?        @map("last_webhook_at") @db.Timestamptz(3)
+  isActive          Boolean          @default(true) @map("is_active")
   /// Evolution: nombre de instancia. Único global.
   evolutionInstance String?          @unique @map("evolution_instance")
   /// Token de acceso cifrado (AES-256-GCM) con la clave maestra del servidor
@@ -594,7 +612,14 @@ model Message {
   content           String
   /// wamid u otro id del proveedor
   providerMessageId String?          @map("provider_message_id")
+  /// Entrada: received. Salida: queued → sent → delivered → read | failed
   status            String?
+  errorCode         Int?             @map("error_code")
+  errorMessage      String?          @map("error_message")
+  /// Hora en que lo emitió el proveedor (timestamp de WhatsApp)
+  providerTimestamp DateTime?        @map("provider_timestamp") @db.Timestamptz(3)
+  /// Mensaje de salida que generó este registro
+  outboundId        String?          @unique @map("outbound_id") @db.Uuid
   createdAt         DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
@@ -646,6 +671,7 @@ model OutboundMessage {
   attempts          Int            @default(0)
   providerMessageId String?        @map("provider_message_id")
   error             String?
+  errorCode         Int?           @map("error_code")
   createdAt         DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
   sentAt            DateTime?      @map("sent_at") @db.Timestamptz(3)
 

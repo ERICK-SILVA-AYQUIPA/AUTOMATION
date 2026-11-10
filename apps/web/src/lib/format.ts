@@ -35,3 +35,9 @@ export const ROLE_LABEL: Record<string, string> = {
 };
 
 export const PRODUCT_STATUS = { ACTIVE: 'Activo', INACTIVE: 'Inactivo', ARCHIVED: 'Archivado' } as const;
+
+/** Teléfono para mostrar. WhatsApp puede omitir el número y enviar solo el identificador de usuario. */
+export const phoneLabel = (phone: string | null | undefined) => (phone ? `+${phone}` : 'Sin número (contacto de WhatsApp)');
+
+/** Nombre del cliente: el guardado por la empresa, o el de su perfil de WhatsApp, o el teléfono */
+export const customerLabel = (c: { name: string | null; phone: string | null; waProfileName?: string | null }) => c.name ?? c.waProfileName ?? phoneLabel(c.phone);

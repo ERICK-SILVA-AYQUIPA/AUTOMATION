@@ -20,6 +20,8 @@ import { CustomersModule } from './customers/customers.module.js';
 import { OrdersModule } from './orders/orders.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
 import { RedisModule } from './health/redis.provider.js';
+import { QueuesModule } from './queues/queues.module.js';
+import { MessagingModule } from './messaging/messaging.module.js';
 import { AuthGuard } from './common/guards/auth.guard.js';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
 
@@ -67,6 +69,8 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
     CustomersModule,
     OrdersModule,
     DashboardModule,
+    QueuesModule,
+    MessagingModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

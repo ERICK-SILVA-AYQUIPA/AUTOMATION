@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Pencil, Plus } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth, useCurrency } from '@/lib/auth';
-import { dateTime, money, num, ORDER_STATUS } from '@/lib/format';
+import { dateTime, money, num, ORDER_STATUS, phoneLabel } from '@/lib/format';
 import type { Customer } from '@/lib/types';
 import { Badge, Button, Card, EmptyState, ErrorBox, Loading, PageHeader, StatCard, Table, Td, Th } from '@/components/ui';
 import { RequirePermission } from '@/components/guard';
@@ -27,8 +27,8 @@ function CustomerDetail() {
   return (
     <>
       <PageHeader
-        title={d.name ?? 'Cliente sin nombre'}
-        description={`+${d.phone} · cliente desde ${dateTime(d.createdAt)}`}
+        title={d.name ?? d.waProfileName ?? 'Cliente sin nombre'}
+        description={`${phoneLabel(d.phone)} · cliente desde ${dateTime(d.createdAt)}`}
         actions={
           <>
             <Link href="/clientes"><Button variant="ghost" icon={<ArrowLeft className="size-4" />}>Volver</Button></Link>

@@ -12,7 +12,7 @@ import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/lib/theme';
 import { api } from '@/lib/api';
 import { cn, Spinner } from '@/components/ui';
-import { ROLE_LABEL, money } from '@/lib/format';
+import { ROLE_LABEL, customerLabel, money, phoneLabel } from '@/lib/format';
 import type { Customer, Order, Paged, Product } from '@/lib/types';
 
 interface NavItem { href: string; label: string; icon: typeof LayoutDashboard; permission?: string; soon?: string }
@@ -20,7 +20,7 @@ interface NavItem { href: string; label: string; icon: typeof LayoutDashboard; p
 /** Módulos con "soon" aún no están construidos: se muestran deshabilitados, nunca como enlaces rotos. */
 const NAV: NavItem[] = [
   { href: '/inicio', label: 'Inicio', icon: LayoutDashboard, permission: 'tenant:read' },
-  { href: '/conversaciones', label: 'Conversaciones', icon: MessagesSquare, permission: 'conversations:read', soon: 'Fase 5' },
+  { href: '/conversaciones', label: 'Conversaciones', icon: MessagesSquare, permission: 'conversations:read' },
   { href: '/asistente', label: 'Asistente IA', icon: Bot, permission: 'ai:configure', soon: 'Fase 6' },
   { href: '/productos', label: 'Productos', icon: Package, permission: 'products:read' },
   { href: '/categorias', label: 'Categorías', icon: Tags, permission: 'products:read' },
@@ -28,7 +28,7 @@ const NAV: NavItem[] = [
   { href: '/pedidos', label: 'Pedidos', icon: ShoppingCart, permission: 'orders:read' },
   { href: '/clientes', label: 'Clientes', icon: Users, permission: 'customers:read' },
   { href: '/automatizaciones', label: 'Automatizaciones', icon: Workflow, permission: 'automations:manage', soon: 'Fase 7' },
-  { href: '/integraciones', label: 'Integraciones', icon: Plug, permission: 'integrations:manage', soon: 'Fase 4' },
+  { href: '/integraciones', label: 'Integraciones', icon: Plug, permission: 'integrations:manage' },
   { href: '/reportes', label: 'Reportes', icon: BarChart3, permission: 'reports:read' },
   { href: '/usuarios', label: 'Usuarios', icon: UserCog, permission: 'users:read' },
   { href: '/configuracion', label: 'Configuración', icon: Settings, permission: 'tenant:read' },
@@ -154,13 +154,13 @@ function GlobalSearch() {
           {!!data?.customers.length && <p className="px-2 pb-1 pt-2 text-xs font-medium uppercase text-muted">Clientes</p>}
           {data?.customers.map((c) => (
             <button key={c.id} onClick={() => go(`/clientes/${c.id}`)} className="flex w-full rounded-lg px-2 py-2 text-left text-sm hover:bg-surface-2">
-              {c.name ?? 'Sin nombre'} <span className="ml-2 text-muted">+{c.phone}</span>
+              {c.name ?? c.waProfileName ?? 'Sin nombre'} <span className="ml-2 text-muted">{phoneLabel(c.phone)}</span>
             </button>
           ))}
           {!!data?.orders.length && <p className="px-2 pb-1 pt-2 text-xs font-medium uppercase text-muted">Pedidos</p>}
           {data?.orders.map((o) => (
             <button key={o.id} onClick={() => go(`/pedidos/${o.id}`)} className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-left text-sm hover:bg-surface-2">
-              <span>#{o.number} · {o.customer.name ?? `+${o.customer.phone}`}</span>
+              <span>#{o.number} · {customerLabel(o.customer)}</span>
               <span className="text-muted">{money(o.total, o.currency)}</span>
             </button>
           ))}

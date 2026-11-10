@@ -15,6 +15,7 @@ export function setTestEnv() {
   loadRootEnv();
   if (!process.env.APP_DB_NAME?.endsWith('_test')) process.env.APP_DB_NAME = `${process.env.APP_DB_NAME}_test`;
   process.env.LOG_LEVEL = 'warn';
+  process.env.QUEUE_PREFIX = 'aisa-test';
 }
 
 export function ownerClient() {

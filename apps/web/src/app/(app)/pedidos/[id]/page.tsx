@@ -7,7 +7,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Ban, CheckCircle2, PackageCheck, Truck, Wrench } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
-import { dateTime, money, num, ORDER_STATUS } from '@/lib/format';
+import { dateTime, money, num, ORDER_STATUS, phoneLabel } from '@/lib/format';
 import type { Order } from '@/lib/types';
 import { Badge, Button, Card, Dialog, ErrorBox, Field, Loading, PageHeader, Table, Td, Textarea, Th } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
@@ -118,7 +118,7 @@ function OrderDetail() {
           <Card className="p-4 text-sm">
             <h2 className="mb-2 font-medium">Cliente</h2>
             <Link href={`/clientes/${o.customer.id}`} className="font-medium hover:underline">{o.customer.name ?? 'Sin nombre'}</Link>
-            <p className="text-muted">+{o.customer.phone}</p>
+            <p className="text-muted">{phoneLabel(o.customer.phone)}</p>
             {o.deliveryAddress && <p className="mt-3"><span className="text-muted">Entrega:</span> {o.deliveryAddress}</p>}
             {o.notes && <p className="mt-2"><span className="text-muted">Notas:</span> {o.notes}</p>}
           </Card>

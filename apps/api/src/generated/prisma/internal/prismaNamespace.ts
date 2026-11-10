@@ -2947,6 +2947,8 @@ export const CustomerScalarFieldEnum = {
   tenantId: 'tenantId',
   name: 'name',
   phone: 'phone',
+  waUserId: 'waUserId',
+  waProfileName: 'waProfileName',
   email: 'email',
   documentId: 'documentId',
   address: 'address',
@@ -3024,6 +3026,13 @@ export const WhatsappNumberScalarFieldEnum = {
   displayPhone: 'displayPhone',
   phoneNumberId: 'phoneNumberId',
   wabaId: 'wabaId',
+  label: 'label',
+  webhookKey: 'webhookKey',
+  verifyTokenEnc: 'verifyTokenEnc',
+  appSecretEnc: 'appSecretEnc',
+  evolutionApiKeyEnc: 'evolutionApiKeyEnc',
+  lastWebhookAt: 'lastWebhookAt',
+  isActive: 'isActive',
   evolutionInstance: 'evolutionInstance',
   accessTokenEnc: 'accessTokenEnc',
   status: 'status',
@@ -3067,6 +3076,10 @@ export const MessageScalarFieldEnum = {
   content: 'content',
   providerMessageId: 'providerMessageId',
   status: 'status',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  providerTimestamp: 'providerTimestamp',
+  outboundId: 'outboundId',
   createdAt: 'createdAt'
 } as const
 
@@ -3099,6 +3112,7 @@ export const OutboundMessageScalarFieldEnum = {
   attempts: 'attempts',
   providerMessageId: 'providerMessageId',
   error: 'error',
+  errorCode: 'errorCode',
   createdAt: 'createdAt',
   sentAt: 'sentAt'
 } as const
