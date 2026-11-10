@@ -40,6 +40,8 @@ const schema = z.object({
   SMTP_SECURE: z.enum(['true', 'false']).default('false'),
   MAIL_FROM: z.string().default('AI Sales Assistant <no-reply@localhost>'),
 
+  /** Carpeta de archivos subidos (volumen persistente en despliegue) */
+  STORAGE_DIR: z.string().default('./storage'),
   TRIAL_DAYS: z.coerce.number().int().nonnegative().default(14),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
 });

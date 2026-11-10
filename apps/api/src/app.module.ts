@@ -13,6 +13,12 @@ import { UsersModule } from './users/users.module.js';
 import { TenantsModule } from './tenants/tenants.module.js';
 import { PlatformModule } from './platform/platform.module.js';
 import { HealthModule } from './health/health.module.js';
+import { StorageModule } from './storage/storage.module.js';
+import { InventoryModule } from './inventory/inventory.module.js';
+import { CatalogModule } from './catalog/catalog.module.js';
+import { CustomersModule } from './customers/customers.module.js';
+import { OrdersModule } from './orders/orders.module.js';
+import { DashboardModule } from './dashboard/dashboard.module.js';
 import { RedisModule } from './health/redis.provider.js';
 import { AuthGuard } from './common/guards/auth.guard.js';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
@@ -55,6 +61,12 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
     TenantsModule,
     PlatformModule,
     HealthModule,
+    StorageModule,
+    InventoryModule,
+    CatalogModule,
+    CustomersModule,
+    OrdersModule,
+    DashboardModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
