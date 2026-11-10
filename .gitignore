@@ -1,0 +1,11 @@
+node_modules/
+.env
+.env.*
+!.env.example
+backups/
+services/dify/upstream/
+dist/
+.next/
+coverage/
+*.log
+.DS_Store

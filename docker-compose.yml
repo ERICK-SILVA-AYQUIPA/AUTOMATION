@@ -1,0 +1,251 @@
+# =============================================================================
+# AI Sales Assistant - entorno de DESARROLLO local (MacBook Apple Silicon / Linux)
+#
+# Servicios propios (apps/api, apps/web, apps/worker) se añaden en FASE 2 y 3.
+# Dify se ejecuta como proyecto Compose independiente con su compose OFICIAL
+# (ver services/dify/README.md), para poder actualizarlo sin tocar este archivo.
+#
+# Perfiles (variable COMPOSE_PROFILES en .env):
+#   (sin perfil)  postgres, redis              -> siempre
+#   automation    n8n
+#   chatwoot      chatwoot-rails, chatwoot-sidekiq
+#   evolution     evolution-api (solo si se elige Evolution como proveedor)
+#
+# Todos los puertos se publican SOLO en 127.0.0.1. Nada administrativo queda
+# expuesto a la red. Producción usa un fichero distinto (FASE 8).
+# =============================================================================
+
+name: ai-sales-assistant
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+x-chatwoot-env: &chatwoot-env
+  NODE_ENV: production
+  RAILS_ENV: production
+  INSTALLATION_ENV: docker
+  SECRET_KEY_BASE: ${CHATWOOT_SECRET_KEY_BASE:?Ejecuta infrastructure/scripts/setup.sh}
+  FRONTEND_URL: ${CHATWOOT_FRONTEND_URL:-http://localhost:3100}
+  FORCE_SSL: "false"
+  ENABLE_ACCOUNT_SIGNUP: "false"
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+  POSTGRES_DATABASE: ${CHATWOOT_DB_NAME:-chatwoot}
+  POSTGRES_USERNAME: ${CHATWOOT_DB_USER:-chatwoot}
+  POSTGRES_PASSWORD: ${CHATWOOT_DB_PASSWORD:?}
+  REDIS_URL: redis://redis:6379/0
+  REDIS_PASSWORD: ${REDIS_PASSWORD:?}
+  RAILS_LOG_TO_STDOUT: "true"
+  LOG_LEVEL: info
+  ACTIVE_STORAGE_SERVICE: local
+  MAILER_SENDER_EMAIL: ${CHATWOOT_MAILER_SENDER_EMAIL:-AI Sales Assistant <no-reply@localhost>}
+  SMTP_ADDRESS: ${SMTP_HOST:-}
+  SMTP_PORT: ${SMTP_PORT:-587}
+  SMTP_USERNAME: ${SMTP_USER:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+
+services:
+  # ---------------------------------------------------------------------------
+  # PostgreSQL 17 + pgvector (Chatwoot exige vector; n8n 3.x exige PG >= 17).
+  # Un único servidor en desarrollo, con una BASE y un USUARIO por servicio.
+  # En producción se recomienda instancia gestionada/separada (ver docs).
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_SUPERUSER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:?Ejecuta infrastructure/scripts/setup.sh}
+      POSTGRES_DB: postgres
+      APP_DB_NAME: ${APP_DB_NAME:-ai_sales}
+      APP_DB_USER: ${APP_DB_USER:-ai_sales}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?}
+      CHATWOOT_DB_NAME: ${CHATWOOT_DB_NAME:-chatwoot}
+      CHATWOOT_DB_USER: ${CHATWOOT_DB_USER:-chatwoot}
+      CHATWOOT_DB_PASSWORD: ${CHATWOOT_DB_PASSWORD:?}
+      N8N_DB_NAME: ${N8N_DB_NAME:-n8n}
+      N8N_DB_USER: ${N8N_DB_USER:-n8n}
+      N8N_DB_PASSWORD: ${N8N_DB_PASSWORD:?}
+      EVOLUTION_DB_NAME: ${EVOLUTION_DB_NAME:-evolution}
+      EVOLUTION_DB_USER: ${EVOLUTION_DB_USER:-evolution}
+      EVOLUTION_DB_PASSWORD: ${EVOLUTION_DB_PASSWORD:?}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-5433}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *default-logging
+
+  # ---------------------------------------------------------------------------
+  # Redis 7: colas BullMQ (DB 1), caché del backend, Chatwoot (DB 0),
+  # Evolution (DB 6). Protegido con contraseña.
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["sh", "-c", "exec redis-server --appendonly yes --requirepass \"$$REDIS_PASSWORD\""]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Ejecuta infrastructure/scripts/setup.sh}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "127.0.0.1:${REDIS_HOST_PORT:-6380}:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" --no-auth-warning ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *default-logging
+
+  # ---------------------------------------------------------------------------
+  # n8n (Sustainable Use License): uso interno como capa de automatización.
+  # Los clientes finales NUNCA acceden a la UI de n8n ni editan flujos.
+  # ---------------------------------------------------------------------------
+  n8n:
+    image: n8nio/n8n:${N8N_VERSION:-3.2.0}
+    profiles: ["automation"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: "5432"
+      DB_POSTGRESDB_DATABASE: ${N8N_DB_NAME:-n8n}
+      DB_POSTGRESDB_USER: ${N8N_DB_USER:-n8n}
+      DB_POSTGRESDB_PASSWORD: ${N8N_DB_PASSWORD:?}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?}
+      N8N_HOST: localhost
+      N8N_PORT: "5678"
+      N8N_LISTEN_ADDRESS: 0.0.0.0
+      N8N_PROTOCOL: http
+      WEBHOOK_URL: ${N8N_WEBHOOK_URL:-http://localhost:5678/}
+      GENERIC_TIMEZONE: ${TZ:-America/Lima}
+      TZ: ${TZ:-America/Lima}
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_PERSONALIZATION_ENABLED: "false"
+      N8N_SECURE_COOKIE: "false"   # solo desarrollo (HTTP local). En prod: true + HTTPS
+      N8N_RUNNERS_ENABLED: "true"
+      # Secreto compartido backend <-> n8n (cabecera X-Internal-Token)
+      AISA_INTERNAL_TOKEN: ${N8N_INTERNAL_TOKEN:?}
+      AISA_API_URL: ${N8N_API_BASE_URL:-http://host.docker.internal:4000}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./services/n8n/workflows:/workflows:ro
+    ports:
+      - "127.0.0.1:${N8N_HOST_PORT:-5678}:5678"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5678/healthz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    logging: *default-logging
+
+  # ---------------------------------------------------------------------------
+  # Chatwoot (MIT, salvo carpeta enterprise/): bandeja humana.
+  # Primera vez: infrastructure/scripts/chatwoot-init.sh (db:chatwoot_prepare)
+  # ---------------------------------------------------------------------------
+  chatwoot-rails:
+    image: chatwoot/chatwoot:${CHATWOOT_VERSION:-v4.19.1}
+    profiles: ["chatwoot"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment: *chatwoot-env
+    entrypoint: docker/entrypoints/rails.sh
+    command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
+    volumes:
+      - chatwoot_storage:/app/storage
+    ports:
+      - "127.0.0.1:${CHATWOOT_HOST_PORT:-3100}:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api >/dev/null || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 15
+      start_period: 90s
+    logging: *default-logging
+
+  chatwoot-sidekiq:
+    image: chatwoot/chatwoot:${CHATWOOT_VERSION:-v4.19.1}
+    profiles: ["chatwoot"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment: *chatwoot-env
+    command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+    volumes:
+      - chatwoot_storage:/app/storage
+    logging: *default-logging
+
+  # ---------------------------------------------------------------------------
+  # Evolution API (Apache 2.0 + condiciones adicionales). OPCIONAL.
+  # Conexión vía Baileys (WhatsApp Web no oficial) o canal WHATSAPP-BUSINESS.
+  # ---------------------------------------------------------------------------
+  evolution-api:
+    image: evoapicloud/evolution-api:${EVOLUTION_VERSION:-v2.3.7}
+    profiles: ["evolution"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      SERVER_TYPE: http
+      SERVER_PORT: "8080"
+      SERVER_URL: ${EVOLUTION_SERVER_URL:-http://localhost:8080}
+      AUTHENTICATION_API_KEY: ${EVOLUTION_API_KEY:?}
+      AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES: "false"
+      TELEMETRY_ENABLED: "false"
+      DEL_INSTANCE: "false"
+      LOG_LEVEL: ERROR,WARN,INFO
+      LOG_COLOR: "false"
+      # Evolution rechaza peticiones SIN cabecera Origin si CORS_ORIGIN no es "*"
+      # (comprobado: HTTP 500 "Not allowed by CORS"). Solo la consume el backend,
+      # servidor a servidor; la protección real es AUTHENTICATION_API_KEY + red privada.
+      CORS_ORIGIN: "*"
+      DATABASE_PROVIDER: postgresql
+      DATABASE_CONNECTION_URI: postgresql://${EVOLUTION_DB_USER:-evolution}:${EVOLUTION_DB_PASSWORD:?}@postgres:5432/${EVOLUTION_DB_NAME:-evolution}?schema=evolution_api
+      DATABASE_CONNECTION_CLIENT_NAME: evolution_exchange
+      CACHE_REDIS_ENABLED: "true"
+      CACHE_REDIS_URI: redis://:${REDIS_PASSWORD:?}@redis:6379/6
+      CACHE_REDIS_PREFIX_KEY: evolution
+      CACHE_REDIS_SAVE_INSTANCES: "false"
+      CACHE_LOCAL_ENABLED: "false"
+    volumes:
+      - evolution_instances:/evolution/instances
+    ports:
+      - "127.0.0.1:${EVOLUTION_HOST_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/ >/dev/null || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    logging: *default-logging
+
+volumes:
+  postgres_data:
+  redis_data:
+  n8n_data:
+  chatwoot_storage:
+  evolution_instances:

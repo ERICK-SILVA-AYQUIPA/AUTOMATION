@@ -1,0 +1,17 @@
+{
+  "name": "ai-sales-assistant",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "setup": "./infrastructure/scripts/setup.sh",
+    "infra:up": "./infrastructure/scripts/up.sh",
+    "infra:down": "./infrastructure/scripts/down.sh",
+    "infra:health": "./infrastructure/scripts/healthcheck.sh",
+    "chatwoot:init": "./infrastructure/scripts/chatwoot-init.sh",
+    "dify:install": "./services/dify/install.sh",
+    "dify:up": "./services/dify/dify.sh up",
+    "dify:down": "./services/dify/dify.sh down",
+    "backup": "./infrastructure/scripts/backup.sh"
+  }
+}
