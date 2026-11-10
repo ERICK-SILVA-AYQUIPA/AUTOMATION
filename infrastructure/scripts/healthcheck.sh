@@ -20,6 +20,7 @@ profiles=",${COMPOSE_PROFILES:-},"
 [[ "$profiles" == *",automation,"* ]] && probe n8n "http://127.0.0.1:${N8N_HOST_PORT:-5678}/healthz"
 [[ "$profiles" == *",chatwoot,"*   ]] && probe chatwoot "http://127.0.0.1:${CHATWOOT_HOST_PORT:-3100}/api"
 [[ "$profiles" == *",evolution,"*  ]] && probe evolution "http://127.0.0.1:${EVOLUTION_HOST_PORT:-8080}/"
+[[ "$profiles" == *",mail,"*      ]] && probe mailpit "http://127.0.0.1:${MAILPIT_UI_PORT:-8025}/readyz"
 if curl -s -o /dev/null --max-time 3 "http://127.0.0.1:${DIFY_HTTP_PORT:-8090}/"; then
   probe dify "http://127.0.0.1:${DIFY_HTTP_PORT:-8090}/console/api/ping"
 fi

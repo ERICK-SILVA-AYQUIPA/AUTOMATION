@@ -1,0 +1,37 @@
+export const money = (v: string | number | null | undefined, currency = 'PEN') =>
+  new Intl.NumberFormat('es-PE', { style: 'currency', currency }).format(Number(v ?? 0));
+
+export const num = (v: number | string | null | undefined) => new Intl.NumberFormat('es-PE').format(Number(v ?? 0));
+
+export const dateTime = (v: string | Date | null | undefined) =>
+  v ? new Intl.DateTimeFormat('es-PE', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(v)) : '—';
+
+export const date = (v: string | Date | null | undefined) => (v ? new Intl.DateTimeFormat('es-PE', { dateStyle: 'medium' }).format(new Date(v)) : '—');
+
+export const ORDER_STATUS: Record<string, { label: string; tone: 'neutral' | 'info' | 'success' | 'warning' | 'danger' }> = {
+  PENDING: { label: 'Pendiente', tone: 'warning' },
+  CONFIRMED: { label: 'Confirmado', tone: 'info' },
+  PREPARING: { label: 'En preparación', tone: 'info' },
+  SHIPPED: { label: 'Enviado', tone: 'info' },
+  DELIVERED: { label: 'Entregado', tone: 'success' },
+  CANCELLED: { label: 'Anulado', tone: 'danger' },
+};
+
+export const MOVEMENT_TYPE: Record<string, string> = {
+  PURCHASE_IN: 'Entrada por compra',
+  SALE_OUT: 'Salida por venta',
+  ADJUSTMENT: 'Ajuste de stock',
+  RETURN_IN: 'Devolución',
+  TRANSFER_IN: 'Transferencia (entrada)',
+  TRANSFER_OUT: 'Transferencia (salida)',
+  SALE_VOID: 'Anulación de venta',
+};
+
+export const ROLE_LABEL: Record<string, string> = {
+  PLATFORM_ADMIN: 'Administrador general',
+  TENANT_ADMIN: 'Administrador',
+  SUPERVISOR: 'Supervisor',
+  SELLER: 'Vendedor',
+};
+
+export const PRODUCT_STATUS = { ACTIVE: 'Activo', INACTIVE: 'Inactivo', ARCHIVED: 'Archivado' } as const;

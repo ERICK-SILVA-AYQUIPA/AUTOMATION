@@ -52,6 +52,11 @@ pnpm --filter @aisa/api db:deploy      # aplica migraciones
 pnpm --filter @aisa/api db:seed        # planes + administrador general
 pnpm --filter @aisa/api start:dev      # http://localhost:4000/api/v1/health/ready
 
+# Panel web (apps/web): reenvía /api/v1 a la API, así web y API comparten origen
+pnpm --filter @aisa/web dev            # desarrollo: http://localhost:3000
+# o producción local:
+pnpm --filter @aisa/web build && pnpm --filter @aisa/web start
+
 # Dify (proyecto compose separado, opcional hasta FASE 6)
 ./services/dify/install.sh && ./services/dify/dify.sh up
 ```
@@ -64,6 +69,13 @@ pnpm --filter @aisa/api start:dev      # http://localhost:4000/api/v1/health/rea
 | Chatwoot | http://localhost:3100 | `chatwoot` |
 | Evolution API | http://localhost:8080 | `evolution` |
 | Dify | http://localhost:8090 | proyecto `dify` |
+| Mailpit (correos de desarrollo) | http://localhost:8025 | `mail` |
+| Panel web | http://localhost:3000 | `pnpm --filter @aisa/web …` |
+| API | http://localhost:4000/api/v1 | `pnpm --filter @aisa/api …` |
+
+El administrador general entra con `PLATFORM_ADMIN_EMAIL` / `PLATFORM_ADMIN_PASSWORD`
+de `.env`. Las empresas se registran en http://localhost:3000/registro; el correo
+de verificación llega a Mailpit.
 
 Los perfiles activos se eligen con `COMPOSE_PROFILES` en `.env`.
 
@@ -80,7 +92,14 @@ repositorio. Las credenciales de Meta, Dify y SMTP se rellenan en sus fases.
 APP_DB_NAME=ai_sales_test pnpm --filter @aisa/api exec prisma migrate deploy
 pnpm --filter @aisa/api test        # unitarias
 pnpm --filter @aisa/api test:e2e    # integración contra PostgreSQL real (base ai_sales_test)
+
+# Prueba de humo en navegador (Chromium + Playwright) con la API y la web en marcha.
+# Crea una empresa nueva con correo único; lee los enlaces de correo desde Mailpit.
+set -a; . ./.env; set +a
+MAILPIT_URL=http://localhost:8025 pnpm --filter @aisa/web test:e2e
 ```
+La prueba de humo usa `playwright` instalado en el sistema; en la FASE 8 se
+integra como dependencia de desarrollo y en CI.
 
 Endpoints documentados en [`docs/api/README.md`](docs/api/README.md).
 

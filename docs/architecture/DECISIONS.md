@@ -24,3 +24,6 @@ Estado: `aceptada` | `pendiente` (requiere confirmación del propietario) | `ree
 | 018 | Stock por variante y sucursal (`stock_levels`) con libro de movimientos inmutable | aceptada | Permite transferencias y multi-sucursal (plan Empresarial). |
 | 019 | Login exige correo verificado; refresh token rotatorio con detección de reutilización | aceptada | Seguridad de sesiones. |
 | 020 | Base `ai_sales_test` separada para pruebas automatizadas | aceptada | Las pruebas vacían tablas; nunca tocan la base de desarrollo. |
+| 021 | La IP real del cliente se toma de `X-Forwarded-For` solo si viene de un proxy de confianza (`TRUST_PROXY`, por defecto `loopback`) | aceptada | La web reenvía `/api` a la API; sin esto todos los usuarios compartirían IP y cupo de intentos de login. En producción el reverse proxy debe **sobrescribir** la cabecera (FASE 8). |
+| 022 | Panel web en el mismo origen que la API (rewrite de Next a `/api/v1`), access token solo en memoria, refresh en cookie HttpOnly | aceptada | Sin CORS en el navegador ni tokens en `localStorage`; la cookie CSRF es de doble envío. |
+| 023 | Mailpit (MIT) solo en desarrollo, perfil `mail` | aceptada | Probar verificación, invitaciones y recuperación con SMTP real sin enviar correos. En producción se exige un SMTP real. |

@@ -9,7 +9,11 @@ import { ENV, type Env } from './config/env.js';
 export function configureApp(app: INestApplication) {
   const env = app.get<Env>(ENV);
   const express = app as NestExpressApplication;
-  express.set('trust proxy', env.isProd ? 1 : false); // detrás de un único reverse proxy en producción
+  // IP real del cliente para el límite de peticiones y la auditoría. En desarrollo la
+  // web (Next, en 127.0.0.1) reenvía /api con X-Forwarded-For; sin esto todos los
+  // usuarios compartirían la IP del proxy y el mismo cupo de intentos de login.
+  const tp = env.TRUST_PROXY;
+  express.set('trust proxy', /^\d+$/.test(tp) ? Number(tp) : tp === 'false' ? false : tp.split(',').map((x) => x.trim()));
   express.disable('x-powered-by');
   app.useLogger(app.get(Logger));
   app.setGlobalPrefix('api/v1');

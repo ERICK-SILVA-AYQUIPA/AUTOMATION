@@ -247,6 +247,29 @@ services:
       start_period: 40s
     logging: *default-logging
 
+  # ---------------------------------------------------------------------------
+  # Mailpit (MIT). SOLO DESARROLLO: captura los correos (verificación,
+  # invitaciones, recuperación) sin enviarlos. Bandeja: http://localhost:8025
+  # En .env: SMTP_HOST=127.0.0.1 SMTP_PORT=1025 SMTP_SECURE=false
+  # ---------------------------------------------------------------------------
+  mailpit:
+    image: axllent/mailpit:${MAILPIT_VERSION:-v1.32.0}
+    profiles: ["mail"]
+    restart: unless-stopped
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "true"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "true"
+      MP_MAX_MESSAGES: "2000"
+    ports:
+      - "127.0.0.1:${MAILPIT_SMTP_PORT:-1025}:1025"
+      - "127.0.0.1:${MAILPIT_UI_PORT:-8025}:8025"
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    logging: *default-logging
+
 volumes:
   postgres_data:
   redis_data:

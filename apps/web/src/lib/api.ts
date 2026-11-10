@@ -84,16 +84,18 @@ export async function api<T = unknown>(path: string, opts: Opts = {}, retry = tr
   return (type.includes('application/json') ? res.json() : res.blob()) as Promise<T>;
 }
 
-/** Descarga un archivo autenticado (CSV/XLSX) */
-export async function download(path: string, query?: Opts['query']) {
-  const blob = await api<Blob>(path, { query });
-  const res = URL.createObjectURL(blob);
+/** Descarga un archivo autenticado (CSV/XLSX) usando el nombre que indica el servidor */
+export async function download(path: string, query?: Opts['query'], retry = true): Promise<void> {
+  const url = new URL(`/api/v1${path}`, window.location.origin);
+  for (const [k, v] of Object.entries(query ?? {})) if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, String(v));
+  const res = await fetch(url, { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {}, credentials: 'include' });
+  if (res.status === 401 && retry && (await refreshAccessToken())) return download(path, query, false);
+  if (!res.ok) throw new ApiError(res.status, 'No se pudo descargar el archivo');
+  const name = /filename="([^"]+)"/.exec(res.headers.get('content-disposition') ?? '')?.[1] ?? 'descarga';
+  const href = URL.createObjectURL(await res.blob());
   const a = document.createElement('a');
-  a.href = res;
-  a.download = '';
-  // nombre sugerido por el servidor
-  const r = await fetch(new URL(`/api/v1${path}`, window.location.origin), { method: 'HEAD' }).catch(() => null);
-  void r;
+  a.href = href;
+  a.download = name;
   a.click();
-  setTimeout(() => URL.revokeObjectURL(res), 1000);
+  setTimeout(() => URL.revokeObjectURL(href), 1000);
 }

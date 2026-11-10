@@ -12,6 +12,8 @@ const schema = z.object({
   APP_PUBLIC_URL: z.url().default('http://localhost:3000'),
   API_PUBLIC_URL: z.url().default('http://localhost:4000'),
   CORS_ORIGINS: z.string().default('http://localhost:3000'),
+  /** Proxies de confianza para leer la IP real (X-Forwarded-For): 'loopback', un número de saltos o CIDRs separados por comas */
+  TRUST_PROXY: z.string().default('loopback'),
 
   APP_DB_HOST: z.string().default('127.0.0.1'),
   APP_DB_PORT: z.coerce.number().int().optional(),

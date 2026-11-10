@@ -11,7 +11,7 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
 - [x] `.env.example` + `setup.sh` que genera secretos aleatorios
 - [x] Scripts: up, down, healthcheck, chatwoot-init, backup, restore
 - [x] Dify: instalador del compose oficial fijado a 1.19.0
-- [~] Arranque de Dify: instalador listo; descarga de imágenes bloqueada por el límite anónimo de Docker Hub en el entorno de construcción (pendiente de verificar)
+- [x] Arranque de Dify 1.19.0 verificado (`/console/api/ping` → pong), todos los puertos en 127.0.0.1
 
 ## FASE 2: backend, BD, auth, multiempresa
 - [x] apps/api NestJS 12, configuración validada con Zod, logs estructurados (pino) con redacción de secretos, health live/ready
@@ -22,13 +22,17 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
 - [x] Panel de plataforma: empresas, planes, suspensión, métricas
 - [x] Tests: 10 unitarios + 26 e2e contra PostgreSQL real (casos 1, 2 y 11)
 - [ ] Rate limiting con almacenamiento en Redis para varias instancias (FASE 8)
-- [ ] Mailpit en compose para ver correos en desarrollo (imagen no descargable en este entorno por el límite de Docker Hub)
+- [x] Mailpit en compose (perfil `mail`) para ver correos en desarrollo
 
-## FASE 3: frontend
-- [ ] Next.js + Tailwind, layout con sidebar, tema claro/oscuro
-- [ ] Dashboard con datos reales y filtros/exportación
-- [ ] Productos (CRUD, imágenes, import/export CSV/XLSX, historial, lector de códigos)
-- [ ] Inventario, clientes, pedidos
+## FASE 3: catálogo, inventario, pedidos y panel web
+- [x] API: categorías, productos con variantes, imágenes (validadas por contenido), historial, importación todo-o-nada y exportación CSV/XLSX, búsqueda por código de barras
+- [x] API: inventario por variante y sucursal con libro inmutable, ajustes, transferencias (plan Empresarial), alertas de stock
+- [x] API: clientes, pedidos idempotentes con precios de la BD, transiciones de estado con descuento/devolución de stock, exportación CSV
+- [x] API: panel de métricas en la zona horaria de la empresa y reporte de ventas CSV
+- [x] Next.js 16 + Tailwind 4: menú lateral por permisos, búsqueda global (Ctrl+K), tema claro/oscuro/sistema, móvil con menú desplegable
+- [x] Pantallas: inicio, productos (alta, edición, variantes, imágenes, historial, movimientos, importar/exportar, lector de códigos con cámara), categorías, inventario, pedidos, clientes, reportes, usuarios, configuración, plataforma
+- [x] Prueba de humo en Chromium real: 22 pasos (registro → verificación → login → catálogo → stock → pedido → anulación → roles → suspensión)
+- [ ] Conversaciones, asistente IA, automatizaciones e integraciones: se muestran como "Pronto" hasta sus fases
 
 ## FASE 4: WhatsApp + n8n
 - [ ] Adaptador Cloud API (webhook verificado, envío, plantillas) y adaptador Evolution opcional

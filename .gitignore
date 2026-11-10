@@ -10,3 +10,5 @@ coverage/
 *.log
 .DS_Store
 src/generated/
+apps/web/e2e/screenshots/
+*.tsbuildinfo
