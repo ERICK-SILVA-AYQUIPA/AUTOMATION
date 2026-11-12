@@ -22,7 +22,7 @@ interface NavItem { href: string; label: string; icon: typeof LayoutDashboard; p
 const NAV: NavItem[] = [
   { href: '/inicio', label: 'Inicio', icon: LayoutDashboard, permission: 'tenant:read' },
   { href: '/conversaciones', label: 'Conversaciones', icon: MessagesSquare, permission: 'conversations:read' },
-  { href: '/asistente', label: 'Asistente IA', icon: Bot, permission: 'ai:configure', soon: 'Fase 6' },
+  { href: '/asistente', label: 'Asistente IA', icon: Bot, permission: 'ai:configure' },
   { href: '/productos', label: 'Productos', icon: Package, permission: 'products:read' },
   { href: '/categorias', label: 'Categorías', icon: Tags, permission: 'products:read' },
   { href: '/inventario', label: 'Inventario', icon: Boxes, permission: 'inventory:read' },

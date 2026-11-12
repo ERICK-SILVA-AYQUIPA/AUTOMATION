@@ -9,9 +9,10 @@ import { MessagingModule } from './messaging/messaging.module.js';
 import { QueueWorkers } from './messaging/queue-workers.js';
 import { AutomationsModule } from './automations/automations.module.js';
 import { ChatwootModule } from './chatwoot/chatwoot.module.js';
+import { AiModule } from './ai/ai.module.js';
 import { AutomationDispatcher } from './automations/automation-dispatcher.js';
 
-/** Proceso worker: consume las colas de WhatsApp y entrega eventos a n8n. No expone HTTP. */
+/** Proceso worker: consume las colas de WhatsApp y del asistente de IA y entrega eventos a n8n. No expone HTTP. */
 @Module({
   imports: [
     ConfigModule,
@@ -31,6 +32,7 @@ import { AutomationDispatcher } from './automations/automation-dispatcher.js';
     MessagingModule,
     AutomationsModule,
     ChatwootModule,
+    AiModule,
   ],
   providers: [QueueWorkers, AutomationDispatcher],
 })

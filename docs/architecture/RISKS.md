@@ -2,7 +2,8 @@
 
 | Riesgo | Impacto | Mitigación |
 |---|---|---|
-| **Licencia Dify**: prohíbe operar un entorno *multi-tenant* (workspace = tenant) sin autorización escrita. | Alto (comercial) | Usar UN workspace operado por nosotros; las empresas nunca acceden a Dify; el aislamiento lo hace nuestro backend. **Confirmar por escrito con LangGenius antes del lanzamiento comercial.** Alternativa preparada: LLM directo con *tool calling* desde el worker (ADR 011). |
+| **Licencia Dify**: prohíbe operar un entorno multiempresa sin autorización. | Resuelto | Dify ya no se usa: IA directa a Gemini (ADR 037). |
+| **IA**: el modelo podría inventar un precio pese a las reglas, o Google cambiar el modelo por defecto. | Medio | Precios y stock solo por herramientas; pedidos siempre pendientes de confirmación humana; `GEMINI_MODEL` configurable; prueba en «Asistente IA» antes de activar. Plan de pago de Gemini para que Google no use los mensajes. |
 | **Licencia n8n** (Sustainable Use): permitido como capa interna si los clientes no acceden a la UI ni editan flujos. | Medio | El módulo "Automatizaciones" del panel solo activa/desactiva y parametriza flujos predefinidos; nunca expone un editor. Casos dudosos → license@n8n.io. |
 | **Licencia Evolution API**: Apache 2.0 + aviso visible de uso. | Bajo | Si se usa, mostrar aviso en Configuración > Integraciones y en la documentación. |
 | **Evolution/Baileys** usa WhatsApp Web no oficial. | Alto | Bloqueo de números y violación de términos de Meta. Solo desarrollo/demos; producción con Cloud API. |

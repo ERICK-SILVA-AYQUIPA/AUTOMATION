@@ -64,7 +64,7 @@ pnpm --filter @aisa/web dev            # desarrollo: http://localhost:3000
 # o producción local:
 pnpm --filter @aisa/web build && pnpm --filter @aisa/web start
 
-# Dify (proyecto compose separado, opcional hasta FASE 6)
+# Dify (ya no se usa: la IA llama directo a Gemini, ADR 037)
 ./services/dify/install.sh && ./services/dify/dify.sh up
 ```
 

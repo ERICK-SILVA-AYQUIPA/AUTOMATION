@@ -44,6 +44,14 @@ const schema = z.object({
 
   /** WhatsApp Cloud API (docs/integrations/whatsapp-cloud-api.md) */
   WHATSAPP_GRAPH_BASE_URL: z.url().default('https://graph.facebook.com'),
+
+  /** Asistente de IA (ADR 037): Gemini API de Google. Vacío = el asistente no responde */
+  GEMINI_API_KEY: z.string().trim().default(''),
+  GEMINI_MODEL: z.string().regex(/^[a-z0-9][a-z0-9.-]{2,63}$/).default('gemini-3.8-flash'),
+  /** Solo para pruebas (servidor simulado); en producción debe quedar el oficial */
+  GEMINI_BASE_URL: z.url().default('https://generativelanguage.googleapis.com'),
+  /** Espera antes de responder, para juntar varios mensajes seguidos del cliente */
+  AI_REPLY_DELAY_MS: z.coerce.number().int().min(0).max(60_000).default(2_500),
   WHATSAPP_GRAPH_API_VERSION: z.string().regex(/^v\d+\.\d+$/, 'formato vNN.N, p. ej. v26.0').default('v26.0'),
   /** Solo si la plataforma usa UNA app de Meta para todas las empresas (Embedded Signup). Vacío = cada número aporta el suyo. */
   WHATSAPP_APP_SECRET: z.string().default(''),
@@ -126,6 +134,7 @@ export function productionProblems(e: z.infer<typeof schema>): string[] {
   if (e.N8N_WEBHOOK_BASE_URL && !e.N8N_INTERNAL_TOKEN) out.push('N8N_INTERNAL_TOKEN es obligatorio si N8N_WEBHOOK_BASE_URL está definido');
   if (e.CHATWOOT_PLATFORM_TOKEN && !publicHttps(e.CHATWOOT_WEBHOOK_BASE_URL)) out.push('CHATWOOT_WEBHOOK_BASE_URL debe ser la URL https pública de la API');
   if (e.WHATSAPP_GRAPH_BASE_URL !== 'https://graph.facebook.com') out.push('WHATSAPP_GRAPH_BASE_URL solo puede cambiarse en desarrollo y pruebas');
+  if (e.GEMINI_BASE_URL !== 'https://generativelanguage.googleapis.com') out.push('GEMINI_BASE_URL solo puede cambiarse en desarrollo y pruebas');
   return out;
 }
 

@@ -5,7 +5,9 @@ import { QUEUE, Queues, queueConnection } from '../queues/queues.module.js';
 import { InboundService } from './inbound.service.js';
 import { OutboundService, PermanentSendError } from './outbound.service.js';
 import { ChatwootSyncService, ChatwootPermanentError } from '../chatwoot/chatwoot-sync.service.js';
-import type { ChatwootJob } from '../queues/queues.module.js';
+import type { AiReplyJob, ChatwootJob } from '../queues/queues.module.js';
+import { AssistantService } from '../ai/assistant.service.js';
+import { LlmError } from '../ai/chat-model.js';
 
 /**
  * Consumidores de las colas. Solo se instancian en el proceso worker (src/worker.ts),
@@ -23,6 +25,7 @@ export class QueueWorkers implements OnApplicationBootstrap, OnApplicationShutdo
     private readonly outbound: OutboundService,
     private readonly queues: Queues,
     private readonly chatwootSync: ChatwootSyncService,
+    private readonly assistant: AssistantService,
   ) {}
 
   onApplicationBootstrap() {
@@ -33,6 +36,10 @@ export class QueueWorkers implements OnApplicationBootstrap, OnApplicationShutdo
         const r = await this.inbound.processEvent(job.data.eventId);
         // Espejo en Chatwoot: mensaje nuevo del cliente o cambio de estado de uno nuestro
         if (r.outcome === 'processed' && r.messageId && r.tenantId) await this.queues.mirrorToChatwoot(r.tenantId, r.messageId, r.kind === 'status' ? 'status' : 'mirror');
+        // Mensaje nuevo del cliente: el asistente decide si responde (tras una breve espera)
+        if (r.outcome === 'processed' && r.kind === 'message' && r.messageId && r.tenantId && r.conversationId && this.assistant.configured) {
+          await this.queues.replyWithAi({ tenantId: r.tenantId, conversationId: r.conversationId, messageId: r.messageId });
+        }
         return r;
       },
       { connection, prefix: this.env.QUEUE_PREFIX, concurrency: 10 },
@@ -80,12 +87,31 @@ export class QueueWorkers implements OnApplicationBootstrap, OnApplicationShutdo
       if (job && job.attemptsMade >= (job.opts.attempts ?? 1)) this.log.warn(`Chatwoot (${job.data.kind} ${job.data.messageId}) sin éxito: ${err.message}`);
     });
 
-    for (const w of [inbound, outbound, chatwoot]) w.on('error', (e) => this.log.error(`Cola: ${e.message}`));
-    this.workers = [inbound, outbound, chatwoot];
+    const ai = new Worker<AiReplyJob>(
+      QUEUE.AI_REPLY,
+      async (job) => {
+        try {
+          return await this.assistant.reply(job.data.tenantId, job.data.conversationId, job.data.messageId);
+        } catch (e) {
+          // Clave inválida, consulta bloqueada…: reintentar no sirve
+          if (e instanceof LlmError && !e.retryable) throw new UnrecoverableError(e.message);
+          throw e;
+        }
+      },
+      { connection, prefix: this.env.QUEUE_PREFIX, concurrency: 5 },
+    );
+    ai.on('failed', (job, err) => {
+      if (job && (err.name === 'UnrecoverableError' || job.attemptsMade >= (job.opts.attempts ?? 1))) {
+        void this.assistant.failed(job.data.tenantId, job.data.conversationId, err).catch(() => undefined);
+      }
+    });
+
+    for (const w of [inbound, outbound, chatwoot, ai]) w.on('error', (e) => this.log.error(`Cola: ${e.message}`));
+    this.workers = [inbound, outbound, chatwoot, ai];
 
     // Recupera eventos guardados que no llegaron a encolarse (p. ej. Redis caído)
     this.sweeper = setInterval(() => void this.sweep().catch((e) => this.log.warn(`Barrido: ${(e as Error).message}`)), 60_000);
-    this.log.log('Worker listo: colas wa-inbound, wa-outbound y chatwoot-sync');
+    this.log.log(`Worker listo: colas wa-inbound, wa-outbound, chatwoot-sync y ai-reply${this.assistant.configured ? '' : ' (asistente sin GEMINI_API_KEY: no responde)'}`);
   }
 
   async sweep() {

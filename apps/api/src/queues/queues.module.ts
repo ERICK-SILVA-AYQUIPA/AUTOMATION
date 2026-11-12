@@ -10,7 +10,11 @@ export const QUEUE = {
   WA_OUTBOUND: 'wa-outbound',
   /** Espejo de mensajes y estados en Chatwoot (FASE 5); un solo consumidor para mantener el orden */
   CHATWOOT_SYNC: 'chatwoot-sync',
+  /** Respuestas del asistente de IA a mensajes entrantes (FASE 6) */
+  AI_REPLY: 'ai-reply',
 } as const;
+
+export type AiReplyJob = { tenantId: string; conversationId: string; messageId: string };
 
 export type ChatwootJob = { kind: 'mirror' | 'status'; tenantId: string; messageId: string };
 
@@ -27,6 +31,7 @@ export class Queues implements OnModuleDestroy {
   readonly inbound: Queue;
   readonly outbound: Queue;
   readonly chatwoot: Queue<ChatwootJob>;
+  readonly ai: Queue<AiReplyJob>;
 
   constructor(@Inject(ENV) env: Env) {
     const connection = queueConnection(env);
@@ -39,6 +44,16 @@ export class Queues implements OnModuleDestroy {
       defaultJobOptions: { ...defaults, attempts: env.WHATSAPP_SEND_MAX_ATTEMPTS, backoff: { type: 'exponential', delay: 4_000 } },
     });
     this.chatwoot = new Queue<ChatwootJob>(QUEUE.CHATWOOT_SYNC, { connection, prefix: env.QUEUE_PREFIX, defaultJobOptions: { ...defaults, attempts: 10, backoff: { type: 'exponential', delay: 3_000 } } });
+    // Cuota o caída de Gemini: 4 intentos (10, 20, 40 s); después se pasa la conversación a una persona
+    this.ai = new Queue<AiReplyJob>(QUEUE.AI_REPLY, { connection, prefix: env.QUEUE_PREFIX, defaultJobOptions: { ...defaults, attempts: 4, backoff: { type: 'exponential', delay: 10_000 } } });
+    this.aiDelay = env.AI_REPLY_DELAY_MS;
+  }
+
+  private readonly aiDelay: number;
+
+  /** Encola la respuesta del asistente a un mensaje entrante (una por mensaje) */
+  async replyWithAi(job: AiReplyJob) {
+    await this.ai.add('reply', job, { jobId: `ai-${job.messageId}`, delay: this.aiDelay }).catch(() => undefined);
   }
 
   /** Encola el espejo en Chatwoot; si Redis falla no se interrumpe el flujo principal */
@@ -48,7 +63,7 @@ export class Queues implements OnModuleDestroy {
   }
 
   async onModuleDestroy() {
-    await Promise.all([this.inbound.close(), this.outbound.close(), this.chatwoot.close()]);
+    await Promise.all([this.inbound.close(), this.outbound.close(), this.chatwoot.close(), this.ai.close()]);
   }
 }
 

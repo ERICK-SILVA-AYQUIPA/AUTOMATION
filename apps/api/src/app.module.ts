@@ -25,6 +25,7 @@ import { RedisThrottlerStorage } from './common/throttler-redis.storage.js';
 import { QueuesModule } from './queues/queues.module.js';
 import { AutomationsModule } from './automations/automations.module.js';
 import { ChatwootModule } from './chatwoot/chatwoot.module.js';
+import { AiModule } from './ai/ai.module.js';
 import { InternalModule } from './automations/internal.module.js';
 import { MessagingModule } from './messaging/messaging.module.js';
 import { AuthGuard } from './common/guards/auth.guard.js';
@@ -86,6 +87,7 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
     AutomationsModule,
     InternalModule,
     ChatwootModule,
+    AiModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

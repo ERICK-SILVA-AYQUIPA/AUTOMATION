@@ -17,7 +17,7 @@ sin modificar su código:
 | Evolution API | Canal alternativo / desarrollo (opcional) | `evoapicloud/evolution-api:v2.3.7` | Apache 2.0 + condiciones |
 | n8n | Automatizaciones internas | `n8nio/n8n:3.2.0` | Sustainable Use License |
 | Chatwoot | Bandeja humana y supervisión | `chatwoot/chatwoot:v4.19.1` | MIT (salvo `enterprise/`) |
-| Dify | Motor de IA (interpretación y redacción) | `1.19.0` (compose oficial) | Apache 2.0 modificada |
+| Gemini API (Google) | Modelo de lenguaje del asistente (ADR 037), llamado por HTTPS desde el worker | `GEMINI_MODEL` (por defecto `gemini-3.8-flash`) | Servicio de pago por uso |
 
 Versiones verificadas el 2026-11-10 contra las etiquetas de cada repositorio y los
 manifiestos de Docker Hub. Detalle de licencias en `/LICENSES.md`.
@@ -42,7 +42,7 @@ flowchart LR
   end
   subgraph "Servicios integrados"
     CW[Chatwoot]
-    DF[Dify]
+    DF[Gemini API]
     N8N[n8n]
     EVO[Evolution API<br/>opcional]
   end
@@ -106,31 +106,32 @@ Tres capas, ninguna depende del frontend:
    `BYPASSRLS`; cada transacción ejecuta `SELECT set_config('app.tenant_id', $1, true)`.
    Las migraciones usan un rol propietario distinto.
 3. **Servicios externos:** una *Account* de Chatwoot por empresa (Platform API);
-   en Dify se pasan `tenant_id` y el contexto en `inputs` controlados por el
-   backend, y `user = tenant:<id>:customer:<id>`, de modo que las sesiones
-   nunca se mezclan.
+   al modelo de IA solo se le envía la conversación de un cliente y los
+   resultados de herramientas que el backend ejecuta con la empresa de esa
+   conversación, de modo que las empresas nunca se mezclan.
 
-## 5. Asistente IA y herramientas seguras
+## 5. Asistente IA y herramientas seguras (ADR 037)
 
-La IA **no** accede a la base de datos. El flujo es:
+La IA **no** accede a la base de datos. El flujo (`apps/api/src/ai`):
 
-1. El worker recibe el mensaje (texto no confiable) y construye el contexto:
-   empresa, cliente, carrito en curso, últimos productos consultados.
-2. Dify interpreta la intención y propone una acción estructurada.
-3. El backend ejecuta la herramienta autorizada con el `tenant_id` de la sesión
-   (no el que diga el modelo): `buscar_productos`, `consultar_stock`,
-   `consultar_precio`, `consultar_pedido`, `crear_pedido`,
-   `solicitar_atencion_humana`. Cada una valida argumentos (zod), permisos,
-   límites del plan y reglas de negocio.
-4. Dify redacta la respuesta en español usando **solo** los datos devueltos.
-5. Validación de salida: si la respuesta menciona precios/stock que no vienen de
-   la herramienta, se descarta y se responde con plantilla segura.
+1. El worker guarda el mensaje (texto no confiable) y encola `ai-reply` con una
+   breve espera (`AI_REPLY_DELAY_MS`) para juntar mensajes seguidos.
+2. Antes de llamar al modelo comprueba: asistente activado, conversación sin
+   atención humana, suscripción vigente, límite de conversaciones del plan y
+   palabras de derivación (estas responden sin llamar al modelo).
+3. Envía a Gemini las instrucciones (reglas + información del negocio), los
+   últimos 20 mensajes y 4 herramientas. El backend las ejecuta con la empresa y
+   el cliente de la conversación, nunca con lo que diga el modelo:
+   `buscar_productos`, `ver_pedidos_del_cliente`, `crear_pedido`,
+   `derivar_a_humano`. Argumentos validados con zod; máximo 5 rondas.
+4. La respuesta sale por `OutboundService` (ventana de 24 h, suscripción,
+   idempotencia `ai:<mensaje>`), igual que la de un agente.
+5. Si Gemini falla, se reintenta (cuota o caída); al agotarse, la conversación
+   pasa a una persona con aviso en el panel.
 
-`crear_pedido` exige un resumen mostrado al cliente y su confirmación explícita
-("sí, confirmo"), con **clave de idempotencia** = hash(conversación + carrito
-confirmado). El descuento de stock ocurre en una transacción con
-`SELECT ... FOR UPDATE` y una restricción única `(order_id, type)` en los
-movimientos para impedir dobles descuentos.
+`crear_pedido` solo registra pedidos **PENDIENTES** con precios de la base de
+datos y clave de idempotencia (mensaje + carrito); el stock se descuenta cuando
+una persona confirma el pedido en el panel.
 
 ## 6. Diagramas de secuencia
 
@@ -144,7 +145,7 @@ sequenceDiagram
   participant A as api
   participant Q as Redis/BullMQ
   participant W as worker
-  participant D as Dify
+  participant D as Gemini API
   participant CW as Chatwoot
   C->>M: "¿Tienen Nike talla 42?"
   M->>A: POST /webhooks/whatsapp (X-Hub-Signature-256)
@@ -174,7 +175,7 @@ sequenceDiagram
   autonumber
   participant C as Cliente
   participant W as worker
-  participant D as Dify
+  participant D as Gemini API
   participant A as api (OrdersService)
   participant P as PostgreSQL
   participant N as n8n

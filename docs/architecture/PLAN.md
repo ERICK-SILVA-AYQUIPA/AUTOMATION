@@ -51,8 +51,14 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
 - [x] Cierre del asistente de instalación de Chatwoot (`setup-platform.sh`)
 - [ ] Adjuntos reales (FASE 7) y publicación segura de Chatwoot por HTTPS (FASE 8)
 
-## FASE 6: Dify + IA
-- [ ] App de Dify (interpretación + redacción), herramientas seguras en backend, validación de salida
+## FASE 6: IA (Gemini directo, ADR 037)
+- [x] Cliente de la Gemini API (`generateContent` con herramientas, firmas de pensamiento) detrás de la interfaz `ChatModel`
+- [x] Herramientas seguras en el backend: buscar productos, ver pedidos del cliente, pedido PENDIENTE (sin tocar stock, idempotente) y pasar a una persona
+- [x] Cola `ai-reply` en el worker: junta mensajes seguidos, respeta atención humana, suscripción, límite de conversaciones del plan y ventana de 24 h; reintenta cuota/caídas y, si se agotan, pasa a una persona
+- [x] Pantalla «Asistente IA»: configuración y prueba en vivo sin enviar por WhatsApp
+- [x] Pruebas: 8 de integración contra un Gemini simulado y 6 pasos en navegador (`apps/web/e2e/assistant.mjs`)
+- [ ] Prueba con la clave real de Gemini (pendiente: la clave está en otro entorno de la nube)
+- [ ] Validación automática de la respuesta (precios citados sin herramienta): hoy lo controlan las reglas del prompt
 
 ## FASE 7: automatizaciones, pedidos, inventario, notificaciones
 ## FASE 8: seguridad, pruebas E2E, optimización, documentación, producción
