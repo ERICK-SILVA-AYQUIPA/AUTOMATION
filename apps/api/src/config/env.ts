@@ -85,6 +85,10 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     throw new Error(`Configuración inválida:\n${issues}`);
   }
   const e = parsed.data;
+  if (e.NODE_ENV === 'production') {
+    const problems = productionProblems(e);
+    if (problems.length) throw new Error(`Configuración inválida para producción:\n${problems.map((p) => `  - ${p}`).join('\n')}`);
+  }
   const port = e.APP_DB_PORT ?? e.POSTGRES_HOST_PORT;
   const url = (u: string, p: string) =>
     `postgresql://${encodeURIComponent(u)}:${encodeURIComponent(p)}@${e.APP_DB_HOST}:${port}/${encodeURIComponent(e.APP_DB_NAME)}`;
@@ -94,6 +98,31 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     systemDatabaseUrl: url(e.APP_DB_SYSTEM_USER, e.APP_DB_SYSTEM_PASSWORD),
     isProd: e.NODE_ENV === 'production',
   };
+}
+
+/**
+ * Reglas extra de producción: un descuido aquí (URL http, CORS a localhost, sin
+ * SMTP) rompe el inicio de sesión o abre la API, así que la API no arranca.
+ */
+export function productionProblems(e: z.infer<typeof schema>): string[] {
+  const out: string[] = [];
+  const publicHttps = (v: string) => {
+    try {
+      const u = new URL(v);
+      return u.protocol === 'https:' && !['localhost', '127.0.0.1', '::1', '[::1]'].includes(u.hostname);
+    } catch {
+      return false;
+    }
+  };
+  for (const k of ['APP_PUBLIC_URL', 'API_PUBLIC_URL'] as const) if (!publicHttps(e[k])) out.push(`${k} debe ser una URL https pública (es ${e[k]})`);
+  const origins = e.CORS_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean);
+  if (!origins.length || origins.some((o) => !publicHttps(o))) out.push('CORS_ORIGINS debe contener solo orígenes https públicos');
+  if (!e.SMTP_HOST) out.push('SMTP_HOST es obligatorio (verificación de correo y recuperación de contraseña)');
+  if (e.MAIL_FROM.includes('@localhost')) out.push('MAIL_FROM debe usar un dominio real');
+  if (e.N8N_WEBHOOK_BASE_URL && !e.N8N_INTERNAL_TOKEN) out.push('N8N_INTERNAL_TOKEN es obligatorio si N8N_WEBHOOK_BASE_URL está definido');
+  if (e.CHATWOOT_PLATFORM_TOKEN && !publicHttps(e.CHATWOOT_WEBHOOK_BASE_URL)) out.push('CHATWOOT_WEBHOOK_BASE_URL debe ser la URL https pública de la API');
+  if (e.WHATSAPP_GRAPH_BASE_URL !== 'https://graph.facebook.com') out.push('WHATSAPP_GRAPH_BASE_URL solo puede cambiarse en desarrollo y pruebas');
+  return out;
 }
 
 export const ENV = Symbol('ENV');

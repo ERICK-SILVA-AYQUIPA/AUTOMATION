@@ -16,4 +16,15 @@ describe('configuración', () => {
     expect(() => loadEnv({ ...base, JWT_SECRET: 'corto' })).toThrow(/JWT_SECRET/);
     expect(() => loadEnv({ ...base, DATA_ENCRYPTION_KEY: undefined })).toThrow(/DATA_ENCRYPTION_KEY/);
   });
+  it('en producción exige https públicos, SMTP y tokens de integración', () => {
+    expect(() => loadEnv({ ...base, NODE_ENV: 'production' })).toThrow(/APP_PUBLIC_URL[\s\S]*CORS_ORIGINS[\s\S]*SMTP_HOST/);
+    const prod = {
+      ...base, NODE_ENV: 'production', APP_PUBLIC_URL: 'https://app.ejemplo.pe', API_PUBLIC_URL: 'https://app.ejemplo.pe',
+      CORS_ORIGINS: 'https://app.ejemplo.pe', SMTP_HOST: 'smtp.ejemplo.pe', MAIL_FROM: 'Ventas <no-reply@ejemplo.pe>',
+    };
+    expect(loadEnv(prod).isProd).toBe(true);
+    expect(() => loadEnv({ ...prod, N8N_WEBHOOK_BASE_URL: 'http://n8n:5678/webhook' })).toThrow(/N8N_INTERNAL_TOKEN/);
+    expect(() => loadEnv({ ...prod, WHATSAPP_GRAPH_BASE_URL: 'http://127.0.0.1:4999' })).toThrow(/WHATSAPP_GRAPH_BASE_URL/);
+    expect(() => loadEnv({ ...prod, CHATWOOT_PLATFORM_TOKEN: 't', CHATWOOT_WEBHOOK_BASE_URL: 'http://api:4000' })).toThrow(/CHATWOOT_WEBHOOK_BASE_URL/);
+  });
 });

@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, ServiceUnavailableException } from '@nestjs/common';
+import { Controller, Get, Inject, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { Redis } from 'ioredis';
 import { Public } from '../common/decorators/auth.decorators.js';
@@ -9,6 +9,7 @@ import { REDIS } from './redis.provider.js';
 @SkipThrottle()
 @Controller('health')
 export class HealthController {
+  private readonly log = new Logger('Health');
   constructor(
     private readonly db: DatabaseService,
     @Inject(REDIS) private readonly redis: Redis,
@@ -29,7 +30,9 @@ export class HealthController {
         await fn();
         return { status: 'up', ms: Date.now() - t };
       } catch (e) {
-        return { status: 'down', error: (e as Error).message };
+        // El detalle (hosts, usuarios) solo va al log: esta ruta es pública
+        this.log.warn(`Comprobación de salud fallida: ${(e as Error).message}`);
+        return { status: 'down' };
       }
     };
     const checks = {

@@ -16,6 +16,9 @@ export function setTestEnv() {
   if (!process.env.APP_DB_NAME?.endsWith('_test')) process.env.APP_DB_NAME = `${process.env.APP_DB_NAME}_test`;
   process.env.LOG_LEVEL = 'warn';
   process.env.QUEUE_PREFIX = 'aisa-test';
+  // Los contadores del límite viven en Redis y se comparten entre archivos de prueba:
+  // solo rate-limit.e2e-spec.ts lo activa (después de llamar a esta función)
+  process.env.THROTTLE_DISABLED = 'true';
 }
 
 export function ownerClient() {

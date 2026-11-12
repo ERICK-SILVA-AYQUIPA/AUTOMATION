@@ -19,7 +19,9 @@ import { CatalogModule } from './catalog/catalog.module.js';
 import { CustomersModule } from './customers/customers.module.js';
 import { OrdersModule } from './orders/orders.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
-import { RedisModule } from './health/redis.provider.js';
+import { REDIS, RedisModule } from './health/redis.provider.js';
+import type { Redis } from 'ioredis';
+import { RedisThrottlerStorage } from './common/throttler-redis.storage.js';
 import { QueuesModule } from './queues/queues.module.js';
 import { AutomationsModule } from './automations/automations.module.js';
 import { ChatwootModule } from './chatwoot/chatwoot.module.js';
@@ -37,7 +39,9 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
         pinoHttp: {
           level: env.LOG_LEVEL,
           genReqId: (req, res) => {
-            const id = (req.headers['x-request-id'] as string) || randomUUID();
+            // Solo se acepta un id del cliente con formato seguro (evita inyección en los logs)
+            const given = req.headers['x-request-id'];
+            const id = typeof given === 'string' && /^[A-Za-z0-9._-]{8,64}$/.test(given) ? given : randomUUID();
             res.setHeader('x-request-id', id);
             return id;
           },
@@ -52,10 +56,15 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
       }),
     }),
     // Límite general: 120 peticiones/min por IP (los endpoints de auth tienen uno más estricto)
-    ThrottlerModule.forRoot({
-      throttlers: [{ name: 'default', ttl: 60_000, limit: 120 }],
-      // Solo las pruebas automatizadas pueden desactivarlo (nunca en producción)
-      skipIf: () => process.env.NODE_ENV === 'test' && process.env.THROTTLE_DISABLED === 'true',
+    // Contadores en Redis: compartidos entre instancias y persistentes a reinicios
+    ThrottlerModule.forRootAsync({
+      inject: [ENV, REDIS],
+      useFactory: (env: Env, redis: Redis) => ({
+        throttlers: [{ name: 'default', ttl: 60_000, limit: 120 }],
+        storage: new RedisThrottlerStorage(redis, env.QUEUE_PREFIX),
+        // Solo las pruebas automatizadas pueden desactivarlo (nunca en producción)
+        skipIf: () => process.env.NODE_ENV === 'test' && process.env.THROTTLE_DISABLED === 'true',
+      }),
     }),
     DatabaseModule,
     RedisModule,

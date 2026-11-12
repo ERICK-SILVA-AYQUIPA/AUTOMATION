@@ -156,14 +156,18 @@ export class AuthService {
     }
     const ok = await argon2.verify(user.passwordHash, input.password);
     if (!ok) {
-      const failed = user.failedLoginCount + 1;
-      await this.db.system.user.update({
+      // Incremento atómico: intentos en paralelo no pueden saltarse el bloqueo
+      const { failedLoginCount: failed } = await this.db.system.user.update({
         where: { id: user.id },
-        data: {
-          failedLoginCount: failed >= MAX_FAILED_LOGINS ? 0 : failed,
-          lockedUntil: failed >= MAX_FAILED_LOGINS ? new Date(Date.now() + LOCK_MINUTES * 60_000) : null,
-        },
+        data: { failedLoginCount: { increment: 1 } },
+        select: { failedLoginCount: true },
       });
+      if (failed >= MAX_FAILED_LOGINS) {
+        await this.db.system.user.update({
+          where: { id: user.id },
+          data: { failedLoginCount: 0, lockedUntil: new Date(Date.now() + LOCK_MINUTES * 60_000) },
+        });
+      }
       await this.audit.system({ tenantId: user.tenantId, userId: user.id, action: 'auth.login_failed', ip: client.ip, userAgent: client.userAgent });
       throw invalid;
     }

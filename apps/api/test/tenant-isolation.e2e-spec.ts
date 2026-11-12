@@ -98,16 +98,28 @@ describe('Aislamiento entre empresas (caso 11)', () => {
     });
 
     it('tablas de sistema (tokens de auth, webhooks) son inaccesibles para el rol de ejecución', async () => {
-      expect(await asTenant(a.tenantId, (tx) => tx.authToken.count())).toBe(0);
+      // Además de RLS, el rol de ejecución no tiene ningún permiso sobre ellas
+      await expect(asTenant(a.tenantId, (tx) => tx.authToken.count())).rejects.toThrow(/permission denied/i);
       expect(await owner.authToken.count()).toBeGreaterThan(0);
-      await expect(asTenant(a.tenantId, (tx) => tx.inboundEvent.create({ data: { provider: 'x', externalId: '1', payload: {} } }))).rejects.toThrow(/row-level security/i);
+      await expect(asTenant(a.tenantId, (tx) => tx.inboundEvent.create({ data: { provider: 'x', externalId: '1', payload: {} } }))).rejects.toThrow(/permission denied/i);
     });
 
     it('el historial de auditoría es de solo-anexar', async () => {
-      const upd = await asTenant(a.tenantId, (tx) => tx.auditLog.updateMany({ data: { action: 'borrado' } }));
-      const del = await asTenant(a.tenantId, (tx) => tx.auditLog.deleteMany({}));
-      expect(upd.count).toBe(0);
-      expect(del.count).toBe(0);
+      await expect(asTenant(a.tenantId, (tx) => tx.auditLog.updateMany({ data: { action: 'borrado' } }))).rejects.toThrow(/permission denied/i);
+      await expect(asTenant(a.tenantId, (tx) => tx.auditLog.deleteMany({}))).rejects.toThrow(/permission denied/i);
+      expect(await owner.auditLog.count({ where: { action: 'borrado' } })).toBe(0);
+    });
+
+    it('una empresa no puede cambiar su propio estado ni su plan, solo sus datos', async () => {
+      await expect(asTenant(a.tenantId, (tx) => tx.tenant.update({ where: { id: a.tenantId }, data: { status: 'ACTIVE' } }))).rejects.toThrow(/permission denied/i);
+      await expect(asTenant(a.tenantId, (tx) => tx.subscription.updateMany({ data: { status: 'ACTIVE' } }))).rejects.toThrow(/permission denied/i);
+      await expect(asTenant(a.tenantId, (tx) => tx.plan.updateMany({ data: { name: 'x' } }))).rejects.toThrow(/permission denied/i);
+      const t = await asTenant(a.tenantId, (tx) => tx.tenant.update({ where: { id: a.tenantId }, data: { name: 'Nombre nuevo' } }));
+      expect(t.name).toBe('Nombre nuevo');
+    });
+
+    it('ningún rol de la aplicación puede tocar el historial de migraciones', async () => {
+      await expect(asTenant(a.tenantId, (tx) => tx.$queryRaw`SELECT count(*) FROM _prisma_migrations`)).rejects.toThrow(/permission denied/i);
     });
   });
 });

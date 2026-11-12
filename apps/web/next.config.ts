@@ -7,7 +7,28 @@ import type { NextConfig } from 'next';
  */
 const API_INTERNAL_URL = process.env.API_INTERNAL_URL ?? 'http://127.0.0.1:4000';
 
+// CSP: sin plugins, sin marcos de terceros, formularios y peticiones solo al mismo
+// origen (la API está detrás de /api). Next inyecta scripts en línea al hidratar, por
+// eso 'unsafe-inline' en script-src; 'unsafe-eval' solo lo usa el modo desarrollo.
+// Las imágenes de productos pueden venir de API_PUBLIC_URL (otro origen): img-src https.
+const isDev = process.env.NODE_ENV !== 'production';
+const csp = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
+  "style-src 'self' 'unsafe-inline'",
+  `img-src 'self' data: blob: https: http://localhost:* http://127.0.0.1:*${isDev ? ' http:' : ''}`,
+  "font-src 'self' data:",
+  `connect-src 'self'${isDev ? ' ws:' : ''}`,
+  "media-src 'self' blob:",
+  "worker-src 'self' blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join('; ');
+
 const securityHeaders = [
+  { key: 'Content-Security-Policy', value: csp },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },

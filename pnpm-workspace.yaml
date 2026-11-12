@@ -16,3 +16,5 @@ ignoredBuiltDependencies:
 # Parche de seguridad transitivo (GHSA-w5hq-g745-h8pq): exceljs fija uuid 8.x
 overrides:
   "exceljs>uuid": "^11.1.1"
+  # GHSA-r53p-7pc4-xj5r (minimatch, solo herramienta de lint)
+  "@typescript-eslint/typescript-estree>minimatch": "^11.0.1"
