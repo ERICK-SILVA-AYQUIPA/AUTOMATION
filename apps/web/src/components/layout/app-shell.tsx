@@ -12,6 +12,7 @@ import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/lib/theme';
 import { api } from '@/lib/api';
 import { cn, Spinner } from '@/components/ui';
+import { SubscriptionBanner } from '@/components/subscription-banner';
 import { ROLE_LABEL, customerLabel, money, phoneLabel } from '@/lib/format';
 import type { Customer, Order, Paged, Product } from '@/lib/types';
 
@@ -235,7 +236,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           </button>
         </div>
       </header>
-      <main className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">{children}</main>
+      <main className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
+        <SubscriptionBanner />
+        {children}
+      </main>
     </div>
   );
 }

@@ -57,6 +57,12 @@ export type Tenant = Prisma.TenantModel
  */
 export type Subscription = Prisma.SubscriptionModel
 /**
+ * Model Payment
+ * Pago registrado a mano por el administrador general (cobro manual, ADR 036).
+ * Solo lo escribe el rol de sistema; la empresa puede leer los suyos.
+ */
+export type Payment = Prisma.PaymentModel
+/**
  * Model UsageCounter
  * 
  */

@@ -178,6 +178,21 @@ describe('Chatwoot: cuenta por empresa, espejo de mensajes y respuestas de agent
     await owner.message.updateMany({ where: { conversationId, direction: 'INBOUND' }, data: { createdAt: new Date() } });
   });
 
+  it('con la suscripción vencida, la respuesta del agente no sale por WhatsApp y se marca como fallida', async () => {
+    const sub = await owner.subscription.findUniqueOrThrow({ where: { tenantId: a.tenantId } });
+    const past = new Date(Date.now() - 1000);
+    await owner.subscription.update({ where: { tenantId: a.tenantId }, data: { trialEndsAt: past, currentPeriodEnd: past } });
+    try {
+      await post(keyA, agentReply(7007)).expect(200);
+      expect(await owner.outboundMessage.count({ where: { idempotencyKey: 'chatwoot:7007' } })).toBe(0);
+      const patch = calls.filter((c) => c.method === 'PATCH' && c.path.endsWith('/messages/7007')).at(-1)!;
+      expect(patch.body).toMatchObject({ status: 'failed' });
+      expect(String(patch.body!.external_error)).toMatch(/suscripción/);
+    } finally {
+      await owner.subscription.update({ where: { tenantId: a.tenantId }, data: { trialEndsAt: sub.trialEndsAt, currentPeriodEnd: sub.currentPeriodEnd } });
+    }
+  });
+
   it('el estado de entrega de WhatsApp se copia al mensaje de Chatwoot', async () => {
     const m = await owner.message.findFirstOrThrow({ where: { chatwootMessageId: 7001 } });
     await owner.message.update({ where: { id: m.id }, data: { status: 'read' } });

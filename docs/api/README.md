@@ -38,6 +38,12 @@ Contraseñas: mínimo 10 caracteres con letras y números; hash Argon2id.
 | POST | `/users/:id/resend-invitation` | `users:manage` |
 | PATCH | `/users/:id` | `users:manage` (nombre, rol, ACTIVE/DISABLED; desactivar revoca sesiones) |
 
+## Suscripción y solo lectura (ADR 036)
+
+`GET /auth/me` y `GET /tenant` incluyen `subscription.access = { state: TRIAL|ACTIVE|GRACE|EXPIRED|CANCELED, readOnly, endsAt, graceEndsAt, daysLeft }`.
+Con `readOnly`, toda petición que modifica datos responde **402** `{ code: "SUBSCRIPTION_EXPIRED" }`, salvo `/auth/*` y el acceso a Chatwoot. Las lecturas siguen funcionando.
+`GET /tenant/payments` (administrador de la empresa): pagos registrados.
+
 ## Plataforma (`/platform`), solo ADMINISTRADOR GENERAL
 
 | Método | Ruta | Descripción |
@@ -45,6 +51,10 @@ Contraseñas: mínimo 10 caracteres con letras y números; hash Argon2id.
 | GET | `/platform/tenants?q=&status=&page=&pageSize=` | Empresas con plan y nº de usuarios |
 | PATCH | `/platform/tenants/:id/status` | `ACTIVE` / `SUSPENDED` (bloquea el acceso de inmediato) |
 | PATCH | `/platform/tenants/:id/plan` | Cambio manual de plan (sin cobro) |
+| GET | `/platform/plans` | Planes activos con precio |
+| POST | `/platform/tenants/:id/payments` | Registra un pago manual `{planCode, months 1-24, amount, currency, method: YAPE\|PLIN\|BANK_TRANSFER\|CASH\|OTHER, reference?, paidAt?}`: activa el plan; si el periodo sigue vigente los meses se suman al final |
+| GET | `/platform/tenants/:id/payments` | Historial de pagos de la empresa |
+| POST | `/platform/tenants/:id/cancel-subscription` | Cancela: la empresa queda en solo lectura de inmediato |
 | GET | `/platform/metrics` | Métricas globales |
 
 ## WhatsApp (`/whatsapp/numbers`) — permiso `integrations:manage`

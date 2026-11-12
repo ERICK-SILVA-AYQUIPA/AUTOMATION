@@ -1,5 +1,5 @@
 import { Controller, Get, Post } from '@nestjs/common';
-import { RequirePermission, TenantUser } from '../common/decorators/auth.decorators.js';
+import { AllowWhenReadOnly, RequirePermission, TenantUser } from '../common/decorators/auth.decorators.js';
 import type { TenantPrincipal } from '../common/context/principal.js';
 import { ChatwootService } from './chatwoot.service.js';
 
@@ -19,7 +19,10 @@ export class ChatwootController {
     return this.chatwoot.connect(p);
   }
 
-  /** Enlace de inicio de sesión único en Chatwoot para el usuario actual */
+  /** Enlace de inicio de sesión único en Chatwoot para el usuario actual.
+   *  Permitido en solo lectura para consultar el historial; las respuestas de los
+   *  agentes se bloquean al enviarlas (OutboundService). */
+  @AllowWhenReadOnly()
   @RequirePermission('conversations:reply')
   @Post('sso')
   sso(@TenantUser() p: TenantPrincipal) {

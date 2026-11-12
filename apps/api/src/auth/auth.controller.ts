@@ -8,7 +8,7 @@ import {
   acceptInvitationSchema, emailOnlySchema, loginSchema, registerCompanySchema, resetPasswordSchema, tokenSchema,
   type AcceptInvitationInput, type LoginInput, type RegisterCompanyInput, type ResetPasswordInput,
 } from './auth.schemas.js';
-import { CurrentUser, Public } from '../common/decorators/auth.decorators.js';
+import { AllowWhenReadOnly, CurrentUser, Public } from '../common/decorators/auth.decorators.js';
 import type { Principal } from '../common/context/principal.js';
 import { randomToken, safeEqual } from '../common/crypto/crypto.js';
 
@@ -22,6 +22,7 @@ const clientInfo = (req: Request): ClientInfo => ({ ip: req.ip, userAgent: req.g
 /** Límite estricto en endpoints sensibles a fuerza bruta: 10 peticiones/min por IP. */
 const STRICT = { default: { limit: 10, ttl: 60_000 } };
 
+@AllowWhenReadOnly()
 @Controller('auth')
 export class AuthController {
   constructor(

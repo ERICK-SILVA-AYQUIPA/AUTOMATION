@@ -1,10 +1,14 @@
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, ForbiddenException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { DatabaseService } from '../../database/database.service.js';
 import { TokenService } from '../../auth/token.service.js';
-import { IS_PUBLIC, REQUIRED_PERMISSIONS } from '../decorators/auth.decorators.js';
+import { ALLOW_READ_ONLY, IS_PUBLIC, REQUIRED_PERMISSIONS } from '../decorators/auth.decorators.js';
+import { ENV, type Env } from '../../config/env.js';
+import { readOnlyError, subscriptionAccess } from '../../plans/subscription-access.js';
 import { hasPermission, type Permission } from '../permissions.js';
 import type { Principal } from '../context/principal.js';
+
+const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
 /**
  * Guard global: toda ruta exige un access token válido salvo @Public().
@@ -17,6 +21,7 @@ export class AuthGuard implements CanActivate {
     private readonly reflector: Reflector,
     private readonly tokens: TokenService,
     private readonly db: DatabaseService,
+    @Inject(ENV) private readonly env: Env,
   ) {}
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
@@ -37,7 +42,7 @@ export class AuthGuard implements CanActivate {
         revokedAt: true,
         expiresAt: true,
         userId: true,
-        user: { select: { status: true, tenantId: true, role: true, tenant: { select: { status: true } } } },
+        user: { select: { status: true, tenantId: true, role: true, tenant: { select: { status: true, subscription: { select: { status: true, trialEndsAt: true, currentPeriodEnd: true } } } } } },
       },
     });
     if (!session || session.revokedAt || session.expiresAt < new Date() || session.userId !== claims.sub) {
@@ -61,6 +66,14 @@ export class AuthGuard implements CanActivate {
     const required = this.reflector.getAllAndOverride<Permission[]>(REQUIRED_PERMISSIONS, targets) ?? [];
     for (const p of required) {
       if (!hasPermission(principal.role, p)) throw new ForbiddenException('No tienes permiso para esta acción');
+    }
+
+    // Suscripción vencida o cancelada: la empresa puede consultar, pero no modificar.
+    const sub = session.user.tenant?.subscription;
+    if (session.user.tenant && !SAFE_METHODS.has(req.method) && !this.reflector.getAllAndOverride<boolean>(ALLOW_READ_ONLY, targets)) {
+      if (!sub) throw new ForbiddenException('La empresa no tiene suscripción');
+      const access = subscriptionAccess(sub, this.env.BILLING_GRACE_DAYS);
+      if (access.readOnly) throw readOnlyError(access);
     }
     return true;
   }

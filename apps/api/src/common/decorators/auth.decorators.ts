@@ -8,6 +8,10 @@ export const REQUIRED_PERMISSIONS = 'aisa:permissions';
 /** Ruta accesible sin autenticación. */
 export const Public = () => SetMetadata(IS_PUBLIC, true);
 
+export const ALLOW_READ_ONLY = 'aisa:allowReadOnly';
+/** Ruta que modifica datos pero sigue permitida con la suscripción vencida (sesión, contraseña). */
+export const AllowWhenReadOnly = () => SetMetadata(ALLOW_READ_ONLY, true);
+
 /** Requiere TODOS los permisos indicados. */
 export const RequirePermission = (...p: Permission[]) => SetMetadata(REQUIRED_PERMISSIONS, p);
 

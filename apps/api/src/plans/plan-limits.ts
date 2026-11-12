@@ -22,11 +22,14 @@ export const FEATURES = {
   ADVANCED_ROLES: 'advanced_roles',
 } as const;
 
-/** Lee los límites del plan de la empresa actual (dentro de su transacción RLS). */
+/**
+ * Lee los límites del plan de la empresa actual (dentro de su transacción RLS).
+ * El vencimiento o la cancelación no se comprueban aquí: AuthGuard deja la
+ * cuenta en solo lectura (subscription-access.ts) y las lecturas siguen funcionando.
+ */
 export async function getPlanLimits(tx: Tx): Promise<PlanLimits> {
-  const sub = await tx.subscription.findFirst({ select: { status: true, plan: { select: { limits: true } } } });
+  const sub = await tx.subscription.findFirst({ select: { plan: { select: { limits: true } } } });
   if (!sub) throw new ForbiddenException('La empresa no tiene suscripción');
-  if (sub.status === 'CANCELED') throw new ForbiddenException('La suscripción está cancelada');
   return planLimitsSchema.parse(sub.plan.limits);
 }
 

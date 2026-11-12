@@ -54,6 +54,7 @@ export const ModelName = {
   Plan: 'Plan',
   Tenant: 'Tenant',
   Subscription: 'Subscription',
+  Payment: 'Payment',
   UsageCounter: 'UsageCounter',
   TenantCounter: 'TenantCounter',
   User: 'User',
@@ -143,6 +144,26 @@ export const SubscriptionScalarFieldEnum = {
 } as const
 
 export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
+
+
+export const PaymentScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  planId: 'planId',
+  amount: 'amount',
+  currency: 'currency',
+  months: 'months',
+  method: 'method',
+  reference: 'reference',
+  notes: 'notes',
+  paidAt: 'paidAt',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  recordedById: 'recordedById',
+  createdAt: 'createdAt'
+} as const
+
+export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
 
 
 export const UsageCounterScalarFieldEnum = {

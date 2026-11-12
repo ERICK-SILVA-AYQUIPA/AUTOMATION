@@ -1,5 +1,9 @@
 export type Role = 'PLATFORM_ADMIN' | 'TENANT_ADMIN' | 'SUPERVISOR' | 'SELLER';
 
+export type AccessState = 'TRIAL' | 'ACTIVE' | 'GRACE' | 'EXPIRED' | 'CANCELED';
+/** Estado de acceso calculado por la API (apps/api/src/plans/subscription-access.ts) */
+export interface SubscriptionAccess { state: AccessState; readOnly: boolean; endsAt: string; graceEndsAt: string | null; daysLeft: number }
+
 export interface Me {
   id: string;
   email: string;
@@ -7,7 +11,9 @@ export interface Me {
   role: Role;
   tenantId: string | null;
   permissions: string[];
-  tenant: { id: string; name: string; slug: string; currency: string; timezone: string; subscription: { status: string; trialEndsAt: string | null; plan: { code: string; name: string } } | null } | null;
+  tenant: { id: string; name: string; slug: string; currency: string; timezone: string; subscription: { status: string; trialEndsAt: string | null; currentPeriodEnd: string; plan: { code: string; name: string }; access: SubscriptionAccess } | null } | null;
+  /** Instrucciones de pago configuradas por la plataforma (BILLING_CONTACT) */
+  billingContact: string;
 }
 
 export interface Paged<T> {

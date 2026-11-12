@@ -6,6 +6,7 @@ import { decrypt } from '../common/crypto/crypto.js';
 import { Queues } from '../queues/queues.module.js';
 import { CloudApiClient, WhatsappApiError, type Recipient } from '../whatsapp/cloud-api.client.js';
 import type { Prisma } from '../generated/prisma/client.js';
+import { subscriptionAccess } from '../plans/subscription-access.js';
 
 /** Ventana de atención de WhatsApp: fuera de ella solo se permiten plantillas */
 export const SERVICE_WINDOW_MS = 24 * 60 * 60 * 1000;
@@ -47,6 +48,11 @@ export class OutboundService {
     const out = await this.db.tenant(input.tenantId, async (tx) => {
       const existing = await tx.outboundMessage.findUnique({ where: { tenantId_idempotencyKey: { tenantId: input.tenantId, idempotencyKey: input.idempotencyKey } } });
       if (existing) return { outbound: existing, created: false, messageId: null };
+      // Cuenta en solo lectura: no se envía nada en nombre de la empresa (agentes, IA ni automatizaciones)
+      const sub = await tx.subscription.findFirst({ select: { status: true, trialEndsAt: true, currentPeriodEnd: true } });
+      if (!sub || subscriptionAccess(sub, this.env.BILLING_GRACE_DAYS).readOnly) {
+        throw new BadRequestException({ code: 'SUBSCRIPTION_EXPIRED', message: 'La suscripción de la empresa venció: renueva el plan para volver a enviar mensajes' });
+      }
       const conv = await tx.conversation.findFirst({ where: { id: input.conversationId, tenantId: input.tenantId }, include: { whatsappNumber: true } });
       if (!conv) throw new NotFoundException('Conversación no encontrada');
       if (!conv.whatsappNumber.isActive) throw new BadRequestException('El número de WhatsApp de esta conversación está desactivado');

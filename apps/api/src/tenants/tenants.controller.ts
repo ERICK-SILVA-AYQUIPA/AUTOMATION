@@ -1,4 +1,6 @@
-import { Body, Controller, Get, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Patch } from '@nestjs/common';
+import { ENV, type Env } from '../config/env.js';
+import { subscriptionAccess } from '../plans/subscription-access.js';
 import { z } from 'zod';
 import { RequirePermission, TenantUser } from '../common/decorators/auth.decorators.js';
 import type { TenantPrincipal } from '../common/context/principal.js';
@@ -20,6 +22,7 @@ export class TenantsController {
   constructor(
     private readonly db: DatabaseService,
     private readonly audit: AuditService,
+    @Inject(ENV) private readonly env: Env,
   ) {}
 
   @RequirePermission('tenant:read')
@@ -40,6 +43,7 @@ export class TenantsController {
       ]);
       return {
         ...tenant,
+        subscription: tenant.subscription && { ...tenant.subscription, access: subscriptionAccess(tenant.subscription, this.env.BILLING_GRACE_DAYS) },
         limits,
         usage: {
           period,
@@ -50,6 +54,19 @@ export class TenantsController {
         },
       };
     });
+  }
+
+  /** Pagos registrados por la plataforma (solo lectura; solo el administrador de la empresa) */
+  @RequirePermission('tenant:settings')
+  @Get('payments')
+  payments(@TenantUser() p: TenantPrincipal) {
+    return this.db.tenant(p.tenantId, (tx) =>
+      tx.payment.findMany({
+        orderBy: { paidAt: 'desc' },
+        take: 50,
+        select: { id: true, amount: true, currency: true, months: true, method: true, reference: true, paidAt: true, periodStart: true, periodEnd: true, plan: { select: { code: true, name: true } } },
+      }),
+    );
   }
 
   @RequirePermission('tenant:settings')

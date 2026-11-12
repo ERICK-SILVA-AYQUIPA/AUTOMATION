@@ -5,21 +5,29 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { LogOut, Monitor } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
-import { dateTime, date, num } from '@/lib/format';
+import { dateTime, date, money, num } from '@/lib/format';
 import { Badge, Button, Card, ErrorBox, Field, Input, Loading, PageHeader, Select } from '@/components/ui';
-import type { Branch } from '@/lib/types';
+import type { Branch, SubscriptionAccess } from '@/lib/types';
 import { useToast } from '@/components/ui/toast';
 import { RequirePermission } from '@/components/guard';
 
 interface Tenant {
   id: string; name: string; slug: string; currency: string; timezone: string; status: string; createdAt: string;
-  subscription: { status: string; trialEndsAt: string | null; currentPeriodEnd: string | null; plan: { code: string; name: string; priceMonthly: string; currency: string } } | null;
+  subscription: { status: string; trialEndsAt: string | null; currentPeriodEnd: string | null; plan: { code: string; name: string; priceMonthly: string; currency: string }; access: SubscriptionAccess } | null;
   limits: { maxUsers: number; maxWhatsappNumbers: number; maxConversationsPerMonth: number; maxProducts: number; maxBranches: number; features: string[] };
   usage: { period: string; users: number; products: number; whatsappNumbers: number; conversations?: number };
 }
 interface Session { id: string; userAgent: string | null; ip: string | null; createdAt: string; expiresAt: string; current: boolean }
 
-const SUB_STATUS: Record<string, string> = { TRIALING: 'Periodo de prueba', ACTIVE: 'Activa', PAST_DUE: 'Pago pendiente', CANCELED: 'Cancelada' };
+const ACCESS: Record<SubscriptionAccess['state'], { label: string; tone: 'info' | 'success' | 'warning' | 'danger' }> = {
+  TRIAL: { label: 'Periodo de prueba', tone: 'info' },
+  ACTIVE: { label: 'Activa', tone: 'success' },
+  GRACE: { label: 'Vencida (en gracia)', tone: 'warning' },
+  EXPIRED: { label: 'Solo lectura', tone: 'danger' },
+  CANCELED: { label: 'Cancelada', tone: 'danger' },
+};
+const METHODS: Record<string, string> = { YAPE: 'Yape', PLIN: 'Plin', BANK_TRANSFER: 'Transferencia', CASH: 'Efectivo', OTHER: 'Otro' };
+interface Payment { id: string; amount: string; currency: string; months: number; method: string; reference: string | null; paidAt: string; periodEnd: string; plan: { name: string } }
 const FEATURE_LABEL: Record<string, string> = {
   human_handoff: 'Transferencia a humano', reports: 'Reportes', advanced_automations: 'Automatizaciones avanzadas',
   advanced_ai: 'IA avanzada', multi_branch: 'Varias sucursales', advanced_roles: 'Roles avanzados',
@@ -40,13 +48,14 @@ function Usage({ label, used, max }: { label: string; used: number; max: number 
 }
 
 function Settings() {
-  const { can, reload } = useAuth();
+  const { can, reload, me } = useAuth();
   const edit = can('tenant:settings');
   const qc = useQueryClient();
   const toast = useToast();
   const t = useQuery({ queryKey: ['tenant'], queryFn: () => api<Tenant>('/tenant') });
   const sessions = useQuery({ queryKey: ['sessions'], queryFn: () => api<Session[]>('/auth/sessions') });
   const branches = useQuery({ queryKey: ['branches'], queryFn: () => api<Branch[]>('/branches') });
+  const payments = useQuery({ queryKey: ['tenant-payments'], queryFn: () => api<Payment[]>('/tenant/payments'), enabled: can('tenant:settings') });
   const [draft, setDraft] = useState<{ name: string; currency: string; timezone: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
@@ -114,9 +123,16 @@ function Settings() {
         <Card className="flex flex-col gap-4 p-5">
           <div className="flex items-center justify-between">
             <h2 className="font-medium">Plan {sub?.plan.name}</h2>
-            {sub && <Badge tone={sub.status === 'ACTIVE' ? 'success' : sub.status === 'TRIALING' ? 'info' : 'warning'}>{SUB_STATUS[sub.status] ?? sub.status}</Badge>}
+            {sub && <Badge tone={ACCESS[sub.access.state].tone}>{ACCESS[sub.access.state].label}</Badge>}
           </div>
-          {sub?.status === 'TRIALING' && sub.trialEndsAt && <p className="text-sm text-muted">Tu prueba gratuita termina el {date(sub.trialEndsAt)}.</p>}
+          {sub && (
+            <p className="text-sm text-muted">
+              {sub.access.state === 'TRIAL' && `Tu prueba gratuita termina el ${date(sub.access.endsAt)}.`}
+              {sub.access.state === 'ACTIVE' && `Pagado hasta el ${date(sub.access.endsAt)}.`}
+              {sub.access.state === 'GRACE' && `Venció el ${date(sub.access.endsAt)}; renueva antes del ${date(sub.access.graceEndsAt)}.`}
+              {(sub.access.state === 'EXPIRED' || sub.access.state === 'CANCELED') && 'La cuenta está en solo lectura: puedes consultar tus datos, pero no modificarlos.'}
+            </p>
+          )}
           <Usage label="Usuarios" used={d.usage.users} max={d.limits.maxUsers} />
           <Usage label="Productos" used={d.usage.products} max={d.limits.maxProducts} />
           <Usage label="Números de WhatsApp" used={d.usage.whatsappNumbers} max={d.limits.maxWhatsappNumbers} />
@@ -126,8 +142,21 @@ function Settings() {
             {Object.entries(FEATURE_LABEL).map(([k, l]) => <Badge key={k} tone={d.limits.features.includes(k) ? 'success' : 'neutral'}>{d.limits.features.includes(k) ? '✓' : '—'} {l}</Badge>)}
           </div>
           <p className="rounded-lg bg-surface-2 p-3 text-xs text-muted">
-            Los pagos en línea aún no están activados: no se realiza ningún cobro. Para cambiar de plan, contacta al administrador de la plataforma.
+            El plan se paga por adelantado y no hay cobros automáticos. {me?.billingContact ? `Para pagar o cambiar de plan: ${me.billingContact}` : 'Para pagar o cambiar de plan, contacta al administrador de la plataforma.'}
           </p>
+          {payments.data && payments.data.length > 0 && (
+            <div>
+              <h3 className="mb-2 text-sm font-medium">Pagos registrados</h3>
+              <ul className="flex flex-col gap-1 text-sm">
+                {payments.data.slice(0, 6).map((p) => (
+                  <li key={p.id} className="flex justify-between gap-2">
+                    <span>{date(p.paidAt)} · {p.plan.name} · {p.months} {p.months === 1 ? 'mes' : 'meses'} <span className="text-muted">({METHODS[p.method] ?? p.method})</span></span>
+                    <span className="tabular-nums">{money(p.amount, p.currency)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </Card>
 
         <Card className="p-5 lg:col-span-2">

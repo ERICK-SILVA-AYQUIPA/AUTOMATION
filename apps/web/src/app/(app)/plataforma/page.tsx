@@ -2,19 +2,153 @@
 
 import { useEffect, useState } from 'react';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Building2, Search } from 'lucide-react';
+import { Building2, Search, Wallet } from 'lucide-react';
 import { api } from '@/lib/api';
-import { date, num } from '@/lib/format';
+import { date, money, num } from '@/lib/format';
+import type { SubscriptionAccess } from '@/lib/types';
 import { Badge, Button, Card, Dialog, EmptyState, ErrorBox, Field, Input, Loading, PageHeader, Pagination, Select, StatCard, Table, Td, Textarea, Th } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
 import { RequirePermission } from '@/components/guard';
 
 interface Tenant {
   id: string; name: string; slug: string; status: 'ACTIVE' | 'SUSPENDED'; createdAt: string; currency: string;
-  subscription: { status: string; trialEndsAt: string | null; plan: { code: string; name: string } } | null; _count: { users: number };
+  subscription: { status: string; trialEndsAt: string | null; currentPeriodEnd: string; plan: { code: string; name: string }; access: SubscriptionAccess } | null; _count: { users: number };
 }
 interface Metrics { tenants: { total: number; active: number; suspended: number }; activeUsers: number; subscriptions: { plan: string; status: string; count: number }[]; last30Days: { orders: number; conversations: number } }
 const PLANS = [{ code: 'BASIC', name: 'Básico' }, { code: 'PROFESSIONAL', name: 'Profesional' }, { code: 'ENTERPRISE', name: 'Empresarial' }];
+interface PlanRow { code: string; name: string; priceMonthly: string; currency: string }
+interface Payment { id: string; amount: string; currency: string; months: number; method: string; reference: string | null; paidAt: string; periodStart: string; periodEnd: string; plan: { code: string; name: string } }
+const METHODS: Record<string, string> = { YAPE: 'Yape', PLIN: 'Plin', BANK_TRANSFER: 'Transferencia', CASH: 'Efectivo', OTHER: 'Otro' };
+const ACCESS: Record<SubscriptionAccess['state'], { label: string; tone: 'info' | 'success' | 'warning' | 'danger' }> = {
+  TRIAL: { label: 'Prueba', tone: 'info' },
+  ACTIVE: { label: 'Pagado', tone: 'success' },
+  GRACE: { label: 'Vencido (gracia)', tone: 'warning' },
+  EXPIRED: { label: 'Solo lectura', tone: 'danger' },
+  CANCELED: { label: 'Cancelada', tone: 'danger' },
+};
+
+function AccessCell({ s }: { s: Tenant['subscription'] }) {
+  if (!s) return <span className="text-muted">—</span>;
+  const a = ACCESS[s.access.state];
+  const until = s.access.state === 'TRIAL' || s.access.state === 'ACTIVE' ? `hasta ${date(s.access.endsAt)}` : s.access.state === 'GRACE' ? `gracia hasta ${date(s.access.graceEndsAt)}` : `desde ${date(s.access.endsAt)}`;
+  return <div className="flex flex-col items-start gap-0.5"><Badge tone={a.tone}>{a.label}</Badge><span className="text-xs text-muted">{until}</span></div>;
+}
+
+/** Registrar un pago manual (Yape, transferencia...) y ver el historial de la empresa. */
+function PaymentDialog({ tenant, onClose, onDone }: { tenant: Tenant | null; onClose: () => void; onDone: () => void }) {
+  const toast = useToast();
+  const plans = useQuery({ queryKey: ['platform-plans'], queryFn: () => api<PlanRow[]>('/platform/plans'), enabled: !!tenant });
+  const history = useQuery({ queryKey: ['platform-payments', tenant?.id], queryFn: () => api<Payment[]>(`/platform/tenants/${tenant!.id}/payments`), enabled: !!tenant });
+  // Se monta de nuevo por empresa (key), así el formulario empieza limpio sin efectos
+  const [form, setForm] = useState({ planCode: tenant?.subscription?.plan.code ?? 'BASIC', months: '1', amount: '', currency: 'PEN', method: 'YAPE', reference: '', paidAt: '' });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<unknown>(null);
+  const [confirmCancel, setConfirmCancel] = useState(false);
+  const plan = plans.data?.find((p) => p.code === form.planCode);
+  const suggested = plan ? `${plan.name}: ${money(plan.priceMonthly, plan.currency)} al mes` : '';
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!tenant) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await api(`/platform/tenants/${tenant.id}/payments`, {
+        method: 'POST',
+        body: {
+          planCode: form.planCode, months: Number(form.months), amount: Number(form.amount), currency: form.currency, method: form.method,
+          reference: form.reference.trim() || undefined, paidAt: form.paidAt ? new Date(`${form.paidAt}T12:00:00`).toISOString() : undefined,
+        },
+      });
+      toast.success(`Pago registrado: ${tenant.name} queda activa`);
+      onDone();
+      onClose();
+    } catch (err) {
+      setError(err);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function cancelSubscription() {
+    if (!tenant) return;
+    setBusy(true);
+    try {
+      await api(`/platform/tenants/${tenant.id}/cancel-subscription`, { method: 'POST', body: {} });
+      toast.success(`Suscripción de ${tenant.name} cancelada: queda en solo lectura`);
+      onDone();
+      onClose();
+    } catch (err) {
+      setError(err);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Dialog open={!!tenant} onClose={onClose} title={`Cobro de ${tenant?.name ?? ''}`} wide
+      footer={<><Button variant="secondary" onClick={onClose}>Cerrar</Button><Button type="submit" form="payment-form" loading={busy}>Registrar pago y activar</Button></>}>
+      <form id="payment-form" onSubmit={submit} className="flex flex-col gap-4 text-sm">
+        <p className="text-muted">Registra un pago que ya recibiste (Yape, Plin, transferencia o efectivo). La plataforma no cobra por sí misma: esto solo activa o renueva el plan. Si el plan sigue vigente, los meses se suman al final del periodo actual.</p>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Field label="Plan" hint={suggested}>
+            <Select value={form.planCode} onChange={(e) => setForm({ ...form, planCode: e.target.value })} required>
+              {(plans.data ?? PLANS).map((p) => <option key={p.code} value={p.code}>{p.name}</option>)}
+            </Select>
+          </Field>
+          <Field label="Meses pagados">
+            <Input type="number" min={1} max={24} step={1} value={form.months} onChange={(e) => setForm({ ...form, months: e.target.value })} required />
+          </Field>
+          <Field label="Fecha del pago" hint="Vacío = hoy">
+            <Input type="date" value={form.paidAt} max={new Date().toISOString().slice(0, 10)} onChange={(e) => setForm({ ...form, paidAt: e.target.value })} />
+          </Field>
+          <Field label="Importe recibido">
+            <Input type="number" min={0} step="0.01" inputMode="decimal" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required />
+          </Field>
+          <Field label="Moneda">
+            <Select value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })}>
+              {['PEN', 'USD'].map((c) => <option key={c}>{c}</option>)}
+            </Select>
+          </Field>
+          <Field label="Medio">
+            <Select value={form.method} onChange={(e) => setForm({ ...form, method: e.target.value })}>
+              {Object.entries(METHODS).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+            </Select>
+          </Field>
+        </div>
+        <Field label="N.º de operación o referencia (queda en auditoría)">
+          <Input value={form.reference} maxLength={120} onChange={(e) => setForm({ ...form, reference: e.target.value })} />
+        </Field>
+        <ErrorBox error={error} />
+      </form>
+      <div className="mt-6">
+        <h3 className="mb-2 text-sm font-medium">Pagos anteriores</h3>
+        {history.isLoading ? <Loading /> : !history.data?.length ? <p className="text-sm text-muted">Sin pagos registrados.</p> : (
+          <Table>
+            <thead><tr><Th>Fecha</Th><Th>Plan</Th><Th>Periodo</Th><Th className="text-right">Importe</Th><Th>Medio</Th></tr></thead>
+            <tbody>
+              {history.data.map((p) => (
+                <tr key={p.id}>
+                  <Td>{date(p.paidAt)}</Td>
+                  <Td>{p.plan.name} · {p.months} {p.months === 1 ? 'mes' : 'meses'}</Td>
+                  <Td className="text-muted">{date(p.periodStart)} – {date(p.periodEnd)}</Td>
+                  <Td className="text-right tabular-nums">{money(p.amount, p.currency)}</Td>
+                  <Td>{METHODS[p.method] ?? p.method}{p.reference && <span className="block text-xs text-muted">{p.reference}</span>}</Td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        )}
+      </div>
+      {tenant?.subscription && tenant.subscription.access.state !== 'CANCELED' && (
+        <div className="mt-6 border-t border-border pt-4 text-sm">
+          {!confirmCancel
+            ? <Button size="sm" variant="ghost" onClick={() => setConfirmCancel(true)}>Cancelar suscripción…</Button>
+            : <div className="flex flex-wrap items-center gap-2"><span className="text-muted">La empresa quedará en solo lectura de inmediato.</span><Button size="sm" variant="danger" loading={busy} onClick={cancelSubscription}>Confirmar cancelación</Button></div>}
+        </div>
+      )}
+    </Dialog>
+  );
+}
 
 function Platform() {
   const qc = useQueryClient();
@@ -26,6 +160,7 @@ function Platform() {
   const [suspend, setSuspend] = useState<Tenant | null>(null);
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
+  const [billing, setBilling] = useState<Tenant | null>(null);
   useEffect(() => {
     const t = setTimeout(() => { setDq(q.trim()); setPage(1); }, 300);
     return () => clearTimeout(t);
@@ -69,7 +204,7 @@ function Platform() {
   const pages = list.data ? Math.max(1, Math.ceil(list.data.total / list.data.pageSize)) : 1;
   return (
     <>
-      <PageHeader title="Empresas" description="Administración general de la plataforma. Los cambios de plan no generan cobros." />
+      <PageHeader title="Empresas" description="Administración general de la plataforma. Cobro manual: registra aquí los pagos recibidos por Yape o transferencia." />
       <ErrorBox error={metrics.error} />
       {m && (
         <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -105,11 +240,12 @@ function Platform() {
                         {PLANS.map((p) => <option key={p.code} value={p.code}>{p.name}</option>)}
                       </Select>
                     </Td>
-                    <Td className="text-muted">{t.subscription?.status === 'TRIALING' ? `Prueba hasta ${date(t.subscription.trialEndsAt)}` : t.subscription?.status}</Td>
+                    <Td><AccessCell s={t.subscription} /></Td>
                     <Td className="text-right tabular-nums">{t._count.users}</Td>
                     <Td className="text-muted">{date(t.createdAt)}</Td>
                     <Td><Badge tone={t.status === 'ACTIVE' ? 'success' : 'danger'}>{t.status === 'ACTIVE' ? 'Activa' : 'Suspendida'}</Badge></Td>
-                    <Td className="text-right">
+                    <Td className="whitespace-nowrap text-right">
+                      <Button size="sm" variant="secondary" icon={<Wallet className="size-4" />} onClick={() => setBilling(t)} className="mr-2">Cobro</Button>
                       {t.status === 'ACTIVE'
                         ? <Button size="sm" variant="secondary" onClick={() => setSuspend(t)}>Suspender</Button>
                         : <Button size="sm" variant="secondary" loading={busy} onClick={() => setTenantStatus(t, 'ACTIVE')}>Reactivar</Button>}
@@ -122,6 +258,7 @@ function Platform() {
           </>
         )}
       </Card>
+      <PaymentDialog key={billing?.id ?? 'none'} tenant={billing} onClose={() => setBilling(null)} onDone={() => { refresh(); qc.invalidateQueries({ queryKey: ['platform-payments'] }); }} />
       <Dialog open={!!suspend} onClose={() => setSuspend(null)} title={`¿Suspender ${suspend?.name}?`} footer={<><Button variant="secondary" onClick={() => setSuspend(null)}>Cancelar</Button><Button variant="danger" loading={busy} onClick={() => setTenantStatus(suspend!, 'SUSPENDED', reason)}>Suspender</Button></>}>
         <div className="flex flex-col gap-3 text-sm">
           <p className="text-muted">Sus usuarios no podrán entrar y el asistente dejará de responder. Los datos se conservan y puedes reactivarla cuando quieras.</p>

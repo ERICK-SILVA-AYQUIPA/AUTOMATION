@@ -33,7 +33,7 @@ Docker publica puertos saltándose `ufw`. Por eso `docker-compose.prod.yml` solo
 
 ```bash
 ./infrastructure/scripts/deploy.sh --init      # crea .env.production con secretos aleatorios (permisos 600)
-nano .env.production                           # APP_DOMAIN, ACME_EMAIL, SMTP_*, MAIL_FROM, PLATFORM_ADMIN_EMAIL, GEMINI_API_KEY
+nano .env.production                           # APP_DOMAIN, ACME_EMAIL, SMTP_*, MAIL_FROM, PLATFORM_ADMIN_EMAIL, GEMINI_API_KEY, BILLING_CONTACT
 ./infrastructure/scripts/deploy.sh             # construye, migra, siembra planes y arranca
 ```
 
@@ -46,6 +46,16 @@ Qué levanta: PostgreSQL 17, Redis, `migrate` (migraciones y datos base; termina
 
 La contraseña del administrador general está en `PLATFORM_ADMIN_PASSWORD` de
 `.env.production`. Entra en `https://APP_DOMAIN/login` y cámbiala.
+
+### Cobrar a las empresas (manual)
+
+Cada empresa nueva tiene `TRIAL_DAYS` (14) días de prueba. Al vencer, su cuenta queda en
+**solo lectura**: ve sus datos y sigue recibiendo mensajes, pero no puede crear, modificar
+ni responder. Cuando te pague por Yape o transferencia, entra en `/plataforma`, pulsa
+**Cobro** en esa empresa y registra el pago (plan, meses, importe y n.º de operación): la
+cuenta se activa al instante. Un plan pagado que vence tiene `BILLING_GRACE_DAYS` (3) días
+de gracia. Pon en `BILLING_CONTACT` cómo pagarte (p. ej. `"Yape 999 999 999 a nombre de ..."`);
+se muestra a las empresas en el aviso de vencimiento.
 
 ## 4. Qué queda publicado
 

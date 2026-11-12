@@ -69,6 +69,10 @@ const schema = z.object({
   /** Carpeta de archivos subidos (volumen persistente en despliegue) */
   STORAGE_DIR: z.string().default('./storage'),
   TRIAL_DAYS: z.coerce.number().int().nonnegative().default(14),
+  /** Días que la cuenta sigue operativa tras vencer un periodo pagado (cobro manual) */
+  BILLING_GRACE_DAYS: z.coerce.number().int().min(0).max(30).default(3),
+  /** Cómo pagar, visible para las empresas (p. ej. "Yape 999 999 999 a nombre de ..."). Vacío = "contacta al administrador" */
+  BILLING_CONTACT: z.string().trim().max(300).default(''),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
 });
 

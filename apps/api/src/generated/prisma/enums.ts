@@ -36,6 +36,17 @@ export const SubscriptionStatus = {
 export type SubscriptionStatus = (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus]
 
 
+export const PaymentMethod = {
+  YAPE: 'YAPE',
+  PLIN: 'PLIN',
+  BANK_TRANSFER: 'BANK_TRANSFER',
+  CASH: 'CASH',
+  OTHER: 'OTHER'
+} as const
+
+export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]
+
+
 export const Role = {
   PLATFORM_ADMIN: 'PLATFORM_ADMIN',
   TENANT_ADMIN: 'TENANT_ADMIN',
