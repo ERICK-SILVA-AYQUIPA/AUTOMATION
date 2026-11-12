@@ -1,0 +1,11 @@
+# Bandeja de agentes (Chatwoot). Para activarla: copia este archivo como
+# chatwoot.caddy, define CHATWOOT_DOMAIN en .env.production y reinicia caddy.
+# El panel de super administrador y el asistente de instalación NO se publican:
+# el administrador de la plataforma entra por un túnel SSH (docs/installation/production.md).
+{$CHATWOOT_DOMAIN} {
+	encode zstd gzip
+	header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+	@admin path /super_admin /super_admin/* /installation /installation/* /monitoring/*
+	respond @admin 404
+	reverse_proxy chatwoot-rails:3000
+}

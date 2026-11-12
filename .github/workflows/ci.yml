@@ -1,0 +1,65 @@
+# Integración continua: en cada push y pull request se comprueban tipos, lint,
+# pruebas unitarias, pruebas de integración contra PostgreSQL y Redis reales,
+# vulnerabilidades conocidas y que las imágenes de producción se construyen.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Secretos aleatorios de prueba (.env)
+        run: ./infrastructure/scripts/setup.sh
+
+      - name: PostgreSQL y Redis
+        run: docker compose up -d --wait postgres redis
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Tipos y lint
+        run: pnpm -r typecheck && pnpm -r lint
+
+      - name: Migraciones (base de desarrollo y de pruebas)
+        run: |
+          pnpm --filter @aisa/api exec prisma migrate deploy
+          APP_DB_NAME=ai_sales_test pnpm --filter @aisa/api exec prisma migrate deploy
+
+      - name: Pruebas unitarias
+        run: pnpm --filter @aisa/api test
+
+      - name: Pruebas de integración (API + PostgreSQL + Redis)
+        run: pnpm --filter @aisa/api test:e2e
+
+      - name: Vulnerabilidades conocidas en dependencias de producción
+        run: pnpm audit --prod
+
+  images:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Imagen de la API y el worker
+        run: docker build -f infrastructure/docker/app.Dockerfile --target api -t aisa-api:ci .
+      - name: Imagen de la web
+        run: docker build -f infrastructure/docker/app.Dockerfile --target web -t aisa-web:ci .
+      - name: La API arranca sin dependencias de desarrollo
+        run: docker run --rm aisa-api:ci node -e "import('./dist/app.module.js').then(() => console.log('ok'))"

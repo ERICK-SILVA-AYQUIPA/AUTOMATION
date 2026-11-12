@@ -1,0 +1,283 @@
+# =============================================================================
+# AI Sales Assistant - PRODUCCIÓN (un servidor Linux con Docker)
+#   ./infrastructure/scripts/deploy.sh          (o, a mano:)
+#   docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+# Guía completa: docs/installation/production.md
+#
+# Solo Caddy publica puertos a internet (80/443). PostgreSQL y Redis quedan en la
+# red interna; n8n y Chatwoot publican solo en 127.0.0.1 para entrar por túnel SSH.
+# Las imágenes propias salen de infrastructure/docker/app.Dockerfile.
+# =============================================================================
+name: aisa-prod
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "20m", max-file: "5" }
+
+x-app-env: &app-env
+  NODE_ENV: production
+  TZ: ${TZ:-America/Lima}
+  APP_PUBLIC_URL: https://${APP_DOMAIN:?Define APP_DOMAIN}
+  API_PUBLIC_URL: https://${APP_DOMAIN}
+  CORS_ORIGINS: https://${APP_DOMAIN}
+  # Solo Caddy (red interna fija) puede fijar la IP real del cliente
+  TRUST_PROXY: 172.30.0.0/24
+  APP_DB_HOST: postgres
+  APP_DB_PORT: "5432"
+  APP_DB_NAME: ${APP_DB_NAME:-ai_sales}
+  APP_DB_RUNTIME_USER: ${APP_DB_RUNTIME_USER:-ai_sales_app}
+  APP_DB_RUNTIME_PASSWORD: ${APP_DB_RUNTIME_PASSWORD:?}
+  APP_DB_SYSTEM_USER: ${APP_DB_SYSTEM_USER:-ai_sales_system}
+  APP_DB_SYSTEM_PASSWORD: ${APP_DB_SYSTEM_PASSWORD:?}
+  REDIS_HOST: redis
+  REDIS_HOST_PORT: "6379"
+  REDIS_PASSWORD: ${REDIS_PASSWORD:?}
+  JWT_SECRET: ${JWT_SECRET:?}
+  DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY:?}
+  TRIAL_DAYS: ${TRIAL_DAYS:-14}
+  MAIL_FROM: ${MAIL_FROM:?}
+  SMTP_HOST: ${SMTP_HOST:?Configura un SMTP real}
+  SMTP_PORT: ${SMTP_PORT:-587}
+  SMTP_SECURE: ${SMTP_SECURE:-false}
+  SMTP_USER: ${SMTP_USER:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+  WHATSAPP_GRAPH_API_VERSION: ${WHATSAPP_GRAPH_API_VERSION:-v26.0}
+  WHATSAPP_APP_SECRET: ${WHATSAPP_APP_SECRET:-}
+  N8N_WEBHOOK_BASE_URL: ${N8N_WEBHOOK_BASE_URL:-}
+  N8N_INTERNAL_TOKEN: ${N8N_INTERNAL_TOKEN:-}
+  N8N_API_BASE_URL: http://api:4000
+  CHATWOOT_BASE_URL: http://chatwoot-rails:3000
+  CHATWOOT_PLATFORM_TOKEN: ${CHATWOOT_PLATFORM_TOKEN:-}
+  CHATWOOT_WEBHOOK_BASE_URL: https://${APP_DOMAIN}
+  GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+
+x-chatwoot-env: &chatwoot-env
+  NODE_ENV: production
+  RAILS_ENV: production
+  INSTALLATION_ENV: docker
+  SECRET_KEY_BASE: ${CHATWOOT_SECRET_KEY_BASE:-}
+  FRONTEND_URL: https://${CHATWOOT_DOMAIN:-chat.invalid}
+  FORCE_SSL: "false"   # el TLS lo termina Caddy
+  ENABLE_ACCOUNT_SIGNUP: "false"
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+  POSTGRES_DATABASE: ${CHATWOOT_DB_NAME:-chatwoot}
+  POSTGRES_USERNAME: ${CHATWOOT_DB_USER:-chatwoot}
+  POSTGRES_PASSWORD: ${CHATWOOT_DB_PASSWORD:-}
+  REDIS_URL: redis://redis:6379/0
+  REDIS_PASSWORD: ${REDIS_PASSWORD:?}
+  RAILS_LOG_TO_STDOUT: "true"
+  ACTIVE_STORAGE_SERVICE: local
+  MAILER_SENDER_EMAIL: ${MAIL_FROM:-}
+  SMTP_ADDRESS: ${SMTP_HOST:-}
+  SMTP_PORT: ${SMTP_PORT:-587}
+  SMTP_USERNAME: ${SMTP_USER:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+  # Chatwoot llama a la API por su URL pública: sin acceso a IPs privadas
+  SAFE_FETCH_ALLOW_PRIVATE_NETWORK: "false"
+
+networks:
+  internal:
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    networks: [internal]
+    environment:
+      POSTGRES_USER: ${POSTGRES_SUPERUSER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:?}
+      POSTGRES_DB: postgres
+      APP_DB_NAME: ${APP_DB_NAME:-ai_sales}
+      APP_DB_USER: ${APP_DB_USER:-ai_sales}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?}
+      APP_DB_RUNTIME_USER: ${APP_DB_RUNTIME_USER:-ai_sales_app}
+      APP_DB_RUNTIME_PASSWORD: ${APP_DB_RUNTIME_PASSWORD:?}
+      APP_DB_SYSTEM_USER: ${APP_DB_SYSTEM_USER:-ai_sales_system}
+      APP_DB_SYSTEM_PASSWORD: ${APP_DB_SYSTEM_PASSWORD:?}
+      CHATWOOT_DB_NAME: ${CHATWOOT_DB_NAME:-chatwoot}
+      CHATWOOT_DB_USER: ${CHATWOOT_DB_USER:-chatwoot}
+      CHATWOOT_DB_PASSWORD: ${CHATWOOT_DB_PASSWORD:?}
+      N8N_DB_NAME: ${N8N_DB_NAME:-n8n}
+      N8N_DB_USER: ${N8N_DB_USER:-n8n}
+      N8N_DB_PASSWORD: ${N8N_DB_PASSWORD:?}
+      EVOLUTION_DB_NAME: ${EVOLUTION_DB_NAME:-evolution}
+      EVOLUTION_DB_USER: ${EVOLUTION_DB_USER:-evolution}
+      EVOLUTION_DB_PASSWORD: ${EVOLUTION_DB_PASSWORD:?}
+      # En producción no se crea la base de pruebas automatizadas
+      CREATE_TEST_DB: "false"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *logging
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    networks: [internal]
+    command: ["sh", "-c", "exec redis-server --appendonly yes --requirepass \"$$REDIS_PASSWORD\""]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" --no-auth-warning ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *logging
+
+  # Migraciones y datos base (planes, administrador general). Termina y sale.
+  migrate:
+    build: { context: ., dockerfile: infrastructure/docker/app.Dockerfile, target: migrate }
+    image: aisa-migrate:${APP_VERSION:-latest}
+    networks: [internal]
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      APP_DB_HOST: postgres
+      APP_DB_PORT: "5432"
+      APP_DB_NAME: ${APP_DB_NAME:-ai_sales}
+      APP_DB_USER: ${APP_DB_USER:-ai_sales}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?}
+      PLATFORM_ADMIN_EMAIL: ${PLATFORM_ADMIN_EMAIL:?}
+      PLATFORM_ADMIN_PASSWORD: ${PLATFORM_ADMIN_PASSWORD:?}
+    restart: "no"
+    logging: *logging
+
+  api:
+    build: { context: ., dockerfile: infrastructure/docker/app.Dockerfile, target: api }
+    image: aisa-api:${APP_VERSION:-latest}
+    restart: unless-stopped
+    networks: [internal]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    environment: *app-env
+    volumes:
+      - app_storage:/data/storage
+    logging: *logging
+
+  worker:
+    image: aisa-api:${APP_VERSION:-latest}
+    restart: unless-stopped
+    networks: [internal]
+    depends_on:
+      api: { condition: service_healthy }
+    environment: *app-env
+    command: ["node", "dist/worker.js"]
+    healthcheck:
+      disable: true
+    volumes:
+      - app_storage:/data/storage
+    logging: *logging
+
+  web:
+    build: { context: ., dockerfile: infrastructure/docker/app.Dockerfile, target: web }
+    image: aisa-web:${APP_VERSION:-latest}
+    restart: unless-stopped
+    networks: [internal]
+    depends_on:
+      api: { condition: service_healthy }
+    logging: *logging
+
+  caddy:
+    image: caddy:2.10
+    restart: unless-stopped
+    networks: [internal]
+    depends_on:
+      web: { condition: service_healthy }
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?}
+      ACME_EMAIL: ${ACME_EMAIL:?Correo para Let's Encrypt}
+      CHATWOOT_DOMAIN: ${CHATWOOT_DOMAIN:-}
+      CADDY_GLOBAL_OPTIONS: ${CADDY_GLOBAL_OPTIONS:-}
+    volumes:
+      - ./infrastructure/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./infrastructure/caddy/extra:/etc/caddy/extra:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    logging: *logging
+
+  # ---------------------------------------------------------------- opcionales
+  n8n:
+    image: n8nio/n8n:${N8N_VERSION:-3.2.0}
+    profiles: ["automation"]
+    restart: unless-stopped
+    networks: [internal]
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: "5432"
+      DB_POSTGRESDB_DATABASE: ${N8N_DB_NAME:-n8n}
+      DB_POSTGRESDB_USER: ${N8N_DB_USER:-n8n}
+      DB_POSTGRESDB_PASSWORD: ${N8N_DB_PASSWORD:?}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-}
+      N8N_LISTEN_ADDRESS: 0.0.0.0
+      GENERIC_TIMEZONE: ${TZ:-America/Lima}
+      TZ: ${TZ:-America/Lima}
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_PERSONALIZATION_ENABLED: "false"
+      N8N_RUNNERS_ENABLED: "true"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./services/n8n/workflows:/workflows:ro
+    # Sin ruta pública: el administrador entra con un túnel SSH (ver la guía)
+    ports:
+      - "127.0.0.1:5678:5678"
+    logging: *logging
+
+  chatwoot-rails:
+    image: chatwoot/chatwoot:${CHATWOOT_VERSION:-v4.19.1}
+    profiles: ["chatwoot"]
+    restart: unless-stopped
+    networks: [internal]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    environment: *chatwoot-env
+    entrypoint: docker/entrypoints/rails.sh
+    command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
+    volumes:
+      - chatwoot_storage:/app/storage
+    ports:
+      - "127.0.0.1:3100:3000"
+    logging: *logging
+
+  chatwoot-sidekiq:
+    image: chatwoot/chatwoot:${CHATWOOT_VERSION:-v4.19.1}
+    profiles: ["chatwoot"]
+    restart: unless-stopped
+    networks: [internal]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    environment: *chatwoot-env
+    command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+    volumes:
+      - chatwoot_storage:/app/storage
+    logging: *logging
+
+volumes:
+  postgres_data:
+  redis_data:
+  app_storage:
+  caddy_data:
+  caddy_config:
+  n8n_data:
+  chatwoot_storage:

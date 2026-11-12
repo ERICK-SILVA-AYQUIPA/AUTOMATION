@@ -12,3 +12,5 @@ coverage/
 src/generated/
 apps/web/e2e/screenshots/
 *.tsbuildinfo
+apps/api/storage/
+!.env.production.example

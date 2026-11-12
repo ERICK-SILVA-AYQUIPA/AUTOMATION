@@ -57,8 +57,10 @@ async function linkFor(to, path) {
   throw new Error(`No se encontró el enlace ${path} para ${to}`);
 }
 
-const browser = await chromium.launch();
-const ctx = await browser.newContext({ viewport: { width: 1360, height: 900 }, locale: 'es-PE', timezoneId: 'America/Lima' });
+// Prueba contra el despliegue de producción local (dominio de prueba y certificado de Caddy):
+// RESOLVE_HOST="MAP aisa.test 127.0.0.1" IGNORE_HTTPS_ERRORS=1
+const browser = await chromium.launch(process.env.RESOLVE_HOST ? { args: [`--host-resolver-rules=${process.env.RESOLVE_HOST}`, "--no-proxy-server"] } : {});
+const ctx = await browser.newContext({ viewport: { width: 1360, height: 900 }, locale: "es-PE", timezoneId: "America/Lima", ignoreHTTPSErrors: !!process.env.IGNORE_HTTPS_ERRORS });
 const page = await ctx.newPage();
 const consoleErrors = [];
 page.on('console', (m) => m.type() === 'error' && consoleErrors.push(m.text()));

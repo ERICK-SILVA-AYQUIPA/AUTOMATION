@@ -1,0 +1,16 @@
+**/node_modules
+**/dist
+**/.next
+**/coverage
+**/*.tsbuildinfo
+**/*.log
+.git
+.env
+.env.*
+!.env.example
+!.env.production.example
+apps/api/storage
+apps/api/src/generated
+apps/web/e2e/screenshots
+backups
+services/dify/upstream

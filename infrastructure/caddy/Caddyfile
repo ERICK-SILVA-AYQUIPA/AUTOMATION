@@ -1,0 +1,43 @@
+# =============================================================================
+# Reverse proxy de producción (Caddy): HTTPS automático con Let's Encrypt.
+# Única puerta de entrada a internet (puertos 80 y 443). Nada administrativo
+# queda publicado: la API interna de n8n, n8n y la base de datos no tienen ruta.
+# =============================================================================
+{
+	email {$ACME_EMAIL}
+	# Pruebas locales: CADDY_GLOBAL_OPTIONS=local_certs (certificados de Caddy, no públicos)
+	{$CADDY_GLOBAL_OPTIONS}
+}
+
+{$APP_DOMAIN} {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+	request_body {
+		max_size 12MB
+	}
+
+	# API solo para n8n: nunca desde internet. Expresión regular sin distinguir
+	# mayúsculas (Express enruta /api/v1/Internal igual que /api/v1/internal).
+	@internal path_regexp internal (?i)^/api/v1/+internal(/|$)
+	handle @internal {
+		respond 404
+	}
+
+	# La API (incluidos los webhooks de Meta y Chatwoot, que necesitan el cuerpo exacto)
+	handle /api/* {
+		reverse_proxy api:4000
+	}
+	handle {
+		reverse_proxy web:3000
+	}
+	log {
+		output stdout
+		format json
+	}
+}
+
+# Sitios opcionales (p. ej. Chatwoot): ver extra/chatwoot.caddy.example
+import /etc/caddy/extra/*.caddy

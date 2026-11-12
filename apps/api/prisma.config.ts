@@ -13,7 +13,7 @@ const e = (k: string) => {
 };
 
 const migrationUrl =
-  process.env.DATABASE_MIGRATION_URL ??
+  process.env.DATABASE_MIGRATION_URL ||
   `postgresql://${e('APP_DB_USER')}:${e('APP_DB_PASSWORD')}@${process.env.APP_DB_HOST ?? '127.0.0.1'}:${process.env.APP_DB_PORT ?? process.env.POSTGRES_HOST_PORT ?? '5433'}/${e('APP_DB_NAME')}`;
 
 export default defineConfig({
