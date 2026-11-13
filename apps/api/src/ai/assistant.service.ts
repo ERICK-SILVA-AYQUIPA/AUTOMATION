@@ -1,5 +1,4 @@
 import { ConflictException, Inject, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
-import { decrypt } from '../common/crypto/crypto.js';
 import { ENV, type Env } from '../config/env.js';
 import { WebhookEvents } from '../webhooks/webhook-events.service.js';
 import { AutomationEvents } from '../automations/automation-events.service.js';
@@ -8,7 +7,7 @@ import { OutboundService } from '../messaging/outbound.service.js';
 import { OrdersService } from '../orders/orders.service.js';
 import { currentPeriod, getPlanLimits, type PlanLimits } from '../plans/plan-limits.js';
 import { subscriptionAccess } from '../plans/subscription-access.js';
-import { GeminiChatModel } from './gemini.client.js';
+import { AiRouter, type ResolvedAi } from './center/ai-router.service.js';
 import { LlmError, type ToolCall, type TranscriptEntry } from './chat-model.js';
 import { runTool, toolsFor, type ToolContext, type ToolFeatures } from './ai-tools.js';
 import { ReservationsService } from '../reservations/reservations.service.js';
@@ -128,7 +127,7 @@ export class AssistantService {
   constructor(
     @Inject(ENV) private readonly env: Env,
     private readonly db: DatabaseService,
-    private readonly model: GeminiChatModel,
+    private readonly router: AiRouter,
     private readonly outbound: OutboundService,
     private readonly orders: OrdersService,
     private readonly automations: AutomationEvents,
@@ -136,22 +135,17 @@ export class AssistantService {
     private readonly reservations: ReservationsService,
   ) {}
 
-  /** Hay clave de la plataforma (las empresas pueden tener además la suya) */
-  get configured() {
-    return this.model.configured;
-  }
-
-  /** Clave que usa la empresa: la suya si la conectó, si no la de la plataforma */
-  async providerFor(tenantId: string): Promise<{ key: string; source: 'tenant' | 'platform' } | null> {
-    const own = await this.db.tenant(tenantId, (tx) => tx.tenantIntegration.findUnique({ where: { tenantId_type: { tenantId, type: 'GEMINI' } }, select: { secretsEnc: true, status: true } }));
-    if (own?.secretsEnc && own.status === 'CONNECTED') return { key: decrypt(own.secretsEnc, this.env.DATA_ENCRYPTION_KEY), source: 'tenant' };
-    return this.model.configured ? { key: this.env.GEMINI_API_KEY, source: 'platform' } : null;
+  /** Proveedor que usa el asistente de la empresa (Centro de APIs, ADR 046), sin secretos */
+  async providerFor(tenantId: string): Promise<{ provider: string; name: string; mode: 'MANAGED' | 'OWN' | 'SERVER'; model: string; label: string } | null> {
+    const r = await this.router.resolve(tenantId, 'ASSISTANT');
+    return r.ok ? { provider: r.ai.provider, name: r.ai.adapter.name, mode: r.ai.mode, model: r.ai.model, label: r.ai.label } : null;
   }
 
   /** Responde al mensaje entrante `messageId` si corresponde. */
   async reply(tenantId: string, conversationId: string, messageId: string): Promise<ReplyOutcome> {
-    const provider = await this.providerFor(tenantId);
-    if (!provider) return { outcome: 'skipped', reason: 'sin GEMINI_API_KEY' };
+    const resolution = await this.router.resolve(tenantId, 'ASSISTANT');
+    // Sin ningún proveedor asignado no hay asistente (lo atiende el equipo, como siempre)
+    if (!resolution.ok && resolution.code === 'NOT_CONFIGURED') return { outcome: 'skipped', reason: resolution.reason };
     const ctx = await this.db.tenant(tenantId, async (tx) => {
       const conv = await tx.conversation.findFirst({ where: { id: conversationId, tenantId }, select: { id: true, status: true, botStatus: true, customerId: true } });
       if (!conv) return null;
@@ -203,6 +197,12 @@ export class AssistantService {
       return this.handoff(tenantId, conversationId, `palabra clave: ${keyword}`, text);
     }
 
+    // Proveedor asignado pero inutilizable (desconectado, clave rechazada o tope): se avisa y pasa a una persona
+    if (!resolution.ok) {
+      await this.notifyOnce(tenantId, `ai_provider:${resolution.code}:${currentPeriod()}`, 'El asistente de IA no puede responder', `Motivo: ${resolution.reason}. Las conversaciones pasan a tu equipo hasta que se resuelva (Integraciones › Inteligencia artificial).`);
+      return this.handoff(tenantId, conversationId, `IA no disponible: ${resolution.reason}`);
+    }
+
     const transcript: TranscriptEntry[] = ctx.history
       .filter((m) => m.content?.trim())
       .map((m) => ({ role: m.direction === 'INBOUND' ? 'customer' : 'assistant', text: m.type === 'text' ? m.content.slice(0, 4000) : `[${m.type}] ${m.content.slice(0, 500)}` }));
@@ -220,7 +220,7 @@ export class AssistantService {
       features: featuresOf(tenant),
       requestHandoff: (r) => (handoffReason = r),
     };
-    const { text, tools, tokens } = await this.converse(systemPrompt(profile, tenant, new Date(), ctx.docs, promptExtras(tenant)), transcript, toolCtx, provider.key);
+    const { text, tools, tokens } = await this.converse(tenantId, resolution.ai, systemPrompt(profile, tenant, new Date(), ctx.docs, promptExtras(tenant)), transcript, toolCtx);
     await this.recordUsage(tenantId, tokens);
 
     // Mientras pensaba pudo llegar otro mensaje o tomar la conversación un agente
@@ -259,9 +259,9 @@ export class AssistantService {
     const keyword = matchesHandoffKeyword(transcript.at(-1)?.text ?? '', profile.handoffKeywords);
     if (keyword) return { reply: profile.handoffMessage, tools: [], handoff: `palabra clave: ${keyword}`, tokens: 0, draftUpdatedAt: settings.draftUpdatedAt };
     let handoff: string | null = null;
-    const provider = await this.providerFor(tenantId);
-    if (!provider) throw new ServiceUnavailableException({ code: 'AI_NOT_CONFIGURED', message: 'No hay clave de Gemini: conéctala en Integraciones o pide al administrador de la plataforma que configure GEMINI_API_KEY.' });
-    const r = await this.converse(systemPrompt(profile, tenant, new Date(), docs, promptExtras(tenant)), transcript, {
+    const resolution = await this.router.resolve(tenantId, 'ASSISTANT');
+    if (!resolution.ok) throw new ServiceUnavailableException({ code: 'AI_NOT_CONFIGURED', message: resolution.code === 'NOT_CONFIGURED' ? 'No hay proveedor de IA: conecta una clave en Integraciones › Inteligencia artificial o pide a la plataforma que te asigne uno.' : `La IA no está disponible: ${resolution.reason}.` });
+    const r = await this.converse(tenantId, resolution.ai, systemPrompt(profile, tenant, new Date(), docs, promptExtras(tenant)), transcript, {
       tenantId,
       currency: tenant.currency,
       customerId: null,
@@ -272,7 +272,7 @@ export class AssistantService {
       reservations: this.reservations,
       features: featuresOf(tenant),
       requestHandoff: (x) => (handoff = x),
-    }, provider.key);
+    });
     await this.recordUsage(tenantId, r.tokens);
     return { reply: r.text, tools: r.tools, handoff, tokens: r.tokens, draftUpdatedAt: settings.draftUpdatedAt };
   }
@@ -283,22 +283,31 @@ export class AssistantService {
     return this.db.tenant(tenantId, async (tx) => !!(await tx.message.findFirst({ where: { conversationId, direction: 'OUTBOUND', content: text, createdAt: { gte: since } }, select: { id: true } })));
   }
 
-  private async converse(system: string, transcript: TranscriptEntry[], ctx: ToolContext, apiKey: string) {
-    const session = this.model.start({ system, transcript, tools: toolsFor(ctx.features) }, apiKey);
+  /** Conversación con el modelo y sus herramientas; cada llamada queda registrada con proveedor, modelo y costo */
+  private async converse(tenantId: string, ai: ResolvedAi, system: string, transcript: TranscriptEntry[], ctx: ToolContext) {
+    const { session, state } = await this.router.open(ai, { system, transcript, tools: toolsFor(ctx.features) });
     const used: string[] = [];
-    let tokens = 0;
-    for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
-      const turn = await session.next();
-      tokens += turn.usage.input + turn.usage.output;
-      if (!turn.calls.length || round === MAX_TOOL_ROUNDS) return { text: turn.text.slice(0, 4000), tools: used, tokens };
-      const results: { call: ToolCall; result: unknown }[] = [];
-      for (const call of turn.calls.slice(0, 5)) {
-        used.push(call.name);
-        results.push({ call, result: await runTool(ctx, call.name, call.args) });
+    const usage = { input: 0, output: 0 };
+    const t0 = Date.now();
+    const done = (text: string, ok = true, error?: string) => this.router.record(tenantId, 'ASSISTANT', ai, state, { ...usage, ok, error, ms: Date.now() - t0 }).then(() => ({ text, tools: used, tokens: usage.input + usage.output }));
+    try {
+      for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
+        const turn = await session.next();
+        usage.input += turn.usage.input;
+        usage.output += turn.usage.output;
+        if (!turn.calls.length || round === MAX_TOOL_ROUNDS) return await done(turn.text.slice(0, 4000));
+        const results: { call: ToolCall; result: unknown }[] = [];
+        for (const call of turn.calls.slice(0, 5)) {
+          used.push(call.name);
+          results.push({ call, result: await runTool(ctx, call.name, call.args) });
+        }
+        session.addToolResults(results);
       }
-      session.addToolResults(results);
+      return await done('');
+    } catch (e) {
+      await done('', false, (e as Error).message);
+      throw e;
     }
-    return { text: '', tools: used, tokens };
   }
 
   private send(tenantId: string, conversationId: string, messageId: string, text: string) {
@@ -341,7 +350,7 @@ export class AssistantService {
   /** Agotados los reintentos (Gemini caído o sin cuota): se pasa a una persona. */
   async failed(tenantId: string, conversationId: string, err: Error) {
     this.log.error(`Asistente sin respuesta en ${conversationId}: ${err.message}`);
-    const reason = err instanceof LlmError && err.status === 401 ? 'clave de Gemini no válida' : 'el asistente no está disponible';
+    const reason = err instanceof LlmError && (err.status === 401 || err.status === 403) ? 'la clave del proveedor de IA no es válida o no tiene permisos' : 'el asistente no está disponible';
     return this.handoff(tenantId, conversationId, reason);
   }
 }

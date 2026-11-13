@@ -1136,3 +1136,147 @@ model Reservation {
   @@index([tenantId, status, startsAt])
   @@map("reservations")
 }
+
+// ----------------------------------------------------------------- Centro universal de APIs (ADR 046)
+
+enum CredentialStatus {
+  CONNECTED
+  CONNECTED_WITH_WARNINGS
+  AUTH_ERROR
+  PERMISSION_DENIED
+  UNAVAILABLE
+  INCOMPLETE
+  PENDING_AUTHORIZATION
+  DISABLED
+}
+
+enum AiService {
+  /// Asistente que atiende a los clientes de la empresa
+  ASSISTANT
+  /// Agente comercial de la plataforma (nuestro negocio)
+  COMMERCIAL
+}
+
+enum CredentialMode {
+  /// Credencial de la plataforma asignada a la empresa
+  MANAGED
+  /// Clave propia de la empresa
+  OWN
+}
+
+enum AiProfile {
+  ECONOMY
+  ADVANCED
+  CUSTOM
+}
+
+/// Bóveda de credenciales. tenantId null = administrada por la plataforma (solo rol de sistema)
+model ProviderCredential {
+  id                String           @id @default(uuid(7)) @db.Uuid
+  tenantId          String?          @map("tenant_id") @db.Uuid
+  provider          String
+  label             String
+  /// Campos no secretos (región, endpoint, id de proyecto…)
+  config            Json             @default("{}")
+  /// JSON de los campos secretos, cifrado (AES-256-GCM)
+  secretsEnc        String           @map("secrets_enc")
+  /// Últimos caracteres, para reconocerla sin mostrarla
+  secretHint        String           @map("secret_hint")
+  status            CredentialStatus @default(INCOMPLETE)
+  lastError         String?          @map("last_error")
+  lastCheckedAt     DateTime?        @map("last_checked_at") @db.Timestamptz(3)
+  connectedAt       DateTime?        @map("connected_at") @db.Timestamptz(3)
+  rotatedAt         DateTime?        @map("rotated_at") @db.Timestamptz(3)
+  disabledAt        DateTime?        @map("disabled_at") @db.Timestamptz(3)
+  /// Tope mensual de tokens de la credencial (todas las empresas que la usan)
+  monthlyTokenLimit Int?             @map("monthly_token_limit")
+  createdById       String?          @map("created_by_id") @db.Uuid
+  createdAt         DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  assignments         AiAssignment[] @relation("primary")
+  fallbackAssignments AiAssignment[] @relation("fallback")
+
+  @@index([tenantId, provider])
+  @@map("provider_credentials")
+}
+
+/// Catálogo de modelos (leído del proveedor o añadido a mano). Solo la plataforma
+model AiModel {
+  id                 String    @id @default(uuid(7)) @db.Uuid
+  provider           String
+  modelId            String    @map("model_id")
+  displayName        String?   @map("display_name")
+  /// PROVIDER | MANUAL
+  source             String
+  contextWindow      Int?      @map("context_window")
+  maxOutputTokens    Int?      @map("max_output_tokens")
+  inputPricePerMTok  Decimal?  @map("input_price_per_mtok") @db.Decimal(12, 4)
+  outputPricePerMTok Decimal?  @map("output_price_per_mtok") @db.Decimal(12, 4)
+  priceCurrency      String    @default("USD") @map("price_currency") @db.Char(3)
+  isEnabled          Boolean   @default(true) @map("is_enabled")
+  lastSeenAt         DateTime? @map("last_seen_at") @db.Timestamptz(3)
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@unique([provider, modelId])
+  @@map("ai_models")
+}
+
+model AiAssignment {
+  id                         String         @id @default(uuid(7)) @db.Uuid
+  tenantId                   String         @map("tenant_id") @db.Uuid
+  service                    AiService
+  provider                   String
+  credentialId               String         @map("credential_id") @db.Uuid
+  mode                       CredentialMode
+  /// null solo en Gemini migrado = modelo del servidor (GEMINI_MODEL)
+  model                      String?
+  profile                    AiProfile      @default(ECONOMY)
+  /// { maxOutputTokens?, temperature?, effort? } (ai/providers/params.ts)
+  params                     Json           @default("{}")
+  monthlyTokenLimit          Int?           @map("monthly_token_limit")
+  fallbackCredentialId       String?        @map("fallback_credential_id") @db.Uuid
+  fallbackModel              String?        @map("fallback_model")
+  /// Autorización explícita para que el respaldo use otro proveedor
+  allowCrossProviderFallback Boolean        @default(false) @map("allow_cross_provider_fallback")
+  isActive                   Boolean        @default(true) @map("is_active")
+  assignedById               String?        @map("assigned_by_id") @db.Uuid
+  createdAt                  DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                  DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  credential         ProviderCredential  @relation("primary", fields: [credentialId], references: [id], onDelete: Restrict)
+  fallbackCredential ProviderCredential? @relation("fallback", fields: [fallbackCredentialId], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, service])
+  @@index([credentialId])
+  @@map("ai_assignments")
+}
+
+/// Consumo por llamada al modelo (sin contenido de la conversación)
+model AiUsageEvent {
+  id           String    @id @default(uuid(7)) @db.Uuid
+  tenantId     String    @map("tenant_id") @db.Uuid
+  assignmentId String?   @map("assignment_id") @db.Uuid
+  service      AiService
+  provider     String
+  model        String
+  /// null = clave del servidor (GEMINI_API_KEY)
+  credentialId String?   @map("credential_id") @db.Uuid
+  /// MANAGED | OWN | SERVER
+  mode         String
+  inputTokens  Int       @default(0) @map("input_tokens")
+  outputTokens Int       @default(0) @map("output_tokens")
+  /// null = el modelo no tiene precio configurado (no se inventa)
+  cost         Decimal?  @db.Decimal(14, 6)
+  costCurrency String?   @map("cost_currency") @db.Char(3)
+  ok           Boolean
+  error        String?
+  latencyMs    Int?      @map("latency_ms")
+  fallbackUsed Boolean   @default(false) @map("fallback_used")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([tenantId, createdAt])
+  @@index([credentialId, createdAt])
+  @@map("ai_usage_events")
+}

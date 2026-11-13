@@ -50,6 +50,10 @@ const schema = z.object({
   GEMINI_MODEL: z.string().regex(/^[a-z0-9][a-z0-9.-]{2,63}$/).default('gemini-3.8-flash'),
   /** Solo para pruebas (servidor simulado); en producción debe quedar el oficial */
   GEMINI_BASE_URL: z.url().default('https://generativelanguage.googleapis.com'),
+  /** Centro de APIs (ADR 046): URL de cada proveedor. Solo cambian en desarrollo y pruebas (servidor local) */
+  ANTHROPIC_BASE_URL: z.url().default('https://api.anthropic.com'),
+  OPENAI_BASE_URL: z.url().default('https://api.openai.com/v1'),
+  DEEPSEEK_BASE_URL: z.url().default('https://api.deepseek.com'),
   /** Espera antes de responder, para juntar varios mensajes seguidos del cliente */
   AI_REPLY_DELAY_MS: z.coerce.number().int().min(0).max(60_000).default(2_500),
   WHATSAPP_GRAPH_API_VERSION: z.string().regex(/^v\d+\.\d+$/, 'formato vNN.N, p. ej. v26.0').default('v26.0'),
@@ -138,6 +142,9 @@ export function productionProblems(e: z.infer<typeof schema>): string[] {
   if (e.CHATWOOT_PLATFORM_TOKEN && !publicHttps(e.CHATWOOT_WEBHOOK_BASE_URL)) out.push('CHATWOOT_WEBHOOK_BASE_URL debe ser la URL https pública de la API');
   if (e.WHATSAPP_GRAPH_BASE_URL !== 'https://graph.facebook.com') out.push('WHATSAPP_GRAPH_BASE_URL solo puede cambiarse en desarrollo y pruebas');
   if (e.GEMINI_BASE_URL !== 'https://generativelanguage.googleapis.com') out.push('GEMINI_BASE_URL solo puede cambiarse en desarrollo y pruebas');
+  if (e.ANTHROPIC_BASE_URL !== 'https://api.anthropic.com') out.push('ANTHROPIC_BASE_URL solo puede cambiarse en desarrollo y pruebas');
+  if (e.OPENAI_BASE_URL !== 'https://api.openai.com/v1') out.push('OPENAI_BASE_URL solo puede cambiarse en desarrollo y pruebas');
+  if (e.DEEPSEEK_BASE_URL !== 'https://api.deepseek.com') out.push('DEEPSEEK_BASE_URL solo puede cambiarse en desarrollo y pruebas');
   return out;
 }
 

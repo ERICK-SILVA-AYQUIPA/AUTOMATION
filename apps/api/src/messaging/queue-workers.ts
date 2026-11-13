@@ -37,7 +37,7 @@ export class QueueWorkers implements OnApplicationBootstrap, OnApplicationShutdo
         // Espejo en Chatwoot: mensaje nuevo del cliente o cambio de estado de uno nuestro
         if (r.outcome === 'processed' && r.messageId && r.tenantId) await this.queues.mirrorToChatwoot(r.tenantId, r.messageId, r.kind === 'status' ? 'status' : 'mirror');
         // Mensaje nuevo del cliente: el asistente decide si responde (tras una breve espera)
-        if (r.outcome === 'processed' && r.kind === 'message' && r.messageId && r.tenantId && r.conversationId && this.assistant.configured) {
+        if (r.outcome === 'processed' && r.kind === 'message' && r.messageId && r.tenantId && r.conversationId) {
           await this.queues.replyWithAi({ tenantId: r.tenantId, conversationId: r.conversationId, messageId: r.messageId });
         }
         return r;
@@ -111,7 +111,7 @@ export class QueueWorkers implements OnApplicationBootstrap, OnApplicationShutdo
 
     // Recupera eventos guardados que no llegaron a encolarse (p. ej. Redis caído)
     this.sweeper = setInterval(() => void this.sweep().catch((e) => this.log.warn(`Barrido: ${(e as Error).message}`)), 60_000);
-    this.log.log(`Worker listo: colas wa-inbound, wa-outbound, chatwoot-sync y ai-reply${this.assistant.configured ? '' : ' (asistente sin GEMINI_API_KEY: no responde)'}`);
+    this.log.log(`Worker listo: colas wa-inbound, wa-outbound, chatwoot-sync y ai-reply`);
   }
 
   async sweep() {

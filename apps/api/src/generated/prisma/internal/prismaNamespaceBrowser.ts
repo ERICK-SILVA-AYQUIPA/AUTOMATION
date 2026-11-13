@@ -90,7 +90,11 @@ export const ModelName = {
   IntegrationCheck: 'IntegrationCheck',
   WebhookEndpoint: 'WebhookEndpoint',
   WebhookDelivery: 'WebhookDelivery',
-  Reservation: 'Reservation'
+  Reservation: 'Reservation',
+  ProviderCredential: 'ProviderCredential',
+  AiModel: 'AiModel',
+  AiAssignment: 'AiAssignment',
+  AiUsageEvent: 'AiUsageEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -810,6 +814,95 @@ export const ReservationScalarFieldEnum = {
 } as const
 
 export type ReservationScalarFieldEnum = (typeof ReservationScalarFieldEnum)[keyof typeof ReservationScalarFieldEnum]
+
+
+export const ProviderCredentialScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  provider: 'provider',
+  label: 'label',
+  config: 'config',
+  secretsEnc: 'secretsEnc',
+  secretHint: 'secretHint',
+  status: 'status',
+  lastError: 'lastError',
+  lastCheckedAt: 'lastCheckedAt',
+  connectedAt: 'connectedAt',
+  rotatedAt: 'rotatedAt',
+  disabledAt: 'disabledAt',
+  monthlyTokenLimit: 'monthlyTokenLimit',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProviderCredentialScalarFieldEnum = (typeof ProviderCredentialScalarFieldEnum)[keyof typeof ProviderCredentialScalarFieldEnum]
+
+
+export const AiModelScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  modelId: 'modelId',
+  displayName: 'displayName',
+  source: 'source',
+  contextWindow: 'contextWindow',
+  maxOutputTokens: 'maxOutputTokens',
+  inputPricePerMTok: 'inputPricePerMTok',
+  outputPricePerMTok: 'outputPricePerMTok',
+  priceCurrency: 'priceCurrency',
+  isEnabled: 'isEnabled',
+  lastSeenAt: 'lastSeenAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AiModelScalarFieldEnum = (typeof AiModelScalarFieldEnum)[keyof typeof AiModelScalarFieldEnum]
+
+
+export const AiAssignmentScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  service: 'service',
+  provider: 'provider',
+  credentialId: 'credentialId',
+  mode: 'mode',
+  model: 'model',
+  profile: 'profile',
+  params: 'params',
+  monthlyTokenLimit: 'monthlyTokenLimit',
+  fallbackCredentialId: 'fallbackCredentialId',
+  fallbackModel: 'fallbackModel',
+  allowCrossProviderFallback: 'allowCrossProviderFallback',
+  isActive: 'isActive',
+  assignedById: 'assignedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AiAssignmentScalarFieldEnum = (typeof AiAssignmentScalarFieldEnum)[keyof typeof AiAssignmentScalarFieldEnum]
+
+
+export const AiUsageEventScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  assignmentId: 'assignmentId',
+  service: 'service',
+  provider: 'provider',
+  model: 'model',
+  credentialId: 'credentialId',
+  mode: 'mode',
+  inputTokens: 'inputTokens',
+  outputTokens: 'outputTokens',
+  cost: 'cost',
+  costCurrency: 'costCurrency',
+  ok: 'ok',
+  error: 'error',
+  latencyMs: 'latencyMs',
+  fallbackUsed: 'fallbackUsed',
+  createdAt: 'createdAt'
+} as const
+
+export type AiUsageEventScalarFieldEnum = (typeof AiUsageEventScalarFieldEnum)[keyof typeof AiUsageEventScalarFieldEnum]
 
 
 export const SortOrder = {

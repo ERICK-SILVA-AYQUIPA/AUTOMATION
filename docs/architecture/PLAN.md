@@ -130,5 +130,28 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
   - [x] README al día y lista de aceptación con su evidencia: [`ACEPTACION.md`](ACEPTACION.md)
   - [ ] Pruebas con servicios reales (Meta, Gemini, SMTP, servidor): **pendientes de Rick**
 
+## AMPLIACIÓN ESTRATÉGICA (2026-11-13). Ver `AUDITORIA-AMPLIACION.md`
+
+- [x] Auditoría del repositorio: real, solo con servidor local, provisional y faltante
+- [x] Centro universal de APIs (ADR 046)
+  - [x] Bóveda de credenciales cifradas (administradas y propias), prueba real antes de guardar, rotar, probar, desconectar, eliminar
+  - [x] Adaptadores: Anthropic Claude (SDK oficial), OpenAI, DeepSeek, Google Gemini
+  - [x] Catálogo de modelos leído del proveedor, alta manual, habilitar/deshabilitar y precio editable
+  - [x] Asignación por empresa y servicio con perfil, tope mensual y respaldo (otro proveedor solo con autorización)
+  - [x] Panel de la plataforma (`/plataforma` → «Centro de APIs») y de la empresa (`/integraciones` → «Inteligencia artificial»)
+  - [x] Consumo por llamada con costo cuando hay precio
+  - [x] Pruebas: `api-center.e2e-spec.ts` (los 12 puntos de aceptación) y `api-center.mjs` en navegador, con un servidor local que responde como los 4 proveedores
+  - [ ] Prueba con claves reales de Claude, OpenAI, DeepSeek y Gemini: **pendiente de Rick** (se hace desde «Centro de APIs → Agregar proveedor» y «Probar»)
+- [ ] Fase A: centro de ventas / CRM
+- [ ] Fase B: página pública y agente comercial
+- [ ] Fase C: cotizaciones, contratos y pagos
+- [ ] Fase D: gestor de infraestructura
+- [ ] Fase E: orquestador de aprovisionamiento
+- [ ] Fase F: instalación automatizada
+- [ ] Fase G: WhatsApp, IA y automatizaciones en instalaciones nuevas
+- [ ] Fase H: pruebas y entrega
+- [ ] Fase I: posventa
+- [ ] Fase J: seguridad, monitoreo y rentabilidad
+
 ## FASE 7: automatizaciones, pedidos, inventario, notificaciones
 ## FASE 8: seguridad, pruebas E2E, optimización, documentación, producción

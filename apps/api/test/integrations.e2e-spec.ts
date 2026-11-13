@@ -209,22 +209,23 @@ describe('Integraciones centralizadas: webhooks firmados, clave propia de Gemini
   it('clave propia de Gemini: se valida con Google, se guarda cifrada y el asistente la usa', async () => {
     let ov = await ctx.http().get('/api/v1/integrations').set(H()).expect(200);
     expect(ov.body.map((x: { key: string }) => x.key)).toEqual(['whatsapp', 'ai', 'email', 'automations', 'chatwoot', 'webhooks', 'payments']);
-    expect(ov.body.find((x: { key: string }) => x.key === 'ai')).toMatchObject({ status: 'connected', ownKey: null, detail: 'Usa la clave de la plataforma' });
+    // Sin una prueba real todavía no figura como conectado
+    expect(ov.body.find((x: { key: string }) => x.key === 'ai')).toMatchObject({ status: 'pending', detail: 'Google Gemini (clave del servidor) · gemini-modelo-prueba' });
 
     const bad = await ctx.http().put('/api/v1/integrations/ai/key').set(H()).send({ apiKey: 'AIzaClaveQueNoExiste_00000000' }).expect(400);
     expect(bad.body.code).toBe('INVALID_KEY');
     expect(bad.body.message).toContain('API key not valid');
-    expect(await owner.tenantIntegration.count({ where: { tenantId: a.tenantId, type: 'GEMINI' } })).toBe(0);
+    expect(await owner.providerCredential.count({ where: { tenantId: a.tenantId } })).toBe(0);
     await ctx.http().put('/api/v1/integrations/ai/key').set(H()).send({ apiKey: 'corta' }).expect(400);
 
     const ok = await ctx.http().put('/api/v1/integrations/ai/key').set(H()).send({ apiKey: OWN_KEY }).expect(200);
     expect(ok.body).toMatchObject({ status: 'CONNECTED', hint: '…7890' });
-    const row = await owner.tenantIntegration.findFirstOrThrow({ where: { tenantId: a.tenantId, type: 'GEMINI' } });
+    const row = await owner.providerCredential.findFirstOrThrow({ where: { tenantId: a.tenantId, provider: 'gemini' } });
     expect(row.secretsEnc).not.toContain(OWN_KEY);
     expect(await owner.auditLog.count({ where: { tenantId: a.tenantId, action: 'integration.gemini_key_set' } })).toBe(1);
     ov = await ctx.http().get('/api/v1/integrations').set(H()).expect(200);
     expect(JSON.stringify(ov.body)).not.toContain(OWN_KEY);
-    expect(ov.body.find((x: { key: string }) => x.key === 'ai')).toMatchObject({ status: 'connected', ownKey: { hint: '…7890', status: 'CONNECTED' } });
+    expect(ov.body.find((x: { key: string }) => x.key === 'ai').detail).toBe('Google Gemini (clave propia) · gemini-modelo-prueba');
     const settings = await ctx.http().get('/api/v1/ai/settings').set(H()).expect(200);
     expect(settings.body.provider).toMatchObject({ configured: true, source: 'tenant' });
 
@@ -236,7 +237,9 @@ describe('Integraciones centralizadas: webhooks firmados, clave propia de Gemini
 
     const test = await ctx.http().post('/api/v1/integrations/ai/test').set(H()).expect(200);
     expect(test.body).toMatchObject({ ok: true });
-    expect(test.body.detail).toContain('Clave propia');
+    expect(test.body.detail).toContain('clave propia');
+    ov = await ctx.http().get('/api/v1/integrations').set(H()).expect(200);
+    expect(ov.body.find((x: { key: string }) => x.key === 'ai').status).toBe('connected');
 
     await ctx.http().delete('/api/v1/integrations/ai/key').set(H()).expect(204);
     geminiCalls.length = 0;

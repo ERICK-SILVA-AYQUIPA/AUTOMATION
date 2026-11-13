@@ -26,7 +26,7 @@ export class IntegrationsStatus {
       const since = new Date(Date.now() - 7 * DAY);
       const [numbers, own, chatwoot, endpoints, failedDeliveries, failedAutomations, lastChecks] = await Promise.all([
         tx.whatsappNumber.findMany({ where: { isActive: true }, select: { status: true, lastWebhookAt: true, lastError: true, displayPhone: true } }),
-        tx.tenantIntegration.findUnique({ where: { tenantId_type: { tenantId: tenantId, type: 'GEMINI' } }, select: { status: true, config: true, lastError: true, lastCheckedAt: true } }),
+        tx.aiAssignment.findUnique({ where: { tenantId_service: { tenantId, service: 'ASSISTANT' } }, select: { mode: true, isActive: true } }),
         tx.tenantIntegration.findUnique({ where: { tenantId_type: { tenantId: tenantId, type: 'CHATWOOT' } }, select: { status: true, lastError: true, updatedAt: true } }),
         tx.webhookEndpoint.findMany({ where: { isActive: true }, select: { lastError: true, lastDeliveryAt: true } }),
         tx.webhookDelivery.count({ where: { status: 'FAILED', createdAt: { gte: since } } }),
@@ -41,7 +41,6 @@ export class IntegrationsStatus {
       const waError = numbers.find((n) => n.status === 'ERROR');
       const lastWebhook = numbers.map((n) => n.lastWebhookAt).filter((d): d is Date => !!d).sort((a, b) => a.getTime() - b.getTime()).at(-1) ?? null;
       const failingEndpoints = endpoints.filter((e) => e.lastError).length;
-      const ownHint = (own?.config as { hint?: string } | null)?.hint ?? null;
       return [
         {
           key: 'whatsapp', name: 'WhatsApp Business (Cloud API)', testable: numbers.length > 0, lastCheck: last('whatsapp'),
@@ -50,11 +49,11 @@ export class IntegrationsStatus {
           lastActivityAt: lastWebhook, howTo: 'Abajo, en «Números de WhatsApp»: credenciales de Meta, URL del webhook y prueba de envío.',
         },
         {
-          key: 'ai', name: 'Gemini (asistente IA)', testable: !!provider, lastCheck: last('ai'),
-          status: own?.status === 'ERROR' ? 'error' : provider ? 'connected' : 'not_configured',
-          detail: provider?.source === 'tenant' ? `Clave propia de la empresa (${ownHint ?? 'guardada'})` : provider ? 'Usa la clave de la plataforma' : 'Sin clave: los mensajes los atiende tu equipo',
-          ownKey: own ? { hint: ownHint, status: own.status, lastError: own.lastError, lastCheckedAt: own.lastCheckedAt } : null,
-          howTo: 'Opcional: crea una clave en Google AI Studio (aistudio.google.com → Get API key) y pégala aquí. Se valida con Google antes de guardarla y se guarda cifrada.',
+          key: 'ai', name: 'Inteligencia artificial (asistente)', testable: !!provider, lastCheck: last('ai'),
+          // «connected» solo si la última prueba real fue correcta; sin prueba queda «pendiente»
+          status: !provider ? (own ? 'error' : 'not_configured') : last('ai')?.ok === false ? 'error' : last('ai')?.ok ? 'connected' : 'pending',
+          detail: provider ? provider.label : own ? 'La IA asignada no se puede usar: revisa la credencial o el tope en «Inteligencia artificial»' : 'Sin proveedor de IA: los mensajes los atiende tu equipo',
+          howTo: 'En «Inteligencia artificial»: conecta tu clave de Claude, Gemini, OpenAI o DeepSeek (se valida con el proveedor y se guarda cifrada) o usa la que te asigne la plataforma.',
         },
         {
           key: 'email', name: 'Correo saliente', testable: this.mail.configured, lastCheck: last('email'),

@@ -922,6 +922,74 @@ export type EnumReservationStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumReservationStatusFilter<$PrismaModel>
 }
 
+export type EnumCredentialStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.CredentialStatus | Prisma.EnumCredentialStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CredentialStatus[] | Prisma.ListEnumCredentialStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CredentialStatus[] | Prisma.ListEnumCredentialStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCredentialStatusFilter<$PrismaModel> | $Enums.CredentialStatus
+}
+
+export type EnumCredentialStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CredentialStatus | Prisma.EnumCredentialStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CredentialStatus[] | Prisma.ListEnumCredentialStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CredentialStatus[] | Prisma.ListEnumCredentialStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCredentialStatusWithAggregatesFilter<$PrismaModel> | $Enums.CredentialStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCredentialStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCredentialStatusFilter<$PrismaModel>
+}
+
+export type EnumAiServiceFilter<$PrismaModel = never> = {
+  equals?: $Enums.AiService | Prisma.EnumAiServiceFieldRefInput<$PrismaModel>
+  in?: $Enums.AiService[] | Prisma.ListEnumAiServiceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AiService[] | Prisma.ListEnumAiServiceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAiServiceFilter<$PrismaModel> | $Enums.AiService
+}
+
+export type EnumCredentialModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CredentialMode | Prisma.EnumCredentialModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CredentialMode[] | Prisma.ListEnumCredentialModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CredentialMode[] | Prisma.ListEnumCredentialModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCredentialModeFilter<$PrismaModel> | $Enums.CredentialMode
+}
+
+export type EnumAiProfileFilter<$PrismaModel = never> = {
+  equals?: $Enums.AiProfile | Prisma.EnumAiProfileFieldRefInput<$PrismaModel>
+  in?: $Enums.AiProfile[] | Prisma.ListEnumAiProfileFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AiProfile[] | Prisma.ListEnumAiProfileFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAiProfileFilter<$PrismaModel> | $Enums.AiProfile
+}
+
+export type EnumAiServiceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AiService | Prisma.EnumAiServiceFieldRefInput<$PrismaModel>
+  in?: $Enums.AiService[] | Prisma.ListEnumAiServiceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AiService[] | Prisma.ListEnumAiServiceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAiServiceWithAggregatesFilter<$PrismaModel> | $Enums.AiService
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAiServiceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAiServiceFilter<$PrismaModel>
+}
+
+export type EnumCredentialModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CredentialMode | Prisma.EnumCredentialModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CredentialMode[] | Prisma.ListEnumCredentialModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CredentialMode[] | Prisma.ListEnumCredentialModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCredentialModeWithAggregatesFilter<$PrismaModel> | $Enums.CredentialMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCredentialModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCredentialModeFilter<$PrismaModel>
+}
+
+export type EnumAiProfileWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AiProfile | Prisma.EnumAiProfileFieldRefInput<$PrismaModel>
+  in?: $Enums.AiProfile[] | Prisma.ListEnumAiProfileFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AiProfile[] | Prisma.ListEnumAiProfileFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAiProfileWithAggregatesFilter<$PrismaModel> | $Enums.AiProfile
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAiProfileFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAiProfileFilter<$PrismaModel>
+}
+
 export type NestedUuidFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -1783,6 +1851,74 @@ export type NestedEnumReservationStatusWithAggregatesFilter<$PrismaModel = never
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumReservationStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumReservationStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumCredentialStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.CredentialStatus | Prisma.EnumCredentialStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CredentialStatus[] | Prisma.ListEnumCredentialStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CredentialStatus[] | Prisma.ListEnumCredentialStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCredentialStatusFilter<$PrismaModel> | $Enums.CredentialStatus
+}
+
+export type NestedEnumCredentialStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CredentialStatus | Prisma.EnumCredentialStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CredentialStatus[] | Prisma.ListEnumCredentialStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CredentialStatus[] | Prisma.ListEnumCredentialStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCredentialStatusWithAggregatesFilter<$PrismaModel> | $Enums.CredentialStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCredentialStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCredentialStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumAiServiceFilter<$PrismaModel = never> = {
+  equals?: $Enums.AiService | Prisma.EnumAiServiceFieldRefInput<$PrismaModel>
+  in?: $Enums.AiService[] | Prisma.ListEnumAiServiceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AiService[] | Prisma.ListEnumAiServiceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAiServiceFilter<$PrismaModel> | $Enums.AiService
+}
+
+export type NestedEnumCredentialModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CredentialMode | Prisma.EnumCredentialModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CredentialMode[] | Prisma.ListEnumCredentialModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CredentialMode[] | Prisma.ListEnumCredentialModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCredentialModeFilter<$PrismaModel> | $Enums.CredentialMode
+}
+
+export type NestedEnumAiProfileFilter<$PrismaModel = never> = {
+  equals?: $Enums.AiProfile | Prisma.EnumAiProfileFieldRefInput<$PrismaModel>
+  in?: $Enums.AiProfile[] | Prisma.ListEnumAiProfileFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AiProfile[] | Prisma.ListEnumAiProfileFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAiProfileFilter<$PrismaModel> | $Enums.AiProfile
+}
+
+export type NestedEnumAiServiceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AiService | Prisma.EnumAiServiceFieldRefInput<$PrismaModel>
+  in?: $Enums.AiService[] | Prisma.ListEnumAiServiceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AiService[] | Prisma.ListEnumAiServiceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAiServiceWithAggregatesFilter<$PrismaModel> | $Enums.AiService
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAiServiceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAiServiceFilter<$PrismaModel>
+}
+
+export type NestedEnumCredentialModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CredentialMode | Prisma.EnumCredentialModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CredentialMode[] | Prisma.ListEnumCredentialModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CredentialMode[] | Prisma.ListEnumCredentialModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCredentialModeWithAggregatesFilter<$PrismaModel> | $Enums.CredentialMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCredentialModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCredentialModeFilter<$PrismaModel>
+}
+
+export type NestedEnumAiProfileWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AiProfile | Prisma.EnumAiProfileFieldRefInput<$PrismaModel>
+  in?: $Enums.AiProfile[] | Prisma.ListEnumAiProfileFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AiProfile[] | Prisma.ListEnumAiProfileFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAiProfileWithAggregatesFilter<$PrismaModel> | $Enums.AiProfile
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAiProfileFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAiProfileFilter<$PrismaModel>
 }
 
 

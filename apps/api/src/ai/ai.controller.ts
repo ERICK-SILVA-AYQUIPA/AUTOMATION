@@ -64,7 +64,7 @@ export class AiController {
         monthlyTokenCap: s.monthlyTokenCap,
         usage: { period: currentPeriod(), tokens: used.ai_tokens ?? 0, replies: used.ai_replies ?? 0, planTokenLimit: limits.maxAiTokensPerMonth ?? null, effectiveCap: tokenCap(limits, s.monthlyTokenCap) },
         knowledge: { maxDocs: limits.maxKnowledgeDocs ?? DEFAULT_MAX_DOCS, budgetChars: KNOWLEDGE_BUDGET },
-        provider: { configured: !!provider, source: provider?.source ?? null, model: this.env.GEMINI_MODEL },
+        provider: { configured: !!provider, source: provider ? (provider.mode === 'OWN' ? 'tenant' : 'platform') : null, mode: provider?.mode ?? null, name: provider?.name ?? null, model: provider?.model ?? null },
       };
     });
   }

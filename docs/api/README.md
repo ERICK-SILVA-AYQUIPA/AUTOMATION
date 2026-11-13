@@ -139,14 +139,23 @@ El aforo (`TABLE`: personas; `APPOINTMENT`: citas simultáneas) se controla con 
 | GET | `/integrations` | Lista de 7 servicios (`whatsapp, ai, email, automations, chatwoot, webhooks, payments`) con `{status, detail, lastCheck, testable, howTo}`; `ai.ownKey` con `hint` (nunca la clave) |
 | POST | `/integrations/:service/test` | `whatsapp`, `ai`, `email` (correo al usuario actual), `webhooks` (ping a cada URL) → `{ok, ms, detail}`; queda en el historial |
 | GET | `/integrations/checks?service=&ok=` | Últimas 50 comprobaciones de la empresa |
-| PUT | `/integrations/ai/key` | `{apiKey}`: se valida con Google; 400 `INVALID_KEY` si la rechaza. Guarda cifrado → `{status, hint, detail}` |
-| DELETE | `/integrations/ai/key` | Quita la clave propia (vuelve a la de la plataforma) |
+| PUT | `/integrations/ai/key` | Compatibilidad con 0.9.0: `{apiKey}` de Gemini; se valida con Google (400 `INVALID_KEY`), se guarda en la bóveda y se asigna al asistente con el modelo del servidor |
+| DELETE | `/integrations/ai/key` | Quita la asignación propia y borra la clave de Gemini |
+| GET | `/integrations/ai` | Centro de APIs de la empresa (ADR 046): `{providers, credentials, assignment, effective, usage}`. `effective.code`: `NOT_CONFIGURED`, `DISABLED`, `CREDENTIAL`, `LIMIT` |
+| POST | `/integrations/ai/credentials` | `{provider, label?, fields}`: prueba real; 400 `CREDENTIAL_REJECTED` (con `status`) si el proveedor no la acepta → credencial con `secretHint` y `check` |
+| POST | `/integrations/ai/credentials/:id/rotate` · `/test` · `/disable` | Rotar (`{fields}`, se prueba antes), probar, desconectar (desactiva asignaciones) |
+| DELETE | `/integrations/ai/credentials/:id` | 409 `CREDENTIAL_IN_USE` si una asignación la usa |
+| GET | `/integrations/ai/credentials/:id/models` | Modelos que el proveedor ofrece a esa clave (lista en vivo) |
+| PUT / DELETE | `/integrations/ai/assignment` | `{credentialId, model, profile, params?, monthlyTokenLimit?}` con una clave propia / quitarla (403 `MANAGED_ASSIGNMENT` si la asignó la plataforma) |
+| POST | `/integrations/ai/assignment/test` | Petición real y corta al modelo asignado → `{ok, detail, ms, reply, tokens}`; queda en el historial y en el consumo |
 | GET / POST | `/integrations/webhooks` | Lista `{events, items}` / crea `{url, description?, events[]}` → incluye `secret` **solo en esta respuesta**. 400 `INVALID_URL`, 403 `LIMIT_REACHED` (5) |
 | PATCH / DELETE | `/integrations/webhooks/:id` | `{url?, description?, events?, isActive?}` / borrar |
 | POST | `/integrations/webhooks/:id/rotate-secret` | Nuevo secreto (el anterior deja de valer) → `{id, secret}` |
 | POST | `/integrations/webhooks/:id/test` | Envía un `ping` firmado al momento → `{ok, status, error}` |
 | GET | `/integrations/webhooks/:id/deliveries?page=` | Historial de entregas |
 | POST | `/integrations/webhooks/deliveries/:id/retry` | Reencola una entrega `FAILED` (no los ping) |
+
+Centro de APIs de la plataforma (permiso `platform:manage`, `/platform/api-center`): `GET /` (catálogo de integraciones, proveedores, credenciales administradas, modelos, asignaciones, empresas, consumo); `POST credentials`, `POST credentials/:id/{rotate,test,disable}`, `PATCH credentials/:id` (`label`, `monthlyTokenLimit`), `DELETE credentials/:id`, `POST credentials/:id/models/refresh`; `POST models` (alta manual), `PATCH models/:id` (`isEnabled`, precios, moneda); `GET tenants/:tenantId/credentials`; `PUT tenants/:tenantId/ai/:service` (`ASSISTANT` o `COMMERCIAL`; con `fallbackCredentialId`, `fallbackModel`, `allowCrossProviderFallback`); `POST tenants/:tenantId/ai/:service/{enable,disable,test}`; `DELETE tenants/:tenantId/ai/:service`. Todo cambio queda en la auditoría.
 
 Panel general (permiso `platform:manage`): `GET /platform/integrations` (servicios del servidor con `configured`, variables de entorno y última prueba; números de WhatsApp por estado y con error; fallos de 7 días) y `POST /platform/integrations/:service/test` (`database, redis, gemini, smtp, n8n, chatwoot`; auditado).
 

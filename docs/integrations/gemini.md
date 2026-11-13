@@ -3,6 +3,10 @@
 El asistente responde por WhatsApp usando la Gemini API de Google (ADR 037).
 Sin clave, todo lo demás funciona y los mensajes los atiende tu equipo.
 
+> Desde el Centro de APIs (ADR 046) cada empresa puede usar Claude, Gemini, OpenAI
+> o DeepSeek, configurados desde los paneles: ver [ai-providers.md](ai-providers.md).
+> La clave del servidor descrita aquí solo se usa con empresas sin asignación.
+
 ## Configurar
 
 1. Crea una clave en [Google AI Studio](https://aistudio.google.com/apikey) y

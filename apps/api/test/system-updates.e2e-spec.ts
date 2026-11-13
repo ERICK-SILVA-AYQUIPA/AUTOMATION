@@ -1,3 +1,4 @@
+import { readdirSync } from 'node:fs';
 import argon2 from 'argon2';
 import { DatabaseService } from '../src/database/database.service.js';
 import { APP_VERSION } from '../src/deliveries/version.js';
@@ -31,7 +32,8 @@ describe('Actualizaciones: versión, migraciones e historial solo para la plataf
     const applied = await owner.$queryRaw<{ n: bigint }[]>`SELECT count(*) AS n FROM _prisma_migrations WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL`;
     expect(s.version).toBe(APP_VERSION);
     expect(s.migrations.applied).toBe(Number(applied[0]!.n));
-    expect(s.migrations.last.name).toBe('20261116090100_migrations_read_grant');
+    const latest = readdirSync(new URL('../../../database/migrations', import.meta.url)).filter((d) => /^\d{14}_/.test(d)).sort().at(-1);
+    expect(s.migrations.last.name).toBe(latest);
     expect(s.migrations.failed).toEqual([]);
     expect(s.updates).toEqual([]);
   });

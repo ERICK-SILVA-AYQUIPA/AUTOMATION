@@ -21,7 +21,7 @@ interface AiSettings {
   isEnabled: boolean; published: Profile; draft: Profile | null; hasUnpublishedChanges: boolean; draftUpdatedAt: string | null; draftTestedAt: string | null;
   publishedAt: string | null; testRequired: boolean; monthlyTokenCap: number | null;
   usage: { period: string; tokens: number; replies: number; planTokenLimit: number | null; effectiveCap: number | null };
-  knowledge: { maxDocs: number; budgetChars: number }; provider: { configured: boolean; source: 'tenant' | 'platform' | null; model: string };
+  knowledge: { maxDocs: number; budgetChars: number }; provider: { configured: boolean; source: 'tenant' | 'platform' | null; mode: 'MANAGED' | 'OWN' | 'SERVER' | null; name: string | null; model: string | null };
 }
 interface Doc { id: string; title: string; content: string; chars: number; updatedAt: string; state: 'new' | 'modified' | 'published' | 'pending_delete' }
 interface ChatLine { role: 'customer' | 'assistant'; text: string; tools?: string[]; handoff?: string | null }
@@ -399,7 +399,7 @@ function TestChat({ d }: { d: AiSettings }) {
       </div>
       <ErrorBox error={error} />
       <form onSubmit={send} className="mt-3 flex gap-2">
-        <Input value={text} onChange={(e) => setText(e.target.value)} placeholder={configured ? 'Mensaje del cliente' : 'Disponible cuando el servidor tenga la clave de Gemini'} disabled={!configured} maxLength={2000} aria-label="Mensaje de prueba" />
+        <Input value={text} onChange={(e) => setText(e.target.value)} placeholder={configured ? 'Mensaje del cliente' : 'Disponible cuando haya un proveedor de IA asignado'} disabled={!configured} maxLength={2000} aria-label="Mensaje de prueba" />
         <Button type="submit" icon={<Send className="size-4" />} loading={busy} disabled={!configured || !text.trim()}>Enviar</Button>
       </form>
     </Card>
@@ -469,7 +469,7 @@ function Assistant() {
       />
       {!d.provider.configured && (
         <div role="status" className="mb-6 rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm">
-          La IA todavía no está conectada: falta la clave de Gemini (de la plataforma, o la tuya propia en Integraciones → Asistente IA). Mientras tanto los mensajes se reciben y los atiende tu equipo. Puedes dejar la configuración lista.
+          La IA todavía no está disponible: falta un proveedor (el que te asigne la plataforma, o tu propia clave de Claude, Gemini, OpenAI o DeepSeek en Integraciones → Inteligencia artificial). Mientras tanto los mensajes se reciben y los atiende tu equipo. Puedes dejar la configuración lista.
         </div>
       )}
       <PublishBar d={d} />
@@ -483,7 +483,7 @@ function Assistant() {
           <Operation key={`${d.monthlyTokenCap}`} d={d} />
         </div>
       </div>
-      <p className="mt-4 text-xs text-muted">Modelo: {d.provider.model}{d.provider.source === 'tenant' ? ' (con la clave propia de tu empresa)' : ''}. Los mensajes de los clientes y la configuración se envían a Google (Gemini API) para generar la respuesta.</p>
+      {d.provider.configured && <p className="mt-4 text-xs text-muted">Proveedor: {d.provider.name} · modelo {d.provider.model}{d.provider.source === 'tenant' ? ' (con la clave propia de tu empresa)' : ''}. Los mensajes de los clientes y la configuración se envían a ese proveedor para generar la respuesta.</p>}
     </>
   );
 }

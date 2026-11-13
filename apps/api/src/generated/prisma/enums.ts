@@ -287,3 +287,42 @@ export const ReservationStatus = {
 } as const
 
 export type ReservationStatus = (typeof ReservationStatus)[keyof typeof ReservationStatus]
+
+
+export const CredentialStatus = {
+  CONNECTED: 'CONNECTED',
+  CONNECTED_WITH_WARNINGS: 'CONNECTED_WITH_WARNINGS',
+  AUTH_ERROR: 'AUTH_ERROR',
+  PERMISSION_DENIED: 'PERMISSION_DENIED',
+  UNAVAILABLE: 'UNAVAILABLE',
+  INCOMPLETE: 'INCOMPLETE',
+  PENDING_AUTHORIZATION: 'PENDING_AUTHORIZATION',
+  DISABLED: 'DISABLED'
+} as const
+
+export type CredentialStatus = (typeof CredentialStatus)[keyof typeof CredentialStatus]
+
+
+export const AiService = {
+  ASSISTANT: 'ASSISTANT',
+  COMMERCIAL: 'COMMERCIAL'
+} as const
+
+export type AiService = (typeof AiService)[keyof typeof AiService]
+
+
+export const CredentialMode = {
+  MANAGED: 'MANAGED',
+  OWN: 'OWN'
+} as const
+
+export type CredentialMode = (typeof CredentialMode)[keyof typeof CredentialMode]
+
+
+export const AiProfile = {
+  ECONOMY: 'ECONOMY',
+  ADVANCED: 'ADVANCED',
+  CUSTOM: 'CUSTOM'
+} as const
+
+export type AiProfile = (typeof AiProfile)[keyof typeof AiProfile]

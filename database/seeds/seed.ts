@@ -1,6 +1,6 @@
 /**
  * Datos BASE (idempotente, apto para producción): planes y administrador
- * general. NO crea datos ficticios de negocio; la demo vive en demo.ts.
+ * general. NO crea datos ficticios de negocio.
  *
  * Uso: pnpm --filter @aisa/api db:seed
  */

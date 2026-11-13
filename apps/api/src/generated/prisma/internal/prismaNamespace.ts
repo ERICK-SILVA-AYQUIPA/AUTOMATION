@@ -436,7 +436,11 @@ export const ModelName = {
   IntegrationCheck: 'IntegrationCheck',
   WebhookEndpoint: 'WebhookEndpoint',
   WebhookDelivery: 'WebhookDelivery',
-  Reservation: 'Reservation'
+  Reservation: 'Reservation',
+  ProviderCredential: 'ProviderCredential',
+  AiModel: 'AiModel',
+  AiAssignment: 'AiAssignment',
+  AiUsageEvent: 'AiUsageEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -452,7 +456,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "plan" | "tenant" | "subscription" | "payment" | "delivery" | "systemUpdate" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "conversationNote" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "aiKnowledgeDoc" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog" | "integrationCheck" | "webhookEndpoint" | "webhookDelivery" | "reservation"
+    modelProps: "plan" | "tenant" | "subscription" | "payment" | "delivery" | "systemUpdate" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "conversationNote" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "aiKnowledgeDoc" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog" | "integrationCheck" | "webhookEndpoint" | "webhookDelivery" | "reservation" | "providerCredential" | "aiModel" | "aiAssignment" | "aiUsageEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3416,6 +3420,302 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProviderCredential: {
+      payload: Prisma.$ProviderCredentialPayload<ExtArgs>
+      fields: Prisma.ProviderCredentialFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProviderCredentialFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCredentialPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProviderCredentialFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCredentialPayload>
+        }
+        findFirst: {
+          args: Prisma.ProviderCredentialFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCredentialPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProviderCredentialFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCredentialPayload>
+        }
+        findMany: {
+          args: Prisma.ProviderCredentialFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCredentialPayload>[]
+        }
+        create: {
+          args: Prisma.ProviderCredentialCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCredentialPayload>
+        }
+        createMany: {
+          args: Prisma.ProviderCredentialCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProviderCredentialCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCredentialPayload>[]
+        }
+        delete: {
+          args: Prisma.ProviderCredentialDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCredentialPayload>
+        }
+        update: {
+          args: Prisma.ProviderCredentialUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCredentialPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProviderCredentialDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProviderCredentialUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProviderCredentialUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCredentialPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProviderCredentialUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCredentialPayload>
+        }
+        aggregate: {
+          args: Prisma.ProviderCredentialAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProviderCredential>
+        }
+        groupBy: {
+          args: Prisma.ProviderCredentialGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProviderCredentialGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProviderCredentialCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProviderCredentialCountAggregateOutputType> | number
+        }
+      }
+    }
+    AiModel: {
+      payload: Prisma.$AiModelPayload<ExtArgs>
+      fields: Prisma.AiModelFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AiModelFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiModelPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AiModelFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiModelPayload>
+        }
+        findFirst: {
+          args: Prisma.AiModelFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiModelPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AiModelFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiModelPayload>
+        }
+        findMany: {
+          args: Prisma.AiModelFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiModelPayload>[]
+        }
+        create: {
+          args: Prisma.AiModelCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiModelPayload>
+        }
+        createMany: {
+          args: Prisma.AiModelCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AiModelCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiModelPayload>[]
+        }
+        delete: {
+          args: Prisma.AiModelDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiModelPayload>
+        }
+        update: {
+          args: Prisma.AiModelUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiModelPayload>
+        }
+        deleteMany: {
+          args: Prisma.AiModelDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AiModelUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AiModelUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiModelPayload>[]
+        }
+        upsert: {
+          args: Prisma.AiModelUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiModelPayload>
+        }
+        aggregate: {
+          args: Prisma.AiModelAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAiModel>
+        }
+        groupBy: {
+          args: Prisma.AiModelGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AiModelGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AiModelCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AiModelCountAggregateOutputType> | number
+        }
+      }
+    }
+    AiAssignment: {
+      payload: Prisma.$AiAssignmentPayload<ExtArgs>
+      fields: Prisma.AiAssignmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AiAssignmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiAssignmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AiAssignmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiAssignmentPayload>
+        }
+        findFirst: {
+          args: Prisma.AiAssignmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiAssignmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AiAssignmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiAssignmentPayload>
+        }
+        findMany: {
+          args: Prisma.AiAssignmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiAssignmentPayload>[]
+        }
+        create: {
+          args: Prisma.AiAssignmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiAssignmentPayload>
+        }
+        createMany: {
+          args: Prisma.AiAssignmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AiAssignmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiAssignmentPayload>[]
+        }
+        delete: {
+          args: Prisma.AiAssignmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiAssignmentPayload>
+        }
+        update: {
+          args: Prisma.AiAssignmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiAssignmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.AiAssignmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AiAssignmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AiAssignmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiAssignmentPayload>[]
+        }
+        upsert: {
+          args: Prisma.AiAssignmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiAssignmentPayload>
+        }
+        aggregate: {
+          args: Prisma.AiAssignmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAiAssignment>
+        }
+        groupBy: {
+          args: Prisma.AiAssignmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AiAssignmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AiAssignmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AiAssignmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    AiUsageEvent: {
+      payload: Prisma.$AiUsageEventPayload<ExtArgs>
+      fields: Prisma.AiUsageEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AiUsageEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AiUsageEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload>
+        }
+        findFirst: {
+          args: Prisma.AiUsageEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AiUsageEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload>
+        }
+        findMany: {
+          args: Prisma.AiUsageEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload>[]
+        }
+        create: {
+          args: Prisma.AiUsageEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload>
+        }
+        createMany: {
+          args: Prisma.AiUsageEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AiUsageEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload>[]
+        }
+        delete: {
+          args: Prisma.AiUsageEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload>
+        }
+        update: {
+          args: Prisma.AiUsageEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.AiUsageEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AiUsageEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AiUsageEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.AiUsageEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload>
+        }
+        aggregate: {
+          args: Prisma.AiUsageEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAiUsageEvent>
+        }
+        groupBy: {
+          args: Prisma.AiUsageEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AiUsageEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AiUsageEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AiUsageEventCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -4158,6 +4458,95 @@ export const ReservationScalarFieldEnum = {
 export type ReservationScalarFieldEnum = (typeof ReservationScalarFieldEnum)[keyof typeof ReservationScalarFieldEnum]
 
 
+export const ProviderCredentialScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  provider: 'provider',
+  label: 'label',
+  config: 'config',
+  secretsEnc: 'secretsEnc',
+  secretHint: 'secretHint',
+  status: 'status',
+  lastError: 'lastError',
+  lastCheckedAt: 'lastCheckedAt',
+  connectedAt: 'connectedAt',
+  rotatedAt: 'rotatedAt',
+  disabledAt: 'disabledAt',
+  monthlyTokenLimit: 'monthlyTokenLimit',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProviderCredentialScalarFieldEnum = (typeof ProviderCredentialScalarFieldEnum)[keyof typeof ProviderCredentialScalarFieldEnum]
+
+
+export const AiModelScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  modelId: 'modelId',
+  displayName: 'displayName',
+  source: 'source',
+  contextWindow: 'contextWindow',
+  maxOutputTokens: 'maxOutputTokens',
+  inputPricePerMTok: 'inputPricePerMTok',
+  outputPricePerMTok: 'outputPricePerMTok',
+  priceCurrency: 'priceCurrency',
+  isEnabled: 'isEnabled',
+  lastSeenAt: 'lastSeenAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AiModelScalarFieldEnum = (typeof AiModelScalarFieldEnum)[keyof typeof AiModelScalarFieldEnum]
+
+
+export const AiAssignmentScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  service: 'service',
+  provider: 'provider',
+  credentialId: 'credentialId',
+  mode: 'mode',
+  model: 'model',
+  profile: 'profile',
+  params: 'params',
+  monthlyTokenLimit: 'monthlyTokenLimit',
+  fallbackCredentialId: 'fallbackCredentialId',
+  fallbackModel: 'fallbackModel',
+  allowCrossProviderFallback: 'allowCrossProviderFallback',
+  isActive: 'isActive',
+  assignedById: 'assignedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AiAssignmentScalarFieldEnum = (typeof AiAssignmentScalarFieldEnum)[keyof typeof AiAssignmentScalarFieldEnum]
+
+
+export const AiUsageEventScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  assignmentId: 'assignmentId',
+  service: 'service',
+  provider: 'provider',
+  model: 'model',
+  credentialId: 'credentialId',
+  mode: 'mode',
+  inputTokens: 'inputTokens',
+  outputTokens: 'outputTokens',
+  cost: 'cost',
+  costCurrency: 'costCurrency',
+  ok: 'ok',
+  error: 'error',
+  latencyMs: 'latencyMs',
+  fallbackUsed: 'fallbackUsed',
+  createdAt: 'createdAt'
+} as const
+
+export type AiUsageEventScalarFieldEnum = (typeof AiUsageEventScalarFieldEnum)[keyof typeof AiUsageEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -4696,6 +5085,62 @@ export type ListEnumReservationStatusFieldRefInput<$PrismaModel> = FieldRefInput
 
 
 /**
+ * Reference to a field of type 'CredentialStatus'
+ */
+export type EnumCredentialStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CredentialStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'CredentialStatus[]'
+ */
+export type ListEnumCredentialStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CredentialStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'AiService'
+ */
+export type EnumAiServiceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AiService'>
+    
+
+
+/**
+ * Reference to a field of type 'AiService[]'
+ */
+export type ListEnumAiServiceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AiService[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CredentialMode'
+ */
+export type EnumCredentialModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CredentialMode'>
+    
+
+
+/**
+ * Reference to a field of type 'CredentialMode[]'
+ */
+export type ListEnumCredentialModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CredentialMode[]'>
+    
+
+
+/**
+ * Reference to a field of type 'AiProfile'
+ */
+export type EnumAiProfileFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AiProfile'>
+    
+
+
+/**
+ * Reference to a field of type 'AiProfile[]'
+ */
+export type ListEnumAiProfileFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AiProfile[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -4899,6 +5344,10 @@ export type GlobalOmitConfig = {
   webhookEndpoint?: Prisma.WebhookEndpointOmit
   webhookDelivery?: Prisma.WebhookDeliveryOmit
   reservation?: Prisma.ReservationOmit
+  providerCredential?: Prisma.ProviderCredentialOmit
+  aiModel?: Prisma.AiModelOmit
+  aiAssignment?: Prisma.AiAssignmentOmit
+  aiUsageEvent?: Prisma.AiUsageEventOmit
 }
 
 /* Types for Logging */

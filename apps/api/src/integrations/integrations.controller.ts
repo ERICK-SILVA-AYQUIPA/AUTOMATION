@@ -1,13 +1,11 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpCode, Inject, Param, Post, Put, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { z } from 'zod';
-import { AssistantService } from '../ai/assistant.service.js';
-import { GeminiChatModel } from '../ai/gemini.client.js';
+import { AiCenter } from '../ai/center/ai-center.service.js';
+import { CredentialVault } from '../ai/center/credential-vault.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import type { TenantPrincipal } from '../common/context/principal.js';
-import { encrypt } from '../common/crypto/crypto.js';
 import { RequirePermission, TenantUser } from '../common/decorators/auth.decorators.js';
-import { ENV, type Env } from '../config/env.js';
 import { DatabaseService } from '../database/database.service.js';
 import { MailService } from '../mail/mail.service.js';
 import { WhatsappNumbersService } from '../whatsapp/whatsapp-numbers.service.js';
@@ -28,12 +26,11 @@ const keySchema = z.object({ apiKey: z.string().trim().min(20).max(200).regex(/^
 @Controller('integrations')
 export class IntegrationsController {
   constructor(
-    @Inject(ENV) private readonly env: Env,
     private readonly db: DatabaseService,
     private readonly audit: AuditService,
     private readonly checks: IntegrationChecks,
-    private readonly gemini: GeminiChatModel,
-    private readonly assistant: AssistantService,
+    private readonly center: AiCenter,
+    private readonly vault: CredentialVault,
     private readonly mail: MailService,
     private readonly numbers: WhatsappNumbersService,
     private readonly sender: WebhookSender,
@@ -50,25 +47,18 @@ export class IntegrationsController {
   @HttpCode(200)
   @Post(':service/test')
   async test(@TenantUser() p: TenantPrincipal, @Param('service', { schema: z.enum(TENANT_SERVICES) }) service: TenantService) {
+    // IA: prueba real del modelo asignado (la registra el propio Centro de APIs)
+    if (service === 'ai') return this.center.testAssignment(p.tenantId, 'ASSISTANT', p.userId);
     const r = await this.run(p, service);
     await this.checks.record(p.tenantId, service, r, p.userId);
-    if (service === 'ai') {
-      await this.db.tenant(p.tenantId, (tx) =>
-        tx.tenantIntegration.updateMany({ where: { tenantId: p.tenantId, type: 'GEMINI' }, data: { lastCheckedAt: new Date(), status: r.ok ? 'CONNECTED' : 'ERROR', lastError: r.ok ? null : r.detail.slice(0, 500) } }),
-      );
-    }
     return r;
   }
 
   private async run(p: TenantPrincipal, service: TenantService): Promise<CheckResult> {
     const t = Date.now();
     switch (service) {
-      case 'ai': {
-        const provider = await this.assistant.providerFor(p.tenantId);
-        if (!provider) return { ok: false, ms: 0, detail: 'Sin clave de Gemini (ni propia ni de la plataforma)' };
-        const r = await this.gemini.check(provider.key);
-        return { ...r, detail: `${provider.source === 'tenant' ? 'Clave propia' : 'Clave de la plataforma'}: ${r.detail}` };
-      }
+      case 'ai':
+        return { ok: false, ms: 0, detail: 'Se prueba en el Centro de APIs' };
       case 'email': {
         const user = await this.db.tenant(p.tenantId, (tx) => tx.user.findUniqueOrThrow({ where: { id: p.userId }, select: { email: true } }));
         try {
@@ -100,29 +90,42 @@ export class IntegrationsController {
     }
   }
 
-  /** Clave propia de Gemini: se comprueba con Google antes de guardarla y se guarda cifrada */
+  /**
+   * Compatibilidad (0.9.0): clave propia de Gemini con el modelo del servidor.
+   * Ahora pasa por la bóveda del Centro de APIs (validada con Google y cifrada).
+   */
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Put('ai/key')
   async setKey(@TenantUser() p: TenantPrincipal, @Body({ schema: keySchema }) b: z.infer<typeof keySchema>) {
-    const r = await this.gemini.check(b.apiKey);
-    await this.checks.record(p.tenantId, 'ai', { ...r, detail: `Clave propia nueva: ${r.detail}` }, p.userId);
-    if (!r.ok) throw new BadRequestException({ code: 'INVALID_KEY', message: `Google no aceptó la clave: ${r.detail}` });
-    const hint = `…${b.apiKey.slice(-4)}`;
-    await this.db.tenant(p.tenantId, async (tx) => {
-      const data = { secretsEnc: encrypt(b.apiKey, this.env.DATA_ENCRYPTION_KEY), config: { hint }, status: 'CONNECTED' as const, lastError: null, lastCheckedAt: new Date() };
-      await tx.tenantIntegration.upsert({ where: { tenantId_type: { tenantId: p.tenantId, type: 'GEMINI' } }, create: { tenantId: p.tenantId, type: 'GEMINI', ...data }, update: data });
-      await this.audit.inTx(tx, { tenantId: p.tenantId, userId: p.userId, action: 'integration.gemini_key_set', entityType: 'tenant_integration', metadata: { hint } });
-    });
-    return { status: 'CONNECTED', hint, detail: r.detail };
+    const old = await this.db.tenant(p.tenantId, (tx) => tx.aiAssignment.findUnique({ where: { tenantId_service: { tenantId: p.tenantId, service: 'ASSISTANT' } }, select: { credentialId: true, mode: true, provider: true } }));
+    if (old?.mode === 'OWN' && old.provider === 'gemini') {
+      const r = await this.vault.rotate(p.tenantId, p.userId, old.credentialId, { apiKey: b.apiKey });
+      return { status: 'CONNECTED', hint: r.secretHint, detail: r.check.detail };
+    }
+    {
+      const cred = await this.vault.create(p.tenantId, p.userId, { provider: 'gemini', label: 'Clave propia de Gemini', fields: { apiKey: b.apiKey } }).catch((e: unknown) => {
+        // Mismo error que en 0.9.0 para quien use esta ruta
+        const r = e instanceof BadRequestException ? (e.getResponse() as { code?: string; message?: string }) : null;
+        if (r?.code === 'CREDENTIAL_REJECTED') throw new BadRequestException({ code: 'INVALID_KEY', message: `Google no aceptó la clave: ${r.message}` });
+        throw e;
+      });
+      await this.db.tenant(p.tenantId, async (tx) => {
+        const data = { provider: 'gemini', credentialId: cred.id, mode: 'OWN' as const, model: null, profile: 'ECONOMY' as const, params: {}, isActive: true, assignedById: p.userId, fallbackCredentialId: null, fallbackModel: null, allowCrossProviderFallback: false };
+        await tx.aiAssignment.upsert({ where: { tenantId_service: { tenantId: p.tenantId, service: 'ASSISTANT' } }, create: { tenantId: p.tenantId, service: 'ASSISTANT', ...data }, update: data });
+        await this.audit.inTx(tx, { tenantId: p.tenantId, userId: p.userId, action: 'integration.gemini_key_set', entityType: 'provider_credential', entityId: cred.id, metadata: { hint: cred.secretHint } });
+      });
+      return { status: 'CONNECTED', hint: cred.secretHint, detail: cred.check.detail };
+    }
   }
 
   @Delete('ai/key')
   @HttpCode(204)
   async removeKey(@TenantUser() p: TenantPrincipal) {
-    await this.db.tenant(p.tenantId, async (tx) => {
-      await tx.tenantIntegration.deleteMany({ where: { tenantId: p.tenantId, type: 'GEMINI' } });
-      await this.audit.inTx(tx, { tenantId: p.tenantId, userId: p.userId, action: 'integration.gemini_key_removed', entityType: 'tenant_integration' });
-    });
+    const a = await this.db.tenant(p.tenantId, (tx) => tx.aiAssignment.findUnique({ where: { tenantId_service: { tenantId: p.tenantId, service: 'ASSISTANT' } }, select: { credentialId: true, mode: true, provider: true } }));
+    if (a?.mode !== 'OWN' || a.provider !== 'gemini') return;
+    await this.center.unassign(p.tenantId, 'ASSISTANT', p.userId, false);
+    await this.vault.remove(p.tenantId, p.userId, a.credentialId);
+    await this.db.tenant(p.tenantId, (tx) => this.audit.inTx(tx, { tenantId: p.tenantId, userId: p.userId, action: 'integration.gemini_key_removed', entityType: 'provider_credential', entityId: a.credentialId }));
   }
 
   /** Historial de comprobaciones (los errores primero si se filtra por ok=false) */

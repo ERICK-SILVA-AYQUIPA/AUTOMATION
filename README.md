@@ -4,10 +4,11 @@ Plataforma SaaS multiempresa de ventas y atención al cliente por WhatsApp con
 inteligencia artificial: catálogo, inventario, pedidos, clientes, bandeja humana
 y automatizaciones.
 
-> **Estado (0.9.0, 2026-11-13):** las 10 fases de la evolución están implementadas y
-> probadas en local (ver [`docs/architecture/PLAN.md`](docs/architecture/PLAN.md) y la
+> **Estado (0.10.0, 2026-11-13):** las 10 fases de la evolución y el Centro universal de
+> APIs (Claude, Gemini, OpenAI y DeepSeek configurables desde los paneles, ADR 046) están
+> implementados y probados en local (ver [`docs/architecture/PLAN.md`](docs/architecture/PLAN.md) y la
 > [lista de aceptación](docs/architecture/ACEPTACION.md)). Lo que depende de servicios
-> o datos reales (servidor y dominio, SMTP, clave de Gemini, número de WhatsApp de Meta,
+> o datos reales (servidor y dominio, SMTP, claves de los proveedores de IA, número de WhatsApp de Meta,
 > precios, proveedor de pagos) está marcado como pendiente: no se afirma probado.
 
 ## Qué incluye
@@ -112,11 +113,12 @@ pnpm --filter @aisa/api lint && pnpm --filter @aisa/web lint
 
 # Pruebas en navegador (Chromium + Playwright) con la API, el worker y la web en marcha.
 # Leen los correos de Mailpit. La API y el worker deben arrancar con
-# WHATSAPP_GRAPH_BASE_URL=http://127.0.0.1:4999 y GEMINI_BASE_URL=http://127.0.0.1:4998:
-# los scripts levantan ahí servidores locales que responden como Meta y Gemini
-# (no se conectan a los servicios reales).
+# WHATSAPP_GRAPH_BASE_URL=http://127.0.0.1:4999, GEMINI_BASE_URL=http://127.0.0.1:4998,
+# ANTHROPIC_BASE_URL=http://127.0.0.1:4997/anthropic, OPENAI_BASE_URL=http://127.0.0.1:4997/openai/v1
+# y DEEPSEEK_BASE_URL=http://127.0.0.1:4997/deepseek: los scripts levantan ahí servidores
+# locales que responden como Meta y los proveedores de IA (no se conectan a los servicios reales).
 set -a; . ./.env; set +a
-for t in smoke provisioning automations assistant whatsapp chatwoot billing integrations templates deliveries; do
+for t in smoke provisioning automations assistant whatsapp chatwoot billing integrations api-center templates deliveries; do
   MAILPIT_URL=http://localhost:8025 WEB_URL=http://localhost:3000 node apps/web/e2e/$t.mjs
 done
 ```
@@ -125,7 +127,7 @@ Los inicios de sesión tienen límite de intentos: si se encadenan todos los scr
 pausa, alguno puede recibir `429` (es el comportamiento esperado).
 
 Conectar un número real de WhatsApp: [`docs/integrations/whatsapp-cloud-api.md`](docs/integrations/whatsapp-cloud-api.md).
-Gemini: [`docs/integrations/gemini.md`](docs/integrations/gemini.md).
+Proveedores de IA (Claude, Gemini, OpenAI, DeepSeek) desde los paneles: [`docs/integrations/ai-providers.md`](docs/integrations/ai-providers.md). Clave de Gemini del servidor: [`docs/integrations/gemini.md`](docs/integrations/gemini.md).
 Bandeja de agentes (Chatwoot): [`docs/integrations/chatwoot.md`](docs/integrations/chatwoot.md).
 Endpoints: [`docs/api/README.md`](docs/api/README.md).
 Producción, entregas y actualizaciones: [`docs/installation/production.md`](docs/installation/production.md).

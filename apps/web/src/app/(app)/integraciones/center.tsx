@@ -13,7 +13,6 @@ type Status = 'connected' | 'error' | 'not_configured' | 'pending' | 'managed';
 interface Check { ok: boolean; detail: string | null; at: string }
 interface Service {
   key: string; name: string; status: Status; detail: string; howTo: string; testable: boolean; lastCheck: Check | null;
-  ownKey?: { hint: string | null; status: string; lastError: string | null; lastCheckedAt: string | null } | null;
 }
 interface CheckResult { ok: boolean; ms: number; detail: string }
 
@@ -94,99 +93,6 @@ export function IntegrationErrors() {
         ))}
       </ul>
     </details>
-  );
-}
-
-/** Clave propia de Gemini: se valida con Google al guardarla y después solo se muestra el final */
-export function GeminiKeyCard() {
-  const qc = useQueryClient();
-  const toast = useToast();
-  const q = useQuery({ queryKey: ['integrations'], queryFn: () => api<Service[]>('/integrations'), staleTime: 0 });
-  const ai = q.data?.find((s) => s.key === 'ai');
-  const [open, setOpen] = useState(false);
-  const [key, setKey] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [confirm, setConfirm] = useState(false);
-  const [error, setError] = useState<unknown>(null);
-  const errors = fieldErrors(error);
-  const refresh = () => {
-    qc.invalidateQueries({ queryKey: ['integrations'] });
-    qc.invalidateQueries({ queryKey: ['integration-checks'] });
-    qc.invalidateQueries({ queryKey: ['ai-settings'] });
-  };
-  async function save(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setError(null);
-    try {
-      const r = await api<{ hint: string }>('/integrations/ai/key', { method: 'PUT', body: { apiKey: key.trim() } });
-      toast.success(`Google aceptó la clave (${r.hint}). Se guardó cifrada.`);
-      setOpen(false);
-      setKey('');
-    } catch (err) {
-      setError(err);
-    } finally {
-      setBusy(false);
-      refresh();
-    }
-  }
-  async function remove() {
-    setBusy(true);
-    try {
-      await api('/integrations/ai/key', { method: 'DELETE' });
-      toast.success('Clave propia eliminada');
-      setConfirm(false);
-    } catch (err) {
-      toast.error(err);
-    } finally {
-      setBusy(false);
-      refresh();
-    }
-  }
-  if (!ai) return null;
-  const own = ai.ownKey;
-  return (
-    <Card className="p-5">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex items-start gap-3">
-          <div className="rounded-lg bg-indigo-500/10 p-2 text-indigo-600 dark:text-indigo-300"><KeyRound className="size-5" /></div>
-          <div>
-            <p className="font-medium">Clave propia de Gemini</p>
-            {own ? (
-              <>
-                <p className="text-sm text-muted">Guardada: <span className="font-mono">{own.hint ?? '…'}</span>{own.lastCheckedAt ? ` · comprobada ${dateTime(own.lastCheckedAt)}` : ''}</p>
-                <div className="mt-2"><Badge tone={own.status === 'CONNECTED' ? 'success' : 'danger'}>{own.status === 'CONNECTED' ? 'Válida' : 'Con errores'}</Badge></div>
-                {own.lastError && <p className="mt-2 text-sm text-danger">{own.lastError}</p>}
-              </>
-            ) : (
-              <p className="max-w-xl text-sm text-muted">
-                Opcional. Sin clave propia, el asistente usa la de la plataforma{ai.status === 'not_configured' ? ' (que aún no está configurada)' : ''}. Con la tuya, el consumo se factura en tu cuenta de Google.
-              </p>
-            )}
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2 sm:justify-end">
-          <Button size="sm" variant="secondary" icon={<KeyRound className="size-4" />} onClick={() => { setError(null); setOpen(true); }}>{own ? 'Cambiar clave' : 'Usar mi clave'}</Button>
-          {own && <Button size="sm" variant="ghost" icon={<Trash2 className="size-4" />} onClick={() => setConfirm(true)}>Quitar</Button>}
-        </div>
-      </div>
-      <Dialog open={open} onClose={() => setOpen(false)} title="Clave propia de Gemini" footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancelar</Button><Button type="submit" form="gemini-key" loading={busy} disabled={key.trim().length < 20}>Validar y guardar</Button></>}>
-        <form id="gemini-key" onSubmit={save} className="flex flex-col gap-4">
-          <ol className="list-decimal space-y-1 pl-5 text-sm text-muted">
-            <li>Entra a <b className="text-text">aistudio.google.com</b> con la cuenta de Google de tu empresa.</li>
-            <li>Pulsa <b className="text-text">Get API key → Create API key</b> y cópiala.</li>
-            <li>Pégala aquí. La probamos con Google antes de guardarla y se guarda cifrada; después solo verás sus últimos 4 caracteres.</li>
-          </ol>
-          <ErrorBox error={error} />
-          <Field label="Clave de API" error={errors.apiKey}>
-            <Input type="password" autoComplete="off" value={key} onChange={(e) => setKey(e.target.value)} invalid={!!errors.apiKey} />
-          </Field>
-        </form>
-      </Dialog>
-      <Dialog open={confirm} onClose={() => setConfirm(false)} title="¿Quitar la clave propia?" footer={<><Button variant="secondary" onClick={() => setConfirm(false)}>Cancelar</Button><Button variant="danger" loading={busy} onClick={remove}>Quitar</Button></>}>
-        <p className="text-sm text-muted">El asistente volverá a usar la clave de la plataforma. Si la plataforma no tiene una, los mensajes los atenderá tu equipo.</p>
-      </Dialog>
-    </Card>
   );
 }
 

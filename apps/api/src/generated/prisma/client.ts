@@ -245,3 +245,23 @@ export type WebhookDelivery = Prisma.WebhookDeliveryModel
  * Reservas de mesa o citas de servicio (ADR 043). La capacidad la controla el backend.
  */
 export type Reservation = Prisma.ReservationModel
+/**
+ * Model ProviderCredential
+ * Bóveda de credenciales. tenantId null = administrada por la plataforma (solo rol de sistema)
+ */
+export type ProviderCredential = Prisma.ProviderCredentialModel
+/**
+ * Model AiModel
+ * Catálogo de modelos (leído del proveedor o añadido a mano). Solo la plataforma
+ */
+export type AiModel = Prisma.AiModelModel
+/**
+ * Model AiAssignment
+ * 
+ */
+export type AiAssignment = Prisma.AiAssignmentModel
+/**
+ * Model AiUsageEvent
+ * Consumo por llamada al modelo (sin contenido de la conversación)
+ */
+export type AiUsageEvent = Prisma.AiUsageEventModel

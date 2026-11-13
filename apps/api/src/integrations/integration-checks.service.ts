@@ -65,7 +65,7 @@ export class IntegrationChecks {
       case 'redis':
         return timed(async () => `Responde (${await this.redis.ping()})`);
       case 'gemini':
-        return this.gemini.check();
+        return this.gemini.checkKey();
       case 'smtp':
         return timed(async () => (await this.mail.verify(), 'Conexión y autenticación correctas'));
       case 'n8n':

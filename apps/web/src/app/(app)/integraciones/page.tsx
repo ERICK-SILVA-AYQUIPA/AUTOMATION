@@ -10,7 +10,8 @@ import { Badge, Button, Card, Dialog, EmptyState, ErrorBox, Field, Input, Loadin
 import { useToast } from '@/components/ui/toast';
 import { RequirePermission } from '@/components/guard';
 import { ChatwootCard } from '@/components/chatwoot';
-import { GeminiKeyCard, IntegrationErrors, IntegrationsOverview, WebhooksSection } from './center';
+import { AiProviderSection } from './ai-section';
+import { IntegrationErrors, IntegrationsOverview, WebhooksSection } from './center';
 
 interface WaNumber {
   id: string; provider: 'CLOUD_API' | 'EVOLUTION'; label: string | null; displayPhone: string | null; phoneNumberId: string | null; wabaId: string | null;
@@ -291,8 +292,8 @@ function Integrations() {
       <h2 className="mb-3 mt-8 text-sm font-semibold uppercase tracking-wide text-muted">Atención humana</h2>
       <ChatwootCard />
 
-      <h2 className="mb-3 mt-8 text-sm font-semibold uppercase tracking-wide text-muted">Asistente IA</h2>
-      <GeminiKeyCard />
+      <h2 className="mb-3 mt-8 text-sm font-semibold uppercase tracking-wide text-muted">Inteligencia artificial</h2>
+      <AiProviderSection />
 
       <h2 className="mb-1 mt-8 text-sm font-semibold uppercase tracking-wide text-muted">Webhooks</h2>
       <p className="mb-3 text-sm text-muted">Cada entrega va firmada (HMAC-SHA256) y se reintenta hasta 6 veces con espera creciente si tu sistema no responde 2xx.</p>

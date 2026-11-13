@@ -176,7 +176,7 @@ describe('Asistente de IA (Gemini directo, herramientas seguras)', () => {
     script = [{ status: 401, body: { error: { code: 401, message: 'API key not valid' } } }];
     const err = await assistant.reply(a.tenantId, conversationId, messageId).catch((e: Error) => e);
     expect(err).toMatchObject({ retryable: false, status: 401 });
-    expect(await assistant.failed(a.tenantId, conversationId, err as Error)).toMatchObject({ outcome: 'handoff', reason: 'clave de Gemini no válida' });
+    expect(await assistant.failed(a.tenantId, conversationId, err as Error)).toMatchObject({ outcome: 'handoff', reason: 'la clave del proveedor de IA no es válida o no tiene permisos' });
     expect(await botMessages(conversationId)).toHaveLength(0);
   });
 

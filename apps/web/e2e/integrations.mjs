@@ -47,6 +47,8 @@ const gemini = createServer((req, res) => {
       res.statusCode = 400;
       return res.end(JSON.stringify({ error: { code: 400, message: 'API key not valid. Please pass a valid API key.' } }));
     }
+    // Lista de modelos (Centro de APIs) y models.get (clave del servidor)
+    if (req.method === 'GET' && req.url.startsWith('/v1beta/models?')) return res.end(JSON.stringify({ models: [{ name: 'models/gemini-3.8-flash', displayName: 'Gemini local', supportedGenerationMethods: ['generateContent'] }] }));
     if (req.method === 'GET') return res.end(JSON.stringify({ name: req.url.replace('/v1beta/', '') }));
     res.end(JSON.stringify({ candidates: [{ content: { role: 'model', parts: [{ text: '¡Hola! ¿En qué te ayudo?' }] }, finishReason: 'STOP' }], usageMetadata: { promptTokenCount: 20, candidatesTokenCount: 5 } }));
   });
@@ -140,11 +142,11 @@ try {
   await step('Integraciones muestra el estado real de cada servicio', async () => {
     await page.getByRole('link', { name: 'Integraciones' }).click();
     await page.waitForURL(/\/integraciones$/);
-    for (const n of ['WhatsApp Business (Cloud API)', 'Gemini (asistente IA)', 'Correo saliente', 'Automatizaciones (n8n)', 'Chatwoot (bandeja de agentes)', 'Webhooks salientes', 'Pagos']) {
+    for (const n of ['WhatsApp Business (Cloud API)', 'Inteligencia artificial (asistente)', 'Correo saliente', 'Automatizaciones (n8n)', 'Chatwoot (bandeja de agentes)', 'Webhooks salientes', 'Pagos']) {
       await page.getByRole('heading', { name: n, exact: true }).waitFor();
     }
     await card('WhatsApp Business (Cloud API)').getByText('Sin configurar', { exact: true }).waitFor();
-    await card('Gemini (asistente IA)').getByText('Usa la clave de la plataforma').waitFor();
+    await card('Inteligencia artificial (asistente)').getByText(/Google Gemini \(clave del servidor\)/).waitFor();
     await card('Pagos').getByText(/No hay cobros automáticos/).waitFor();
   });
 
@@ -155,20 +157,28 @@ try {
     await card('Correo saliente').getByText(/Última prueba .*correcta/).waitFor();
   });
 
-  await step('Clave propia de Gemini: una clave rechazada no se guarda; una válida se guarda y solo se ve el final', async () => {
-    await page.getByRole('button', { name: 'Usar mi clave' }).click();
-    await label('Clave de API').fill('AIzaClaveQueGoogleRechaza_000000');
-    await page.getByRole('button', { name: 'Validar y guardar' }).click();
-    await page.getByText(/Google no aceptó la clave: Gemini 400: API key not valid/).waitFor();
-    await label('Clave de API').fill(OWN_KEY);
-    await page.getByRole('button', { name: 'Validar y guardar' }).click();
-    await page.getByText(/Google aceptó la clave \(…0001\)/).waitFor();
-    await page.getByText('…0001', { exact: true }).waitFor();
-    await card('Gemini (asistente IA)').getByText('Clave propia de la empresa (…0001)').waitFor();
+  await step('Clave propia de Gemini (Centro de APIs): una clave rechazada no se guarda; una válida se guarda y solo se ve el final', async () => {
+    const ai = page.locator('div.rounded-xl').filter({ hasText: 'Proveedor del asistente' }).last();
+    await ai.getByRole('button', { name: 'Conectar clave' }).click();
+    const dlg = page.getByRole('dialog');
+    await label('Proveedor', dlg).selectOption('gemini');
+    await label('API Key', dlg).fill('AIzaClaveQueGoogleRechaza_000000');
+    await dlg.getByRole('button', { name: 'Probar y guardar' }).click();
+    await dlg.getByText(/no aceptó la credencial \(Error de autenticación\): Gemini 400: API key not valid/).waitFor();
+    await label('API Key', dlg).fill(OWN_KEY);
+    await dlg.getByRole('button', { name: 'Probar y guardar' }).click();
+    await page.getByText(/Google Gemini aceptó la credencial \(…0001\)/).waitFor();
+    await ai.getByText('…0001', { exact: true }).waitFor();
     if (await page.getByText(OWN_KEY).count()) throw new Error('La clave completa aparece en pantalla');
     if (!geminiKeys.some((k) => k.method === 'GET' && k.key === OWN_KEY)) throw new Error('La clave no se validó con Gemini');
-    await card('Gemini (asistente IA)').getByRole('button', { name: 'Probar Gemini (asistente IA)' }).click();
-    await page.getByText(/Clave propia: Clave válida/).first().waitFor();
+    await ai.getByRole('button', { name: 'Usar en el asistente' }).click();
+    await label('Modelo', page.getByRole('dialog')).selectOption('gemini-3.8-flash');
+    await page.getByRole('dialog').getByRole('button', { name: 'Guardar' }).click();
+    await ai.getByText('Google Gemini (clave propia) · gemini-3.8-flash').waitFor();
+    await ai.getByRole('button', { name: 'Probar IA' }).click();
+    await page.getByText(/Google Gemini \(clave propia\) · gemini-3.8-flash: respondió/).first().waitFor();
+    if (!geminiKeys.some((k) => k.method === 'POST' && k.key === OWN_KEY)) throw new Error('La prueba no usó la clave propia');
+    await card('Inteligencia artificial (asistente)').getByText('Conectado', { exact: true }).waitFor();
   });
 
   await step('Webhook nuevo: el secreto se muestra una vez y el ping llega firmado', async () => {
