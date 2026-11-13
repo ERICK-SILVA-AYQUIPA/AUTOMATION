@@ -46,6 +46,8 @@ export type AutomationEventMinAggregateOutputType = {
   lastError: string | null
   sentAt: Date | null
   notifiedAt: Date | null
+  dedupeKey: string | null
+  retriedById: string | null
   createdAt: Date | null
 }
 
@@ -59,6 +61,8 @@ export type AutomationEventMaxAggregateOutputType = {
   lastError: string | null
   sentAt: Date | null
   notifiedAt: Date | null
+  dedupeKey: string | null
+  retriedById: string | null
   createdAt: Date | null
 }
 
@@ -73,6 +77,8 @@ export type AutomationEventCountAggregateOutputType = {
   lastError: number
   sentAt: number
   notifiedAt: number
+  dedupeKey: number
+  retriedById: number
   createdAt: number
   _all: number
 }
@@ -96,6 +102,8 @@ export type AutomationEventMinAggregateInputType = {
   lastError?: true
   sentAt?: true
   notifiedAt?: true
+  dedupeKey?: true
+  retriedById?: true
   createdAt?: true
 }
 
@@ -109,6 +117,8 @@ export type AutomationEventMaxAggregateInputType = {
   lastError?: true
   sentAt?: true
   notifiedAt?: true
+  dedupeKey?: true
+  retriedById?: true
   createdAt?: true
 }
 
@@ -123,6 +133,8 @@ export type AutomationEventCountAggregateInputType = {
   lastError?: true
   sentAt?: true
   notifiedAt?: true
+  dedupeKey?: true
+  retriedById?: true
   createdAt?: true
   _all?: true
 }
@@ -224,6 +236,8 @@ export type AutomationEventGroupByOutputType = {
   lastError: string | null
   sentAt: Date | null
   notifiedAt: Date | null
+  dedupeKey: string | null
+  retriedById: string | null
   createdAt: Date
   _count: AutomationEventCountAggregateOutputType | null
   _avg: AutomationEventAvgAggregateOutputType | null
@@ -261,6 +275,8 @@ export type AutomationEventWhereInput = {
   lastError?: Prisma.StringNullableFilter<"AutomationEvent"> | string | null
   sentAt?: Prisma.DateTimeNullableFilter<"AutomationEvent"> | Date | string | null
   notifiedAt?: Prisma.DateTimeNullableFilter<"AutomationEvent"> | Date | string | null
+  dedupeKey?: Prisma.StringNullableFilter<"AutomationEvent"> | string | null
+  retriedById?: Prisma.UuidNullableFilter<"AutomationEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AutomationEvent"> | Date | string
 }
 
@@ -275,11 +291,14 @@ export type AutomationEventOrderByWithRelationInput = {
   lastError?: Prisma.SortOrderInput | Prisma.SortOrder
   sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   notifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  retriedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type AutomationEventWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  tenantId_key_dedupeKey?: Prisma.AutomationEventTenantIdKeyDedupeKeyCompoundUniqueInput
   AND?: Prisma.AutomationEventWhereInput | Prisma.AutomationEventWhereInput[]
   OR?: Prisma.AutomationEventWhereInput[]
   NOT?: Prisma.AutomationEventWhereInput | Prisma.AutomationEventWhereInput[]
@@ -292,8 +311,10 @@ export type AutomationEventWhereUniqueInput = Prisma.AtLeast<{
   lastError?: Prisma.StringNullableFilter<"AutomationEvent"> | string | null
   sentAt?: Prisma.DateTimeNullableFilter<"AutomationEvent"> | Date | string | null
   notifiedAt?: Prisma.DateTimeNullableFilter<"AutomationEvent"> | Date | string | null
+  dedupeKey?: Prisma.StringNullableFilter<"AutomationEvent"> | string | null
+  retriedById?: Prisma.UuidNullableFilter<"AutomationEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AutomationEvent"> | Date | string
-}, "id">
+}, "id" | "tenantId_key_dedupeKey">
 
 export type AutomationEventOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -306,6 +327,8 @@ export type AutomationEventOrderByWithAggregationInput = {
   lastError?: Prisma.SortOrderInput | Prisma.SortOrder
   sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   notifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  retriedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.AutomationEventCountOrderByAggregateInput
   _avg?: Prisma.AutomationEventAvgOrderByAggregateInput
@@ -328,6 +351,8 @@ export type AutomationEventScalarWhereWithAggregatesInput = {
   lastError?: Prisma.StringNullableWithAggregatesFilter<"AutomationEvent"> | string | null
   sentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AutomationEvent"> | Date | string | null
   notifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AutomationEvent"> | Date | string | null
+  dedupeKey?: Prisma.StringNullableWithAggregatesFilter<"AutomationEvent"> | string | null
+  retriedById?: Prisma.UuidNullableWithAggregatesFilter<"AutomationEvent"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AutomationEvent"> | Date | string
 }
 
@@ -342,6 +367,8 @@ export type AutomationEventCreateInput = {
   lastError?: string | null
   sentAt?: Date | string | null
   notifiedAt?: Date | string | null
+  dedupeKey?: string | null
+  retriedById?: string | null
   createdAt?: Date | string
 }
 
@@ -356,6 +383,8 @@ export type AutomationEventUncheckedCreateInput = {
   lastError?: string | null
   sentAt?: Date | string | null
   notifiedAt?: Date | string | null
+  dedupeKey?: string | null
+  retriedById?: string | null
   createdAt?: Date | string
 }
 
@@ -370,6 +399,8 @@ export type AutomationEventUpdateInput = {
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retriedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -384,6 +415,8 @@ export type AutomationEventUncheckedUpdateInput = {
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retriedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -398,6 +431,8 @@ export type AutomationEventCreateManyInput = {
   lastError?: string | null
   sentAt?: Date | string | null
   notifiedAt?: Date | string | null
+  dedupeKey?: string | null
+  retriedById?: string | null
   createdAt?: Date | string
 }
 
@@ -412,6 +447,8 @@ export type AutomationEventUpdateManyMutationInput = {
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retriedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -426,7 +463,15 @@ export type AutomationEventUncheckedUpdateManyInput = {
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retriedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type AutomationEventTenantIdKeyDedupeKeyCompoundUniqueInput = {
+  tenantId: string
+  key: $Enums.AutomationKey
+  dedupeKey: string
 }
 
 export type AutomationEventCountOrderByAggregateInput = {
@@ -440,6 +485,8 @@ export type AutomationEventCountOrderByAggregateInput = {
   lastError?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
   notifiedAt?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrder
+  retriedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -457,6 +504,8 @@ export type AutomationEventMaxOrderByAggregateInput = {
   lastError?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
   notifiedAt?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrder
+  retriedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -470,6 +519,8 @@ export type AutomationEventMinOrderByAggregateInput = {
   lastError?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
   notifiedAt?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrder
+  retriedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -494,6 +545,8 @@ export type AutomationEventSelect<ExtArgs extends runtime.Types.Extensions.Inter
   lastError?: boolean
   sentAt?: boolean
   notifiedAt?: boolean
+  dedupeKey?: boolean
+  retriedById?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["automationEvent"]>
 
@@ -508,6 +561,8 @@ export type AutomationEventSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   lastError?: boolean
   sentAt?: boolean
   notifiedAt?: boolean
+  dedupeKey?: boolean
+  retriedById?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["automationEvent"]>
 
@@ -522,6 +577,8 @@ export type AutomationEventSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   lastError?: boolean
   sentAt?: boolean
   notifiedAt?: boolean
+  dedupeKey?: boolean
+  retriedById?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["automationEvent"]>
 
@@ -536,10 +593,12 @@ export type AutomationEventSelectScalar = {
   lastError?: boolean
   sentAt?: boolean
   notifiedAt?: boolean
+  dedupeKey?: boolean
+  retriedById?: boolean
   createdAt?: boolean
 }
 
-export type AutomationEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "key" | "payload" | "status" | "attempts" | "nextAttemptAt" | "lastError" | "sentAt" | "notifiedAt" | "createdAt", ExtArgs["result"]["automationEvent"]>
+export type AutomationEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "key" | "payload" | "status" | "attempts" | "nextAttemptAt" | "lastError" | "sentAt" | "notifiedAt" | "dedupeKey" | "retriedById" | "createdAt", ExtArgs["result"]["automationEvent"]>
 
 export type $AutomationEventPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AutomationEvent"
@@ -558,6 +617,14 @@ export type $AutomationEventPayload<ExtArgs extends runtime.Types.Extensions.Int
      * Primera (y única) entrega del aviso por correo pedida por n8n
      */
     notifiedAt: Date | null
+    /**
+     * Evita repetir un evento programado (p. ej. un recordatorio por pedido)
+     */
+    dedupeKey: string | null
+    /**
+     * Quién pidió reintentarlo a mano (null = automático)
+     */
+    retriedById: string | null
     createdAt: Date
   }, ExtArgs["result"]["automationEvent"]>
   composites: {}
@@ -992,6 +1059,8 @@ export interface AutomationEventFieldRefs {
   readonly lastError: Prisma.FieldRef<"AutomationEvent", 'String'>
   readonly sentAt: Prisma.FieldRef<"AutomationEvent", 'DateTime'>
   readonly notifiedAt: Prisma.FieldRef<"AutomationEvent", 'DateTime'>
+  readonly dedupeKey: Prisma.FieldRef<"AutomationEvent", 'String'>
+  readonly retriedById: Prisma.FieldRef<"AutomationEvent", 'String'>
   readonly createdAt: Prisma.FieldRef<"AutomationEvent", 'DateTime'>
 }
     

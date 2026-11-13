@@ -29,7 +29,7 @@ const NAV: NavItem[] = [
   { href: '/inventario', label: 'Inventario', icon: Boxes, permission: 'inventory:read', module: 'inventory' },
   { href: '/pedidos', label: 'Pedidos', icon: ShoppingCart, permission: 'orders:read', module: 'orders' },
   { href: '/clientes', label: 'Clientes', icon: Users, permission: 'customers:read', module: 'customers' },
-  { href: '/automatizaciones', label: 'Automatizaciones', icon: Workflow, permission: 'automations:manage', soon: 'Fase 4', module: 'automations' },
+  { href: '/automatizaciones', label: 'Automatizaciones', icon: Workflow, permission: 'automations:manage', module: 'automations' },
   { href: '/integraciones', label: 'Integraciones', icon: Plug, permission: 'integrations:manage' },
   { href: '/reportes', label: 'Reportes', icon: BarChart3, permission: 'reports:read', module: 'reports' },
   { href: '/usuarios', label: 'Usuarios', icon: UserCog, permission: 'users:read' },

@@ -802,6 +802,7 @@ enum AutomationKey {
   ORDER_STATUS_NOTIFICATION
   HANDOFF_NOTIFICATION
   ERROR_ALERT
+  PENDING_ORDER_REMINDER
 }
 
 /// Flujos predefinidos que la empresa activa/configura (nunca edita: licencia n8n)
@@ -811,6 +812,9 @@ model Automation {
   key       AutomationKey
   isEnabled Boolean       @default(true) @map("is_enabled")
   config    Json          @default("{}")
+  /// Versión del catálogo con la que se guardó la configuración (no se sobrescribe sola)
+  version     Int       @default(1)
+  updatedById String?   @map("updated_by_id") @db.Uuid
   updatedAt DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   @@unique([tenantId, key])
@@ -821,6 +825,8 @@ enum AutomationEventStatus {
   PENDING
   SENT
   FAILED
+  /// No aplicaba (p. ej. fuera de la ventana de 24 h de WhatsApp): no se reintenta
+  SKIPPED
 }
 
 /// Bandeja de salida hacia n8n (patrón outbox): se escribe en la MISMA transacción
@@ -838,8 +844,13 @@ model AutomationEvent {
   sentAt        DateTime?             @map("sent_at") @db.Timestamptz(3)
   /// Primera (y única) entrega del aviso por correo pedida por n8n
   notifiedAt    DateTime?             @map("notified_at") @db.Timestamptz(3)
+  /// Evita repetir un evento programado (p. ej. un recordatorio por pedido)
+  dedupeKey     String?               @map("dedupe_key")
+  /// Quién pidió reintentarlo a mano (null = automático)
+  retriedById   String?               @map("retried_by_id") @db.Uuid
   createdAt     DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
 
+  @@unique([tenantId, key, dedupeKey])
   @@index([status, nextAttemptAt])
   @@index([tenantId, createdAt])
   @@map("automation_events")

@@ -20,8 +20,18 @@ export type AutomationModel = runtime.Types.Result.DefaultSelection<Prisma.$Auto
 
 export type AggregateAutomation = {
   _count: AutomationCountAggregateOutputType | null
+  _avg: AutomationAvgAggregateOutputType | null
+  _sum: AutomationSumAggregateOutputType | null
   _min: AutomationMinAggregateOutputType | null
   _max: AutomationMaxAggregateOutputType | null
+}
+
+export type AutomationAvgAggregateOutputType = {
+  version: number | null
+}
+
+export type AutomationSumAggregateOutputType = {
+  version: number | null
 }
 
 export type AutomationMinAggregateOutputType = {
@@ -29,6 +39,8 @@ export type AutomationMinAggregateOutputType = {
   tenantId: string | null
   key: $Enums.AutomationKey | null
   isEnabled: boolean | null
+  version: number | null
+  updatedById: string | null
   updatedAt: Date | null
 }
 
@@ -37,6 +49,8 @@ export type AutomationMaxAggregateOutputType = {
   tenantId: string | null
   key: $Enums.AutomationKey | null
   isEnabled: boolean | null
+  version: number | null
+  updatedById: string | null
   updatedAt: Date | null
 }
 
@@ -46,16 +60,28 @@ export type AutomationCountAggregateOutputType = {
   key: number
   isEnabled: number
   config: number
+  version: number
+  updatedById: number
   updatedAt: number
   _all: number
 }
 
+
+export type AutomationAvgAggregateInputType = {
+  version?: true
+}
+
+export type AutomationSumAggregateInputType = {
+  version?: true
+}
 
 export type AutomationMinAggregateInputType = {
   id?: true
   tenantId?: true
   key?: true
   isEnabled?: true
+  version?: true
+  updatedById?: true
   updatedAt?: true
 }
 
@@ -64,6 +90,8 @@ export type AutomationMaxAggregateInputType = {
   tenantId?: true
   key?: true
   isEnabled?: true
+  version?: true
+  updatedById?: true
   updatedAt?: true
 }
 
@@ -73,6 +101,8 @@ export type AutomationCountAggregateInputType = {
   key?: true
   isEnabled?: true
   config?: true
+  version?: true
+  updatedById?: true
   updatedAt?: true
   _all?: true
 }
@@ -115,6 +145,18 @@ export type AutomationAggregateArgs<ExtArgs extends runtime.Types.Extensions.Int
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: AutomationAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: AutomationSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: AutomationMinAggregateInputType
@@ -145,6 +187,8 @@ export type AutomationGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   _count?: AutomationCountAggregateInputType | true
+  _avg?: AutomationAvgAggregateInputType
+  _sum?: AutomationSumAggregateInputType
   _min?: AutomationMinAggregateInputType
   _max?: AutomationMaxAggregateInputType
 }
@@ -155,8 +199,12 @@ export type AutomationGroupByOutputType = {
   key: $Enums.AutomationKey
   isEnabled: boolean
   config: runtime.JsonValue
+  version: number
+  updatedById: string | null
   updatedAt: Date
   _count: AutomationCountAggregateOutputType | null
+  _avg: AutomationAvgAggregateOutputType | null
+  _sum: AutomationSumAggregateOutputType | null
   _min: AutomationMinAggregateOutputType | null
   _max: AutomationMaxAggregateOutputType | null
 }
@@ -185,6 +233,8 @@ export type AutomationWhereInput = {
   key?: Prisma.EnumAutomationKeyFilter<"Automation"> | $Enums.AutomationKey
   isEnabled?: Prisma.BoolFilter<"Automation"> | boolean
   config?: Prisma.JsonFilter<"Automation">
+  version?: Prisma.IntFilter<"Automation"> | number
+  updatedById?: Prisma.UuidNullableFilter<"Automation"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"Automation"> | Date | string
 }
 
@@ -194,6 +244,8 @@ export type AutomationOrderByWithRelationInput = {
   key?: Prisma.SortOrder
   isEnabled?: Prisma.SortOrder
   config?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -207,6 +259,8 @@ export type AutomationWhereUniqueInput = Prisma.AtLeast<{
   key?: Prisma.EnumAutomationKeyFilter<"Automation"> | $Enums.AutomationKey
   isEnabled?: Prisma.BoolFilter<"Automation"> | boolean
   config?: Prisma.JsonFilter<"Automation">
+  version?: Prisma.IntFilter<"Automation"> | number
+  updatedById?: Prisma.UuidNullableFilter<"Automation"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"Automation"> | Date | string
 }, "id" | "tenantId_key">
 
@@ -216,10 +270,14 @@ export type AutomationOrderByWithAggregationInput = {
   key?: Prisma.SortOrder
   isEnabled?: Prisma.SortOrder
   config?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.AutomationCountOrderByAggregateInput
+  _avg?: Prisma.AutomationAvgOrderByAggregateInput
   _max?: Prisma.AutomationMaxOrderByAggregateInput
   _min?: Prisma.AutomationMinOrderByAggregateInput
+  _sum?: Prisma.AutomationSumOrderByAggregateInput
 }
 
 export type AutomationScalarWhereWithAggregatesInput = {
@@ -231,6 +289,8 @@ export type AutomationScalarWhereWithAggregatesInput = {
   key?: Prisma.EnumAutomationKeyWithAggregatesFilter<"Automation"> | $Enums.AutomationKey
   isEnabled?: Prisma.BoolWithAggregatesFilter<"Automation"> | boolean
   config?: Prisma.JsonWithAggregatesFilter<"Automation">
+  version?: Prisma.IntWithAggregatesFilter<"Automation"> | number
+  updatedById?: Prisma.UuidNullableWithAggregatesFilter<"Automation"> | string | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Automation"> | Date | string
 }
 
@@ -240,6 +300,8 @@ export type AutomationCreateInput = {
   key: $Enums.AutomationKey
   isEnabled?: boolean
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  version?: number
+  updatedById?: string | null
   updatedAt?: Date | string
 }
 
@@ -249,6 +311,8 @@ export type AutomationUncheckedCreateInput = {
   key: $Enums.AutomationKey
   isEnabled?: boolean
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  version?: number
+  updatedById?: string | null
   updatedAt?: Date | string
 }
 
@@ -258,6 +322,8 @@ export type AutomationUpdateInput = {
   key?: Prisma.EnumAutomationKeyFieldUpdateOperationsInput | $Enums.AutomationKey
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -267,6 +333,8 @@ export type AutomationUncheckedUpdateInput = {
   key?: Prisma.EnumAutomationKeyFieldUpdateOperationsInput | $Enums.AutomationKey
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -276,6 +344,8 @@ export type AutomationCreateManyInput = {
   key: $Enums.AutomationKey
   isEnabled?: boolean
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  version?: number
+  updatedById?: string | null
   updatedAt?: Date | string
 }
 
@@ -285,6 +355,8 @@ export type AutomationUpdateManyMutationInput = {
   key?: Prisma.EnumAutomationKeyFieldUpdateOperationsInput | $Enums.AutomationKey
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -294,6 +366,8 @@ export type AutomationUncheckedUpdateManyInput = {
   key?: Prisma.EnumAutomationKeyFieldUpdateOperationsInput | $Enums.AutomationKey
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -308,7 +382,13 @@ export type AutomationCountOrderByAggregateInput = {
   key?: Prisma.SortOrder
   isEnabled?: Prisma.SortOrder
   config?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  updatedById?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type AutomationAvgOrderByAggregateInput = {
+  version?: Prisma.SortOrder
 }
 
 export type AutomationMaxOrderByAggregateInput = {
@@ -316,6 +396,8 @@ export type AutomationMaxOrderByAggregateInput = {
   tenantId?: Prisma.SortOrder
   key?: Prisma.SortOrder
   isEnabled?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  updatedById?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -324,7 +406,13 @@ export type AutomationMinOrderByAggregateInput = {
   tenantId?: Prisma.SortOrder
   key?: Prisma.SortOrder
   isEnabled?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+  updatedById?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type AutomationSumOrderByAggregateInput = {
+  version?: Prisma.SortOrder
 }
 
 export type EnumAutomationKeyFieldUpdateOperationsInput = {
@@ -339,6 +427,8 @@ export type AutomationSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   key?: boolean
   isEnabled?: boolean
   config?: boolean
+  version?: boolean
+  updatedById?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["automation"]>
 
@@ -348,6 +438,8 @@ export type AutomationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   key?: boolean
   isEnabled?: boolean
   config?: boolean
+  version?: boolean
+  updatedById?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["automation"]>
 
@@ -357,6 +449,8 @@ export type AutomationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   key?: boolean
   isEnabled?: boolean
   config?: boolean
+  version?: boolean
+  updatedById?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["automation"]>
 
@@ -366,10 +460,12 @@ export type AutomationSelectScalar = {
   key?: boolean
   isEnabled?: boolean
   config?: boolean
+  version?: boolean
+  updatedById?: boolean
   updatedAt?: boolean
 }
 
-export type AutomationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "key" | "isEnabled" | "config" | "updatedAt", ExtArgs["result"]["automation"]>
+export type AutomationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "key" | "isEnabled" | "config" | "version" | "updatedById" | "updatedAt", ExtArgs["result"]["automation"]>
 
 export type $AutomationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Automation"
@@ -380,6 +476,11 @@ export type $AutomationPayload<ExtArgs extends runtime.Types.Extensions.Internal
     key: $Enums.AutomationKey
     isEnabled: boolean
     config: runtime.JsonValue
+    /**
+     * Versión del catálogo con la que se guardó la configuración (no se sobrescribe sola)
+     */
+    version: number
+    updatedById: string | null
     updatedAt: Date
   }, ExtArgs["result"]["automation"]>
   composites: {}
@@ -809,6 +910,8 @@ export interface AutomationFieldRefs {
   readonly key: Prisma.FieldRef<"Automation", 'AutomationKey'>
   readonly isEnabled: Prisma.FieldRef<"Automation", 'Boolean'>
   readonly config: Prisma.FieldRef<"Automation", 'Json'>
+  readonly version: Prisma.FieldRef<"Automation", 'Int'>
+  readonly updatedById: Prisma.FieldRef<"Automation", 'String'>
   readonly updatedAt: Prisma.FieldRef<"Automation", 'DateTime'>
 }
     

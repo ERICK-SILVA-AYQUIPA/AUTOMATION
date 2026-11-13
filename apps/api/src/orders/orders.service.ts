@@ -1,3 +1,4 @@
+import { NOTIFIABLE_STATUSES } from '../automations/catalog.js';
 import { AutomationEvents } from '../automations/automation-events.service.js';
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService, type Tx } from '../database/database.service.js';
@@ -176,5 +177,10 @@ export class OrdersService {
       data: { status: to, ...(to === 'CONFIRMED' ? { confirmedAt: new Date() } : {}), ...(to === 'CANCELLED' ? { cancelledAt: new Date() } : {}) },
     });
     await tx.orderStatusHistory.create({ data: { tenantId: actor.tenantId, orderId, fromStatus: from, toStatus: to, userId: actor.userId, note } });
+    // Aviso al cliente (lo filtra la configuración de la empresa); se envía después de confirmar la transacción
+    if ((NOTIFIABLE_STATUSES as readonly string[]).includes(to)) {
+      const o = await tx.order.findUniqueOrThrow({ where: { id: orderId }, select: { number: true, conversationId: true } });
+      await this.automations.emit(tx, actor.tenantId, 'ORDER_STATUS_NOTIFICATION', { orderId, number: o.number, status: to, from, viaWhatsapp: !!o.conversationId }, { dedupeKey: `${orderId}:${to}` });
+    }
   }
 }

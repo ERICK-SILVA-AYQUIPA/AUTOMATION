@@ -1,3 +1,4 @@
+import { catalogEntry } from '../automations/catalog.js';
 import { AutomationKey } from '../generated/prisma/enums.js';
 import type { Tx } from '../database/database.service.js';
 import { randomToken } from '../common/crypto/crypto.js';
@@ -23,11 +24,11 @@ export async function uniqueSlug(tx: Tx, base: string) {
 /**
  * Lo que toda empresa necesita al nacer, venga del autorregistro o del alta
  * desde la plataforma: sucursal principal, ajustes del asistente y el
- * catálogo de automatizaciones (todas apagadas hasta que se activen).
+ * catálogo de automatizaciones (cada una con su estado inicial del catálogo).
  * Debe ejecutarse con el rol de sistema dentro de la transacción del alta.
  */
 export async function bootstrapTenant(tx: Tx, tenantId: string) {
   await tx.branch.create({ data: { tenantId, name: 'Principal', isDefault: true } });
   await tx.aiSettings.create({ data: { tenantId } });
-  await tx.automation.createMany({ data: Object.values(AutomationKey).map((key) => ({ tenantId, key })) });
+  await tx.automation.createMany({ data: Object.values(AutomationKey).map((key) => ({ tenantId, key, isEnabled: catalogEntry(key)?.defaultEnabled ?? false, version: catalogEntry(key)?.version ?? 1 })) });
 }

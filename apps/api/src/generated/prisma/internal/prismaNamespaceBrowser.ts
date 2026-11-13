@@ -589,6 +589,8 @@ export const AutomationScalarFieldEnum = {
   key: 'key',
   isEnabled: 'isEnabled',
   config: 'config',
+  version: 'version',
+  updatedById: 'updatedById',
   updatedAt: 'updatedAt'
 } as const
 
@@ -606,6 +608,8 @@ export const AutomationEventScalarFieldEnum = {
   lastError: 'lastError',
   sentAt: 'sentAt',
   notifiedAt: 'notifiedAt',
+  dedupeKey: 'dedupeKey',
+  retriedById: 'retriedById',
   createdAt: 'createdAt'
 } as const
 

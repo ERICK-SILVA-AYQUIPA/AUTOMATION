@@ -81,7 +81,13 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
   - [x] El panel relee la cuenta al volver a la pestaña, cada 5 min y al recibir 402 o MODULE_DISABLED
   - [x] Métrica «solo por IA» de Inicio: solo conversaciones que el asistente respondió sin intervención humana
   - [ ] Dominio propio: se registra, pero el DNS y el certificado se configuran en el servidor (fase 8)
-- [ ] Fase 4: automatizaciones
+- [x] Fase 4: automatizaciones (ADR 040)
+  - [x] Catálogo con 6 automatizaciones, ejecutor (backend o n8n), destinatario, plan necesario y versión
+  - [x] Configuración por empresa validada (canales e importe mínimo del aviso de pedido; estados y textos del aviso al cliente; horas del recordatorio)
+  - [x] Nuevas: estado del pedido al cliente por WhatsApp, recordatorio de pedidos sin confirmar, aviso por correo de derivación a una persona (flujo n8n `06-aisa-derivacion`, probado con el n8n real)
+  - [x] Historial con filtros, motivo de omisión, errores y reintento manual; aviso en el panel si se agotan los reintentos
+  - [x] Versiones: la empresa ve qué cambia y la aplica sin perder su configuración
+  - [ ] Mensajes al cliente fuera de las 24 h: requieren plantillas aprobadas por Meta (pendiente de credenciales reales)
 - [ ] Fase 5: asistente IA ampliado
 - [ ] Fase 6: integraciones centralizadas
 - [ ] Fase 7: plantillas por sector

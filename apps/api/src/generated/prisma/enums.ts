@@ -215,7 +215,8 @@ export const AutomationKey = {
   NEW_ORDER_NOTIFICATION: 'NEW_ORDER_NOTIFICATION',
   ORDER_STATUS_NOTIFICATION: 'ORDER_STATUS_NOTIFICATION',
   HANDOFF_NOTIFICATION: 'HANDOFF_NOTIFICATION',
-  ERROR_ALERT: 'ERROR_ALERT'
+  ERROR_ALERT: 'ERROR_ALERT',
+  PENDING_ORDER_REMINDER: 'PENDING_ORDER_REMINDER'
 } as const
 
 export type AutomationKey = (typeof AutomationKey)[keyof typeof AutomationKey]
@@ -224,7 +225,8 @@ export type AutomationKey = (typeof AutomationKey)[keyof typeof AutomationKey]
 export const AutomationEventStatus = {
   PENDING: 'PENDING',
   SENT: 'SENT',
-  FAILED: 'FAILED'
+  FAILED: 'FAILED',
+  SKIPPED: 'SKIPPED'
 } as const
 
 export type AutomationEventStatus = (typeof AutomationEventStatus)[keyof typeof AutomationEventStatus]

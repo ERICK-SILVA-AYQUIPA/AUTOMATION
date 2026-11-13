@@ -28,6 +28,7 @@ import { ChatwootModule } from './chatwoot/chatwoot.module.js';
 import { AiModule } from './ai/ai.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
 import { InternalModule } from './automations/internal.module.js';
+import { AutomationsApiModule } from './automations/automations-api.module.js';
 import { MessagingModule } from './messaging/messaging.module.js';
 import { AuthGuard } from './common/guards/auth.guard.js';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
@@ -87,6 +88,7 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
     MessagingModule,
     AutomationsModule,
     InternalModule,
+    AutomationsApiModule,
     ChatwootModule,
     AiModule,
     NotificationsModule,

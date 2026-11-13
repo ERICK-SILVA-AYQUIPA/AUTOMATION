@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ENV, type Env } from '../config/env.js';
+import { AutomationEvents } from '../automations/automation-events.service.js';
 import { DatabaseService } from '../database/database.service.js';
 import { OutboundService } from '../messaging/outbound.service.js';
 import { OrdersService } from '../orders/orders.service.js';
@@ -74,6 +75,7 @@ export class AssistantService {
     private readonly model: GeminiChatModel,
     private readonly outbound: OutboundService,
     private readonly orders: OrdersService,
+    private readonly automations: AutomationEvents,
   ) {}
 
   get configured() {
@@ -200,6 +202,7 @@ export class AssistantService {
         const conv = await tx.conversation.findFirstOrThrow({ where: { id: conversationId }, select: { customer: { select: { name: true, waProfileName: true, phone: true } } } });
         const who = conv.customer.name ?? conv.customer.waProfileName ?? conv.customer.phone ?? 'Un cliente';
         await tx.notification.create({ data: { tenantId, type: 'handoff', title: `${who} necesita atención`, body: `El asistente pasó la conversación a una persona (${reason}).`, data: { conversationId } } });
+        await this.automations.emit(tx, tenantId, 'HANDOFF_NOTIFICATION', { conversationId, customerName: who, phone: conv.customer.phone, reason: reason.slice(0, 200) });
       }
     });
     return { outcome: 'handoff', reason, ...(text ? { text } : {}) };

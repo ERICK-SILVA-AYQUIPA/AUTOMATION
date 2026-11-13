@@ -21,7 +21,7 @@ printf '[{"id":"aisaInternalTok1","name":"AISA token interno","type":"httpHeader
 docker compose exec -T n8n sh -c 'umask 077; f=$(mktemp); cat > "$f"; n8n import:credentials --input="$f"; rc=$?; rm -f "$f"; exit $rc' < "$tmp"
 
 docker compose exec -T n8n n8n import:workflow --separate --input=/workflows
-for id in aisaFlujo03Pedid aisaFlujo04Stock aisaFlujo07Error; do
+for id in aisaFlujo03Pedid aisaFlujo04Stock aisaFlujo06Deriv aisaFlujo07Error; do
   docker compose exec -T n8n n8n publish:workflow --id="$id"
 done
 

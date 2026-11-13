@@ -70,6 +70,16 @@ Con `readOnly`, toda petición que modifica datos responde **402** `{ code: "SUB
 
 `GET /auth/me` devuelve `tenant.enabledModules` (subconjunto de `conversations, ai, catalog, inventory, orders, customers, reports, automations`). Las rutas de un módulo apagado responden **403** `{ code: "MODULE_DISABLED" }`.
 
+## Automatizaciones (`/automations`), permiso `automations:manage`, módulo `automations`
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/automations` | `{n8nConfigured, items[]}`: cada automatización del catálogo con `enabled`, `config` efectiva, `fields` (formulario), `executor` (`n8n`\|`backend`), `audience`, `moduleEnabled`, `featureAvailable`, `version`, `latestVersion`, `updateAvailable`, `pendingChanges`, `stats30d` |
+| PATCH | `/automations/:key` | `{enabled?, config?}`. La configuración se combina con la guardada y se valida con el catálogo (409 `INVALID_CONFIG` con `errors`). Activar sin el módulo → 409 `MODULE_DISABLED`; sin la función del plan → 403 `PLAN_FEATURE`. Auditado |
+| POST | `/automations/:key/upgrade` | Aplica la versión nueva del catálogo conservando la configuración |
+| GET | `/automations/events?key=&status=&page=&pageSize=` | Historial paginado (`PENDING`, `SENT`, `FAILED`, `SKIPPED`) con intentos y último error o motivo |
+| POST | `/automations/events/:id/retry` | Fallido u omitido → en cola con los intentos a cero (409 si ya se reintentó, si la automatización está desactivada o si n8n no está configurado) |
+
 ## Avisos (`/notifications`), cualquier usuario de la empresa
 
 | Método | Ruta | Descripción |

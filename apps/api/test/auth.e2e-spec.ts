@@ -35,7 +35,7 @@ describe('Autenticación (caso 1: registrar empresa)', () => {
     expect(tenant.users[0]!.passwordHash).toMatch(/^\$argon2id\$/);
     expect(tenant.branches.filter((b) => b.isDefault)).toHaveLength(1);
     expect(await owner.aiSettings.count({ where: { tenantId: tenant.id } })).toBe(1);
-    expect(await owner.automation.count({ where: { tenantId: tenant.id } })).toBe(5);
+    expect(await owner.automation.count({ where: { tenantId: tenant.id } })).toBe(6);
 
     const mail = ctx.outbox.find((m) => m.to === 'ana@zapateria.test');
     expect(mail?.subject).toMatch(/Confirma tu correo/);

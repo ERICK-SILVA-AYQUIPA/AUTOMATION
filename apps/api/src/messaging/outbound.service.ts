@@ -15,7 +15,7 @@ export interface EnqueueText {
   tenantId: string;
   conversationId: string;
   text: string;
-  sender: { type: 'BOT' | 'AGENT'; userId?: string | null };
+  sender: { type: 'BOT' | 'AGENT' | 'SYSTEM'; userId?: string | null };
   /** Repetir la misma clave no crea otro envío */
   idempotencyKey: string;
   /** El mensaje ya existe en Chatwoot (respuesta de un agente): no se vuelve a copiar */

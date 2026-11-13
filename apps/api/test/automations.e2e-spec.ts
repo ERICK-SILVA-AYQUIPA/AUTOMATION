@@ -42,8 +42,9 @@ describe('Automatizaciones: bandeja de salida hacia n8n y API interna', () => {
     const { AutomationEvents } = await import('../src/automations/automation-events.service.js');
     const { DatabaseService } = await import('../src/database/database.service.js');
     const { ENV } = await import('../src/config/env.js');
+    const { OutboundService } = await import('../src/messaging/outbound.service.js');
     // El despachador vive en el worker; aquí se instancia sin temporizador y se llama a tick()
-    dispatcher = new AutomationDispatcher(ctx.app.get(ENV), ctx.app.get(DatabaseService), ctx.app.get(AutomationEvents));
+    dispatcher = new AutomationDispatcher(ctx.app.get(ENV), ctx.app.get(DatabaseService), ctx.app.get(AutomationEvents), ctx.app.get(OutboundService));
 
     a = await registerAndLogin(ctx, { companyName: 'Bodega A', email: 'a@auto.test' });
     b = await registerAndLogin(ctx, { companyName: 'Bodega B', email: 'b@auto.test' });

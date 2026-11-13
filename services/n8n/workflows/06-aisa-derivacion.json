@@ -1,0 +1,152 @@
+{
+  "id": "aisaFlujo06Deriv",
+  "name": "06 · Derivación a una persona (aviso al equipo)",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "id": "6679be71-59f3-563b-9226-a6d7afe7f14d",
+      "name": "Nota",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        -220
+      ],
+      "parameters": {
+        "content": "## FLUJO 6 · Transferencia humana → Aviso al equipo\nEl backend pausa la IA, marca la conversación y crea el aviso en el panel (eso ocurre siempre).\nSi la empresa activó esta automatización, este flujo arma un correo para los administradores con el cliente, el motivo y el enlace.\nEl backend entrega cada aviso UNA sola vez (idempotencia por eventId). n8n no escribe en la base de datos.",
+        "height": 200,
+        "width": 720
+      }
+    },
+    {
+      "id": "dc86c1f6-aa43-52ba-898d-9fdbc150418a",
+      "name": "Evento del backend",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -200,
+        80
+      ],
+      "webhookId": "5b0e5d1c-6a9f-4c42-9a43-0f6c1d0e3a06",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "aisa-derivacion",
+        "authentication": "headerAuth",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aisaInternalTok1",
+          "name": "AISA token interno"
+        }
+      }
+    },
+    {
+      "id": "f816e8cc-9728-557a-b3e0-051f7d7b92c0",
+      "name": "Armar aviso",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        60,
+        80
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "eventId",
+              "value": "={{ $json.body.eventId }}",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "callbackUrl",
+              "value": "={{ $json.body.callbackUrl }}",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "subject",
+              "value": "=Atención humana: {{ $json.body.payload.customerName }}",
+              "type": "string"
+            },
+            {
+              "id": "a4",
+              "name": "text",
+              "value": "=El asistente pasó una conversación a una persona.\n\nCliente: {{ $json.body.payload.customerName }}{{ $json.body.payload.phone ? ' (+' + $json.body.payload.phone + ')' : '' }}\nMotivo: {{ $json.body.payload.reason }}\n\nAbrir la conversación: {{ ($json.body.panelUrl || '').replace(/\\/$/, '') }}/conversaciones?id={{ $json.body.payload.conversationId }}\n\nLa IA queda en pausa en esa conversación hasta que alguien la reactive.\n\n—\nEmpresa: {{ $json.body.tenantName }}\nEvento: {{ $json.body.eventId }} ({{ $json.body.occurredAt }})\nMensaje automático de AI Sales Assistant.",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      }
+    },
+    {
+      "id": "82761485-d931-5fe8-94c5-62ac47d9889b",
+      "name": "Avisar a administradores",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        320,
+        80
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.callbackUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ eventId: $json.eventId, subject: $json.subject, text: $json.text }) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aisaInternalTok1",
+          "name": "AISA token interno"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Evento del backend": {
+      "main": [
+        [
+          {
+            "node": "Armar aviso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar aviso": {
+      "main": [
+        [
+          {
+            "node": "Avisar a administradores",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "all"
+  },
+  "pinData": {},
+  "tags": []
+}
