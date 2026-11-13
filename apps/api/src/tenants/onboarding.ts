@@ -1,6 +1,7 @@
 import { hasBusinessInfo, readProfile } from '../ai/ai-profile.js';
 import type { Tx } from '../database/database.service.js';
 import { subscriptionAccess } from '../plans/subscription-access.js';
+import { readSettings } from './tenant-settings.js';
 
 export interface OnboardingTask {
   key: string;
@@ -39,7 +40,7 @@ export async function computeOnboarding(tx: Tx, tenantId: string, o: Options): P
   const t = await tx.tenant.findUniqueOrThrow({
     where: { id: tenantId },
     select: {
-      status: true, activatedAt: true, enabledModules: true, legalName: true, taxId: true, contactEmail: true, phone: true,
+      status: true, activatedAt: true, enabledModules: true, settings: true, legalName: true, taxId: true, contactEmail: true, phone: true,
       subscription: { select: { status: true, trialEndsAt: true, currentPeriodEnd: true } },
     },
   });
@@ -73,7 +74,13 @@ export async function computeOnboarding(tx: Tx, tenantId: string, o: Options): P
       { key: 'whatsapp_webhook', label: 'WhatsApp: llegó el primer aviso de Meta (webhook)', done: webhook, required: true, hint: webhook ? '' : 'Configura la URL del webhook en Meta y envía un mensaje de prueba al número' },
     );
   }
-  if (mod('catalog')) tasks.push({ key: 'catalog', label: 'Al menos un producto activo', done: products > 0, required: false, hint: 'Productos → Nuevo o importar CSV' });
+  const settings = readSettings(t.settings);
+  if (mod('catalog')) tasks.push({ key: 'catalog', label: `${settings.catalog.label}: al menos uno activo`, done: products > 0, required: false, hint: `${settings.catalog.label} → Nuevo o importar CSV` });
+  if (mod('reservations')) {
+    const r = settings.reservations;
+    const ready = !!(r.hours && r.capacity);
+    tasks.push({ key: 'reservations', label: 'Reservas: horario y capacidad', done: ready, required: false, hint: ready ? '' : 'Configuración → Operación: sin horario y capacidad no se aceptan reservas' });
+  }
   if (mod('ai')) {
     tasks.push(
       { key: 'ai_settings', label: 'Información del negocio para el asistente', done: hasBusinessInfo(readProfile(aiSettings?.profile)), required: false, hint: 'Asistente IA: horario, pagos, entregas o preguntas frecuentes (publicado)' },

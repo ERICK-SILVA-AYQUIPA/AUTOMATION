@@ -9,7 +9,8 @@ import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { dateTime, phoneLabel } from '@/lib/format';
 import type { Customer, Paged } from '@/lib/types';
-import { Badge, Button, Card, EmptyState, ErrorBox, Input, Loading, PageHeader, Pagination, Table, Td, Th } from '@/components/ui';
+import { Badge, Button, Card, EmptyState, ErrorBox, Input, Loading, PageHeader, Pagination, Select, Table, Td, Th } from '@/components/ui';
+import { useTenantSettings } from '@/lib/settings';
 import { RequirePermission } from '@/components/guard';
 import { CustomerDialog } from '@/components/customer-dialog';
 
@@ -20,21 +21,30 @@ function Customers() {
   const [dq, setDq] = useState('');
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
+  const business = useTenantSettings().customers.businessFields;
+  const [type, setType] = useState('');
   useEffect(() => {
     const t = setTimeout(() => { setDq(q.trim()); setPage(1); }, 300);
     return () => clearTimeout(t);
   }, [q]);
-  const list = useQuery({ queryKey: ['customers', dq, page], queryFn: () => api<Paged<Customer>>('/customers', { query: { q: dq, page, pageSize: 25 } }), placeholderData: keepPreviousData });
+  const list = useQuery({ queryKey: ['customers', dq, type, page], queryFn: () => api<Paged<Customer>>('/customers', { query: { q: dq, type: type || undefined, page, pageSize: 25 } }), placeholderData: keepPreviousData });
 
   return (
     <>
       <PageHeader title="Clientes" description="Se crean automáticamente al escribir por WhatsApp o al registrar un pedido." actions={can('customers:write') && <Button icon={<Plus className="size-4" />} onClick={() => setOpen(true)}>Nuevo cliente</Button>} />
       <Card>
-        <div className="border-b border-border p-3">
-          <div className="relative">
+        <div className="flex flex-col gap-2 border-b border-border p-3 sm:flex-row">
+          <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" />
-            <Input className="pl-9" placeholder="Nombre, teléfono, correo o documento" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buscar clientes" />
+            <Input className="pl-9" placeholder={business ? 'Nombre, razón social, teléfono, correo o documento' : 'Nombre, teléfono, correo o documento'} value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buscar clientes" />
           </div>
+          {business && (
+            <Select className="sm:w-44" value={type} onChange={(e) => { setType(e.target.value); setPage(1); }} aria-label="Tipo de cliente">
+              <option value="">Todos</option>
+              <option value="BUSINESS">Empresas</option>
+              <option value="PERSON">Personas</option>
+            </Select>
+          )}
         </div>
         <ErrorBox error={list.error} />
         {list.isLoading ? <Loading /> : !list.data?.items.length ? (
@@ -46,7 +56,7 @@ function Customers() {
               <tbody>
                 {list.data.items.map((c) => (
                   <tr key={c.id} className="cursor-pointer hover:bg-surface-2/60" onClick={() => router.push(`/clientes/${c.id}`)}>
-                    <Td><Link href={`/clientes/${c.id}`} onClick={(e) => e.stopPropagation()} className="font-medium hover:underline">{c.name ?? c.waProfileName ?? 'Sin nombre'}</Link>{c.email && <span className="block text-xs text-muted">{c.email}</span>}</Td>
+                    <Td><Link href={`/clientes/${c.id}`} onClick={(e) => e.stopPropagation()} className="font-medium hover:underline">{c.businessName ?? c.name ?? c.waProfileName ?? 'Sin nombre'}</Link>{c.businessName && c.name && <span className="block text-xs text-muted">{c.name}</span>}{c.email && <span className="block text-xs text-muted">{c.email}</span>}</Td>
                     <Td className="tabular-nums">{phoneLabel(c.phone)}</Td>
                     <Td><div className="flex flex-wrap gap-1">{c.tags.map((t) => <Badge key={t}>{t}</Badge>)}</div></Td>
                     <Td className="text-right tabular-nums">{c._count?.orders ?? 0}</Td>

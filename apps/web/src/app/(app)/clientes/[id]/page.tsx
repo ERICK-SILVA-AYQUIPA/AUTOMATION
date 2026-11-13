@@ -7,17 +7,24 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Pencil, Plus } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth, useCurrency } from '@/lib/auth';
-import { dateTime, money, num, ORDER_STATUS, phoneLabel } from '@/lib/format';
+import { date, dateTime, money, num, ORDER_STATUS, phoneLabel, RESERVATION_STATUS, dayIn, timeIn } from '@/lib/format';
 import type { Customer } from '@/lib/types';
 import { Badge, Button, Card, EmptyState, ErrorBox, Loading, PageHeader, StatCard, Table, Td, Th } from '@/components/ui';
 import { RequirePermission } from '@/components/guard';
 import { CustomerDialog } from '@/components/customer-dialog';
 
-type Detail = Customer & { orders: { id: string; number: number; status: string; total: string; currency: string; createdAt: string }[]; stats: { orders: number; totalSpent: string } };
+type Detail = Customer & {
+  orders: { id: string; number: number; status: string; total: string; currency: string; createdAt: string }[];
+  stats: { orders: number; totalSpent: string; lastPurchaseAt: string | null };
+  topProducts: { name: string; quantity: number; total: string }[];
+  reservations: { id: string; number: number; status: string; startsAt: string; partySize: number; serviceName: string | null }[];
+};
 
 function CustomerDetail() {
   const { id } = useParams<{ id: string }>();
-  const { can } = useAuth();
+  const { can, me } = useAuth();
+  const tz = me?.tenant?.timezone ?? 'America/Lima';
+  const hasReservations = !!me?.tenant?.enabledModules.includes('reservations');
   const cur = useCurrency();
   const [edit, setEdit] = useState(false);
   const c = useQuery({ queryKey: ['customer', id], queryFn: () => api<Detail>(`/customers/${id}`) });
@@ -27,8 +34,8 @@ function CustomerDetail() {
   return (
     <>
       <PageHeader
-        title={d.name ?? d.waProfileName ?? 'Cliente sin nombre'}
-        description={`${phoneLabel(d.phone)} · cliente desde ${dateTime(d.createdAt)}`}
+        title={d.businessName ?? d.name ?? d.waProfileName ?? 'Cliente sin nombre'}
+        description={`${d.businessName && d.name ? `Contacto: ${d.name} · ` : ''}${phoneLabel(d.phone)} · cliente desde ${dateTime(d.createdAt)}`}
         actions={
           <>
             <Link href="/clientes"><Button variant="ghost" icon={<ArrowLeft className="size-4" />}>Volver</Button></Link>
@@ -41,9 +48,10 @@ function CustomerDetail() {
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-1">
             <StatCard label="Compras" value={num(d.stats.orders)} hint="Confirmadas, sin anuladas" />
-            <StatCard label="Total comprado" value={money(d.stats.totalSpent, cur)} />
+            <StatCard label="Total comprado" value={money(d.stats.totalSpent, cur)} hint={d.stats.lastPurchaseAt ? `Última compra: ${date(d.stats.lastPurchaseAt)}` : undefined} />
           </div>
           <Card className="flex flex-col gap-2 p-4 text-sm">
+            {d.customerType === 'BUSINESS' && <p><Badge tone="info">Cliente comercial</Badge></p>}
             <p><span className="text-muted">Correo:</span> {d.email ?? '—'}</p>
             <p><span className="text-muted">Documento:</span> {d.documentId ?? '—'}</p>
             <p><span className="text-muted">Dirección:</span> {d.address ?? '—'}</p>
@@ -53,6 +61,20 @@ function CustomerDetail() {
             {d.notes && <p className="whitespace-pre-wrap rounded-lg bg-surface-2 p-2">{d.notes}</p>}
           </Card>
         </div>
+        <div className="flex flex-col gap-6">
+        {d.topProducts.length > 0 && (
+          <Card>
+            <h2 className="border-b border-border px-4 py-3 font-medium">Lo que más compra</h2>
+            <Table>
+              <thead><tr><Th>Producto</Th><Th className="text-right">Unidades</Th><Th className="text-right">Total</Th></tr></thead>
+              <tbody>
+                {d.topProducts.map((t) => (
+                  <tr key={t.name}><Td>{t.name}</Td><Td className="text-right tabular-nums">{num(t.quantity)}</Td><Td className="text-right tabular-nums">{money(t.total, cur)}</Td></tr>
+                ))}
+              </tbody>
+            </Table>
+          </Card>
+        )}
         <Card>
           <h2 className="border-b border-border px-4 py-3 font-medium">Pedidos</h2>
           {!d.orders.length ? <EmptyState title="Sin pedidos" /> : (
@@ -71,6 +93,27 @@ function CustomerDetail() {
             </Table>
           )}
         </Card>
+        {hasReservations && (
+          <Card>
+            <h2 className="border-b border-border px-4 py-3 font-medium">Reservas</h2>
+            {!d.reservations.length ? <EmptyState title="Sin reservas" /> : (
+              <Table>
+                <thead><tr><Th>N.º</Th><Th>Fecha</Th><Th>Detalle</Th><Th>Estado</Th></tr></thead>
+                <tbody>
+                  {d.reservations.map((r) => (
+                    <tr key={r.id}>
+                      <Td className="font-medium">#{r.number}</Td>
+                      <Td className="whitespace-nowrap text-muted">{dayIn(r.startsAt, tz)} · {timeIn(r.startsAt, tz)}</Td>
+                      <Td>{r.serviceName ?? `${r.partySize} ${r.partySize === 1 ? 'persona' : 'personas'}`}</Td>
+                      <Td><Badge tone={RESERVATION_STATUS[r.status]?.tone}>{RESERVATION_STATUS[r.status]?.label ?? r.status}</Badge></Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            )}
+          </Card>
+        )}
+        </div>
       </div>
       {edit && <CustomerDialog open onClose={() => setEdit(false)} customer={d} />}
       <p className="mt-6 text-xs text-muted">Las conversaciones de WhatsApp de este cliente se mostrarán aquí desde la Fase 5.</p>

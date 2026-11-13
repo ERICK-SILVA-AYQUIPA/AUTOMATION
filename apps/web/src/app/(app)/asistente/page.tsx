@@ -9,10 +9,8 @@ import { dateTime, num } from '@/lib/format';
 import { Badge, Button, Card, ErrorBox, Field, Input, Loading, PageHeader, Select, Textarea, cn } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
 import { RequirePermission } from '@/components/guard';
+import { DEFAULT_WEEK as EMPTY_WEEK, WeekGrid, type Day, type Range } from '@/components/weekly-hours';
 
-const DAYS = [['mon', 'Lunes'], ['tue', 'Martes'], ['wed', 'Miércoles'], ['thu', 'Jueves'], ['fri', 'Viernes'], ['sat', 'Sábado'], ['sun', 'Domingo']] as const;
-type Day = (typeof DAYS)[number][0];
-type Range = { open: string; close: string };
 interface Profile {
   assistantName: string; tone: string; useEmojis: boolean; language: 'es' | 'en' | 'pt'; matchCustomerLanguage: boolean;
   welcomeMessage: string; businessInfo: string; hours: Record<Day, Range[]> | null; outsideHours: 'ANSWER' | 'MESSAGE'; outsideHoursMessage: string;
@@ -33,7 +31,6 @@ const DOC_STATE: Record<Doc['state'], { label: string; tone: 'success' | 'info' 
   published: { label: 'Publicado', tone: 'success' }, new: { label: 'Nuevo, sin publicar', tone: 'info' }, modified: { label: 'Editado, sin publicar', tone: 'warning' }, pending_delete: { label: 'Se quitará al publicar', tone: 'danger' },
 };
 const SECTIONS = [['personalidad', 'Personalidad'], ['horario', 'Horario'], ['ventas', 'Ventas y políticas'], ['faq', 'Preguntas frecuentes'], ['derivacion', 'Derivación']] as const;
-const EMPTY_WEEK: Record<Day, Range[]> = { mon: [{ open: '09:00', close: '18:00' }], tue: [{ open: '09:00', close: '18:00' }], wed: [{ open: '09:00', close: '18:00' }], thu: [{ open: '09:00', close: '18:00' }], fri: [{ open: '09:00', close: '18:00' }], sat: [{ open: '09:00', close: '13:00' }], sun: [] };
 
 const splitComma = (s: string) => s.split(',').map((x) => x.trim()).filter(Boolean);
 const splitLines = (s: string) => s.split('\n').map((x) => x.trim()).filter(Boolean);
@@ -98,7 +95,6 @@ function PublishBar({ d }: { d: AiSettings }) {
 
 function HoursEditor({ f, set }: { f: Form; set: (p: Partial<Form>) => void }) {
   const hours = f.hours;
-  const setDay = (day: Day, ranges: Range[]) => set({ hours: { ...(hours ?? EMPTY_WEEK), [day]: ranges } });
   return (
     <div className="flex flex-col gap-4">
       <label className="flex items-center gap-2 text-sm">
@@ -107,34 +103,7 @@ function HoursEditor({ f, set }: { f: Form; set: (p: Partial<Form>) => void }) {
       </label>
       {hours && (
         <>
-          <div className="flex flex-col gap-2">
-            {DAYS.map(([k, label]) => (
-              <div key={k} className="grid grid-cols-[6.5rem_1fr] items-center gap-2 text-sm">
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" className="size-4 accent-[var(--primary)]" checked={hours[k].length > 0} onChange={(e) => setDay(k, e.target.checked ? [{ open: '09:00', close: '18:00' }] : [])} aria-label={`Abierto el ${label.toLowerCase()}`} />
-                  {label}
-                </label>
-                {hours[k].length === 0 ? (
-                  <span className="text-muted">Cerrado</span>
-                ) : (
-                  <div className="flex flex-wrap items-center gap-2">
-                    {hours[k].map((r, i) => (
-                      <span key={i} className="flex items-center gap-1">
-                        <span className="w-28"><Input type="time" value={r.open} aria-label={`${label}: abre`} onChange={(e) => setDay(k, hours[k].map((x, j) => (j === i ? { ...x, open: e.target.value } : x)))} /></span>
-                        –
-                        <span className="w-28"><Input type="time" value={r.close} aria-label={`${label}: cierra`} onChange={(e) => setDay(k, hours[k].map((x, j) => (j === i ? { ...x, close: e.target.value } : x)))} /></span>
-                      </span>
-                    ))}
-                    {hours[k].length < 2 ? (
-                      <Button type="button" size="sm" variant="ghost" onClick={() => setDay(k, [...hours[k], { open: '15:00', close: '19:00' }])}>+ turno</Button>
-                    ) : (
-                      <Button type="button" size="sm" variant="ghost" onClick={() => setDay(k, hours[k].slice(0, 1))}>Quitar turno</Button>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+          <WeekGrid hours={hours} onChange={(h) => set({ hours: h })} />
           <Field label="Fuera de horario">
             <Select value={f.outsideHours} onChange={(e) => set({ outsideHours: e.target.value as Form['outsideHours'] })}>
               <option value="ANSWER">Atender igual y avisar que el equipo confirma al abrir</option>

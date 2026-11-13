@@ -191,7 +191,7 @@ function TransferDialog({ open, onClose, branches }: { open: boolean; onClose: (
         {target ? (
           <div className="flex items-center justify-between rounded-lg bg-surface-2 px-3 py-2 text-sm"><span className="font-medium">{target.label}</span><button type="button" className="text-xs underline" onClick={() => setTarget(null)}>Cambiar</button></div>
         ) : (
-          <Field label="Producto"><VariantPicker currency={cur} onPick={(p) => setTarget({ variantId: p.variant.id, label: `${p.label} (${p.variant.sku})` })} /></Field>
+          <Field label="Producto"><VariantPicker stockedOnly currency={cur} onPick={(p) => setTarget({ variantId: p.variant.id, label: `${p.label} (${p.variant.sku})` })} /></Field>
         )}
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Desde"><Select value={f.fromBranchId} onChange={(e) => setF({ ...f, fromBranchId: e.target.value })} required><option value="">Elige…</option>{active.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</Select></Field>

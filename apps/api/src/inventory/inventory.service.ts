@@ -81,9 +81,10 @@ export class InventoryService {
 
     const variant = await tx.productVariant.findFirst({
       where: { id: m.variantId, tenantId: m.tenantId },
-      select: { id: true, productId: true, product: { select: { minStock: true } } },
+      select: { id: true, productId: true, product: { select: { minStock: true, trackStock: true } } },
     });
     if (!variant) throw new NotFoundException('Variante no encontrada');
+    if (!variant.product.trackStock) throw new ConflictException({ code: 'NOT_STOCKED', message: 'Este producto no controla stock (servicio o plato preparado)' });
     const branch = await tx.branch.findFirst({ where: { id: m.branchId, tenantId: m.tenantId, isActive: true }, select: { id: true } });
     if (!branch) throw new NotFoundException('Sucursal no encontrada o inactiva');
 

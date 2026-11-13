@@ -54,7 +54,8 @@ describe('Automatizaciones: catálogo, configuración e historial', () => {
 
   it('una empresa nueva nace con el estado inicial del catálogo y en su última versión', async () => {
     const r = await ctx.http().get('/api/v1/automations').set(H()).expect(200);
-    expect(r.body.items).toHaveLength(6);
+    expect(r.body.items).toHaveLength(7);
+    expect(item(r.body.items, 'RESERVATION_REMINDER')).toMatchObject({ enabled: false, executor: 'backend', audience: 'cliente' });
     expect(item(r.body.items, 'NEW_ORDER_NOTIFICATION')).toMatchObject({ enabled: true, executor: 'n8n', version: 2, updateAvailable: false, config: { channels: ['WHATSAPP', 'MANUAL'], minTotal: 0 } });
     expect(item(r.body.items, 'HANDOFF_NOTIFICATION')).toMatchObject({ enabled: false });
     // El plan de prueba no incluye las automatizaciones avanzadas

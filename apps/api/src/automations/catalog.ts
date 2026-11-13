@@ -113,6 +113,17 @@ export const CATALOG: CatalogEntry[] = [
     defaults: { hours: 4 },
     fields: [{ key: 'hours', label: 'Horas sin confirmar', type: 'number', min: 1, max: 72 }],
   },
+  {
+    key: 'RESERVATION_REMINDER', name: 'Recordatorio de reserva al cliente', executor: 'backend', audience: 'cliente', module: 'reservations', defaultEnabled: false,
+    description: 'Escribe al cliente por WhatsApp unas horas antes de su reserva o cita confirmada. Solo reservas que llegaron por WhatsApp y dentro de la ventana de 24 h de Meta; fuera de ella se registra como omitido.',
+    version: 1, changelog: { 1: 'Mensaje por WhatsApp antes de la reserva, con texto editable.' },
+    schema: z.object({ hoursBefore: z.number().int().min(1).max(23), templates: z.object({ REMINDER: template }).strict() }).strict(),
+    defaults: { hoursBefore: 3, templates: { REMINDER: 'Hola {cliente}, te recordamos tu reserva #{numero} en {empresa} hoy {fecha} a las {hora}. Si no puedes venir, avísanos por aquí.' } },
+    fields: [
+      { key: 'hoursBefore', label: 'Horas antes', type: 'number', min: 1, max: 23, help: 'Menos de 24 h: WhatsApp solo deja escribir dentro de las 24 h del último mensaje del cliente.' },
+      { key: 'templates', label: 'Texto', type: 'templates', options: [{ value: 'REMINDER', label: 'Recordatorio' }], help: 'Puedes usar {cliente}, {numero}, {fecha}, {hora}, {personas}, {servicio} y {empresa}.' },
+    ],
+  },
 ];
 
 export const catalogEntry = (key: AutomationKey) => CATALOG.find((e) => e.key === key);

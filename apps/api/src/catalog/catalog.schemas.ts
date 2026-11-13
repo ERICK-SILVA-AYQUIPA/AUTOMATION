@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { money, paginationSchema } from '../common/pagination.js';
+import { priceTiersSchema } from './pricing.js';
 
 const sku = z.string().trim().min(1).max(64).regex(/^[A-Za-z0-9._\-/]+$/, 'SKU: solo letras, números y . _ - /');
 const barcode = z.string().trim().regex(/^[0-9A-Za-z-]{4,64}$/, 'Código de barras inválido');
@@ -19,6 +20,7 @@ export const variantSchema = z.object({
   attributes: z.record(z.string().max(40), z.string().max(80)).default({}),
   salePrice: money.nullish(),
   costPrice: money.nullish(),
+  priceTiers: priceTiersSchema.optional(),
   isActive: z.boolean().optional(),
 });
 export const updateVariantSchema = variantSchema.partial();
@@ -33,6 +35,11 @@ export const createProductSchema = z.object({
   costPrice: money.nullish(),
   minStock: z.number().int().min(0).default(0),
   status: z.enum(['ACTIVE', 'INACTIVE']).default('ACTIVE'),
+  /** Si se omite, toma el valor de la configuración de la empresa (plantilla) */
+  trackStock: z.boolean().optional(),
+  durationMinutes: z.number().int().min(5).max(1440).nullish(),
+  /** Precios por volumen de la variante única (productos sin variantes) */
+  priceTiers: priceTiersSchema.optional(),
   /** Si se omite, se crea una variante única con el mismo SKU */
   variants: z.array(variantSchema).max(200).optional(),
   /** Stock inicial en la sucursal predeterminada (solo variante única) */
@@ -45,6 +52,9 @@ export const updateProductSchema = z
     sku, barcode: barcode.nullish(), name: z.string().trim().min(1).max(160), description: z.string().trim().max(5000).nullish(),
     categoryId: z.uuid().nullish(), salePrice: money, costPrice: money.nullish(), minStock: z.number().int().min(0),
     status: z.enum(['ACTIVE', 'INACTIVE', 'ARCHIVED']),
+    trackStock: z.boolean(), durationMinutes: z.number().int().min(5).max(1440).nullable(),
+    /** Solo productos con una variante */
+    priceTiers: priceTiersSchema,
   })
   .partial()
   .refine((v) => Object.keys(v).length > 0, 'Nada que actualizar');
@@ -55,6 +65,8 @@ export const listProductsSchema = paginationSchema.extend({
   categoryId: z.uuid().optional(),
   status: z.enum(['ACTIVE', 'INACTIVE', 'ARCHIVED']).optional(),
   lowStock: z.enum(['true', 'false']).optional(),
+  /** false: solo servicios/platos (sin control de stock) */
+  trackStock: z.enum(['true', 'false']).optional(),
   sort: z.enum(['name', '-name', 'createdAt', '-createdAt', 'salePrice', '-salePrice']).default('name'),
 });
 export type ListProductsQuery = z.infer<typeof listProductsSchema>;

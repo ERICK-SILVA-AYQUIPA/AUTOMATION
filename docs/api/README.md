@@ -57,7 +57,7 @@ Con `readOnly`, toda petición que modifica datos responde **402** `{ code: "SUB
 | GET | `/platform/tenants/:id/payments` | Historial de pagos de la empresa |
 | POST | `/platform/tenants/:id/cancel-subscription` | Cancela: la empresa queda en solo lectura de inmediato |
 | GET | `/platform/metrics` | Empresas, suscripciones por **estado de acceso calculado** y por plan, renovaciones pendientes, ingresos (mes y 30 días, por moneda), consumo de IA del mes, mensajes, pedidos, automatizaciones y errores |
-| POST | `/platform/tenants` | **Alta** (ADR 039): perfil + `customDomain?`, `deploymentMode`, `enabledModules`, `planCode`, `startsAt?`, `endsAt` (periodo inicial, máx. 1 año), `admin {name, email}` e `idempotencyKey` (uuid). 201 la crea en `ONBOARDING` e invita al administrador; 200 si esa clave ya se usó. Responde `{tenant, created, invitation: {sent, error?}}` |
+| POST | `/platform/tenants` | **Alta** (ADR 039): perfil + `customDomain?`, `deploymentMode`, `enabledModules`, `planCode`, `startsAt?`, `endsAt` (periodo inicial, máx. 1 año), `admin {name, email}`, `idempotencyKey` (uuid) y opcionalmente `templateKey` + `templateCategories` (aplica reglas, automatizaciones, asistente publicado y categorías de la plantilla en la misma transacción). 201 la crea en `ONBOARDING` e invita al administrador; 200 si esa clave ya se usó. Responde `{tenant, created, invitation: {sent, error?}}` |
 | GET | `/platform/tenants/:id/onboarding` | Lista de puesta en marcha `{status, activatedAt, tasks[{key,label,done,required,hint}], canActivate}` |
 | POST | `/platform/tenants/:id/activate` | Activa si todas las tareas obligatorias están hechas; si no, 409 `ONBOARDING_INCOMPLETE` con `pending` |
 | POST | `/platform/tenants/:id/resend-invitation` | Reenvía la invitación a los administradores que no entraron |
@@ -65,10 +65,13 @@ Con `readOnly`, toda petición que modifica datos responde **402** `{ code: "SUB
 | PATCH | `/platform/tenants/:id` | Perfil + `customDomain` (único), `deploymentMode` (SAAS\|DEDICATED\|CUSTOM), `enabledModules` |
 | GET | `/platform/plans/all` | Todos los planes con límites y nº de empresas |
 | PATCH | `/platform/plans/:code` | `{name?, priceMonthly?, currency?, limits?, isActive?}` (auditado) |
+| GET | `/platform/templates` | Plantillas por sector (ADR 043): `RETAIL`, `RESTAURANT`, `DISTRIBUTOR`, `SERVICES` con `{key, version, name, description, businessType, includes, modules, settings, automations, ai, categories}` |
+| GET | `/platform/tenants/:id/template?key=` | **Vista previa** con el estado real de la empresa: `{template, current {key, version}, changes[{section, field, from, to}], blocked[{…, note}]}` (no aplica nada) |
+| POST | `/platform/tenants/:id/template` | `{key, sections[]}` con `sections` ⊂ `modules, settings, automations, ai, categories`: aplica **solo** esas secciones (lo del asistente va al **borrador**; las categorías solo se crean si faltan; las automatizaciones que el plan no incluye no se encienden). Auditado `platform.template_applied` |
 
 ## Módulos por empresa (ADR 038)
 
-`GET /auth/me` devuelve `tenant.enabledModules` (subconjunto de `conversations, ai, catalog, inventory, orders, customers, reports, automations`). Las rutas de un módulo apagado responden **403** `{ code: "MODULE_DISABLED" }`.
+`GET /auth/me` devuelve `tenant.enabledModules` (subconjunto de `conversations, ai, catalog, inventory, orders, customers, reports, automations, reservations`) y `tenant.settings` (reglas de operación). Las rutas de un módulo apagado responden **403** `{ code: "MODULE_DISABLED" }`.
 
 ## Asistente IA (`/ai`), permiso `ai:configure`, módulo `ai`
 
@@ -83,6 +86,32 @@ Con `readOnly`, toda petición que modifica datos responde **402** `{ code: "SUB
 | GET | `/ai/knowledge` | Documentos con `state`: `new`, `modified`, `published`, `pending_delete` |
 | POST | `/ai/knowledge` | `{title, content}` (texto, hasta 20 000 caracteres); 403 `PLAN_LIMIT_REACHED` según `maxKnowledgeDocs` |
 | PUT / DELETE | `/ai/knowledge/:id` | Editar (queda sin publicar) / quitar (uno publicado se quita al publicar) |
+
+## Reglas de operación (`/tenant/settings`), ADR 043
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/tenant/settings` | `tenant:read` → `{settings, template: {key, name, version, latestVersion} \| null}` |
+| PATCH | `/tenant/settings` | `tenant:settings`. Cambios parciales por sección; se valida el resultado completo (400 `INVALID_SETTINGS` con `errors[{path, message}]`). Auditado `tenant.settings_updated` |
+
+Secciones: `catalog {label, trackStockDefault, volumePricing, durations}`, `orders {minAmount|null}`, `customers {businessFields}`, `reservations {kind TABLE|APPOINTMENT, slotMinutes, durationMinutes, capacity|null, maxPartySize, minNoticeMinutes, maxDaysAhead, hours|null, requireConfirmation}`. Capacidad, horario y pedido mínimo **nunca** los rellena una plantilla: mientras `capacity` u `hours` sean null no se aceptan reservas.
+
+Efecto en el resto de la API:
+
+- **Productos**: `trackStock` (por defecto `catalog.trackStockDefault`; si es `false` no admite stock inicial ni movimientos → 409 `NOT_STOCKED`, y los pedidos no mueven inventario), `durationMinutes` (5-1440) y en cada variante `priceTiers[{minQty ≥ 2, unitPrice}]` (máx. 6, cantidades crecientes y precios decrecientes, menores que el precio base). `GET /products?trackStock=true|false` filtra.
+- **Pedidos**: con `volumePricing` el backend aplica el tramo alcanzado por la cantidad; con `minAmount` responde 409 `ORDER_MINIMUM` `{minimum, subtotal}` si el subtotal no llega.
+- **Clientes**: `customerType` (`PERSON`\|`BUSINESS`) y `businessName` (obligatorio si es `BUSINESS`); `GET /customers?type=` filtra y la búsqueda incluye la razón social. La ficha añade `stats.lastPurchaseAt`, `topProducts[{name, quantity, total}]` (lo vendido, sin pendientes ni anulados) y `reservations`.
+
+## Reservas y citas (`/reservations`), módulo `reservations`
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/reservations?date=AAAA-MM-DD&status=&customerId=&page=` | `reservations:read`. Sin `date`, las próximas (desde hace 2 h). El día es el de la zona horaria de la empresa |
+| GET | `/reservations/availability?date=&partySize=&productId=` | Horarios libres `{date, kind, durationMinutes, slots[{time, startsAt, remaining}], reason}`. Para el panel no se aplica la antelación mínima; el asistente sí la aplica |
+| POST | `/reservations` | `reservations:write`. `{customerId \| customer {phone, name?}, date, time HH:MM, partySize, productId? (servicio: producto sin stock), notes?, idempotencyKey?}`. Desde el panel nace `CONFIRMED`. Errores 409: `RESERVATIONS_NOT_CONFIGURED`, `PARTY_TOO_LARGE`, `OUTSIDE_HOURS`, `IN_THE_PAST`, `SLOT_FULL`, `SERVICE_UNAVAILABLE` (y `OUTSIDE_WINDOW` solo para el asistente: el equipo puede saltarse la antelación mínima) |
+| PATCH | `/reservations/:id/status` | `{status, note?}`: `PENDING → CONFIRMED \| CANCELLED`; `CONFIRMED → COMPLETED \| NO_SHOW \| CANCELLED` (409 `INVALID_TRANSITION`) |
+
+El aforo (`TABLE`: personas; `APPOINTMENT`: citas simultáneas) se controla con un bloqueo por empresa: varias reservas a la vez nunca superan la capacidad. Las reservas no se borran (el rol de ejecución no tiene `DELETE`). El asistente tiene las herramientas `consultar_disponibilidad`, `crear_reserva` (queda `PENDING` si `requireConfirmation`; avisa al equipo) y `ver_reservas_del_cliente`. La automatización `RESERVATION_REMINDER` (backend) envía por WhatsApp un recordatorio `hoursBefore` horas antes de cada reserva confirmada, una sola vez.
 
 ## Integraciones (`/integrations`), permiso `integrations:manage`
 
@@ -103,6 +132,8 @@ Con `readOnly`, toda petición que modifica datos responde **402** `{ code: "SUB
 Panel general (permiso `platform:manage`): `GET /platform/integrations` (servicios del servidor con `configured`, variables de entorno y última prueba; números de WhatsApp por estado y con error; fallos de 7 días) y `POST /platform/integrations/:service/test` (`database, redis, gemini, smtp, n8n, chatwoot`; auditado).
 
 ### Recibir webhooks
+
+Eventos: `order.created`, `order.status_changed`, `stock.low`, `conversation.handoff`, `reservation.created`, `reservation.status_changed`.
 
 Cada entrega es un `POST` JSON `{id, event, occurredAt, tenantId, data}` con las cabeceras `X-AISA-Event`, `X-AISA-Delivery` (= `id`, úsalo para descartar duplicados) y `X-AISA-Signature: t=<unix>,v1=<hex>`. Para verificarla:
 

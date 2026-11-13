@@ -216,7 +216,8 @@ export const AutomationKey = {
   ORDER_STATUS_NOTIFICATION: 'ORDER_STATUS_NOTIFICATION',
   HANDOFF_NOTIFICATION: 'HANDOFF_NOTIFICATION',
   ERROR_ALERT: 'ERROR_ALERT',
-  PENDING_ORDER_REMINDER: 'PENDING_ORDER_REMINDER'
+  PENDING_ORDER_REMINDER: 'PENDING_ORDER_REMINDER',
+  RESERVATION_REMINDER: 'RESERVATION_REMINDER'
 } as const
 
 export type AutomationKey = (typeof AutomationKey)[keyof typeof AutomationKey]
@@ -249,3 +250,22 @@ export const WebhookDeliveryStatus = {
 } as const
 
 export type WebhookDeliveryStatus = (typeof WebhookDeliveryStatus)[keyof typeof WebhookDeliveryStatus]
+
+
+export const CustomerType = {
+  PERSON: 'PERSON',
+  BUSINESS: 'BUSINESS'
+} as const
+
+export type CustomerType = (typeof CustomerType)[keyof typeof CustomerType]
+
+
+export const ReservationStatus = {
+  PENDING: 'PENDING',
+  CONFIRMED: 'CONFIRMED',
+  CANCELLED: 'CANCELLED',
+  COMPLETED: 'COMPLETED',
+  NO_SHOW: 'NO_SHOW'
+} as const
+
+export type ReservationStatus = (typeof ReservationStatus)[keyof typeof ReservationStatus]

@@ -5,6 +5,8 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { DatabaseService, type Tx } from '../database/database.service.js';
 import { InventoryService } from '../inventory/inventory.service.js';
 import { Prisma } from '../generated/prisma/client.js';
+import { readTiers, unitPriceFor } from '../catalog/pricing.js';
+import { readSettings } from '../tenants/tenant-settings.js';
 import type { OrderChannel, OrderStatus } from '../generated/prisma/enums.js';
 
 export interface OrderActor {
@@ -94,12 +96,13 @@ export class OrdersService {
       if (!Number.isInteger(it.quantity) || it.quantity <= 0) throw new BadRequestException('Cantidades deben ser enteros positivos');
       qty.set(it.variantId, (qty.get(it.variantId) ?? 0) + it.quantity);
     }
-    const tenant = await tx.tenant.findUniqueOrThrow({ where: { id: actor.tenantId }, select: { currency: true } });
+    const tenant = await tx.tenant.findUniqueOrThrow({ where: { id: actor.tenantId }, select: { currency: true, settings: true } });
+    const settings = readSettings(tenant.settings);
     const customer = await tx.customer.findFirst({ where: { id: input.customerId, tenantId: actor.tenantId }, select: { id: true, name: true, waProfileName: true, phone: true } });
     if (!customer) throw new NotFoundException('Cliente no encontrado');
     const variants = await tx.productVariant.findMany({
       where: { id: { in: [...qty.keys()] }, tenantId: actor.tenantId },
-      include: { product: { select: { name: true, salePrice: true, status: true } } },
+      include: { product: { select: { name: true, salePrice: true, status: true, trackStock: true } } },
     });
     if (variants.length !== qty.size) throw new NotFoundException('Algún producto del pedido no existe');
     for (const v of variants) {
@@ -107,11 +110,16 @@ export class OrdersService {
     }
 
     const lines = variants.map((v) => {
-      const unit = v.salePrice ?? v.product.salePrice;
       const q = qty.get(v.id)!;
+      // Precio por volumen según la cantidad (si la empresa los usa)
+      const unit = unitPriceFor(v.salePrice ?? v.product.salePrice, settings.catalog.volumePricing ? readTiers(v.priceTiers) : [], q);
       return { variantId: v.id, productName: v.product.name, variantName: v.name, sku: v.sku, quantity: q, unitPrice: unit, total: unit.mul(q) };
     });
     const subtotal = lines.reduce((s, l) => s.add(l.total), new Prisma.Decimal(0));
+    const min = settings.orders.minAmount;
+    if (min != null && subtotal.lessThan(min)) {
+      throw new ConflictException({ code: 'ORDER_MINIMUM', message: `El pedido mínimo es ${tenant.currency} ${min.toFixed(2)}; este pedido suma ${subtotal.toFixed(2)}`, minimum: min.toFixed(2), subtotal: subtotal.toFixed(2) });
+    }
     const branchId = input.branchId ?? (await this.inventory.defaultBranchId(tx, actor.tenantId));
 
     const [counter] = await tx.$queryRaw<{ value: number }[]>`
@@ -161,7 +169,8 @@ export class OrdersService {
     if (!TRANSITIONS[from].includes(to)) {
       throw new ConflictException({ code: 'INVALID_TRANSITION', message: `No se puede pasar de ${from} a ${to}` });
     }
-    const items = await tx.orderItem.findMany({ where: { orderId } });
+    // Solo los productos que controlan stock mueven inventario (no platos ni servicios)
+    const items = await tx.orderItem.findMany({ where: { orderId, variant: { product: { trackStock: true } } } });
 
     if (to === 'CONFIRMED') {
       for (const it of items) {

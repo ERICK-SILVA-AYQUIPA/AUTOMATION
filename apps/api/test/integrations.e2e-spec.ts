@@ -94,7 +94,7 @@ describe('Integraciones centralizadas: webhooks firmados, clave propia de Gemini
     secret = r.body.secret;
     endpointId = r.body.id;
     const list = await ctx.http().get('/api/v1/integrations/webhooks').set(H()).expect(200);
-    expect(Object.keys(list.body.events)).toEqual(['order.created', 'order.status_changed', 'stock.low', 'conversation.handoff']);
+    expect(Object.keys(list.body.events)).toEqual(['order.created', 'order.status_changed', 'stock.low', 'conversation.handoff', 'reservation.created', 'reservation.status_changed']);
     expect(list.body.items).toHaveLength(1);
     expect(JSON.stringify(list.body)).not.toContain(secret);
     // Cifrado en la base de datos

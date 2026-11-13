@@ -10,6 +10,7 @@ import { Badge, Button, Card, ErrorBox, Field, Input, Loading, PageHeader, Selec
 import type { Branch, SubscriptionAccess } from '@/lib/types';
 import { useToast } from '@/components/ui/toast';
 import { RequirePermission } from '@/components/guard';
+import { OperationSettings } from './operation-settings';
 
 interface Tenant {
   id: string; name: string; slug: string; currency: string; timezone: string; status: string; createdAt: string;
@@ -113,7 +114,7 @@ function Settings() {
 
   return (
     <>
-      <PageHeader title="Configuración" description="Datos de la empresa, plan y seguridad de tu cuenta." />
+      <PageHeader title="Configuración" description="Datos de la empresa, plan, reglas de operación y seguridad de tu cuenta." />
       <div className="grid gap-6 lg:grid-cols-2">
         <form onSubmit={save}>
           <Card className="flex flex-col gap-4 p-5">
@@ -196,6 +197,8 @@ function Settings() {
             </div>
           )}
         </Card>
+
+        <OperationSettings />
 
         <Card className="p-5 lg:col-span-2">
           <h2 className="mb-3 font-medium">Mis sesiones abiertas</h2>

@@ -11,7 +11,8 @@ import { Input, Spinner } from '@/components/ui';
 export interface PickedVariant { variant: Variant; product: Product; label: string }
 
 /** Buscador de producto → variante (para movimientos de inventario y pedidos). Solo productos activos. */
-export function VariantPicker({ onPick, currency, autoFocus, id }: { onPick: (p: PickedVariant) => void; currency: string; autoFocus?: boolean; id?: string }) {
+/** `stockedOnly`: solo productos que controlan stock (movimientos de inventario) */
+export function VariantPicker({ onPick, currency, autoFocus, id, stockedOnly }: { onPick: (p: PickedVariant) => void; currency: string; autoFocus?: boolean; id?: string; stockedOnly?: boolean }) {
   const [q, setQ] = useState('');
   const [dq, setDq] = useState('');
   useEffect(() => {
@@ -19,8 +20,8 @@ export function VariantPicker({ onPick, currency, autoFocus, id }: { onPick: (p:
     return () => clearTimeout(t);
   }, [q]);
   const res = useQuery({
-    queryKey: ['variant-picker', dq],
-    queryFn: () => api<Paged<Product>>('/products', { query: { q: dq, status: 'ACTIVE', pageSize: 8 } }),
+    queryKey: ['variant-picker', dq, !!stockedOnly],
+    queryFn: () => api<Paged<Product>>('/products', { query: { q: dq, status: 'ACTIVE', pageSize: 8, trackStock: stockedOnly ? 'true' : undefined } }),
     enabled: dq.length > 0,
   });
   const options = res.data?.items.flatMap((p) => p.variants.filter((v) => v.isActive).map((v) => ({ p, v }))) ?? [];
@@ -55,7 +56,7 @@ export function VariantPicker({ onPick, currency, autoFocus, id }: { onPick: (p:
                   </span>
                   <span className="shrink-0 text-right text-xs">
                     <span className="block">{money(v.effectivePrice, currency)}</span>
-                    <span className={v.stock <= 0 ? 'text-danger' : 'text-muted'}>Stock: {num(v.stock)}</span>
+                    {p.trackStock === false ? <span className="text-muted">Sin control de stock</span> : <span className={v.stock <= 0 ? 'text-danger' : 'text-muted'}>Stock: {num(v.stock)}</span>}
                   </span>
                 </button>
               );

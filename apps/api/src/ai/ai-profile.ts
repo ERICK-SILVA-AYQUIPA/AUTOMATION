@@ -14,6 +14,9 @@ export const LANGUAGES = { es: 'español', en: 'inglés', pt: 'portugués' } as 
 const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Hora en formato HH:MM');
 const range = z.object({ open: time, close: time }).strict().refine((r) => r.open < r.close, { message: 'La hora de cierre debe ser posterior a la de apertura', path: ['close'] });
 const text = (max: number) => z.string().trim().max(max);
+/** Horario semanal: hasta dos turnos por día (también lo usan las reservas) */
+export const weeklyHoursSchema = z.object(Object.fromEntries(DAYS.map((d) => [d, z.array(range).max(2)])) as Record<Day, z.ZodArray<typeof range>>).strict();
+export type WeeklyHours = z.infer<typeof weeklyHoursSchema>;
 const list = (maxItems: number, maxLen: number) => z.array(z.string().trim().min(1).max(maxLen)).max(maxItems);
 
 export const aiProfileSchema = z
@@ -26,7 +29,7 @@ export const aiProfileSchema = z
     welcomeMessage: text(500),
     businessInfo: text(6000),
     /** null = sin horario configurado (el asistente no afirma si está abierto) */
-    hours: z.object(Object.fromEntries(DAYS.map((d) => [d, z.array(range).max(2)])) as Record<Day, z.ZodArray<typeof range>>).strict().nullable(),
+    hours: weeklyHoursSchema.nullable(),
     /** Fuera de horario: ANSWER = atiende igual y lo menciona; MESSAGE = solo envía el aviso */
     outsideHours: z.enum(['ANSWER', 'MESSAGE']),
     outsideHoursMessage: text(500),

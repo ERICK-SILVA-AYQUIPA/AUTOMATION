@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService, type Tx } from '../database/database.service.js';
 import { InventoryService } from '../inventory/inventory.service.js';
+import { assertTiersBelow } from './pricing.js';
+import { readSettings } from '../tenants/tenant-settings.js';
 import { Prisma } from '../generated/prisma/client.js';
 import { assertWithinLimit, getPlanLimits } from '../plans/plan-limits.js';
 import { paged } from '../common/pagination.js';
@@ -9,7 +11,7 @@ import type { CreateProductInput, ListProductsQuery, UpdateProductInput } from '
 import type { z } from 'zod';
 import type { updateVariantSchema, variantSchema } from './catalog.schemas.js';
 
-const TRACKED: (keyof UpdateProductInput)[] = ['sku', 'barcode', 'name', 'description', 'categoryId', 'salePrice', 'costPrice', 'minStock', 'status'];
+const TRACKED: (keyof UpdateProductInput)[] = ['sku', 'barcode', 'name', 'description', 'categoryId', 'salePrice', 'costPrice', 'minStock', 'status', 'trackStock', 'durationMinutes'];
 
 export const productInclude = {
   category: { select: { id: true, name: true } },
@@ -43,6 +45,7 @@ export class ProductsService {
       if (q.status) where.status = q.status;
       else where.status = { not: 'ARCHIVED' };
       if (q.categoryId) where.categoryId = q.categoryId;
+      if (q.trackStock) where.trackStock = q.trackStock === 'true';
       if (q.q) {
         where.OR = [
           { name: { contains: q.q, mode: 'insensitive' } },
@@ -108,11 +111,22 @@ export class ProductsService {
     assertWithinLimit(count, limits.maxProducts, 'productos');
     if (input.categoryId) await this.assertCategory(tx, p.tenantId, input.categoryId);
 
-    const { variants, initialStock, ...data } = input;
-    const prod = await tx.product.create({ data: { ...data, tenantId: p.tenantId } });
+    const { variants, initialStock, priceTiers, trackStock: requested, ...data } = input;
+    const settings = readSettings((await tx.tenant.findUniqueOrThrow({ where: { id: p.tenantId }, select: { settings: true } })).settings);
+    const trackStock = requested ?? settings.catalog.trackStockDefault;
+    if (!trackStock && initialStock) throw new BadRequestException('Este producto no controla stock: no lleva stock inicial');
+    if (variants?.length && priceTiers?.length) throw new BadRequestException('Con variantes, los precios por volumen se definen en cada variante');
+    const tierError = assertTiersBelow(input.salePrice, priceTiers ?? []);
+    if (tierError) throw new BadRequestException({ message: tierError, errors: [{ path: 'priceTiers', message: tierError }] });
+    for (const v of variants ?? []) {
+      const e = assertTiersBelow(v.salePrice ?? input.salePrice, v.priceTiers ?? []);
+      if (e) throw new BadRequestException(`${v.name}: ${e}`);
+    }
+    // Sin stock (platos, servicios) no hay mínimo ni alertas
+    const prod = await tx.product.create({ data: { ...data, trackStock, minStock: trackStock ? data.minStock : 0, tenantId: p.tenantId } });
     const variantRows = variants?.length
       ? variants.map((v, i) => ({ ...v, isDefault: i === 0 }))
-      : [{ sku: input.sku, barcode: input.barcode ?? null, name: 'Única', attributes: {}, isDefault: true }];
+      : [{ sku: input.sku, barcode: input.barcode ?? null, name: 'Única', attributes: {}, isDefault: true, priceTiers: priceTiers ?? [] }];
     for (const v of variantRows) {
       await tx.productVariant.create({ data: { ...v, tenantId: p.tenantId, productId: prod.id } });
     }
@@ -132,7 +146,16 @@ export class ProductsService {
       const before = await tx.product.findFirst({ where: { id, tenantId: p.tenantId } });
       if (!before) throw new NotFoundException('Producto no encontrado');
       if (input.categoryId) await this.assertCategory(tx, p.tenantId, input.categoryId);
-      const updated = await tx.product.update({ where: { id }, data: input });
+      const { priceTiers, ...data } = input;
+      if (data.trackStock === false) data.minStock = 0;
+      if (priceTiers) {
+        const variants = await tx.productVariant.findMany({ where: { productId: id }, select: { id: true, salePrice: true } });
+        if (variants.length !== 1) throw new BadRequestException('Con variantes, los precios por volumen se definen en cada variante');
+        const e = assertTiersBelow(variants[0]!.salePrice ?? data.salePrice ?? before.salePrice, priceTiers);
+        if (e) throw new BadRequestException({ message: e, errors: [{ path: 'priceTiers', message: e }] });
+        await tx.productVariant.update({ where: { id: variants[0]!.id }, data: { priceTiers } });
+      }
+      const updated = await tx.product.update({ where: { id }, data });
       const changes: Record<string, { from: unknown; to: unknown }> = {};
       for (const k of TRACKED) {
         if (!(k in input)) continue;
@@ -147,6 +170,7 @@ export class ProductsService {
           await tx.productVariant.update({ where: { id: variants[0]!.id }, data: { sku: updated.sku, barcode: updated.barcode } });
         }
       }
+      if (priceTiers) changes.priceTiers = { from: null, to: priceTiers };
       if (Object.keys(changes).length) {
         await tx.productHistory.create({ data: { tenantId: p.tenantId, productId: id, userId: p.userId, action: 'updated', changes: changes as Prisma.InputJsonValue } });
       }
@@ -171,6 +195,8 @@ export class ProductsService {
     return this.db.tenant(p.tenantId, async (tx) => {
       const prod = await tx.product.findFirst({ where: { id: productId, tenantId: p.tenantId } });
       if (!prod) throw new NotFoundException('Producto no encontrado');
+      const e = assertTiersBelow(input.salePrice ?? prod.salePrice, input.priceTiers ?? []);
+      if (e) throw new BadRequestException({ message: e, errors: [{ path: 'priceTiers', message: e }] });
       const v = await tx.productVariant.create({ data: { ...input, tenantId: p.tenantId, productId } });
       await tx.productHistory.create({ data: { tenantId: p.tenantId, productId, userId: p.userId, action: 'variant_added', changes: { sku: v.sku, name: v.name } } });
       return v;
@@ -179,8 +205,12 @@ export class ProductsService {
 
   async updateVariant(p: TenantPrincipal, productId: string, variantId: string, input: z.infer<typeof updateVariantSchema>) {
     return this.db.tenant(p.tenantId, async (tx) => {
-      const v = await tx.productVariant.findFirst({ where: { id: variantId, productId, tenantId: p.tenantId } });
+      const v = await tx.productVariant.findFirst({ where: { id: variantId, productId, tenantId: p.tenantId }, include: { product: { select: { salePrice: true } } } });
       if (!v) throw new NotFoundException('Variante no encontrada');
+      if (input.priceTiers) {
+        const e = assertTiersBelow(input.salePrice ?? v.salePrice ?? v.product.salePrice, input.priceTiers);
+        if (e) throw new BadRequestException({ message: e, errors: [{ path: 'priceTiers', message: e }] });
+      }
       const u = await tx.productVariant.update({ where: { id: variantId }, data: input });
       await tx.productHistory.create({ data: { tenantId: p.tenantId, productId, userId: p.userId, action: 'variant_updated', changes: { variantId, ...input } as Prisma.InputJsonValue } });
       return u;

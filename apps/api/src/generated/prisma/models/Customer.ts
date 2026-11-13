@@ -44,6 +44,8 @@ export type CustomerMinAggregateOutputType = {
   chatwootContactId: number | null
   chatwootSourceId: string | null
   email: string | null
+  customerType: $Enums.CustomerType | null
+  businessName: string | null
   documentId: string | null
   address: string | null
   notes: string | null
@@ -63,6 +65,8 @@ export type CustomerMaxAggregateOutputType = {
   chatwootContactId: number | null
   chatwootSourceId: string | null
   email: string | null
+  customerType: $Enums.CustomerType | null
+  businessName: string | null
   documentId: string | null
   address: string | null
   notes: string | null
@@ -82,6 +86,8 @@ export type CustomerCountAggregateOutputType = {
   chatwootContactId: number
   chatwootSourceId: number
   email: number
+  customerType: number
+  businessName: number
   documentId: number
   address: number
   notes: number
@@ -112,6 +118,8 @@ export type CustomerMinAggregateInputType = {
   chatwootContactId?: true
   chatwootSourceId?: true
   email?: true
+  customerType?: true
+  businessName?: true
   documentId?: true
   address?: true
   notes?: true
@@ -131,6 +139,8 @@ export type CustomerMaxAggregateInputType = {
   chatwootContactId?: true
   chatwootSourceId?: true
   email?: true
+  customerType?: true
+  businessName?: true
   documentId?: true
   address?: true
   notes?: true
@@ -150,6 +160,8 @@ export type CustomerCountAggregateInputType = {
   chatwootContactId?: true
   chatwootSourceId?: true
   email?: true
+  customerType?: true
+  businessName?: true
   documentId?: true
   address?: true
   notes?: true
@@ -257,6 +269,8 @@ export type CustomerGroupByOutputType = {
   chatwootContactId: number | null
   chatwootSourceId: string | null
   email: string | null
+  customerType: $Enums.CustomerType
+  businessName: string | null
   documentId: string | null
   address: string | null
   notes: string | null
@@ -300,6 +314,8 @@ export type CustomerWhereInput = {
   chatwootContactId?: Prisma.IntNullableFilter<"Customer"> | number | null
   chatwootSourceId?: Prisma.StringNullableFilter<"Customer"> | string | null
   email?: Prisma.StringNullableFilter<"Customer"> | string | null
+  customerType?: Prisma.EnumCustomerTypeFilter<"Customer"> | $Enums.CustomerType
+  businessName?: Prisma.StringNullableFilter<"Customer"> | string | null
   documentId?: Prisma.StringNullableFilter<"Customer"> | string | null
   address?: Prisma.StringNullableFilter<"Customer"> | string | null
   notes?: Prisma.StringNullableFilter<"Customer"> | string | null
@@ -310,6 +326,7 @@ export type CustomerWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   orders?: Prisma.OrderListRelationFilter
   conversations?: Prisma.ConversationListRelationFilter
+  reservations?: Prisma.ReservationListRelationFilter
 }
 
 export type CustomerOrderByWithRelationInput = {
@@ -322,6 +339,8 @@ export type CustomerOrderByWithRelationInput = {
   chatwootContactId?: Prisma.SortOrderInput | Prisma.SortOrder
   chatwootSourceId?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
+  customerType?: Prisma.SortOrder
+  businessName?: Prisma.SortOrderInput | Prisma.SortOrder
   documentId?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -332,6 +351,7 @@ export type CustomerOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   orders?: Prisma.OrderOrderByRelationAggregateInput
   conversations?: Prisma.ConversationOrderByRelationAggregateInput
+  reservations?: Prisma.ReservationOrderByRelationAggregateInput
 }
 
 export type CustomerWhereUniqueInput = Prisma.AtLeast<{
@@ -349,6 +369,8 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   chatwootContactId?: Prisma.IntNullableFilter<"Customer"> | number | null
   chatwootSourceId?: Prisma.StringNullableFilter<"Customer"> | string | null
   email?: Prisma.StringNullableFilter<"Customer"> | string | null
+  customerType?: Prisma.EnumCustomerTypeFilter<"Customer"> | $Enums.CustomerType
+  businessName?: Prisma.StringNullableFilter<"Customer"> | string | null
   documentId?: Prisma.StringNullableFilter<"Customer"> | string | null
   address?: Prisma.StringNullableFilter<"Customer"> | string | null
   notes?: Prisma.StringNullableFilter<"Customer"> | string | null
@@ -359,6 +381,7 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   orders?: Prisma.OrderListRelationFilter
   conversations?: Prisma.ConversationListRelationFilter
+  reservations?: Prisma.ReservationListRelationFilter
 }, "id" | "tenantId_phone" | "tenantId_waUserId">
 
 export type CustomerOrderByWithAggregationInput = {
@@ -371,6 +394,8 @@ export type CustomerOrderByWithAggregationInput = {
   chatwootContactId?: Prisma.SortOrderInput | Prisma.SortOrder
   chatwootSourceId?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
+  customerType?: Prisma.SortOrder
+  businessName?: Prisma.SortOrderInput | Prisma.SortOrder
   documentId?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -399,6 +424,8 @@ export type CustomerScalarWhereWithAggregatesInput = {
   chatwootContactId?: Prisma.IntNullableWithAggregatesFilter<"Customer"> | number | null
   chatwootSourceId?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   email?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
+  customerType?: Prisma.EnumCustomerTypeWithAggregatesFilter<"Customer"> | $Enums.CustomerType
+  businessName?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   documentId?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   address?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
@@ -419,6 +446,8 @@ export type CustomerCreateInput = {
   chatwootContactId?: number | null
   chatwootSourceId?: string | null
   email?: string | null
+  customerType?: $Enums.CustomerType
+  businessName?: string | null
   documentId?: string | null
   address?: string | null
   notes?: string | null
@@ -429,6 +458,7 @@ export type CustomerCreateInput = {
   updatedAt?: Date | string
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
   conversations?: Prisma.ConversationCreateNestedManyWithoutCustomerInput
+  reservations?: Prisma.ReservationCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateInput = {
@@ -441,6 +471,8 @@ export type CustomerUncheckedCreateInput = {
   chatwootContactId?: number | null
   chatwootSourceId?: string | null
   email?: string | null
+  customerType?: $Enums.CustomerType
+  businessName?: string | null
   documentId?: string | null
   address?: string | null
   notes?: string | null
@@ -451,6 +483,7 @@ export type CustomerUncheckedCreateInput = {
   updatedAt?: Date | string
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
   conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutCustomerInput
+  reservations?: Prisma.ReservationUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUpdateInput = {
@@ -463,6 +496,8 @@ export type CustomerUpdateInput = {
   chatwootContactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatwootSourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerType?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -473,6 +508,7 @@ export type CustomerUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
   conversations?: Prisma.ConversationUpdateManyWithoutCustomerNestedInput
+  reservations?: Prisma.ReservationUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateInput = {
@@ -485,6 +521,8 @@ export type CustomerUncheckedUpdateInput = {
   chatwootContactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatwootSourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerType?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -495,6 +533,7 @@ export type CustomerUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
   conversations?: Prisma.ConversationUncheckedUpdateManyWithoutCustomerNestedInput
+  reservations?: Prisma.ReservationUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateManyInput = {
@@ -507,6 +546,8 @@ export type CustomerCreateManyInput = {
   chatwootContactId?: number | null
   chatwootSourceId?: string | null
   email?: string | null
+  customerType?: $Enums.CustomerType
+  businessName?: string | null
   documentId?: string | null
   address?: string | null
   notes?: string | null
@@ -527,6 +568,8 @@ export type CustomerUpdateManyMutationInput = {
   chatwootContactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatwootSourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerType?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -547,6 +590,8 @@ export type CustomerUncheckedUpdateManyInput = {
   chatwootContactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatwootSourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerType?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -577,6 +622,8 @@ export type CustomerCountOrderByAggregateInput = {
   chatwootContactId?: Prisma.SortOrder
   chatwootSourceId?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  customerType?: Prisma.SortOrder
+  businessName?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
   address?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -601,6 +648,8 @@ export type CustomerMaxOrderByAggregateInput = {
   chatwootContactId?: Prisma.SortOrder
   chatwootSourceId?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  customerType?: Prisma.SortOrder
+  businessName?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
   address?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -620,6 +669,8 @@ export type CustomerMinOrderByAggregateInput = {
   chatwootContactId?: Prisma.SortOrder
   chatwootSourceId?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  customerType?: Prisma.SortOrder
+  businessName?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
   address?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -640,6 +691,10 @@ export type CustomerScalarRelationFilter = {
 
 export type CustomerCreatetagsInput = {
   set: string[]
+}
+
+export type EnumCustomerTypeFieldUpdateOperationsInput = {
+  set?: $Enums.CustomerType
 }
 
 export type CustomerUpdatetagsInput = {
@@ -675,6 +730,20 @@ export type CustomerUpdateOneRequiredWithoutConversationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutConversationsInput, Prisma.CustomerUpdateWithoutConversationsInput>, Prisma.CustomerUncheckedUpdateWithoutConversationsInput>
 }
 
+export type CustomerCreateNestedOneWithoutReservationsInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutReservationsInput, Prisma.CustomerUncheckedCreateWithoutReservationsInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutReservationsInput
+  connect?: Prisma.CustomerWhereUniqueInput
+}
+
+export type CustomerUpdateOneRequiredWithoutReservationsNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutReservationsInput, Prisma.CustomerUncheckedCreateWithoutReservationsInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutReservationsInput
+  upsert?: Prisma.CustomerUpsertWithoutReservationsInput
+  connect?: Prisma.CustomerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutReservationsInput, Prisma.CustomerUpdateWithoutReservationsInput>, Prisma.CustomerUncheckedUpdateWithoutReservationsInput>
+}
+
 export type CustomerCreateWithoutOrdersInput = {
   id?: string
   tenantId: string
@@ -685,6 +754,8 @@ export type CustomerCreateWithoutOrdersInput = {
   chatwootContactId?: number | null
   chatwootSourceId?: string | null
   email?: string | null
+  customerType?: $Enums.CustomerType
+  businessName?: string | null
   documentId?: string | null
   address?: string | null
   notes?: string | null
@@ -694,6 +765,7 @@ export type CustomerCreateWithoutOrdersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   conversations?: Prisma.ConversationCreateNestedManyWithoutCustomerInput
+  reservations?: Prisma.ReservationCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutOrdersInput = {
@@ -706,6 +778,8 @@ export type CustomerUncheckedCreateWithoutOrdersInput = {
   chatwootContactId?: number | null
   chatwootSourceId?: string | null
   email?: string | null
+  customerType?: $Enums.CustomerType
+  businessName?: string | null
   documentId?: string | null
   address?: string | null
   notes?: string | null
@@ -715,6 +789,7 @@ export type CustomerUncheckedCreateWithoutOrdersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutCustomerInput
+  reservations?: Prisma.ReservationUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutOrdersInput = {
@@ -743,6 +818,8 @@ export type CustomerUpdateWithoutOrdersInput = {
   chatwootContactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatwootSourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerType?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -752,6 +829,7 @@ export type CustomerUpdateWithoutOrdersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   conversations?: Prisma.ConversationUpdateManyWithoutCustomerNestedInput
+  reservations?: Prisma.ReservationUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutOrdersInput = {
@@ -764,6 +842,8 @@ export type CustomerUncheckedUpdateWithoutOrdersInput = {
   chatwootContactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatwootSourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerType?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -773,6 +853,7 @@ export type CustomerUncheckedUpdateWithoutOrdersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   conversations?: Prisma.ConversationUncheckedUpdateManyWithoutCustomerNestedInput
+  reservations?: Prisma.ReservationUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateWithoutConversationsInput = {
@@ -785,6 +866,8 @@ export type CustomerCreateWithoutConversationsInput = {
   chatwootContactId?: number | null
   chatwootSourceId?: string | null
   email?: string | null
+  customerType?: $Enums.CustomerType
+  businessName?: string | null
   documentId?: string | null
   address?: string | null
   notes?: string | null
@@ -794,6 +877,7 @@ export type CustomerCreateWithoutConversationsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  reservations?: Prisma.ReservationCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutConversationsInput = {
@@ -806,6 +890,8 @@ export type CustomerUncheckedCreateWithoutConversationsInput = {
   chatwootContactId?: number | null
   chatwootSourceId?: string | null
   email?: string | null
+  customerType?: $Enums.CustomerType
+  businessName?: string | null
   documentId?: string | null
   address?: string | null
   notes?: string | null
@@ -815,6 +901,7 @@ export type CustomerUncheckedCreateWithoutConversationsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  reservations?: Prisma.ReservationUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutConversationsInput = {
@@ -843,6 +930,8 @@ export type CustomerUpdateWithoutConversationsInput = {
   chatwootContactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatwootSourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerType?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -852,6 +941,7 @@ export type CustomerUpdateWithoutConversationsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  reservations?: Prisma.ReservationUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutConversationsInput = {
@@ -864,6 +954,8 @@ export type CustomerUncheckedUpdateWithoutConversationsInput = {
   chatwootContactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatwootSourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerType?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -873,6 +965,119 @@ export type CustomerUncheckedUpdateWithoutConversationsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  reservations?: Prisma.ReservationUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerCreateWithoutReservationsInput = {
+  id?: string
+  tenantId: string
+  name?: string | null
+  phone?: string | null
+  waUserId?: string | null
+  waProfileName?: string | null
+  chatwootContactId?: number | null
+  chatwootSourceId?: string | null
+  email?: string | null
+  customerType?: $Enums.CustomerType
+  businessName?: string | null
+  documentId?: string | null
+  address?: string | null
+  notes?: string | null
+  tags?: Prisma.CustomerCreatetagsInput | string[]
+  source?: string
+  lastContactAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutReservationsInput = {
+  id?: string
+  tenantId: string
+  name?: string | null
+  phone?: string | null
+  waUserId?: string | null
+  waProfileName?: string | null
+  chatwootContactId?: number | null
+  chatwootSourceId?: string | null
+  email?: string | null
+  customerType?: $Enums.CustomerType
+  businessName?: string | null
+  documentId?: string | null
+  address?: string | null
+  notes?: string | null
+  tags?: Prisma.CustomerCreatetagsInput | string[]
+  source?: string
+  lastContactAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutReservationsInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutReservationsInput, Prisma.CustomerUncheckedCreateWithoutReservationsInput>
+}
+
+export type CustomerUpsertWithoutReservationsInput = {
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutReservationsInput, Prisma.CustomerUncheckedUpdateWithoutReservationsInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutReservationsInput, Prisma.CustomerUncheckedCreateWithoutReservationsInput>
+  where?: Prisma.CustomerWhereInput
+}
+
+export type CustomerUpdateToOneWithWhereWithoutReservationsInput = {
+  where?: Prisma.CustomerWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutReservationsInput, Prisma.CustomerUncheckedUpdateWithoutReservationsInput>
+}
+
+export type CustomerUpdateWithoutReservationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  waUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  waProfileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatwootContactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chatwootSourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerType?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.CustomerUpdatetagsInput | string[]
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  lastContactAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutReservationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  waUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  waProfileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  chatwootContactId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chatwootSourceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerType?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
+  businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.CustomerUpdatetagsInput | string[]
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  lastContactAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 
@@ -883,11 +1088,13 @@ export type CustomerUncheckedUpdateWithoutConversationsInput = {
 export type CustomerCountOutputType = {
   orders: number
   conversations: number
+  reservations: number
 }
 
 export type CustomerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orders?: boolean | CustomerCountOutputTypeCountOrdersArgs
   conversations?: boolean | CustomerCountOutputTypeCountConversationsArgs
+  reservations?: boolean | CustomerCountOutputTypeCountReservationsArgs
 }
 
 /**
@@ -914,6 +1121,13 @@ export type CustomerCountOutputTypeCountConversationsArgs<ExtArgs extends runtim
   where?: Prisma.ConversationWhereInput
 }
 
+/**
+ * CustomerCountOutputType without action
+ */
+export type CustomerCountOutputTypeCountReservationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReservationWhereInput
+}
+
 
 export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -925,6 +1139,8 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   chatwootContactId?: boolean
   chatwootSourceId?: boolean
   email?: boolean
+  customerType?: boolean
+  businessName?: boolean
   documentId?: boolean
   address?: boolean
   notes?: boolean
@@ -935,6 +1151,7 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   updatedAt?: boolean
   orders?: boolean | Prisma.Customer$ordersArgs<ExtArgs>
   conversations?: boolean | Prisma.Customer$conversationsArgs<ExtArgs>
+  reservations?: boolean | Prisma.Customer$reservationsArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customer"]>
 
@@ -948,6 +1165,8 @@ export type CustomerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   chatwootContactId?: boolean
   chatwootSourceId?: boolean
   email?: boolean
+  customerType?: boolean
+  businessName?: boolean
   documentId?: boolean
   address?: boolean
   notes?: boolean
@@ -968,6 +1187,8 @@ export type CustomerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   chatwootContactId?: boolean
   chatwootSourceId?: boolean
   email?: boolean
+  customerType?: boolean
+  businessName?: boolean
   documentId?: boolean
   address?: boolean
   notes?: boolean
@@ -988,6 +1209,8 @@ export type CustomerSelectScalar = {
   chatwootContactId?: boolean
   chatwootSourceId?: boolean
   email?: boolean
+  customerType?: boolean
+  businessName?: boolean
   documentId?: boolean
   address?: boolean
   notes?: boolean
@@ -998,10 +1221,11 @@ export type CustomerSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "name" | "phone" | "waUserId" | "waProfileName" | "chatwootContactId" | "chatwootSourceId" | "email" | "documentId" | "address" | "notes" | "tags" | "source" | "lastContactAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
+export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "name" | "phone" | "waUserId" | "waProfileName" | "chatwootContactId" | "chatwootSourceId" | "email" | "customerType" | "businessName" | "documentId" | "address" | "notes" | "tags" | "source" | "lastContactAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
 export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orders?: boolean | Prisma.Customer$ordersArgs<ExtArgs>
   conversations?: boolean | Prisma.Customer$conversationsArgs<ExtArgs>
+  reservations?: boolean | Prisma.Customer$reservationsArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CustomerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1012,6 +1236,7 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     orders: Prisma.$OrderPayload<ExtArgs>[]
     conversations: Prisma.$ConversationPayload<ExtArgs>[]
+    reservations: Prisma.$ReservationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1036,6 +1261,11 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     chatwootContactId: number | null
     chatwootSourceId: string | null
     email: string | null
+    /**
+     * Persona o empresa (cliente comercial de una distribuidora)
+     */
+    customerType: $Enums.CustomerType
+    businessName: string | null
     documentId: string | null
     address: string | null
     notes: string | null
@@ -1440,6 +1670,7 @@ export interface Prisma__CustomerClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   orders<T extends Prisma.Customer$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   conversations<T extends Prisma.Customer$conversationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$conversationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConversationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reservations<T extends Prisma.Customer$reservationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$reservationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1478,6 +1709,8 @@ export interface CustomerFieldRefs {
   readonly chatwootContactId: Prisma.FieldRef<"Customer", 'Int'>
   readonly chatwootSourceId: Prisma.FieldRef<"Customer", 'String'>
   readonly email: Prisma.FieldRef<"Customer", 'String'>
+  readonly customerType: Prisma.FieldRef<"Customer", 'CustomerType'>
+  readonly businessName: Prisma.FieldRef<"Customer", 'String'>
   readonly documentId: Prisma.FieldRef<"Customer", 'String'>
   readonly address: Prisma.FieldRef<"Customer", 'String'>
   readonly notes: Prisma.FieldRef<"Customer", 'String'>
@@ -1924,6 +2157,30 @@ export type Customer$conversationsArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.ConversationScalarFieldEnum | Prisma.ConversationScalarFieldEnum[]
+}
+
+/**
+ * Customer.reservations
+ */
+export type Customer$reservationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Reservation
+   */
+  select?: Prisma.ReservationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Reservation
+   */
+  omit?: Prisma.ReservationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReservationInclude<ExtArgs> | null
+  where?: Prisma.ReservationWhereInput
+  orderBy?: Prisma.ReservationOrderByWithRelationInput | Prisma.ReservationOrderByWithRelationInput[]
+  cursor?: Prisma.ReservationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReservationScalarFieldEnum | Prisma.ReservationScalarFieldEnum[]
 }
 
 /**

@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   LayoutDashboard, MessagesSquare, Bot, Package, Tags, Boxes, ShoppingCart, Users, Workflow, Plug, BarChart3, UserCog, Settings,
-  Menu, X, Search, Sun, Moon, Monitor, LogOut, MessageSquareText, Building2, Bell,
+  Menu, X, Search, Sun, Moon, Monitor, LogOut, MessageSquareText, Building2, Bell, CalendarDays,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/lib/theme';
@@ -28,6 +28,7 @@ const NAV: NavItem[] = [
   { href: '/categorias', label: 'Categorías', icon: Tags, permission: 'products:read', module: 'catalog' },
   { href: '/inventario', label: 'Inventario', icon: Boxes, permission: 'inventory:read', module: 'inventory' },
   { href: '/pedidos', label: 'Pedidos', icon: ShoppingCart, permission: 'orders:read', module: 'orders' },
+  { href: '/reservas', label: 'Reservas', icon: CalendarDays, permission: 'reservations:read', module: 'reservations' },
   { href: '/clientes', label: 'Clientes', icon: Users, permission: 'customers:read', module: 'customers' },
   { href: '/automatizaciones', label: 'Automatizaciones', icon: Workflow, permission: 'automations:manage', module: 'automations' },
   { href: '/integraciones', label: 'Integraciones', icon: Plug, permission: 'integrations:manage' },
@@ -42,7 +43,11 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { me, can } = useAuth();
   const path = usePathname();
   const modules = me?.tenant?.enabledModules;
-  const items = (me?.role === 'PLATFORM_ADMIN' ? PLATFORM_NAV : NAV).filter((i) => (!i.permission || can(i.permission)) && (!i.module || !modules || modules.includes(i.module)));
+  const catalogLabel = me?.tenant?.settings?.catalog.label;
+  const items = (me?.role === 'PLATFORM_ADMIN' ? PLATFORM_NAV : NAV)
+    .filter((i) => (!i.permission || can(i.permission)) && (!i.module || !modules || modules.includes(i.module)))
+    // La plantilla puede renombrar el catálogo (p. ej. «Menú» en restaurantes, «Servicios»)
+    .map((i) => (i.href === '/productos' && catalogLabel ? { ...i, label: catalogLabel } : i));
   return (
     <nav className="flex h-full flex-col gap-1 p-3" aria-label="Menú principal">
       <div className="mb-4 flex items-center gap-2 px-2 pt-1">

@@ -96,6 +96,9 @@ try {
     await admin.getByRole('button', { name: 'Entrar' }).click();
     await admin.waitForURL(/\/plataforma$/);
     await admin.getByRole('link', { name: 'Nueva empresa' }).click();
+    // Paso «Sector»: sin plantilla (las plantillas tienen su propia prueba, templates.mjs)
+    await admin.getByRole('radio', { name: /^Sin plantilla/ }).check();
+    await admin.getByRole('button', { name: 'Siguiente' }).click();
     await L(admin, 'Nombre comercial').fill(company);
     await L(admin, 'Razón social').fill(`${company} S.A.C.`);
     await L(admin, 'RUC').fill('20601234567');
@@ -105,6 +108,7 @@ try {
     await L(admin, 'Modalidad').selectOption('DEDICATED');
     await admin.getByLabel('Automatizaciones').uncheck();
     await admin.reload();
+    await admin.getByRole('button', { name: 'Siguiente' }).click();
     if ((await L(admin, 'Nombre comercial').inputValue()) !== company) throw new Error('Se perdió el borrador al recargar');
     await admin.getByRole('button', { name: 'Siguiente' }).click();
     await L(admin, 'Modalidad').selectOption('DEDICATED');

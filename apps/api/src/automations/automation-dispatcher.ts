@@ -5,6 +5,7 @@ import type { AutomationKey } from '../generated/prisma/client.js';
 import { OutboundService } from '../messaging/outbound.service.js';
 import { AutomationEvents, N8N_PATHS } from './automation-events.service.js';
 import { catalogEntry, effectiveConfig, fillTemplate } from './catalog.js';
+import { localParts } from '../common/time/zoned.js';
 
 export const MAX_DELIVERY_ATTEMPTS = 8;
 const BATCH = 20;
@@ -77,7 +78,8 @@ export class AutomationDispatcher implements OnModuleInit, OnModuleDestroy {
   async scheduleReminders(): Promise<number> {
     const entry = catalogEntry('PENDING_ORDER_REMINDER')!;
     const defaultHours = Number(entry.defaults.hours);
-    return this.db.system.$executeRaw`
+    const reservations = await this.scheduleReservationReminders();
+    return reservations + await this.db.system.$executeRaw`
       INSERT INTO automation_events (id, tenant_id, key, payload, dedupe_key)
       SELECT gen_random_uuid(), o.tenant_id, 'PENDING_ORDER_REMINDER',
              jsonb_build_object('orderId', o.id, 'number', o.number, 'total', o.total::text, 'currency', o.currency, 'hours', h.hours),
@@ -91,6 +93,29 @@ export class AutomationDispatcher implements OnModuleInit, OnModuleDestroy {
       WHERE o.status = 'PENDING'
         AND o.created_at <= now() - make_interval(hours => h.hours)
         AND o.created_at > now() - interval '7 days'
+      ON CONFLICT (tenant_id, key, dedupe_key) DO NOTHING`;
+  }
+
+  /**
+   * Recordatorios de reservas confirmadas que empiezan dentro de las horas
+   * configuradas (una vez por reserva). Las reservas hechas ya dentro de ese
+   * plazo no se recuerdan: el cliente acaba de reservar.
+   */
+  async scheduleReservationReminders(): Promise<number> {
+    const defaultHours = Number(catalogEntry('RESERVATION_REMINDER')!.defaults.hoursBefore);
+    return this.db.system.$executeRaw`
+      INSERT INTO automation_events (id, tenant_id, key, payload, dedupe_key)
+      SELECT gen_random_uuid(), r.tenant_id, 'RESERVATION_REMINDER',
+             jsonb_build_object('reservationId', r.id, 'number', r.number, 'startsAt', r.starts_at),
+             'reservation:' || r.id
+      FROM reservations r
+      JOIN automations a ON a.tenant_id = r.tenant_id AND a.key = 'RESERVATION_REMINDER' AND a.is_enabled
+      JOIN tenants t ON t.id = r.tenant_id AND t.status = 'ACTIVE' AND 'reservations' = ANY(t.enabled_modules)
+      CROSS JOIN LATERAL (SELECT COALESCE((a.config ->> 'hoursBefore')::int, ${defaultHours}) AS hours) h
+      WHERE r.status = 'CONFIRMED'
+        AND r.starts_at > now()
+        AND r.starts_at <= now() + make_interval(hours => h.hours)
+        AND r.created_at < r.starts_at - make_interval(hours => h.hours)
       ON CONFLICT (tenant_id, key, dedupe_key) DO NOTHING`;
   }
 
@@ -165,6 +190,7 @@ export class AutomationDispatcher implements OnModuleInit, OnModuleDestroy {
     const p = (r.payload ?? {}) as Record<string, unknown>;
     if (r.key === 'ORDER_STATUS_NOTIFICATION') return this.orderStatusMessage(r, p);
     if (r.key === 'PENDING_ORDER_REMINDER') return this.pendingOrderReminder(r, p);
+    if (r.key === 'RESERVATION_REMINDER') return this.reservationReminder(r, p);
     throw new Skip('Sin ejecutor en el backend');
   }
 
@@ -196,6 +222,46 @@ export class AutomationDispatcher implements OnModuleInit, OnModuleDestroy {
       await this.outbound.enqueueText({ tenantId, conversationId: order.conversationId, text, idempotencyKey: `auto:${r.id}`, sender: { type: 'SYSTEM' } });
     } catch (e) {
       // Reglas de WhatsApp o de la cuenta: no se arreglan reintentando
+      if (e instanceof HttpException && e.getStatus() < 500) {
+        const body = e.getResponse() as { message?: string } | string;
+        throw new Skip(typeof body === 'string' ? body : (body.message ?? e.message));
+      }
+      throw e;
+    }
+    return { status: 'SENT' };
+  }
+
+  /** Recordatorio al cliente por WhatsApp con el texto de la empresa */
+  private async reservationReminder(r: Claimed, p: Record<string, unknown>): Promise<Outcome> {
+    if (!this.outbound) throw new Error('El envío de WhatsApp no está disponible en este proceso');
+    const tenantId = r.tenant_id;
+    const [tenant, cfgRow, res] = await Promise.all([
+      this.db.system.tenant.findUnique({ where: { id: tenantId }, select: { status: true, name: true, timezone: true } }),
+      this.db.system.automation.findUnique({ where: { tenantId_key: { tenantId, key: r.key } }, select: { config: true } }),
+      this.db.system.reservation.findFirst({
+        where: { id: String(p.reservationId), tenantId },
+        select: { number: true, status: true, startsAt: true, partySize: true, serviceName: true, conversationId: true, customer: { select: { name: true, waProfileName: true } } },
+      }),
+    ]);
+    if (tenant?.status !== 'ACTIVE') throw new Skip('La empresa no está activa');
+    if (!res) throw new Skip('La reserva ya no existe');
+    if (res.status !== 'CONFIRMED') throw new Skip('La reserva ya no está confirmada');
+    if (res.startsAt.getTime() <= Date.now()) throw new Skip('La reserva ya empezó');
+    if (!res.conversationId) throw new Skip('La reserva no llegó por WhatsApp: no hay conversación a la que escribir');
+    const cfg = effectiveConfig(catalogEntry(r.key)!, cfgRow?.config);
+    const local = localParts(res.startsAt, tenant.timezone);
+    const text = fillTemplate((cfg.templates as Record<string, string>).REMINDER!, {
+      cliente: res.customer.name ?? res.customer.waProfileName ?? 'cliente',
+      numero: String(res.number),
+      fecha: local.date.split('-').reverse().join('/'),
+      hora: local.time,
+      personas: String(res.partySize),
+      servicio: res.serviceName ?? '',
+      empresa: tenant.name,
+    });
+    try {
+      await this.outbound.enqueueText({ tenantId, conversationId: res.conversationId, text, idempotencyKey: `auto:${r.id}`, sender: { type: 'SYSTEM' } });
+    } catch (e) {
       if (e instanceof HttpException && e.getStatus() < 500) {
         const body = e.getResponse() as { message?: string } | string;
         throw new Skip(typeof body === 'string' ? body : (body.message ?? e.message));

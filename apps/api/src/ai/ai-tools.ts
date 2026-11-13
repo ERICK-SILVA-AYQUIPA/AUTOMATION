@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import type { Tx } from '../database/database.service.js';
 import type { OrdersService } from '../orders/orders.service.js';
+import { ReservationError, type ReservationsService } from '../reservations/reservations.service.js';
+import { readTiers } from '../catalog/pricing.js';
+import { localParts } from '../common/time/zoned.js';
 import type { ToolSpec } from './chat-model.js';
 
 /**
@@ -21,8 +24,20 @@ export interface ToolContext {
   triggerMessageId: string;
   db: <T>(fn: (tx: Tx) => Promise<T>) => Promise<T>;
   orders: OrdersService;
+  reservations: ReservationsService;
+  /** Lo que la empresa tiene encendido (módulos y reglas de su plantilla) */
+  features: ToolFeatures;
   /** Pide atención humana; lo aplica el motor al terminar */
   requestHandoff: (reason: string) => void;
+}
+
+export interface ToolFeatures {
+  orders: boolean;
+  reservations: boolean;
+  volumePricing: boolean;
+  /** TABLE (mesa, por personas) o APPOINTMENT (cita) */
+  reservationKind: 'TABLE' | 'APPOINTMENT';
+  timezone: string;
 }
 
 const searchArgs = z.object({ consulta: z.string().trim().min(1).max(80) });
@@ -32,6 +47,51 @@ const orderArgs = z.object({
   notas: z.string().trim().max(500).optional(),
 });
 const handoffArgs = z.object({ motivo: z.string().trim().min(1).max(300) });
+const dateArg = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+const availabilityArgs = z.object({ fecha: dateArg, personas: z.number().int().min(1).max(500).optional(), servicio_id: z.uuid().optional() });
+const reserveArgs = z.object({ fecha: dateArg, hora: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/), personas: z.number().int().min(1).max(500).optional(), servicio_id: z.uuid().optional(), notas: z.string().trim().max(500).optional() });
+
+const RESERVATION_TOOLS: ToolSpec[] = [
+  {
+    name: 'consultar_disponibilidad',
+    description: 'Devuelve los horarios libres de un día para reservar (mesa o cita). Úsala siempre antes de ofrecer un horario. La fecha va en formato AAAA-MM-DD según la fecha actual de la tienda.',
+    parameters: {
+      type: 'object',
+      properties: {
+        fecha: { type: 'string', description: 'AAAA-MM-DD' },
+        personas: { type: 'integer', minimum: 1, description: 'Número de personas (reservas de mesa)' },
+        servicio_id: { type: 'string', description: 'servicio_id devuelto por buscar_productos (citas de un servicio)' },
+      },
+      required: ['fecha'],
+    },
+  },
+  {
+    name: 'crear_reserva',
+    description: 'Registra la reserva o cita del cliente de esta conversación, solo cuando el cliente confirmó fecha, hora y (si aplica) personas o servicio. El sistema comprueba el cupo; si falla, ofrece otro horario de consultar_disponibilidad.',
+    parameters: {
+      type: 'object',
+      properties: {
+        fecha: { type: 'string', description: 'AAAA-MM-DD' },
+        hora: { type: 'string', description: 'HH:MM, uno de los horarios libres' },
+        personas: { type: 'integer', minimum: 1 },
+        servicio_id: { type: 'string' },
+        notas: { type: 'string' },
+      },
+      required: ['fecha', 'hora'],
+    },
+  },
+  {
+    name: 'ver_reservas_del_cliente',
+    description: 'Lista las próximas reservas o citas del cliente de esta conversación con su estado.',
+    parameters: { type: 'object', properties: {} },
+  },
+];
+
+/** Herramientas según los módulos de la empresa: sin pedidos no se ofrece crear_pedido, sin reservas no se reserva */
+export function toolsFor(f: ToolFeatures): ToolSpec[] {
+  const sales = SALES_TOOLS.filter((t) => f.orders || !['crear_pedido', 'ver_pedidos_del_cliente'].includes(t.name));
+  return f.reservations ? [...sales.slice(0, -1), ...RESERVATION_TOOLS, sales.at(-1)!] : sales;
+}
 
 export const SALES_TOOLS: ToolSpec[] = [
   {
@@ -92,11 +152,14 @@ export async function runTool(ctx: ToolContext, name: string, rawArgs: Record<st
           take: 6,
           orderBy: { name: 'asc' },
           select: {
+            id: true,
             name: true,
             description: true,
             salePrice: true,
+            trackStock: true,
+            durationMinutes: true,
             category: { select: { name: true } },
-            variants: { where: { isActive: true }, select: { id: true, name: true, salePrice: true, stockLevels: { select: { quantity: true } } } },
+            variants: { where: { isActive: true }, select: { id: true, name: true, salePrice: true, priceTiers: true, stockLevels: { select: { quantity: true } } } },
           },
         }),
       );
@@ -107,9 +170,18 @@ export async function runTool(ctx: ToolContext, name: string, rawArgs: Record<st
           producto: p.name,
           categoria: p.category?.name ?? null,
           descripcion: p.description?.slice(0, 300) ?? null,
+          // Platos y servicios no llevan stock: están disponibles mientras estén activos
+          ...(p.trackStock ? {} : { sin_control_de_stock: true }),
+          ...(p.durationMinutes ? { duracion_minutos: p.durationMinutes } : {}),
+          ...(ctx.features.reservations && !p.trackStock && ctx.features.reservationKind === 'APPOINTMENT' ? { servicio_id: p.id } : {}),
           variantes: p.variants.map((v) => {
             const stock = v.stockLevels.reduce((s, l) => s + l.quantity, 0);
-            return { variante_id: v.id, variante: v.name, precio: money(v.salePrice ?? p.salePrice), disponible: stock > 0, unidades_disponibles: Math.max(0, stock) };
+            const tiers = ctx.features.volumePricing ? readTiers(v.priceTiers) : [];
+            return {
+              variante_id: v.id, variante: v.name, precio: money(v.salePrice ?? p.salePrice),
+              ...(p.trackStock ? { disponible: stock > 0, unidades_disponibles: Math.max(0, stock) } : { disponible: true }),
+              ...(tiers.length ? { precios_por_volumen: tiers.map((t) => ({ desde_unidades: t.minQty, precio_unitario: money(t.unitPrice) })) } : {}),
+            };
           }),
         })),
       };
@@ -150,6 +222,56 @@ export async function runTool(ctx: ToolContext, name: string, rawArgs: Record<st
       } catch (e) {
         return { error: `No se pudo registrar el pedido: ${(e as Error).message}` };
       }
+    }
+    case 'consultar_disponibilidad': {
+      if (!ctx.features.reservations) return { error: 'La tienda no toma reservas por este medio' };
+      const a = availabilityArgs.safeParse(rawArgs);
+      if (!a.success) return { error: 'Indica la fecha en formato AAAA-MM-DD' };
+      try {
+        const r = await ctx.db((tx) => ctx.reservations.availability(tx, ctx.tenantId, { date: a.data.fecha, partySize: a.data.personas ?? 1, productId: a.data.servicio_id }));
+        return { fecha: r.date, horarios_libres: r.slots.map((x) => x.time), ...(r.reason ? { nota: r.reason } : {}) };
+      } catch (e) {
+        return { error: (e as Error).message };
+      }
+    }
+    case 'crear_reserva': {
+      if (!ctx.features.reservations) return { error: 'La tienda no toma reservas por este medio' };
+      if (!ctx.customerId || !ctx.conversationId) return { error: 'No disponible en la prueba del panel' };
+      const a = reserveArgs.safeParse(rawArgs);
+      if (!a.success) return { error: 'Indica fecha (AAAA-MM-DD) y hora (HH:MM) de un horario libre' };
+      try {
+        const { reservation: r, created } = await ctx.reservations.create(
+          { tenantId: ctx.tenantId, userId: null },
+          {
+            customerId: ctx.customerId, conversationId: ctx.conversationId, channel: 'WHATSAPP', confirm: false,
+            date: a.data.fecha, time: a.data.hora, partySize: ctx.features.reservationKind === 'TABLE' ? (a.data.personas ?? 1) : 1,
+            productId: a.data.servicio_id ?? null, notes: a.data.notas ?? null,
+            idempotencyKey: `ai:${ctx.triggerMessageId}:${a.data.fecha}T${a.data.hora}`,
+          },
+        );
+        return {
+          numero: r.number, estado: r.status, fecha: a.data.fecha, hora: a.data.hora, nuevo: created,
+          nota: r.status === 'PENDING' ? 'Reserva registrada como PENDIENTE: la tienda la confirmará.' : 'Reserva confirmada.',
+        };
+      } catch (e) {
+        return { error: `No se pudo reservar: ${e instanceof ReservationError || e instanceof Error ? e.message : 'error'}` };
+      }
+    }
+    case 'ver_reservas_del_cliente': {
+      if (!ctx.customerId) return { error: 'No disponible en la prueba del panel' };
+      const rows = await ctx.db((tx) =>
+        tx.reservation.findMany({
+          where: { tenantId: ctx.tenantId, customerId: ctx.customerId!, startsAt: { gte: new Date() } },
+          orderBy: { startsAt: 'asc' }, take: 5,
+          select: { number: true, status: true, startsAt: true, partySize: true, serviceName: true },
+        }),
+      );
+      return {
+        reservas: rows.map((r) => {
+          const l = localParts(r.startsAt, ctx.features.timezone);
+          return { numero: r.number, estado: r.status, fecha: l.date, hora: l.time, personas: r.partySize, servicio: r.serviceName };
+        }),
+      };
     }
     case 'derivar_a_humano': {
       const a = handoffArgs.safeParse(rawArgs);

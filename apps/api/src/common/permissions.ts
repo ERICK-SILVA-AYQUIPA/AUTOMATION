@@ -20,6 +20,8 @@ export const PERMISSIONS = {
   'customers:write': [Role.TENANT_ADMIN, Role.SELLER, Role.SUPERVISOR],
   'orders:read': ALL_TENANT,
   'orders:write': [Role.TENANT_ADMIN, Role.SELLER, Role.SUPERVISOR],
+  'reservations:read': ALL_TENANT,
+  'reservations:write': [Role.TENANT_ADMIN, Role.SELLER, Role.SUPERVISOR],
   'conversations:read': ALL_TENANT,
   'conversations:reply': ALL_TENANT,
   'conversations:assign': [Role.TENANT_ADMIN, Role.SUPERVISOR],

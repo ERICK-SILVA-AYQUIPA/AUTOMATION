@@ -94,6 +94,10 @@ model Tenant {
   deploymentMode DeploymentMode @default(SAAS) @map("deployment_mode")
   enabledModules String[]   @default(["conversations", "ai", "catalog", "inventory", "orders", "customers", "reports", "automations"]) @map("enabled_modules")
   templateKey  String?      @map("template_key")
+  /// Versión de la plantilla aplicada (ADR 043)
+  templateVersion Int?      @map("template_version")
+  /// Reglas de operación de la empresa: catálogo, pedidos, clientes y reservas (tenants/tenant-settings.ts)
+  settings     Json         @default("{}")
   /// Clave del asistente de alta: repetir la misma alta devuelve la empresa ya creada
   provisioningKey String?   @unique @map("provisioning_key") @db.Uuid
   activatedAt     DateTime? @map("activated_at") @db.Timestamptz(3)
@@ -323,6 +327,10 @@ model Product {
   salePrice   Decimal       @map("sale_price") @db.Decimal(12, 2)
   costPrice   Decimal?      @map("cost_price") @db.Decimal(12, 2)
   minStock    Int           @default(0) @map("min_stock")
+  /// false: servicios y platos preparados; no llevan existencias ni descuentan stock
+  trackStock  Boolean       @default(true) @map("track_stock")
+  /// Duración de un servicio reservable (minutos)
+  durationMinutes Int?      @map("duration_minutes")
   status      ProductStatus @default(ACTIVE)
   createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt   DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -353,6 +361,8 @@ model ProductVariant {
   /// Si es null se usa el precio del producto
   salePrice  Decimal? @map("sale_price") @db.Decimal(12, 2)
   costPrice  Decimal? @map("cost_price") @db.Decimal(12, 2)
+  /// Precios por volumen: [{ minQty, unitPrice }] con minQty creciente y precio decreciente
+  priceTiers Json     @default("[]") @map("price_tiers")
   isDefault  Boolean  @default(false) @map("is_default")
   isActive   Boolean  @default(true) @map("is_active")
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
@@ -475,6 +485,9 @@ model Customer {
   chatwootContactId Int?  @map("chatwoot_contact_id")
   chatwootSourceId  String? @map("chatwoot_source_id")
   email         String?
+  /// Persona o empresa (cliente comercial de una distribuidora)
+  customerType  CustomerType @default(PERSON) @map("customer_type")
+  businessName  String?   @map("business_name")
   documentId    String?   @map("document_id")
   address       String?
   notes         String?
@@ -486,6 +499,7 @@ model Customer {
 
   orders        Order[]
   conversations Conversation[]
+  reservations  Reservation[]
 
   @@unique([tenantId, phone])
   @@unique([tenantId, waUserId])
@@ -827,6 +841,7 @@ enum AutomationKey {
   HANDOFF_NOTIFICATION
   ERROR_ALERT
   PENDING_ORDER_REMINDER
+  RESERVATION_REMINDER
 }
 
 /// Flujos predefinidos que la empresa activa/configura (nunca edita: licencia n8n)
@@ -1005,4 +1020,51 @@ model WebhookDelivery {
   @@index([status, nextAttemptAt])
   @@index([endpointId, createdAt])
   @@map("webhook_deliveries")
+}
+
+enum CustomerType {
+  PERSON
+  BUSINESS
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+/// Reservas de mesa o citas de servicio (ADR 043). La capacidad la controla el backend.
+model Reservation {
+  id             String            @id @default(uuid(7)) @db.Uuid
+  tenantId       String            @map("tenant_id") @db.Uuid
+  /// Correlativo por empresa
+  number         Int
+  customerId     String            @map("customer_id") @db.Uuid
+  branchId       String            @map("branch_id") @db.Uuid
+  conversationId String?           @map("conversation_id") @db.Uuid
+  /// Servicio reservado (producto sin stock); null en reservas de mesa
+  productId      String?           @map("product_id") @db.Uuid
+  serviceName    String?           @map("service_name")
+  startsAt       DateTime          @map("starts_at") @db.Timestamptz(3)
+  endsAt         DateTime          @map("ends_at") @db.Timestamptz(3)
+  partySize      Int               @default(1) @map("party_size")
+  status         ReservationStatus @default(PENDING)
+  channel        OrderChannel
+  notes          String?
+  idempotencyKey String?           @map("idempotency_key")
+  createdById    String?           @map("created_by_id") @db.Uuid
+  confirmedAt    DateTime?         @map("confirmed_at") @db.Timestamptz(3)
+  cancelledAt    DateTime?         @map("cancelled_at") @db.Timestamptz(3)
+  createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@unique([tenantId, number])
+  @@unique([tenantId, idempotencyKey])
+  @@index([tenantId, startsAt])
+  @@index([tenantId, status, startsAt])
+  @@map("reservations")
 }

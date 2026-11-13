@@ -205,3 +205,8 @@ export type WebhookEndpoint = Prisma.WebhookEndpointModel
  * 
  */
 export type WebhookDelivery = Prisma.WebhookDeliveryModel
+/**
+ * Model Reservation
+ * Reservas de mesa o citas de servicio (ADR 043). La capacidad la controla el backend.
+ */
+export type Reservation = Prisma.ReservationModel

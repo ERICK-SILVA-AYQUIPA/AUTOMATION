@@ -18,6 +18,9 @@ const customerSchema = z.object({
   name: z.string().trim().min(1).max(120).nullish(),
   email: z.email().max(254).nullish(),
   documentId: z.string().trim().max(30).nullish(),
+  /** Cliente comercial (distribuidoras): razón social y RUC en documentId */
+  customerType: z.enum(['PERSON', 'BUSINESS']).optional(),
+  businessName: z.string().trim().min(2).max(200).nullish(),
   address: z.string().trim().max(300).nullish(),
   notes: z.string().trim().max(2000).nullish(),
   tags: z.array(z.string().trim().min(1).max(30)).max(20).optional(),
@@ -25,6 +28,7 @@ const customerSchema = z.object({
 const listSchema = paginationSchema.extend({
   q: z.string().trim().max(100).optional(),
   tag: z.string().trim().max(30).optional(),
+  type: z.enum(['PERSON', 'BUSINESS']).optional(),
 });
 
 @RequireModule('customers')
@@ -39,8 +43,9 @@ export class CustomersController {
       const where: Prisma.CustomerWhereInput = {
         tenantId: p.tenantId,
         ...(q.tag ? { tags: { has: q.tag } } : {}),
+        ...(q.type ? { customerType: q.type } : {}),
         ...(q.q
-          ? { OR: [{ name: { contains: q.q, mode: 'insensitive' } }, { phone: { contains: q.q.replace(/[^\d]/g, '') || q.q } }, { email: { contains: q.q, mode: 'insensitive' } }, { documentId: q.q }] }
+          ? { OR: [{ name: { contains: q.q, mode: 'insensitive' } }, { phone: { contains: q.q.replace(/[^\d]/g, '') || q.q } }, { email: { contains: q.q, mode: 'insensitive' } }, { businessName: { contains: q.q, mode: 'insensitive' } }, { documentId: q.q }] }
           : {}),
       };
       const [items, total] = await Promise.all([
@@ -60,8 +65,19 @@ export class CustomersController {
         include: { orders: { orderBy: { createdAt: 'desc' }, take: 50, select: { id: true, number: true, status: true, total: true, currency: true, createdAt: true } } },
       });
       if (!customer) return null;
-      const stats = await tx.order.aggregate({ where: { customerId: id, status: { notIn: ['CANCELLED', 'PENDING'] } }, _sum: { total: true }, _count: true });
-      return { ...customer, stats: { orders: stats._count, totalSpent: stats._sum.total?.toString() ?? '0' } };
+      const sold = { customerId: id, status: { notIn: ['CANCELLED' as const, 'PENDING' as const] } };
+      const [stats, products, reservations] = await Promise.all([
+        tx.order.aggregate({ where: sold, _sum: { total: true }, _count: true, _max: { createdAt: true } }),
+        // Historial de compras: qué compra y cuánto (lo vendido, no lo pendiente ni lo anulado)
+        tx.orderItem.groupBy({ by: ['productName'], where: { order: sold }, _sum: { quantity: true, total: true }, orderBy: { _sum: { quantity: 'desc' } }, take: 10 }),
+        tx.reservation.findMany({ where: { customerId: id }, orderBy: { startsAt: 'desc' }, take: 20, select: { id: true, number: true, status: true, startsAt: true, partySize: true, serviceName: true } }),
+      ]);
+      return {
+        ...customer,
+        stats: { orders: stats._count, totalSpent: stats._sum.total?.toString() ?? '0', lastPurchaseAt: stats._max.createdAt },
+        topProducts: products.map((x) => ({ name: x.productName, quantity: x._sum.quantity ?? 0, total: x._sum.total?.toString() ?? '0' })),
+        reservations,
+      };
     });
     if (!c) throw new NotFoundException('Cliente no encontrado');
     return c;
@@ -69,7 +85,7 @@ export class CustomersController {
 
   @RequirePermission('customers:write')
   @Post()
-  create(@TenantUser() p: TenantPrincipal, @Body({ schema: customerSchema }) b: z.infer<typeof customerSchema>) {
+  create(@TenantUser() p: TenantPrincipal, @Body({ schema: customerSchema.refine((v) => v.customerType !== 'BUSINESS' || v.businessName, { message: 'Indica la razón social', path: ['businessName'] }) }) b: z.infer<typeof customerSchema>) {
     return this.db.tenant(p.tenantId, (tx) => tx.customer.create({ data: { ...b, tenantId: p.tenantId, source: 'manual' } }));
   }
 

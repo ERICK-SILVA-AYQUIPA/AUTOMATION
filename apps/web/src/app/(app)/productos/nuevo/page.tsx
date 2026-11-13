@@ -12,6 +12,7 @@ import { Button, Card, ErrorBox, Field, Input, PageHeader } from '@/components/u
 import { useToast } from '@/components/ui/toast';
 import { RequirePermission } from '@/components/guard';
 import { ProductFields, emptyProduct, toPayload, type ProductValues } from '@/components/products/product-fields';
+import { useTenantSettings } from '@/lib/settings';
 
 interface VariantRow { sku: string; barcode: string; name: string; attributes: string; salePrice: string }
 const emptyVariant: VariantRow = { sku: '', barcode: '', name: '', attributes: '', salePrice: '' };
@@ -21,7 +22,8 @@ function NewProductForm() {
   const router = useRouter();
   const toast = useToast();
   const qc = useQueryClient();
-  const [v, setV] = useState<ProductValues>({ ...emptyProduct, barcode: params.get('barcode') ?? '' });
+  const settings = useTenantSettings();
+  const [v, setV] = useState<ProductValues>({ ...emptyProduct, trackStock: settings.catalog.trackStockDefault, barcode: params.get('barcode') ?? '' });
   const [hasVariants, setHasVariants] = useState(false);
   const [variants, setVariants] = useState<VariantRow[]>([{ ...emptyVariant }]);
   const [initialStock, setInitialStock] = useState('');
@@ -35,7 +37,7 @@ function NewProductForm() {
     setError(null);
     try {
       const body = {
-        ...toPayload(v),
+        ...toPayload(v, settings, !hasVariants),
         status: v.status === 'ARCHIVED' ? 'ACTIVE' : v.status,
         ...(hasVariants
           ? {
@@ -44,7 +46,7 @@ function NewProductForm() {
                 attributes: parseAttributes(x.attributes), salePrice: x.salePrice.trim() || null,
               })),
             }
-          : initialStock
+          : initialStock && v.trackStock
             ? { initialStock: Number(initialStock) }
             : {}),
       };
@@ -69,7 +71,7 @@ function NewProductForm() {
       />
       <ErrorBox error={error} />
       <Card className="p-5">
-        <ProductFields v={v} set={(p) => setV((x) => ({ ...x, ...p }))} errors={errors} />
+        <ProductFields v={v} set={(p) => setV((x) => ({ ...x, ...p }))} errors={errors} allowTiers={!hasVariants} />
       </Card>
       <Card className="p-5">
         <label className="flex items-center gap-2 text-sm font-medium">
@@ -77,7 +79,7 @@ function NewProductForm() {
           Este producto tiene variantes (talla, color, presentación…)
         </label>
         {!hasVariants ? (
-          <Field label="Stock inicial (opcional)" hint="Se registra como movimiento de ajuste en la sucursal principal" error={errors.initialStock} className="mt-4 max-w-xs">
+          v.trackStock && <Field label="Stock inicial (opcional)" hint="Se registra como movimiento de ajuste en la sucursal principal" error={errors.initialStock} className="mt-4 max-w-xs">
             <Input type="number" min="0" step="1" value={initialStock} onChange={(e) => setInitialStock(e.target.value)} />
           </Field>
         ) : (

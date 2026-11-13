@@ -8,6 +8,8 @@ export const WEBHOOK_EVENTS = {
   'order.status_changed': 'Cambio de estado de un pedido',
   'stock.low': 'Producto bajo su stock mínimo',
   'conversation.handoff': 'Conversación pasada a una persona',
+  'reservation.created': 'Reserva o cita nueva',
+  'reservation.status_changed': 'Cambio de estado de una reserva',
 } as const;
 export type WebhookEvent = keyof typeof WEBHOOK_EVENTS;
 

@@ -101,7 +101,14 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
   - [x] Pestaña «Integraciones» del panel general: prueba real de base de datos, Redis, Gemini, SMTP, n8n y Chatwoot, con las variables de entorno de cada uno
   - [ ] Pagos: sin proveedor (cobro manual, ADR 036) hasta que Rick elija y se pruebe uno
   - [ ] Prueba con claves reales de Gemini y Meta y con un SMTP real: **pendiente de Rick** (probado con servidores simulados y Mailpit)
-- [ ] Fase 7: plantillas por sector
+- [x] Fase 7: plantillas por sector (ADR 043)
+  - [x] Cuatro plantillas (tienda, restaurante, distribuidora, servicios) sobre los mismos módulos: módulos, reglas, automatizaciones, indicaciones del asistente y categorías
+  - [x] Alta con plantilla y, en empresas existentes, vista previa con el estado real y aplicación por secciones (el asistente va a borrador); auditado
+  - [x] Reglas de operación personalizables por la empresa (Configuración › Operación)
+  - [x] Productos sin stock (platos, servicios) y con duración; precios por volumen calculados por el backend; pedido mínimo
+  - [x] Clientes comerciales (razón social) e historial de compras
+  - [x] Reservas de mesa y citas con horario, aforo protegido ante reservas simultáneas, estados, herramientas del asistente, webhooks y recordatorio por WhatsApp
+  - [ ] Capacidad y horario reales de cada negocio: **los define cada empresa** (no se inventan)
 - [ ] Fase 8: entrega de sistemas
 - [ ] Fase 9: actualizaciones
 - [ ] Fase 10: cierre (pruebas, seguridad, documentación)

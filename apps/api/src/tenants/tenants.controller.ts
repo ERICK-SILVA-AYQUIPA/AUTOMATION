@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Patch } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Inject, Patch } from '@nestjs/common';
 import { ENV, type Env } from '../config/env.js';
 import { subscriptionAccess } from '../plans/subscription-access.js';
 import { z } from 'zod';
@@ -8,6 +8,9 @@ import { DatabaseService } from '../database/database.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { currentPeriod, getPlanLimits } from '../plans/plan-limits.js';
 import { computeOnboarding } from './onboarding.js';
+import { mergeSettings, readSettings, settingsPatchSchema, tenantSettingsSchema } from './tenant-settings.js';
+import { TEMPLATES, type TemplateKey } from '../templates/catalog.js';
+import type { Prisma } from '../generated/prisma/client.js';
 
 /** Perfil que la empresa edita por sí misma (dominio, modalidad y módulos los fija la plataforma). */
 export const tenantProfileSchema = z.object({
@@ -90,6 +93,31 @@ export class TenantsController {
         select: { id: true, amount: true, currency: true, months: true, method: true, reference: true, paidAt: true, periodStart: true, periodEnd: true, plan: { select: { code: true, name: true } } },
       }),
     );
+  }
+
+  /** Reglas de operación (catálogo, pedidos, clientes, reservas) y la plantilla de origen (ADR 043) */
+  @RequirePermission('tenant:read')
+  @Get('settings')
+  async settings(@TenantUser() p: TenantPrincipal) {
+    const t = await this.db.tenant(p.tenantId, (tx) => tx.tenant.findUniqueOrThrow({ where: { id: p.tenantId }, select: { settings: true, templateKey: true, templateVersion: true } }));
+    const tpl = t.templateKey ? TEMPLATES[t.templateKey as TemplateKey] : null;
+    return { settings: readSettings(t.settings), template: tpl ? { key: tpl.key, name: tpl.name, version: t.templateVersion, latestVersion: tpl.version } : null };
+  }
+
+  @RequirePermission('tenant:settings')
+  @Patch('settings')
+  updateSettings(@TenantUser() p: TenantPrincipal, @Body({ schema: settingsPatchSchema }) body: z.infer<typeof settingsPatchSchema>) {
+    return this.db.tenant(p.tenantId, async (tx) => {
+      const t = await tx.tenant.findUniqueOrThrow({ where: { id: p.tenantId }, select: { settings: true } });
+      const before = readSettings(t.settings);
+      const parsed = tenantSettingsSchema.safeParse(mergeSettings(before, body));
+      if (!parsed.success) {
+        throw new BadRequestException({ code: 'INVALID_SETTINGS', message: 'La configuración no es válida', errors: parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })) });
+      }
+      await tx.tenant.update({ where: { id: p.tenantId }, data: { settings: parsed.data as unknown as Prisma.InputJsonValue } });
+      await this.audit.inTx(tx, { tenantId: p.tenantId, userId: p.userId, action: 'tenant.settings_updated', entityType: 'tenant', entityId: p.tenantId, metadata: { changes: body } });
+      return { settings: parsed.data };
+    });
   }
 
   @RequirePermission('tenant:settings')

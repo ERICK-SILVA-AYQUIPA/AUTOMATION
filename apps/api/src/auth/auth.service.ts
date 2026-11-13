@@ -19,6 +19,7 @@ import { AuthTokenType, Role, PlanCode } from '../generated/prisma/enums.js';
 import { permissionsFor } from '../common/permissions.js';
 import { subscriptionAccess } from '../plans/subscription-access.js';
 import { bootstrapTenant, slugify, uniqueSlug } from '../tenants/tenant-bootstrap.js';
+import { readSettings } from '../tenants/tenant-settings.js';
 import type { RegisterCompanyInput, LoginInput, ResetPasswordInput, AcceptInvitationInput } from './auth.schemas.js';
 
 const ARGON_OPTS = { type: argon2.argon2id, memoryCost: 19_456, timeCost: 2, parallelism: 1 } as const;
@@ -270,12 +271,12 @@ export class AuthService {
       where: { id: userId },
       select: {
         id: true, email: true, name: true, role: true, tenantId: true, emailVerifiedAt: true,
-        tenant: { select: { id: true, name: true, slug: true, status: true, currency: true, timezone: true, enabledModules: true, logoUrl: true, brandColor: true, deploymentMode: true, subscription: { select: { status: true, trialEndsAt: true, currentPeriodEnd: true, plan: { select: { code: true, name: true } } } } } },
+        tenant: { select: { id: true, name: true, slug: true, status: true, currency: true, timezone: true, enabledModules: true, settings: true, logoUrl: true, brandColor: true, deploymentMode: true, subscription: { select: { status: true, trialEndsAt: true, currentPeriodEnd: true, plan: { select: { code: true, name: true } } } } } },
       },
     });
     const sub = u.tenant?.subscription;
     const access = sub ? subscriptionAccess(sub, this.env.BILLING_GRACE_DAYS) : null;
-    return { ...u, tenant: u.tenant && { ...u.tenant, subscription: sub && { ...sub, access } }, billingContact: u.tenantId ? this.env.BILLING_CONTACT : '', permissions: permissionsFor(u.role) };
+    return { ...u, tenant: u.tenant && { ...u.tenant, settings: readSettings(u.tenant.settings), subscription: sub && { ...sub, access } }, billingContact: u.tenantId ? this.env.BILLING_CONTACT : '', permissions: permissionsFor(u.role) };
   }
 
   // ------------------------------------------------------------------ tokens de un solo uso

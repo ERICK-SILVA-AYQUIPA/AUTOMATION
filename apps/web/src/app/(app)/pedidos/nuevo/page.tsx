@@ -8,17 +8,26 @@ import { ArrowLeft, Minus, Plus, ScanBarcode, Trash2 } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
 import { useCurrency } from '@/lib/auth';
 import { money, num, phoneLabel } from '@/lib/format';
-import type { Customer, Order, Paged, Product } from '@/lib/types';
+import type { Customer, Order, Paged, PriceTier, Product, Variant } from '@/lib/types';
+import { useTenantSettings } from '@/lib/settings';
 import { Button, Card, ErrorBox, Field, Input, PageHeader, Textarea } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
 import { RequirePermission } from '@/components/guard';
 import { VariantPicker } from '@/components/inventory/variant-picker';
 import { BarcodeScanner } from '@/components/barcode-scanner';
 
-interface Line { variantId: string; label: string; sku: string; unitPrice: string; stock: number; quantity: number }
+interface Line { variantId: string; label: string; sku: string; unitPrice: string; tiers: PriceTier[]; stock: number | null; quantity: number }
+
+/** Mismo cálculo que la API (catalog/pricing.ts); el importe definitivo lo fija el backend al guardar */
+const unitFor = (l: Line) => {
+  let unit = Number(l.unitPrice);
+  for (const t of l.tiers) if (l.quantity >= t.minQty) unit = Number(t.unitPrice);
+  return unit;
+};
 
 function NewOrder() {
   const cur = useCurrency();
+  const settings = useTenantSettings();
   const router = useRouter();
   const params = useSearchParams();
   const toast = useToast();
@@ -55,7 +64,13 @@ function NewOrder() {
   const add = (l: Omit<Line, 'quantity'>) =>
     setLines((ls) => (ls.some((x) => x.variantId === l.variantId) ? ls.map((x) => (x.variantId === l.variantId ? { ...x, quantity: x.quantity + 1 } : x)) : [...ls, { ...l, quantity: 1 }]));
   const setQty = (id: string, q: number) => setLines((ls) => ls.map((x) => (x.variantId === id ? { ...x, quantity: Math.max(1, Math.min(10_000, q || 1)) } : x)));
-  const total = useMemo(() => lines.reduce((s, l) => s + Number(l.unitPrice) * l.quantity, 0), [lines]);
+  const total = useMemo(() => lines.reduce((s, l) => s + unitFor(l) * l.quantity, 0), [lines]);
+  const minAmount = settings.orders.minAmount;
+  const belowMin = minAmount != null && lines.length > 0 && total < minAmount;
+  // Platos y servicios no controlan stock: no se muestra ni se advierte
+  const line = (v: Variant, p: Pick<Product, 'trackStock'>, label: string): Omit<Line, 'quantity'> => ({
+    variantId: v.id, label, sku: v.sku, unitPrice: v.effectivePrice, tiers: settings.catalog.volumePricing ? v.priceTiers : [], stock: p.trackStock === false ? null : v.stock,
+  });
 
   async function onScan(code: string) {
     setScan(false);
@@ -64,7 +79,7 @@ function NewOrder() {
       const v = p.variants.find((x) => x.barcode === code) ?? (p.variants.length === 1 ? p.variants[0] : undefined);
       if (!v) return toast.error(`${p.name} tiene varias variantes: elígela en el buscador`);
       if (p.status !== 'ACTIVE' || !v.isActive) return toast.error(`${p.name} no está disponible para la venta`);
-      add({ variantId: v.id, label: p.variants.length > 1 ? `${p.name} · ${v.name}` : p.name, sku: v.sku, unitPrice: v.effectivePrice, stock: v.stock });
+      add(line(v, p, p.variants.length > 1 ? `${p.name} · ${v.name}` : p.name));
     } catch (e) {
       toast.error(e instanceof ApiError && e.status === 404 ? `Ningún producto tiene el código ${code}` : e);
     }
@@ -96,7 +111,7 @@ function NewOrder() {
     }
   }
 
-  const canSubmit = lines.length > 0 && (customer || newCustomer.phone.replace(/\D/g, '').length >= 8);
+  const canSubmit = lines.length > 0 && !belowMin && (customer || newCustomer.phone.replace(/\D/g, '').length >= 8);
 
   return (
     <form onSubmit={submit}>
@@ -107,7 +122,7 @@ function NewOrder() {
             <h2 className="font-medium">Productos</h2>
             <Button type="button" variant="secondary" size="sm" icon={<ScanBarcode className="size-4" />} onClick={() => setScan(true)}>Escanear</Button>
           </div>
-          <VariantPicker currency={cur} onPick={({ variant: v, label }) => add({ variantId: v.id, label, sku: v.sku, unitPrice: v.effectivePrice, stock: v.stock })} />
+          <VariantPicker currency={cur} onPick={({ variant: v, product, label }) => add(line(v, product, label))} />
           {lines.length === 0 ? (
             <p className="py-10 text-center text-sm text-muted">Busca o escanea productos para añadirlos.</p>
           ) : (
@@ -116,14 +131,19 @@ function NewOrder() {
                 <li key={l.variantId} className="flex flex-wrap items-center gap-3 py-3">
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{l.label}</p>
-                    <p className="text-xs text-muted">{l.sku} · {money(l.unitPrice, cur)} c/u · <span className={l.quantity > l.stock ? 'text-danger' : ''}>stock {num(l.stock)}</span></p>
+                    <p className="text-xs text-muted">
+                      {l.sku} · {money(unitFor(l), cur)} c/u
+                      {unitFor(l) < Number(l.unitPrice) && <span className="text-success"> (precio por volumen)</span>}
+                      {l.stock != null && <> · <span className={l.quantity > l.stock ? 'text-danger' : ''}>stock {num(l.stock)}</span></>}
+                    </p>
+                    {l.tiers.length > 0 && <p className="text-xs text-muted">{l.tiers.map((t) => `desde ${t.minQty}: ${money(t.unitPrice, cur)}`).join(' · ')}</p>}
                   </div>
                   <div className="flex items-center gap-1">
                     <Button type="button" size="sm" variant="secondary" aria-label="Menos" icon={<Minus className="size-3.5" />} onClick={() => setQty(l.variantId, l.quantity - 1)} />
                     <Input type="number" className="h-8 w-16 text-center" min={1} value={l.quantity} onChange={(e) => setQty(l.variantId, Number(e.target.value))} aria-label={`Cantidad de ${l.label}`} />
                     <Button type="button" size="sm" variant="secondary" aria-label="Más" icon={<Plus className="size-3.5" />} onClick={() => setQty(l.variantId, l.quantity + 1)} />
                   </div>
-                  <p className="w-24 text-right tabular-nums">{money(Number(l.unitPrice) * l.quantity, cur)}</p>
+                  <p className="w-24 text-right tabular-nums">{money(unitFor(l) * l.quantity, cur)}</p>
                   <Button type="button" size="sm" variant="ghost" aria-label={`Quitar ${l.label}`} icon={<Trash2 className="size-4" />} onClick={() => setLines((ls) => ls.filter((x) => x.variantId !== l.variantId))} />
                 </li>
               ))}
@@ -168,6 +188,7 @@ function NewOrder() {
               <span className="text-sm text-muted">Total</span>
               <span className="text-xl font-semibold tabular-nums">{money(total, cur)}</span>
             </div>
+            {belowMin && <p className="text-sm text-danger" role="status">El pedido mínimo es {money(minAmount, cur)}.</p>}
             <ErrorBox error={error} />
             <Button type="submit" loading={busy} disabled={!canSubmit}>{confirm ? 'Crear y confirmar' : 'Guardar pendiente'}</Button>
           </Card>

@@ -9,6 +9,8 @@ import { MODULES } from '../common/decorators/module.decorator.js';
 import { tenantProfileSchema } from '../tenants/tenants.controller.js';
 import { bootstrapTenant, slugify, uniqueSlug } from '../tenants/tenant-bootstrap.js';
 import { computeOnboarding } from '../tenants/onboarding.js';
+import { TEMPLATE_KEYS, type TemplateKey } from '../templates/catalog.js';
+import { applyTemplate } from '../templates/apply.js';
 
 const DAY = 86_400_000;
 const domain = z.string().trim().toLowerCase().regex(/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/, 'Dominio no válido').max(253);
@@ -22,6 +24,10 @@ export const provisionSchema = tenantProfileSchema
     customDomain: domain.nullable().optional(),
     deploymentMode: z.enum(['SAAS', 'DEDICATED', 'CUSTOM']),
     enabledModules: z.array(z.enum(MODULES)).min(1).max(MODULES.length),
+    /** Plantilla del sector: reglas, automatizaciones, asistente y categorías sugeridas (los módulos los elige el asistente) */
+    templateKey: z.enum(TEMPLATE_KEYS as [TemplateKey, ...TemplateKey[]]).nullable().optional(),
+    /** Crear las categorías sugeridas de la plantilla */
+    templateCategories: z.boolean().optional(),
     planCode: z.enum(['BASIC', 'PROFESSIONAL', 'ENTERPRISE']),
     /** Periodo inicial (prueba o cortesía acordada). El pago se registra aparte en «Cobro». */
     startsAt: z.coerce.date().optional(),
@@ -63,7 +69,7 @@ export class ProvisioningService {
     const taken = await this.db.system.user.findUnique({ where: { email: input.admin.email }, select: { id: true } });
     if (taken) throw new ConflictException('Ese correo ya está registrado en la plataforma');
 
-    const { idempotencyKey, admin, planCode: _plan, startsAt: _s, endsAt, enabledModules, ...profile } = input;
+    const { idempotencyKey, admin, planCode: _plan, startsAt: _s, endsAt, enabledModules, templateKey, templateCategories, ...profile } = input;
     let result: { tenant: ProvisionResult['tenant']; adminId: string };
     try {
       result = await this.db.system.$transaction(async (tx) => {
@@ -76,11 +82,13 @@ export class ProvisioningService {
           data: { tenantId: tenant.id, planId: plan.id, status: 'TRIALING', trialEndsAt: endsAt, currentPeriodStart: startsAt, currentPeriodEnd: endsAt },
         });
         await bootstrapTenant(tx, tenant.id);
+        // Empresa recién creada: no hay nada personalizado que pisar, el asistente va directo a lo publicado
+        if (templateKey) await applyTemplate(tx, tenant.id, templateKey, ['settings', 'automations', 'ai', ...(templateCategories ? (['categories'] as const) : [])], { aiTarget: 'published' });
         const user = await tx.user.create({ data: { tenantId: tenant.id, email: admin.email, name: admin.name, role: 'TENANT_ADMIN', status: 'INVITED' }, select: { id: true } });
         await tx.auditLog.create({
           data: {
             tenantId: tenant.id, userId: actorId, action: 'platform.tenant_provisioned', entityType: 'tenant', entityId: tenant.id,
-            metadata: { planCode: input.planCode, deploymentMode: profile.deploymentMode, enabledModules, startsAt, endsAt, adminEmail: admin.email },
+            metadata: { planCode: input.planCode, deploymentMode: profile.deploymentMode, enabledModules, templateKey: templateKey ?? null, startsAt, endsAt, adminEmail: admin.email },
           },
         });
         return { tenant, adminId: user.id };

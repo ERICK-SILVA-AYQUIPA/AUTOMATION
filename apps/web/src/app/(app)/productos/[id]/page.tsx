@@ -13,28 +13,32 @@ import type { Branch, Paged, Product, Variant } from '@/lib/types';
 import { Badge, Button, Card, Dialog, EmptyState, ErrorBox, Field, Input, Loading, PageHeader, Table, Td, Th } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
 import { RequirePermission } from '@/components/guard';
-import { ProductFields, toPayload, type ProductValues } from '@/components/products/product-fields';
+import { ProductFields, TierEditor, tierPayload, tierRows, toPayload, type ProductValues } from '@/components/products/product-fields';
+import { useTenantSettings } from '@/lib/settings';
 import { MovementDialog } from '@/components/inventory/movement-dialog';
 
 const toValues = (p: Product): ProductValues => ({
   sku: p.sku, barcode: p.barcode ?? '', name: p.name, description: p.description ?? '', categoryId: p.categoryId ?? '',
   salePrice: p.salePrice, costPrice: p.costPrice ?? '', minStock: String(p.minStock), status: p.status,
+  trackStock: p.trackStock, durationMinutes: p.durationMinutes ? String(p.durationMinutes) : '',
+  priceTiers: p.variants.length === 1 ? tierRows(p.variants[0]!.priceTiers) : [],
 });
 
 const HISTORY_ACTION: Record<string, string> = {
   created: 'Creado', updated: 'Modificado', variant_added: 'Variante añadida', variant_updated: 'Variante modificada',
   image_added: 'Imagen añadida', image_removed: 'Imagen eliminada', imported: 'Creado por importación', imported_update: 'Actualizado por importación',
 };
-const FIELD_LABEL: Record<string, string> = { sku: 'SKU', barcode: 'Código de barras', name: 'Nombre', description: 'Descripción', categoryId: 'Categoría', salePrice: 'Precio', costPrice: 'Costo', minStock: 'Stock mínimo', status: 'Estado' };
+const FIELD_LABEL: Record<string, string> = { sku: 'SKU', barcode: 'Código de barras', name: 'Nombre', description: 'Descripción', categoryId: 'Categoría', salePrice: 'Precio', costPrice: 'Costo', minStock: 'Stock mínimo', status: 'Estado', trackStock: 'Controla stock', durationMinutes: 'Duración', priceTiers: 'Precios por volumen' };
 
 function VariantDialog({ productId, variant, open, onClose }: { productId: string; variant: Variant | null; open: boolean; onClose: () => void }) {
   const qc = useQueryClient();
   const toast = useToast();
   const [f, setF] = useState(() =>
     variant
-      ? { name: variant.name, sku: variant.sku, barcode: variant.barcode ?? '', attributes: formatAttributes(variant.attributes), salePrice: variant.salePrice ?? '', isActive: variant.isActive }
-      : { name: '', sku: '', barcode: '', attributes: '', salePrice: '', isActive: true },
+      ? { name: variant.name, sku: variant.sku, barcode: variant.barcode ?? '', attributes: formatAttributes(variant.attributes), salePrice: variant.salePrice ?? '', isActive: variant.isActive, priceTiers: tierRows(variant.priceTiers) }
+      : { name: '', sku: '', barcode: '', attributes: '', salePrice: '', isActive: true, priceTiers: tierRows([]) },
   );
+  const settings = useTenantSettings();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
   const errors = fieldErrors(error);
@@ -43,7 +47,7 @@ function VariantDialog({ productId, variant, open, onClose }: { productId: strin
     e.preventDefault();
     setBusy(true);
     setError(null);
-    const body = { name: f.name.trim(), sku: f.sku.trim(), barcode: f.barcode.trim() || null, attributes: parseAttributes(f.attributes), salePrice: f.salePrice.trim() || null, isActive: f.isActive };
+    const body = { name: f.name.trim(), sku: f.sku.trim(), barcode: f.barcode.trim() || null, attributes: parseAttributes(f.attributes), salePrice: f.salePrice.trim() || null, isActive: f.isActive, ...(settings.catalog.volumePricing ? { priceTiers: tierPayload(f.priceTiers) } : {}) };
     try {
       if (variant) await api(`/products/${productId}/variants/${variant.id}`, { method: 'PATCH', body });
       else await api(`/products/${productId}/variants`, { method: 'POST', body });
@@ -65,6 +69,7 @@ function VariantDialog({ productId, variant, open, onClose }: { productId: strin
         <Field label="Precio propio" error={errors.salePrice} hint="Vacío = precio del producto"><Input type="number" min="0" step="0.01" value={f.salePrice} onChange={(e) => setF({ ...f, salePrice: e.target.value })} /></Field>
         <Field label="Atributos" className="sm:col-span-2" hint="Formato: Color: Rojo, Talla: M"><Input value={f.attributes} onChange={(e) => setF({ ...f, attributes: e.target.value })} /></Field>
         <label className="flex items-center gap-2 text-sm sm:col-span-2"><input type="checkbox" className="size-4" checked={f.isActive} onChange={(e) => setF({ ...f, isActive: e.target.checked })} /> Variante activa (se puede vender)</label>
+        {settings.catalog.volumePricing && <div className="sm:col-span-2"><TierEditor rows={f.priceTiers} set={(priceTiers) => setF({ ...f, priceTiers })} error={errors.priceTiers} /></div>}
         <div className="sm:col-span-2"><ErrorBox error={error} /></div>
       </form>
     </Dialog>
@@ -82,6 +87,7 @@ function ProductDetail() {
   const toast = useToast();
   const qc = useQueryClient();
   const canWrite = can('products:write');
+  const settings = useTenantSettings();
   const [tab, setTab] = useState<'datos' | 'movimientos' | 'historial'>('datos');
   const [draft, setDraft] = useState<ProductValues | null>(null);
   const [saving, setSaving] = useState(false);
@@ -110,7 +116,7 @@ function ProductDetail() {
     setSaving(true);
     setError(null);
     try {
-      await api(`/products/${id}`, { method: 'PATCH', body: { ...toPayload(v), status: v.status } });
+      await api(`/products/${id}`, { method: 'PATCH', body: { ...toPayload(v, settings, p.variants.length === 1), status: v.status } });
       await qc.invalidateQueries({ queryKey: ['product', id] });
       setDraft(null);
       qc.invalidateQueries({ queryKey: ['products'] });
@@ -186,8 +192,9 @@ function ProductDetail() {
                   <h2 className="font-medium">Datos del producto</h2>
                   <Badge tone={p.status === 'ACTIVE' ? 'success' : p.status === 'ARCHIVED' ? 'neutral' : 'warning'}>{PRODUCT_STATUS[p.status]}</Badge>
                   {p.lowStock && <Badge tone="danger">Poco stock</Badge>}
+                  {!p.trackStock && <Badge>No controla stock</Badge>}
                 </div>
-                <ProductFields v={v} set={(x) => setV({ ...v, ...x })} errors={fieldErrors(error)} disabled={!canWrite} />
+                <ProductFields v={v} set={(x) => setV({ ...v, ...x })} errors={fieldErrors(error)} disabled={!canWrite} allowTiers={p.variants.length === 1} />
                 {p.status === 'ARCHIVED' && canWrite && (
                   <Button type="button" variant="secondary" size="sm" className="mt-4" onClick={() => setV({ ...v, status: 'ACTIVE' })}>Restaurar (marcar como activo)</Button>
                 )}
@@ -213,9 +220,9 @@ function ProductDetail() {
                       </Td>
                       <Td className="text-muted">{x.sku}{x.barcode ? <span className="block text-xs">{x.barcode}</span> : null}</Td>
                       <Td className="text-right tabular-nums">{money(x.effectivePrice, cur)}</Td>
-                      <Td className={`text-right tabular-nums ${x.stock <= 0 ? 'text-danger' : ''}`}>{num(x.stock)}</Td>
+                      <Td className={`text-right tabular-nums ${p.trackStock && x.stock <= 0 ? 'text-danger' : ''}`}>{p.trackStock ? num(x.stock) : <span className="text-muted">Sin stock</span>}</Td>
                       <Td className="whitespace-nowrap text-right">
-                        {can('inventory:write') && <Button size="sm" variant="ghost" aria-label="Registrar movimiento" title="Registrar movimiento" icon={<ArrowDownUp className="size-4" />} onClick={() => setMovement({ variantId: x.id, label: `${p.name} · ${x.name} (${x.sku})` })} />}
+                        {can('inventory:write') && p.trackStock && <Button size="sm" variant="ghost" aria-label="Registrar movimiento" title="Registrar movimiento" icon={<ArrowDownUp className="size-4" />} onClick={() => setMovement({ variantId: x.id, label: `${p.name} · ${x.name} (${x.sku})` })} />}
                         {canWrite && <Button size="sm" variant="ghost" aria-label="Editar variante" icon={<Pencil className="size-4" />} onClick={() => setVariantDlg({ open: true, variant: x })} />}
                       </Td>
                     </tr>

@@ -53,5 +53,23 @@ export const DEPLOYMENT_MODE: Record<string, string> = { SAAS: 'SaaS compartido'
 /** Mismo orden y claves que MODULES en la API (common/decorators/module.decorator.ts) */
 export const MODULE_LABEL: Record<string, string> = {
   conversations: 'Conversaciones', ai: 'Asistente IA', catalog: 'Productos y categorías', inventory: 'Inventario',
-  orders: 'Pedidos', customers: 'Clientes', reports: 'Reportes', automations: 'Automatizaciones',
+  orders: 'Pedidos', customers: 'Clientes', reports: 'Reportes', automations: 'Automatizaciones', reservations: 'Reservas y citas',
 };
+
+export const RESERVATION_STATUS: Record<string, { label: string; tone: 'neutral' | 'info' | 'success' | 'warning' | 'danger' }> = {
+  PENDING: { label: 'Por confirmar', tone: 'warning' },
+  CONFIRMED: { label: 'Confirmada', tone: 'info' },
+  COMPLETED: { label: 'Atendida', tone: 'success' },
+  NO_SHOW: { label: 'No asistió', tone: 'danger' },
+  CANCELLED: { label: 'Cancelada', tone: 'neutral' },
+};
+/** Mismas transiciones que la API (reservations.service.ts) */
+export const RESERVATION_ACTIONS: Record<string, { to: string; label: string }[]> = {
+  PENDING: [{ to: 'CONFIRMED', label: 'Confirmar' }, { to: 'CANCELLED', label: 'Cancelar' }],
+  CONFIRMED: [{ to: 'COMPLETED', label: 'Atendida' }, { to: 'NO_SHOW', label: 'No asistió' }, { to: 'CANCELLED', label: 'Cancelar' }],
+};
+
+/** Fecha y hora en la zona horaria de la empresa (no la del navegador) */
+export const todayIn = (timeZone: string) => new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+export const timeIn = (v: string, timeZone: string) => new Intl.DateTimeFormat('es-PE', { timeZone, hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(v));
+export const dayIn = (v: string, timeZone: string) => new Intl.DateTimeFormat('es-PE', { timeZone, weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(v));

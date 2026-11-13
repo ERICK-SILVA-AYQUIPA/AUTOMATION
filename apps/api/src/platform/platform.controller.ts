@@ -13,6 +13,8 @@ import { CurrentUser, RequirePermission } from '../common/decorators/auth.decora
 import type { Principal } from '../common/context/principal.js';
 import { DatabaseService } from '../database/database.service.js';
 import { AuditService } from '../audit/audit.service.js';
+import { TEMPLATES, TEMPLATE_KEYS, TEMPLATE_SECTIONS, type TemplateKey } from '../templates/catalog.js';
+import { applyTemplate, planTemplate } from '../templates/apply.js';
 
 const listSchema = z.object({
   q: z.string().trim().max(100).optional(),
@@ -54,6 +56,11 @@ const planUpdateSchema = z
   .partial()
   .refine((v) => Object.keys(v).length > 0, 'Nada que actualizar');
 
+const applyTemplateSchema = z.object({
+  key: z.enum(TEMPLATE_KEYS as [TemplateKey, ...TemplateKey[]]),
+  sections: z.array(z.enum(TEMPLATE_SECTIONS)).min(1).max(TEMPLATE_SECTIONS.length),
+}).strict();
+
 /**
  * Panel del ADMINISTRADOR GENERAL. Única zona que usa el rol de sistema para
  * leer datos de varias empresas; protegida por el permiso platform:manage.
@@ -75,6 +82,40 @@ export class PlatformController {
     const r = await this.provisioning.provision(p.userId, body);
     res.status(r.created ? 201 : 200);
     return r;
+  }
+
+  /** Plantillas por sector (ADR 043) */
+  @Get('templates')
+  templates() {
+    return TEMPLATE_KEYS.map((k) => TEMPLATES[k]);
+  }
+
+  /** Qué cambiaría en la empresa al aplicar la plantilla (nada se aplica aquí) */
+  @Get('tenants/:id/template')
+  async templatePreview(@Param('id', { schema: z.uuid() }) id: string, @Query({ schema: z.object({ key: z.enum(TEMPLATE_KEYS as [TemplateKey, ...TemplateKey[]]) }) }) q: { key: TemplateKey }) {
+    await this.exists(id);
+    return this.db.system.$transaction((tx) => planTemplate(tx, id, q.key));
+  }
+
+  /** Aplica solo las secciones elegidas; lo del asistente queda en borrador para que la empresa lo pruebe */
+  @Post('tenants/:id/template')
+  async templateApply(
+    @CurrentUser() p: Principal,
+    @Param('id', { schema: z.uuid() }) id: string,
+    @Body({ schema: applyTemplateSchema }) b: z.infer<typeof applyTemplateSchema>,
+  ) {
+    await this.exists(id);
+    const r = await this.db.system.$transaction((tx) => applyTemplate(tx, id, b.key, b.sections, { aiTarget: 'draft' }));
+    await this.audit.system({
+      tenantId: id, userId: p.userId, action: 'platform.template_applied', entityType: 'tenant', entityId: id,
+      metadata: { key: b.key, version: r.template.version, sections: b.sections, changes: JSON.parse(JSON.stringify(r.applied)) as Prisma.InputJsonValue },
+    });
+    return r;
+  }
+
+  private async exists(id: string) {
+    const t = await this.db.system.tenant.findUnique({ where: { id }, select: { id: true } });
+    if (!t) throw new NotFoundException('Empresa no encontrada');
   }
 
   @Get('tenants/:id/onboarding')

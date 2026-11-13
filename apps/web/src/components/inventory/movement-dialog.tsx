@@ -85,7 +85,7 @@ export function MovementDialog({ open, onClose, preset }: { open: boolean; onClo
             {!preset && <button type="button" className="text-xs text-muted underline" onClick={() => setTarget(null)}>Cambiar</button>}
           </div>
         ) : (
-          <Field label="Producto"><VariantPicker currency={cur} autoFocus onPick={(p) => setTarget({ variantId: p.variant.id, label: `${p.label} (${p.variant.sku}) · stock ${p.variant.stock}` })} /></Field>
+          <Field label="Producto"><VariantPicker stockedOnly currency={cur} autoFocus onPick={(p) => setTarget({ variantId: p.variant.id, label: `${p.label} (${p.variant.sku}) · stock ${p.variant.stock}` })} /></Field>
         )}
         <Field label="Tipo" hint={TYPES.find((t) => t.value === type)?.hint}>
           <Select value={type} onChange={(e) => setType(e.target.value as typeof type)}>

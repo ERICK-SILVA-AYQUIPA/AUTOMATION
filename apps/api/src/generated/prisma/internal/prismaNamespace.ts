@@ -433,7 +433,8 @@ export const ModelName = {
   AuditLog: 'AuditLog',
   IntegrationCheck: 'IntegrationCheck',
   WebhookEndpoint: 'WebhookEndpoint',
-  WebhookDelivery: 'WebhookDelivery'
+  WebhookDelivery: 'WebhookDelivery',
+  Reservation: 'Reservation'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -449,7 +450,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "plan" | "tenant" | "subscription" | "payment" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "conversationNote" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "aiKnowledgeDoc" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog" | "integrationCheck" | "webhookEndpoint" | "webhookDelivery"
+    modelProps: "plan" | "tenant" | "subscription" | "payment" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "conversationNote" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "aiKnowledgeDoc" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog" | "integrationCheck" | "webhookEndpoint" | "webhookDelivery" | "reservation"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3191,6 +3192,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Reservation: {
+      payload: Prisma.$ReservationPayload<ExtArgs>
+      fields: Prisma.ReservationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ReservationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReservationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ReservationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReservationPayload>
+        }
+        findFirst: {
+          args: Prisma.ReservationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReservationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ReservationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReservationPayload>
+        }
+        findMany: {
+          args: Prisma.ReservationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReservationPayload>[]
+        }
+        create: {
+          args: Prisma.ReservationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReservationPayload>
+        }
+        createMany: {
+          args: Prisma.ReservationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ReservationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReservationPayload>[]
+        }
+        delete: {
+          args: Prisma.ReservationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReservationPayload>
+        }
+        update: {
+          args: Prisma.ReservationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReservationPayload>
+        }
+        deleteMany: {
+          args: Prisma.ReservationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ReservationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ReservationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReservationPayload>[]
+        }
+        upsert: {
+          args: Prisma.ReservationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReservationPayload>
+        }
+        aggregate: {
+          args: Prisma.ReservationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateReservation>
+        }
+        groupBy: {
+          args: Prisma.ReservationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReservationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ReservationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReservationCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -3264,6 +3339,8 @@ export const TenantScalarFieldEnum = {
   deploymentMode: 'deploymentMode',
   enabledModules: 'enabledModules',
   templateKey: 'templateKey',
+  templateVersion: 'templateVersion',
+  settings: 'settings',
   provisioningKey: 'provisioningKey',
   activatedAt: 'activatedAt',
   createdAt: 'createdAt',
@@ -3418,6 +3495,8 @@ export const ProductScalarFieldEnum = {
   salePrice: 'salePrice',
   costPrice: 'costPrice',
   minStock: 'minStock',
+  trackStock: 'trackStock',
+  durationMinutes: 'durationMinutes',
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -3436,6 +3515,7 @@ export const ProductVariantScalarFieldEnum = {
   attributes: 'attributes',
   salePrice: 'salePrice',
   costPrice: 'costPrice',
+  priceTiers: 'priceTiers',
   isDefault: 'isDefault',
   isActive: 'isActive',
   createdAt: 'createdAt',
@@ -3513,6 +3593,8 @@ export const CustomerScalarFieldEnum = {
   chatwootContactId: 'chatwootContactId',
   chatwootSourceId: 'chatwootSourceId',
   email: 'email',
+  customerType: 'customerType',
+  businessName: 'businessName',
   documentId: 'documentId',
   address: 'address',
   notes: 'notes',
@@ -3860,6 +3942,32 @@ export const WebhookDeliveryScalarFieldEnum = {
 export type WebhookDeliveryScalarFieldEnum = (typeof WebhookDeliveryScalarFieldEnum)[keyof typeof WebhookDeliveryScalarFieldEnum]
 
 
+export const ReservationScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  number: 'number',
+  customerId: 'customerId',
+  branchId: 'branchId',
+  conversationId: 'conversationId',
+  productId: 'productId',
+  serviceName: 'serviceName',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  partySize: 'partySize',
+  status: 'status',
+  channel: 'channel',
+  notes: 'notes',
+  idempotencyKey: 'idempotencyKey',
+  createdById: 'createdById',
+  confirmedAt: 'confirmedAt',
+  cancelledAt: 'cancelledAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ReservationScalarFieldEnum = (typeof ReservationScalarFieldEnum)[keyof typeof ReservationScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -4034,20 +4142,6 @@ export type ListEnumDeploymentModeFieldRefInput<$PrismaModel> = FieldRefInputTyp
 
 
 /**
- * Reference to a field of type 'SubscriptionStatus'
- */
-export type EnumSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionStatus'>
-    
-
-
-/**
- * Reference to a field of type 'SubscriptionStatus[]'
- */
-export type ListEnumSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionStatus[]'>
-    
-
-
-/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -4058,6 +4152,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'SubscriptionStatus'
+ */
+export type EnumSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'SubscriptionStatus[]'
+ */
+export type ListEnumSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionStatus[]'>
     
 
 
@@ -4142,6 +4250,20 @@ export type EnumMovementTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'MovementType[]'
  */
 export type ListEnumMovementTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MovementType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerType'
+ */
+export type EnumCustomerTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerType'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerType[]'
+ */
+export type ListEnumCustomerTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerType[]'>
     
 
 
@@ -4338,6 +4460,20 @@ export type EnumWebhookDeliveryStatusFieldRefInput<$PrismaModel> = FieldRefInput
  * Reference to a field of type 'WebhookDeliveryStatus[]'
  */
 export type ListEnumWebhookDeliveryStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WebhookDeliveryStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ReservationStatus'
+ */
+export type EnumReservationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReservationStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ReservationStatus[]'
+ */
+export type ListEnumReservationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReservationStatus[]'>
     
 
 
@@ -4542,6 +4678,7 @@ export type GlobalOmitConfig = {
   integrationCheck?: Prisma.IntegrationCheckOmit
   webhookEndpoint?: Prisma.WebhookEndpointOmit
   webhookDelivery?: Prisma.WebhookDeliveryOmit
+  reservation?: Prisma.ReservationOmit
 }
 
 /* Types for Logging */

@@ -11,10 +11,24 @@ export interface Me {
   role: Role;
   tenantId: string | null;
   permissions: string[];
-  tenant: { id: string; name: string; slug: string; status: 'ACTIVE' | 'SUSPENDED' | 'ONBOARDING'; currency: string; timezone: string; enabledModules: string[]; logoUrl: string | null; brandColor: string | null; deploymentMode: 'SAAS' | 'DEDICATED' | 'CUSTOM'; subscription: { status: string; trialEndsAt: string | null; currentPeriodEnd: string; plan: { code: string; name: string }; access: SubscriptionAccess } | null } | null;
+  tenant: { id: string; name: string; slug: string; status: 'ACTIVE' | 'SUSPENDED' | 'ONBOARDING'; currency: string; timezone: string; enabledModules: string[]; settings: TenantSettings; logoUrl: string | null; brandColor: string | null; deploymentMode: 'SAAS' | 'DEDICATED' | 'CUSTOM'; subscription: { status: string; trialEndsAt: string | null; currentPeriodEnd: string; plan: { code: string; name: string }; access: SubscriptionAccess } | null } | null;
   /** Instrucciones de pago configuradas por la plataforma (BILLING_CONTACT) */
   billingContact: string;
 }
+
+export type WeeklyHours = Record<'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun', { open: string; close: string }[]>;
+/** Reglas de operación de la empresa (apps/api/src/tenants/tenant-settings.ts) */
+export interface TenantSettings {
+  catalog: { label: string; trackStockDefault: boolean; volumePricing: boolean; durations: boolean };
+  orders: { minAmount: number | null };
+  customers: { businessFields: boolean };
+  reservations: {
+    kind: 'TABLE' | 'APPOINTMENT'; slotMinutes: number; durationMinutes: number; capacity: number | null; maxPartySize: number;
+    minNoticeMinutes: number; maxDaysAhead: number; hours: WeeklyHours | null; requireConfirmation: boolean;
+  };
+}
+
+export interface PriceTier { minQty: number; unitPrice: string }
 
 export interface Paged<T> {
   items: T[];
@@ -28,13 +42,13 @@ export interface Category { id: string; name: string; slug: string; description:
 
 export interface Variant {
   id: string; sku: string; barcode: string | null; name: string; attributes: Record<string, string>;
-  salePrice: string | null; costPrice: string | null; isDefault: boolean; isActive: boolean; effectivePrice: string; stock: number;
+  salePrice: string | null; costPrice: string | null; priceTiers: PriceTier[]; isDefault: boolean; isActive: boolean; effectivePrice: string; stock: number;
   stockLevels: { branchId: string; quantity: number }[];
 }
 
 export interface Product {
   id: string; sku: string; barcode: string | null; name: string; description: string | null; categoryId: string | null;
-  category: { id: string; name: string } | null; salePrice: string; costPrice: string | null; minStock: number;
+  category: { id: string; name: string } | null; salePrice: string; costPrice: string | null; minStock: number; trackStock: boolean; durationMinutes: number | null;
   status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED'; createdAt: string; updatedAt: string;
   variants: Variant[]; images: { id: string; url: string; alt: string | null }[]; stock: number; lowStock: boolean;
 }
@@ -44,6 +58,7 @@ export interface CustomerRef { id: string; name: string | null; phone: string | 
 
 export interface Customer {
   id: string; name: string | null; phone: string | null; waProfileName: string | null; email: string | null; documentId: string | null; address: string | null;
+  customerType: 'PERSON' | 'BUSINESS'; businessName: string | null;
   notes: string | null; tags: string[]; source: string; lastContactAt: string | null; createdAt: string; _count?: { orders: number };
 }
 
@@ -57,3 +72,14 @@ export interface Order {
 }
 
 export interface Branch { id: string; name: string; address: string | null; isDefault: boolean; isActive: boolean }
+
+export type ReservationStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW';
+export interface Reservation {
+  id: string; number: number; startsAt: string; endsAt: string; partySize: number; status: ReservationStatus; channel: 'MANUAL' | 'WHATSAPP';
+  productId: string | null; serviceName: string | null; notes: string | null; conversationId: string | null; createdAt: string;
+  customer: { id: string; name: string | null; phone: string | null; waProfileName: string | null };
+}
+export interface Availability {
+  date: string; kind: 'TABLE' | 'APPOINTMENT'; durationMinutes?: number; reason: string | null;
+  slots: { time: string; startsAt: string; remaining: number }[];
+}

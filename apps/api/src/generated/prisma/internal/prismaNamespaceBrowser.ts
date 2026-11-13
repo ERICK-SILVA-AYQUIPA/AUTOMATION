@@ -87,7 +87,8 @@ export const ModelName = {
   AuditLog: 'AuditLog',
   IntegrationCheck: 'IntegrationCheck',
   WebhookEndpoint: 'WebhookEndpoint',
-  WebhookDelivery: 'WebhookDelivery'
+  WebhookDelivery: 'WebhookDelivery',
+  Reservation: 'Reservation'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -140,6 +141,8 @@ export const TenantScalarFieldEnum = {
   deploymentMode: 'deploymentMode',
   enabledModules: 'enabledModules',
   templateKey: 'templateKey',
+  templateVersion: 'templateVersion',
+  settings: 'settings',
   provisioningKey: 'provisioningKey',
   activatedAt: 'activatedAt',
   createdAt: 'createdAt',
@@ -294,6 +297,8 @@ export const ProductScalarFieldEnum = {
   salePrice: 'salePrice',
   costPrice: 'costPrice',
   minStock: 'minStock',
+  trackStock: 'trackStock',
+  durationMinutes: 'durationMinutes',
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -312,6 +317,7 @@ export const ProductVariantScalarFieldEnum = {
   attributes: 'attributes',
   salePrice: 'salePrice',
   costPrice: 'costPrice',
+  priceTiers: 'priceTiers',
   isDefault: 'isDefault',
   isActive: 'isActive',
   createdAt: 'createdAt',
@@ -389,6 +395,8 @@ export const CustomerScalarFieldEnum = {
   chatwootContactId: 'chatwootContactId',
   chatwootSourceId: 'chatwootSourceId',
   email: 'email',
+  customerType: 'customerType',
+  businessName: 'businessName',
   documentId: 'documentId',
   address: 'address',
   notes: 'notes',
@@ -734,6 +742,32 @@ export const WebhookDeliveryScalarFieldEnum = {
 } as const
 
 export type WebhookDeliveryScalarFieldEnum = (typeof WebhookDeliveryScalarFieldEnum)[keyof typeof WebhookDeliveryScalarFieldEnum]
+
+
+export const ReservationScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  number: 'number',
+  customerId: 'customerId',
+  branchId: 'branchId',
+  conversationId: 'conversationId',
+  productId: 'productId',
+  serviceName: 'serviceName',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  partySize: 'partySize',
+  status: 'status',
+  channel: 'channel',
+  notes: 'notes',
+  idempotencyKey: 'idempotencyKey',
+  createdById: 'createdById',
+  confirmedAt: 'confirmedAt',
+  cancelledAt: 'cancelledAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ReservationScalarFieldEnum = (typeof ReservationScalarFieldEnum)[keyof typeof ReservationScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -11,18 +11,23 @@ import { Button, Card, ErrorBox, Field, Input, PageHeader, Select, Textarea, cn 
 import { useToast } from '@/components/ui/toast';
 import { RequirePermission } from '@/components/guard';
 
+export interface SectorTemplate { key: string; version: number; name: string; description: string; businessType: string; includes: string[]; modules: string[]; categories: string[] }
 interface PlanRow { code: string; name: string; priceMonthly: string; currency: string }
 interface Draft {
   key: string;
   name: string; legalName: string; taxId: string; country: string; currency: string; timezone: string; address: string; phone: string; contactEmail: string; businessType: string;
   logoUrl: string; brandColor: string; useColor: boolean; customDomain: string; deploymentMode: string; enabledModules: string[];
   planCode: string; startsAt: string; endsAt: string;
+  /** '' = sin plantilla */
+  templateKey: string; templateCategories: boolean;
   adminName: string; adminEmail: string;
 }
 
 const STORAGE = 'aisa:alta-empresa';
-const STEPS = ['Empresa', 'Marca y modalidad', 'Plan y periodo', 'Administrador', 'Revisar'];
+const STEPS = ['Sector', 'Empresa', 'Marca y modalidad', 'Plan y periodo', 'Administrador', 'Revisar'];
 const TIMEZONES = ['America/Lima', 'America/Bogota', 'America/Mexico_City', 'America/Santiago', 'America/Argentina/Buenos_Aires', 'America/La_Paz', 'America/Guayaquil', 'America/Caracas', 'Europe/Madrid', 'UTC'];
+/** Sin plantilla: todo menos reservas, que solo tienen sentido en restaurantes y servicios */
+const GENERAL_MODULES = Object.keys(MODULE_LABEL).filter((m) => m !== 'reservations');
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 
 function fresh(): Draft {
@@ -30,9 +35,9 @@ function fresh(): Draft {
   return {
     key: crypto.randomUUID(),
     name: '', legalName: '', taxId: '', country: 'PE', currency: 'PEN', timezone: 'America/Lima', address: '', phone: '', contactEmail: '', businessType: 'RETAIL',
-    logoUrl: '', brandColor: '#2563eb', useColor: false, customDomain: '', deploymentMode: 'SAAS', enabledModules: Object.keys(MODULE_LABEL),
+    logoUrl: '', brandColor: '#2563eb', useColor: false, customDomain: '', deploymentMode: 'SAAS', enabledModules: GENERAL_MODULES,
     planCode: 'BASIC', startsAt: iso(today), endsAt: iso(new Date(today.getTime() + 14 * 86_400_000)),
-    adminName: '', adminEmail: '',
+    adminName: '', adminEmail: '', templateKey: '', templateCategories: true,
   };
 }
 
@@ -47,8 +52,9 @@ function load(): Draft {
   return fresh();
 }
 
-function Summary({ d, plan }: { d: Draft; plan?: PlanRow }) {
+function Summary({ d, plan, tpl }: { d: Draft; plan?: PlanRow; tpl?: SectorTemplate }) {
   const rows: [string, string][] = [
+    ['Plantilla', tpl ? `${tpl.name}${tpl.categories.length ? (d.templateCategories ? ' (con categorías sugeridas)' : ' (sin categorías)') : ''}` : 'Sin plantilla'],
     ['Nombre comercial', d.name], ['Razón social', d.legalName || '—'], [d.country === 'PE' ? 'RUC' : 'Identificador fiscal', d.taxId || '—'],
     ['País, moneda y zona', `${d.country} · ${d.currency} · ${d.timezone}`], ['Contacto', [d.contactEmail, d.phone].filter(Boolean).join(' · ') || '—'],
     ['Tipo de negocio', BUSINESS_TYPE[d.businessType]], ['Modalidad', DEPLOYMENT_MODE[d.deploymentMode]], ['Dominio propio', d.customDomain || '—'],
@@ -73,6 +79,7 @@ function Wizard() {
   // Límites de fechas fijados al abrir el asistente
   const [bounds] = useState(() => ({ today: iso(new Date()), tomorrow: iso(new Date(Date.now() + 86_400_000)) }));
   const plans = useQuery({ queryKey: ['platform-plans'], queryFn: () => api<PlanRow[]>('/platform/plans') });
+  const templates = useQuery({ queryKey: ['platform-templates'], queryFn: () => api<SectorTemplate[]>('/platform/templates') });
   // sessionStorage solo existe en el navegador: el borrador se lee al montar
   // eslint-disable-next-line react-hooks/set-state-in-effect -- lectura única del borrador guardado
   useEffect(() => setD(load()), []);
@@ -87,6 +94,9 @@ function Wizard() {
   if (!d) return null;
   const set = (p: Partial<Draft>) => setD({ ...d, ...p });
   const plan = plans.data?.find((p) => p.code === d.planCode);
+  const tpl = templates.data?.find((t) => t.key === d.templateKey);
+  // Elegir una plantilla deja preparados el tipo de negocio y los módulos (se pueden cambiar en los pasos siguientes)
+  const pick = (t: SectorTemplate | null) => set(t ? { templateKey: t.key, businessType: t.businessType, enabledModules: [...t.modules] } : { templateKey: '', enabledModules: GENERAL_MODULES });
 
   function next(e: React.FormEvent) {
     e.preventDefault();
@@ -110,6 +120,7 @@ function Wizard() {
           logoUrl: n(d.logoUrl), brandColor: d.useColor ? d.brandColor : null, customDomain: n(d.customDomain), deploymentMode: d.deploymentMode, enabledModules: d.enabledModules,
           planCode: d.planCode, startsAt: new Date(`${d.startsAt}T00:00:00`).toISOString(), endsAt: new Date(`${d.endsAt}T23:59:59`).toISOString(),
           admin: { name: d.adminName.trim(), email: d.adminEmail.trim() },
+          templateKey: d.templateKey || null, templateCategories: d.templateCategories,
         },
       });
       try {
@@ -147,6 +158,31 @@ function Wizard() {
       <form onSubmit={next}>
         <Card className="flex max-w-3xl flex-col gap-4 p-5">
           {step === 0 && (
+            <fieldset className="flex flex-col gap-3">
+              <legend className="mb-1 text-sm text-muted">Elige el sector: deja preparados módulos, reglas, automatizaciones e indicaciones del asistente. La empresa puede personalizarlo después.</legend>
+              <ErrorBox error={templates.error} />
+              <div className="grid gap-3 sm:grid-cols-2">
+                {templates.data?.map((t) => (
+                  <label key={t.key} className={cn('flex cursor-pointer flex-col gap-2 rounded-xl border p-4 text-sm transition', d.templateKey === t.key ? 'border-primary ring-1 ring-primary' : 'border-border hover:bg-surface-2/60')}>
+                    <span className="flex items-center gap-2 font-medium"><input type="radio" name="template" className="accent-[var(--primary)]" checked={d.templateKey === t.key} onChange={() => pick(t)} />{t.name}</span>
+                    <span className="text-muted">{t.description}</span>
+                    <ul className="list-disc pl-5 text-xs text-muted">{t.includes.map((x) => <li key={x}>{x}</li>)}</ul>
+                  </label>
+                ))}
+                <label className={cn('flex cursor-pointer flex-col gap-2 rounded-xl border p-4 text-sm transition', !d.templateKey ? 'border-primary ring-1 ring-primary' : 'border-border hover:bg-surface-2/60')}>
+                  <span className="flex items-center gap-2 font-medium"><input type="radio" name="template" className="accent-[var(--primary)]" checked={!d.templateKey} onChange={() => pick(null)} />Sin plantilla</span>
+                  <span className="text-muted">Todos los módulos encendidos y reglas generales. Se puede aplicar una plantilla más adelante.</span>
+                </label>
+              </div>
+              {tpl && tpl.categories.length > 0 && (
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" className="size-4 accent-[var(--primary)]" checked={d.templateCategories} onChange={(e) => set({ templateCategories: e.target.checked })} />
+                  Crear categorías sugeridas: {tpl.categories.join(', ')}
+                </label>
+              )}
+            </fieldset>
+          )}
+          {step === 1 && (
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Nombre comercial"><Input value={d.name} onChange={(e) => set({ name: e.target.value })} required minLength={2} maxLength={120} autoFocus /></Field>
               <Field label="Razón social"><Input value={d.legalName} onChange={(e) => set({ legalName: e.target.value })} maxLength={200} /></Field>
@@ -168,7 +204,7 @@ function Wizard() {
               <Field label="Dirección"><Textarea rows={2} value={d.address} onChange={(e) => set({ address: e.target.value })} maxLength={300} /></Field>
             </div>
           )}
-          {step === 1 && (
+          {step === 2 && (
             <>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Modalidad">
@@ -196,7 +232,7 @@ function Wizard() {
               </fieldset>
             </>
           )}
-          {step === 2 && (
+          {step === 3 && (
             <>
               <div className="grid gap-4 sm:grid-cols-3">
                 <Field label="Plan" hint={plan ? `${money(plan.priceMonthly, plan.currency)} al mes` : undefined}>
@@ -208,7 +244,7 @@ function Wizard() {
               <p className="rounded-lg bg-surface-2 p-3 text-sm text-muted">Es un periodo de prueba o cortesía: no registra ningún cobro. Cuando la empresa pague, regístralo en «Cobro» y el plan se activa desde esa fecha.</p>
             </>
           )}
-          {step === 3 && (
+          {step === 4 && (
             <>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Nombre del administrador"><Input value={d.adminName} onChange={(e) => set({ adminName: e.target.value })} required minLength={2} maxLength={120} /></Field>
@@ -217,11 +253,11 @@ function Wizard() {
               <p className="rounded-lg bg-surface-2 p-3 text-sm text-muted">Recibirá un correo para crear su propia contraseña (vale 7 días). Nadie más la conoce ni se muestra en pantalla.</p>
             </>
           )}
-          {step === 4 && <Summary d={d} plan={plan} />}
+          {step === 5 && <Summary d={d} plan={plan} tpl={tpl} />}
           <ErrorBox error={error} />
           <div className="flex justify-between gap-2">
             <Button type="button" variant="ghost" onClick={() => (step ? setStep(step - 1) : router.push('/plataforma'))}>{step ? 'Atrás' : 'Cancelar'}</Button>
-            <Button type="submit" loading={busy} disabled={step === 1 && !d.enabledModules.length}>{step < STEPS.length - 1 ? 'Siguiente' : 'Crear empresa y enviar invitación'}</Button>
+            <Button type="submit" loading={busy} disabled={step === 2 && !d.enabledModules.length}>{step < STEPS.length - 1 ? 'Siguiente' : 'Crear empresa y enviar invitación'}</Button>
           </div>
         </Card>
       </form>
