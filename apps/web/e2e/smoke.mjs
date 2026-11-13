@@ -60,7 +60,7 @@ async function linkFor(to, path) {
 // Prueba contra el despliegue de producción local (dominio de prueba y certificado de Caddy):
 // RESOLVE_HOST="MAP aisa.test 127.0.0.1" IGNORE_HTTPS_ERRORS=1
 const browser = await chromium.launch(process.env.RESOLVE_HOST ? { args: [`--host-resolver-rules=${process.env.RESOLVE_HOST}`, "--no-proxy-server"] } : {});
-const ctx = await browser.newContext({ viewport: { width: 1360, height: 900 }, locale: "es-PE", timezoneId: "America/Lima", ignoreHTTPSErrors: !!process.env.IGNORE_HTTPS_ERRORS });
+const ctx = await browser.newContext({ viewport: { width: 1360, height: 900 }, locale: "es-PE", timezoneId: "America/Lima", acceptDownloads: true, ignoreHTTPSErrors: !!process.env.IGNORE_HTTPS_ERRORS });
 const page = await ctx.newPage();
 const consoleErrors = [];
 page.on('console', (m) => m.type() === 'error' && consoleErrors.push(m.text()));
@@ -186,6 +186,16 @@ try {
     // La barra del día existe y tiene altura (recharts la anima al entrar)
     await page.waitForFunction(() => [...document.querySelectorAll('.recharts-bar-rectangle path')].some((p) => p.getBoundingClientRect().height > 10));
     await page.screenshot({ path: `${SHOTS}/inicio.png` });
+  });
+
+  await step('Reportes: el CSV de ventas trae el pedido confirmado de hoy', async () => {
+    await page.goto(`${WEB}/reportes`);
+    const card = page.getByRole('heading', { name: 'Ventas por día' }).locator('xpath=ancestor::*[.//button][1]');
+    const [dl] = await Promise.all([page.waitForEvent('download'), card.getByRole('button', { name: 'Descargar' }).click()]);
+    const csv = readFileSync(await dl.path(), 'utf8');
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Lima' }).format(new Date());
+    const row = csv.split(/\r?\n/).find((l) => l.startsWith(today));
+    if (!row || !/10[.,]50/.test(row)) throw new Error(`El reporte no trae la venta de hoy: ${csv.slice(0, 300)}`);
   });
 
   await step('Anular pedido devuelve el stock', async () => {

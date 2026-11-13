@@ -4,11 +4,18 @@ Plataforma SaaS multiempresa de ventas y atención al cliente por WhatsApp con
 inteligencia artificial: catálogo, inventario, pedidos, clientes, bandeja humana
 y automatizaciones.
 
-> **Estado:** FASE 1 (infraestructura) y FASE 2 (backend: base de datos,
-> autenticación, multiempresa con RLS) completadas y probadas. El frontend y las
-> integraciones se construyen en las fases 3–8 (ver
-> [`docs/architecture/PLAN.md`](docs/architecture/PLAN.md)). Este README solo
-> describe lo que ya existe y está probado.
+> **Estado (0.9.0, 2026-11-13):** las 10 fases de la evolución están implementadas y
+> probadas en local (ver [`docs/architecture/PLAN.md`](docs/architecture/PLAN.md) y la
+> [lista de aceptación](docs/architecture/ACEPTACION.md)). Lo que depende de servicios
+> o datos reales (servidor y dominio, SMTP, clave de Gemini, número de WhatsApp de Meta,
+> precios, proveedor de pagos) está marcado como pendiente: no se afirma probado.
+
+## Qué incluye
+
+- **Multiempresa** con aislamiento en dos capas (autorización en la API y RLS de PostgreSQL), modalidades SaaS, instancia dedicada y a medida, módulos por empresa.
+- **Panel general** (`/plataforma`): alta de empresas idempotente, planes y precios, cobro manual, integraciones del servidor, plantillas por sector, **entrega de sistemas** (ZIP reproducible con instalador) y **sistema y versiones** (historial de actualizaciones).
+- **Panel de cada empresa**: bandeja de WhatsApp, asistente de IA configurable (borrador, prueba y publicación; Gemini), catálogo, inventario, pedidos, clientes, reservas, automatizaciones (n8n para avisos, backend para lo crítico), integraciones (Gemini propio, Meta, Chatwoot, webhooks firmados), reportes y auditoría.
+- **Operación**: despliegue con Docker Compose y Caddy (HTTPS), respaldo y restauración, instalador y actualizador con recuperación automática para servidores de clientes.
 
 ## Arquitectura
 
@@ -17,19 +24,20 @@ Ver [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md)
 y [`RISKS.md`](docs/architecture/RISKS.md). Licencias de terceros en [`LICENSES.md`](LICENSES.md).
 
 ```
-apps/            web (Next.js), api (NestJS), worker (BullMQ)        [FASE 2–3]
-services/        n8n, chatwoot, dify, evolution-api (configuración e instaladores)
-infrastructure/  docker/postgres/init, nginx, scripts/
-database/        schema, migrations, seeds                            [FASE 2]
+apps/api         API REST NestJS + worker BullMQ + CLI (dist/cli.js)
+apps/web         Panel Next.js (salida standalone) y pruebas en navegador (e2e/*.mjs)
+database/        esquema Prisma, migraciones SQL (con RLS) y datos base
+infrastructure/  docker (imágenes de producción), caddy, postgres/init, scripts/, kit/ (instalador y actualizador)
+services/        n8n (flujos de avisos), chatwoot; dify y evolution-api son restos de fases
+                 anteriores que ya no se usan (ADR 037): retirarlos está pendiente de autorización
 docs/            architecture, installation, integrations, api
-tests/           pruebas e2e                                           [FASE 2+]
 ```
 
 ## Requisitos (MacBook Apple Silicon)
 
 - macOS 14+, **16 GB de RAM** recomendado para el stack completo.
 - [Docker Desktop](https://docs.docker.com/desktop/setup/install/mac-install/) con
-  Compose ≥ 2.35 (Dify lo exige). Asignar a Docker ≥ 8 GB de RAM y ~40 GB de disco.
+  Compose ≥ 2.20. Asignar a Docker ≥ 8 GB de RAM y ~40 GB de disco.
 - Node.js 22 LTS y pnpm 10 (`corepack enable`) para las fases 2+.
 - Git y OpenSSL (incluidos en macOS).
 - Recomendado: `docker login` para evitar el límite de descargas anónimas de Docker Hub.
@@ -64,8 +72,8 @@ pnpm --filter @aisa/web dev            # desarrollo: http://localhost:3000
 # o producción local:
 pnpm --filter @aisa/web build && pnpm --filter @aisa/web start
 
-# Dify (ya no se usa: la IA llama directo a Gemini, ADR 037)
-./services/dify/install.sh && ./services/dify/dify.sh up
+# Dify y Evolution API ya no se usan (la IA llama directo a Gemini, ADR 037; WhatsApp
+# va por la Cloud API de Meta): no hace falta levantarlos.
 ```
 
 | Servicio | URL local | Perfil |
@@ -74,8 +82,8 @@ pnpm --filter @aisa/web build && pnpm --filter @aisa/web start
 | Redis 7 | `127.0.0.1:6380` | siempre |
 | n8n | http://localhost:5678 | `automation` |
 | Chatwoot | http://localhost:3100 | `chatwoot` |
-| Evolution API | http://localhost:8080 | `evolution` |
-| Dify | http://localhost:8090 | proyecto `dify` |
+| Evolution API (no se usa) | http://localhost:8080 | `evolution` |
+| Dify (no se usa) | http://localhost:8090 | proyecto `dify` |
 | Mailpit (correos de desarrollo) | http://localhost:8025 | `mail` |
 | Panel web | http://localhost:3000 | `pnpm --filter @aisa/web …` |
 | API | http://localhost:4000/api/v1 | `pnpm --filter @aisa/api …` |
@@ -90,7 +98,8 @@ Los perfiles activos se eligen con `COMPOSE_PROFILES` en `.env`.
 
 Documentadas en [`.env.example`](.env.example). Los valores `__GENERATE__` los
 sustituye `setup.sh` por secretos de 256 bits. `.env` nunca se sube al
-repositorio. Las credenciales de Meta, Dify y SMTP se rellenan en sus fases.
+repositorio. Las credenciales de Meta y Gemini de cada empresa se guardan cifradas
+desde el panel (Integraciones), nunca en `.env`.
 
 ## Pruebas
 
@@ -99,26 +108,27 @@ repositorio. Las credenciales de Meta, Dify y SMTP se rellenan en sus fases.
 APP_DB_NAME=ai_sales_test pnpm --filter @aisa/api exec prisma migrate deploy
 pnpm --filter @aisa/api test        # unitarias
 pnpm --filter @aisa/api test:e2e    # integración contra PostgreSQL real (base ai_sales_test)
+pnpm --filter @aisa/api lint && pnpm --filter @aisa/web lint
 
-# Prueba de humo en navegador (Chromium + Playwright) con la API y la web en marcha.
-# Crea una empresa nueva con correo único; lee los enlaces de correo desde Mailpit.
+# Pruebas en navegador (Chromium + Playwright) con la API, el worker y la web en marcha.
+# Leen los correos de Mailpit. La API y el worker deben arrancar con
+# WHATSAPP_GRAPH_BASE_URL=http://127.0.0.1:4999 y GEMINI_BASE_URL=http://127.0.0.1:4998:
+# los scripts levantan ahí servidores locales que responden como Meta y Gemini
+# (no se conectan a los servicios reales).
 set -a; . ./.env; set +a
-MAILPIT_URL=http://localhost:8025 pnpm --filter @aisa/web test:e2e
-
-# WhatsApp de punta a punta en navegador: la API y el worker deben arrancar con
-# WHATSAPP_GRAPH_BASE_URL=http://127.0.0.1:4999 (el script levanta ahí un servidor
-# local que responde como la Graph API de Meta; no se conecta a Meta)
-MAILPIT_URL=http://localhost:8025 node apps/web/e2e/whatsapp.mjs
-
-# Chatwoot real de punta a punta (mismo requisito de WHATSAPP_GRAPH_BASE_URL)
-MAILPIT_URL=http://localhost:8025 CHATWOOT_URL=http://localhost:3100 node apps/web/e2e/chatwoot.mjs
+for t in smoke provisioning automations assistant whatsapp chatwoot billing integrations templates deliveries; do
+  MAILPIT_URL=http://localhost:8025 WEB_URL=http://localhost:3000 node apps/web/e2e/$t.mjs
+done
 ```
-Conectar un número real de WhatsApp: [`docs/integrations/whatsapp-cloud-api.md`](docs/integrations/whatsapp-cloud-api.md).
-Bandeja de agentes (Chatwoot): [`docs/integrations/chatwoot.md`](docs/integrations/chatwoot.md).
-La prueba de humo usa `playwright` instalado en el sistema; en la FASE 8 se
-integra como dependencia de desarrollo y en CI.
 
-Endpoints documentados en [`docs/api/README.md`](docs/api/README.md).
+Los inicios de sesión tienen límite de intentos: si se encadenan todos los scripts sin
+pausa, alguno puede recibir `429` (es el comportamiento esperado).
+
+Conectar un número real de WhatsApp: [`docs/integrations/whatsapp-cloud-api.md`](docs/integrations/whatsapp-cloud-api.md).
+Gemini: [`docs/integrations/gemini.md`](docs/integrations/gemini.md).
+Bandeja de agentes (Chatwoot): [`docs/integrations/chatwoot.md`](docs/integrations/chatwoot.md).
+Endpoints: [`docs/api/README.md`](docs/api/README.md).
+Producción, entregas y actualizaciones: [`docs/installation/production.md`](docs/installation/production.md).
 
 ## Copias de seguridad
 
@@ -140,5 +150,3 @@ en un gestor de secretos: sin ellos, las copias de n8n/Chatwoot no son utilizabl
 | Chatwoot no arranca la primera vez | Ejecuta `chatwoot-init.sh` antes de `up.sh`. |
 | Puerto ocupado | Cambia `*_HOST_PORT` en `.env`. |
 
-Las secciones de conexión de WhatsApp, n8n, Dify, Chatwoot, pruebas y
-despliegue se completan al terminar sus fases.

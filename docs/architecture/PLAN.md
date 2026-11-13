@@ -123,7 +123,12 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
   - [x] Recuperación automática tras un fallo (bases, volúmenes, kit y `.env.production` del respaldo) y ensayo con `--ensayar-recuperacion`
   - [x] Archivos personalizados y `.env.production` nunca se pisan sin autorización (`--sobrescribir-personalizados`)
   - [ ] Actualización en el servidor real del cliente: **pendiente de Rick** (mismo requisito que la fase 8); probado en local de 0.8.0 a 0.9.0
-- [ ] Fase 10: cierre (pruebas, seguridad, documentación)
+- [x] Fase 10: cierre (pruebas, seguridad, documentación)
+  - [x] Comprobación estructural de RLS: toda tabla accesible para el rol de ejecución tiene RLS con políticas (también las futuras)
+  - [x] Reportes cubiertos en la prueba de humo (CSV de ventas con el pedido del día)
+  - [x] Auditoría de dependencias, búsqueda de secretos, cabeceras y puertos expuestos en la instancia instalada
+  - [x] README al día y lista de aceptación con su evidencia: [`ACEPTACION.md`](ACEPTACION.md)
+  - [ ] Pruebas con servicios reales (Meta, Gemini, SMTP, servidor): **pendientes de Rick**
 
 ## FASE 7: automatizaciones, pedidos, inventario, notificaciones
 ## FASE 8: seguridad, pruebas E2E, optimización, documentación, producción

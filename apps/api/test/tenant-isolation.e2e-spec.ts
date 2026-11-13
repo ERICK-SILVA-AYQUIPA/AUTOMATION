@@ -118,6 +118,26 @@ describe('Aislamiento entre empresas (caso 11)', () => {
       expect(t.name).toBe('Nombre nuevo');
     });
 
+    it('toda tabla que puede tocar el rol de ejecución tiene RLS activo con políticas (también las futuras)', async () => {
+      const runtimeUser = process.env.APP_DB_RUNTIME_USER ?? 'ai_sales_app';
+      const rows = await owner.$queryRawUnsafe<{ name: string; tenant: boolean; rls: boolean; policies: number; runtime: boolean }[]>(`
+        SELECT c.relname AS name,
+               EXISTS (SELECT 1 FROM information_schema.columns k WHERE k.table_schema = 'public' AND k.table_name = c.relname AND k.column_name = 'tenant_id') AS tenant,
+               c.relrowsecurity AS rls,
+               (SELECT count(*)::int FROM pg_policies p WHERE p.schemaname = 'public' AND p.tablename = c.relname) AS policies,
+               (has_table_privilege($1, c.oid, 'SELECT') OR has_table_privilege($1, c.oid, 'INSERT')
+                 OR has_table_privilege($1, c.oid, 'UPDATE') OR has_table_privilege($1, c.oid, 'DELETE')) AS runtime
+        FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+        WHERE n.nspname = 'public' AND c.relkind IN ('r', 'p')`, runtimeUser);
+      expect(rows.length).toBeGreaterThan(30);
+      // Tablas de empresa: RLS siempre; si el rol de ejecución tiene permisos, debe haber políticas
+      const tenantTables = rows.filter((r) => r.tenant);
+      expect(tenantTables.filter((r) => !r.rls).map((r) => r.name)).toEqual([]);
+      expect(rows.filter((r) => r.runtime && (!r.rls || r.policies === 0)).map((r) => r.name)).toEqual([]);
+      // Sin tenant_id, el rol de ejecución solo llega a los planes y a su propia empresa (ambas con RLS)
+      expect(rows.filter((r) => r.runtime && !r.tenant).map((r) => r.name).sort()).toEqual(['plans', 'tenants']);
+    });
+
     it('ningún rol de la aplicación puede tocar el historial de migraciones', async () => {
       await expect(asTenant(a.tenantId, (tx) => tx.$queryRaw`SELECT count(*) FROM _prisma_migrations`)).rejects.toThrow(/permission denied/i);
     });
