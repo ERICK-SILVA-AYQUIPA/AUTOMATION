@@ -44,11 +44,12 @@ export class PlatformMetricsService {
     }
     const total = tenants.reduce((n, t) => n + t._count._all, 0);
     const suspended = tenants.find((t) => t.status === 'SUSPENDED')?._count._all ?? 0;
+    const onboarding = tenants.find((t) => t.status === 'ONBOARDING')?._count._all ?? 0;
     const money = (rows: typeof revenueMonth) => rows.map((r) => ({ currency: r.currency, amount: Number(r._sum.amount ?? 0).toFixed(2), payments: r._count._all }));
     const usage = Object.fromEntries(aiUsage.map((u) => [u.metric, u._sum.value ?? 0]));
     const ev = Object.fromEntries(automations.map((a) => [a.status, a._count._all]));
     return {
-      tenants: { total, active: total - suspended, suspended },
+      tenants: { total, active: total - suspended - onboarding, suspended, onboarding },
       subscriptions: { ...byAccess, byPlan },
       /** Empresas que deben renovar: en gracia o ya en solo lectura (excepto canceladas) */
       pendingRenewals: byAccess.GRACE + byAccess.EXPIRED,

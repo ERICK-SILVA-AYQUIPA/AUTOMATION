@@ -64,9 +64,12 @@ export class DashboardController {
         FROM orders`;
       const [conv] = await tx.$queryRaw<{ received: number; transferred: number; ai_only: number }[]>`
         SELECT COUNT(*)::int AS received,
-               COUNT(*) FILTER (WHERE handoff_at IS NOT NULL)::int AS transferred,
-               COUNT(*) FILTER (WHERE handoff_at IS NULL)::int AS ai_only
-        FROM conversations WHERE (created_at AT TIME ZONE ${r.tz})::date BETWEEN ${r.from}::date AND ${r.to}::date`;
+               COUNT(*) FILTER (WHERE c.handoff_at IS NOT NULL OR EXISTS (SELECT 1 FROM messages m WHERE m.conversation_id = c.id AND m.sender_type = 'AGENT'))::int AS transferred,
+               -- Solo por IA: el asistente respondió y ninguna persona intervino
+               COUNT(*) FILTER (WHERE c.handoff_at IS NULL
+                 AND EXISTS (SELECT 1 FROM messages m WHERE m.conversation_id = c.id AND m.sender_type = 'BOT')
+                 AND NOT EXISTS (SELECT 1 FROM messages m WHERE m.conversation_id = c.id AND m.sender_type = 'AGENT'))::int AS ai_only
+        FROM conversations c WHERE (c.created_at AT TIME ZONE ${r.tz})::date BETWEEN ${r.from}::date AND ${r.to}::date`;
       const [customers] = await tx.$queryRaw<{ new_customers: number }[]>`
         SELECT COUNT(*)::int AS new_customers FROM customers
         WHERE (created_at AT TIME ZONE ${r.tz})::date BETWEEN ${r.from}::date AND ${r.to}::date`;

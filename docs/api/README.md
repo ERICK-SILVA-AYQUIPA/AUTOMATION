@@ -32,6 +32,7 @@ Contraseñas: mínimo 10 caracteres con letras y números; hash Argon2id.
 | Método | Ruta | Permiso |
 |---|---|---|
 | GET | `/tenant` | `tenant:read` (empresa, plan, límites y uso del periodo) |
+| GET | `/tenant/onboarding` | `tenant:read`: la misma lista de puesta en marcha que ve la plataforma |
 | PATCH | `/tenant` | `tenant:settings`. Perfil: `name, currency, timezone, legalName, taxId (RUC de 11 dígitos si country=PE), country, address, phone, contactEmail, businessType (RETAIL\|RESTAURANT\|DISTRIBUTOR\|SERVICES\|PHARMACY\|OTHER), logoUrl (https), brandColor (#rrggbb)`. Dominio, modalidad y módulos no: los fija la plataforma |
 | GET | `/users`, `/users/:id` | `users:read` |
 | POST | `/users` | `users:manage` (invitación por correo; respeta `maxUsers` del plan) |
@@ -48,14 +49,18 @@ Con `readOnly`, toda petición que modifica datos responde **402** `{ code: "SUB
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/platform/tenants?q=&status=&page=&pageSize=` | Empresas con plan y nº de usuarios |
-| PATCH | `/platform/tenants/:id/status` | `ACTIVE` / `SUSPENDED` (bloquea el acceso de inmediato) |
+| GET | `/platform/tenants?q=&status=ACTIVE\|SUSPENDED\|ONBOARDING&page=&pageSize=` | Empresas con plan y nº de usuarios |
+| PATCH | `/platform/tenants/:id/status` | `ACTIVE` / `SUSPENDED` (bloquea el acceso de inmediato). Reactivar una empresa nunca activada la devuelve a `ONBOARDING` |
 | PATCH | `/platform/tenants/:id/plan` | Cambio manual de plan (sin cobro) |
 | GET | `/platform/plans` | Planes activos con precio |
 | POST | `/platform/tenants/:id/payments` | Registra un pago manual `{planCode, months 1-24, amount, currency, method: YAPE\|PLIN\|BANK_TRANSFER\|CASH\|OTHER, reference?, paidAt?}`: activa el plan; si el periodo sigue vigente los meses se suman al final |
 | GET | `/platform/tenants/:id/payments` | Historial de pagos de la empresa |
 | POST | `/platform/tenants/:id/cancel-subscription` | Cancela: la empresa queda en solo lectura de inmediato |
 | GET | `/platform/metrics` | Empresas, suscripciones por **estado de acceso calculado** y por plan, renovaciones pendientes, ingresos (mes y 30 días, por moneda), consumo de IA del mes, mensajes, pedidos, automatizaciones y errores |
+| POST | `/platform/tenants` | **Alta** (ADR 039): perfil + `customDomain?`, `deploymentMode`, `enabledModules`, `planCode`, `startsAt?`, `endsAt` (periodo inicial, máx. 1 año), `admin {name, email}` e `idempotencyKey` (uuid). 201 la crea en `ONBOARDING` e invita al administrador; 200 si esa clave ya se usó. Responde `{tenant, created, invitation: {sent, error?}}` |
+| GET | `/platform/tenants/:id/onboarding` | Lista de puesta en marcha `{status, activatedAt, tasks[{key,label,done,required,hint}], canActivate}` |
+| POST | `/platform/tenants/:id/activate` | Activa si todas las tareas obligatorias están hechas; si no, 409 `ONBOARDING_INCOMPLETE` con `pending` |
+| POST | `/platform/tenants/:id/resend-invitation` | Reenvía la invitación a los administradores que no entraron |
 | GET | `/platform/tenants/:id` | Ficha: perfil, administradores, acceso, números de WhatsApp, integraciones y consumo |
 | PATCH | `/platform/tenants/:id` | Perfil + `customDomain` (único), `deploymentMode` (SAAS\|DEDICATED\|CUSTOM), `enabledModules` |
 | GET | `/platform/plans/all` | Todos los planes con límites y nº de empresas |

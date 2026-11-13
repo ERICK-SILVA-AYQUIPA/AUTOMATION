@@ -1,4 +1,6 @@
-import { BadRequestException, Body, Controller, Get, Inject, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Inject, NotFoundException, Param, Patch, Post, Query, Res } from '@nestjs/common';
+import type { Response } from 'express';
+import { ProvisioningService, provisionSchema, type ProvisionInput } from './provisioning.service.js';
 import { ENV, type Env } from '../config/env.js';
 import { addMonths, subscriptionAccess } from '../plans/subscription-access.js';
 import { PlatformMetricsService } from './platform-metrics.service.js';
@@ -14,7 +16,7 @@ import { AuditService } from '../audit/audit.service.js';
 
 const listSchema = z.object({
   q: z.string().trim().max(100).optional(),
-  status: z.enum(['ACTIVE', 'SUSPENDED']).optional(),
+  status: z.enum(['ACTIVE', 'SUSPENDED', 'ONBOARDING']).optional(),
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(20),
 });
@@ -64,7 +66,33 @@ export class PlatformController {
     private readonly audit: AuditService,
     @Inject(ENV) private readonly env: Env,
     private readonly metricsService: PlatformMetricsService,
+    private readonly provisioning: ProvisioningService,
   ) {}
+
+  /** Asistente de alta: idempotente por `idempotencyKey`; la empresa nace en preparación (ADR 039). */
+  @Post('tenants')
+  async provision(@CurrentUser() p: Principal, @Body({ schema: provisionSchema }) body: ProvisionInput, @Res({ passthrough: true }) res: Response) {
+    const r = await this.provisioning.provision(p.userId, body);
+    res.status(r.created ? 201 : 200);
+    return r;
+  }
+
+  @Get('tenants/:id/onboarding')
+  async onboarding(@Param('id', { schema: z.uuid() }) id: string) {
+    const t = await this.db.system.tenant.findUnique({ where: { id }, select: { id: true } });
+    if (!t) throw new NotFoundException('Empresa no encontrada');
+    return this.provisioning.onboarding(id);
+  }
+
+  @Post('tenants/:id/activate')
+  activate(@CurrentUser() p: Principal, @Param('id', { schema: z.uuid() }) id: string) {
+    return this.provisioning.activate(p.userId, id);
+  }
+
+  @Post('tenants/:id/resend-invitation')
+  resend(@Param('id', { schema: z.uuid() }) id: string) {
+    return this.provisioning.resendInvitations(id);
+  }
 
   @Get('tenants')
   async tenants(@Query({ schema: listSchema }) q: z.infer<typeof listSchema>) {
@@ -92,8 +120,11 @@ export class PlatformController {
 
   @Patch('tenants/:id/status')
   async setStatus(@CurrentUser() p: Principal, @Param('id', { schema: z.uuid() }) id: string, @Body({ schema: statusSchema }) body: z.infer<typeof statusSchema>) {
-    const t = await this.db.system.tenant.update({ where: { id }, data: { status: body.status } }).catch(() => null);
-    if (!t) throw new NotFoundException('Empresa no encontrada');
+    const current = await this.db.system.tenant.findUnique({ where: { id }, select: { activatedAt: true } });
+    if (!current) throw new NotFoundException('Empresa no encontrada');
+    // Reactivar una empresa que nunca se activó la devuelve a preparación (no se salta la lista de tareas)
+    const status = body.status === 'ACTIVE' && !current.activatedAt ? 'ONBOARDING' : body.status;
+    const t = await this.db.system.tenant.update({ where: { id }, data: { status } });
     await this.audit.system({ tenantId: id, userId: p.userId, action: `platform.tenant_${body.status.toLowerCase()}`, entityType: 'tenant', entityId: id, metadata: { reason: body.reason ?? null } });
     return t;
   }

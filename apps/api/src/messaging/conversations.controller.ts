@@ -126,10 +126,10 @@ export class ConversationsController {
       const data: Prisma.ConversationUpdateInput = {
         ...(b.tags ? { tags: [...new Set(b.tags)] } : {}),
         ...(b.assignedUserId !== undefined ? { assignedUserId: b.assignedUserId } : {}),
-        ...(b.botStatus === 'ACTIVE' ? { botStatus: 'ACTIVE', handoffAt: null, handoffReason: null } : {}),
+        ...(b.botStatus === 'ACTIVE' ? { botStatus: 'ACTIVE', handoffReason: null } : {}),
         ...(b.botStatus === 'PAUSED' ? { botStatus: 'PAUSED', handoffAt: new Date(), handoffReason: 'manual' } : {}),
         // Cerrar devuelve la siguiente conversación a la IA; reabrir no cambia quién atiende
-        ...(b.status === 'RESOLVED' ? { status: 'RESOLVED', botStatus: 'ACTIVE', handoffAt: null, handoffReason: null } : {}),
+        ...(b.status === 'RESOLVED' ? { status: 'RESOLVED', botStatus: 'ACTIVE', handoffReason: null } : {}),
         ...(b.status === 'OPEN' ? { status: 'OPEN' } : {}),
       };
       const updated = await tx.conversation.update({ where: { id }, data, select: { id: true, status: true, botStatus: true, assignedUserId: true, tags: true, handoffReason: true } });

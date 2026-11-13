@@ -158,3 +158,17 @@ Avances anteriores revisados uno a uno:
 | 10. Cierre | Pruebas de navegador en CI, pruebas reales separadas de las simuladas, auditoría de seguridad final y documentación |
 
 Lo que depende de decisiones o servicios externos se marca como pendiente en cada fase. Nunca se marca como hecho.
+
+## Seguimiento
+
+| Error | Estado |
+|---|---|
+| 1. Notificaciones invisibles | Corregido en la fase 2 (`/notifications` y campana) |
+| 2. IA sin reactivar ni cierre desde el panel | Corregido en la fase 2 |
+| 3. Métricas con el estado guardado | Corregido en la fase 2 (estado de acceso calculado) |
+| 4. Aviso de vencimiento desactualizado | Corregido en la fase 3 (relectura de la cuenta en vivo) |
+| 5. Restos de Dify y Evolution | Pendiente de autorización para borrarlos |
+| Hallado en fase 2: responder desde el panel no pausaba la IA | Corregido |
+| Hallado en CI: pedidos simultáneos de un cliente nuevo daban 409 | Corregido con prueba que lo reproduce |
+| Hallado en fase 3: «solo por IA» contaba conversaciones sin respuesta del asistente; reactivar la IA borraba el historial de derivación | Corregido |
+

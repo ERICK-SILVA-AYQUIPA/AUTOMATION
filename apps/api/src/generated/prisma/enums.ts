@@ -20,7 +20,8 @@ export type PlanCode = (typeof PlanCode)[keyof typeof PlanCode]
 
 export const TenantStatus = {
   ACTIVE: 'ACTIVE',
-  SUSPENDED: 'SUSPENDED'
+  SUSPENDED: 'SUSPENDED',
+  ONBOARDING: 'ONBOARDING'
 } as const
 
 export type TenantStatus = (typeof TenantStatus)[keyof typeof TenantStatus]

@@ -34,7 +34,7 @@ describe('Administrador general de plataforma', () => {
     expect(tenant.body.limits.maxUsers).toBe(10);
 
     const m = await ctx.http().get('/api/v1/platform/metrics').set(auth()).expect(200);
-    expect(m.body.tenants).toEqual({ total: 1, active: 1, suspended: 0 });
+    expect(m.body.tenants).toEqual({ total: 1, active: 1, suspended: 0, onboarding: 0 });
 
     await ctx.http().patch(`/api/v1/platform/tenants/${t.tenantId}/status`).set(auth()).send({ status: 'SUSPENDED', reason: 'impago' }).expect(200);
     await ctx.http().get('/api/v1/tenant').set({ Authorization: `Bearer ${t.accessToken}` }).expect(403);

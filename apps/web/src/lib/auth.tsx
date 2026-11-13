@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { api, refreshAccessToken, setAccessToken, setSessionExpiredHandler } from './api';
+import { api, refreshAccessToken, setAccessChangedHandler, setAccessToken, setSessionExpiredHandler } from './api';
 import type { Me } from './types';
 
 interface AuthState {
@@ -41,6 +41,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     })();
   }, [reload, router]);
+
+  // El estado de la cuenta (vencimiento, módulos, activación) puede cambiar con la
+  // sesión abierta: se vuelve a leer al volver a la pestaña, cada 5 minutos y
+  // en cuanto la API responde que el acceso cambió.
+  const signedIn = !!me;
+  useEffect(() => {
+    if (!signedIn) return;
+    let last = Date.now();
+    const refresh = (force = false) => {
+      if (!force && Date.now() - last < 60_000) return;
+      last = Date.now();
+      reload().catch(() => undefined);
+    };
+    const onVisible = () => document.visibilityState === 'visible' && refresh();
+    setAccessChangedHandler(() => refresh(true));
+    document.addEventListener('visibilitychange', onVisible);
+    const timer = setInterval(() => document.visibilityState === 'visible' && refresh(true), 5 * 60_000);
+    return () => {
+      setAccessChangedHandler(null);
+      document.removeEventListener('visibilitychange', onVisible);
+      clearInterval(timer);
+    };
+  }, [signedIn, reload]);
 
   const login = useCallback(async (email: string, password: string) => {
     const r = await api<{ accessToken: string }>('/auth/login', { method: 'POST', body: { email, password } });

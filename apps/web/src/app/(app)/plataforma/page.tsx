@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Building2, Eye, Search, Wallet } from 'lucide-react';
+import { Building2, Eye, Plus, Search, Wallet } from 'lucide-react';
 import { api } from '@/lib/api';
 import { PAYMENT_METHOD, date, money, num } from '@/lib/format';
 import { TenantDetailDialog } from './tenant-detail';
@@ -13,12 +15,12 @@ import { useToast } from '@/components/ui/toast';
 import { RequirePermission } from '@/components/guard';
 
 interface Tenant {
-  id: string; name: string; slug: string; status: 'ACTIVE' | 'SUSPENDED'; createdAt: string; currency: string;
+  id: string; name: string; slug: string; status: 'ACTIVE' | 'SUSPENDED' | 'ONBOARDING'; createdAt: string; currency: string;
   subscription: { status: string; trialEndsAt: string | null; currentPeriodEnd: string; plan: { code: string; name: string }; access: SubscriptionAccess } | null; _count: { users: number };
 }
 interface Revenue { currency: string; amount: string; payments: number }
 interface Metrics {
-  tenants: { total: number; active: number; suspended: number }; activeUsers: number; pendingRenewals: number;
+  tenants: { total: number; active: number; suspended: number; onboarding: number }; activeUsers: number; pendingRenewals: number;
   subscriptions: Record<SubscriptionAccess['state'], number> & { byPlan: Record<string, number> };
   revenue: { thisMonth: Revenue[]; last30Days: Revenue[] };
   ai: { period: string; replies: number; tokens: number };
@@ -70,7 +72,7 @@ function PaymentDialog({ tenant, onClose, onDone }: { tenant: Tenant | null; onC
           reference: form.reference.trim() || undefined, paidAt: form.paidAt ? new Date(`${form.paidAt}T12:00:00`).toISOString() : undefined,
         },
       });
-      toast.success(`Pago registrado: ${tenant.name} queda activa`);
+      toast.success(tenant.status === 'ONBOARDING' ? `Pago registrado. ${tenant.name} sigue en preparación hasta que la actives` : `Pago registrado: ${tenant.name} queda activa`);
       onDone();
       onClose();
     } catch (err) {
@@ -171,7 +173,13 @@ function Platform() {
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
   const [billing, setBilling] = useState<Tenant | null>(null);
-  const [detail, setDetail] = useState<string | null>(null);
+  const params = useSearchParams();
+  const router = useRouter();
+  const [detail, setDetailState] = useState<string | null>(() => params.get('empresa'));
+  const setDetail = (id: string | null) => {
+    setDetailState(id);
+    if (!id && params.get('empresa')) router.replace('/plataforma');
+  };
   const [tab, setTab] = useState<'tenants' | 'plans'>('tenants');
   useEffect(() => {
     const t = setTimeout(() => { setDq(q.trim()); setPage(1); }, 300);
@@ -217,11 +225,12 @@ function Platform() {
   const pages = list.data ? Math.max(1, Math.ceil(list.data.total / list.data.pageSize)) : 1;
   return (
     <>
-      <PageHeader title="Empresas" description="Administración general de la plataforma. Cobro manual: registra aquí los pagos recibidos por Yape o transferencia." />
+      <PageHeader title="Empresas" description="Administración general de la plataforma. Cobro manual: registra aquí los pagos recibidos por Yape o transferencia."
+        actions={<Link href="/plataforma/nueva" className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-fg hover:opacity-90"><Plus className="size-4" />Nueva empresa</Link>} />
       <ErrorBox error={metrics.error} />
       {m && (
         <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="Empresas" value={num(m.tenants.total)} hint={`${num(m.tenants.active)} activas · ${num(m.tenants.suspended)} suspendidas`} />
+          <StatCard label="Empresas" value={num(m.tenants.total)} hint={`${num(m.tenants.active)} activas · ${num(m.tenants.onboarding)} en preparación · ${num(m.tenants.suspended)} suspendidas`} />
           <StatCard label="Suscripciones" value={`${num(m.subscriptions.ACTIVE)} pagadas`} hint={`${num(m.subscriptions.TRIAL)} en prueba · ${num(m.subscriptions.CANCELED)} canceladas`} />
           <StatCard label="Por renovar" value={num(m.pendingRenewals)} tone={m.pendingRenewals ? 'warning' : undefined} hint={`${num(m.subscriptions.GRACE)} en gracia · ${num(m.subscriptions.EXPIRED)} en solo lectura`} />
           <StatCard label="Ingresos del mes" value={revenueText(m.revenue.thisMonth)} hint={`30 días: ${revenueText(m.revenue.last30Days)} · pagos registrados a mano`} />
@@ -247,6 +256,7 @@ function Platform() {
           <Select className="sm:w-44" value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }} aria-label="Estado">
             <option value="">Todas</option>
             <option value="ACTIVE">Activas</option>
+            <option value="ONBOARDING">En preparación</option>
             <option value="SUSPENDED">Suspendidas</option>
           </Select>
         </div>
@@ -267,11 +277,11 @@ function Platform() {
                     <Td><AccessCell s={t.subscription} /></Td>
                     <Td className="text-right tabular-nums">{t._count.users}</Td>
                     <Td className="text-muted">{date(t.createdAt)}</Td>
-                    <Td><Badge tone={t.status === 'ACTIVE' ? 'success' : 'danger'}>{t.status === 'ACTIVE' ? 'Activa' : 'Suspendida'}</Badge></Td>
+                    <Td><Badge tone={t.status === 'ACTIVE' ? 'success' : t.status === 'ONBOARDING' ? 'info' : 'danger'}>{t.status === 'ACTIVE' ? 'Activa' : t.status === 'ONBOARDING' ? 'En preparación' : 'Suspendida'}</Badge></Td>
                     <Td className="whitespace-nowrap text-right">
                       <Button size="sm" variant="ghost" icon={<Eye className="size-4" />} onClick={() => setDetail(t.id)} className="mr-2" aria-label={`Ver ${t.name}`}>Ficha</Button>
                       <Button size="sm" variant="secondary" icon={<Wallet className="size-4" />} onClick={() => setBilling(t)} className="mr-2">Cobro</Button>
-                      {t.status === 'ACTIVE'
+                      {t.status !== 'SUSPENDED'
                         ? <Button size="sm" variant="secondary" onClick={() => setSuspend(t)}>Suspender</Button>
                         : <Button size="sm" variant="secondary" loading={busy} onClick={() => setTenantStatus(t, 'ACTIVE')}>Reactivar</Button>}
                     </Td>
@@ -297,5 +307,5 @@ function Platform() {
 }
 
 export default function PlataformaPage() {
-  return <RequirePermission permission="platform:manage"><Platform /></RequirePermission>;
+  return <RequirePermission permission="platform:manage"><Suspense fallback={<Loading />}><Platform /></Suspense></RequirePermission>;
 }

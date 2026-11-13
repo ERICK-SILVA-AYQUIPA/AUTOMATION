@@ -27,6 +27,8 @@ enum PlanCode {
 enum TenantStatus {
   ACTIVE
   SUSPENDED
+  /// Alta desde la plataforma: el panel funciona, pero el asistente no responde a clientes hasta la activación
+  ONBOARDING
 }
 
 enum SubscriptionStatus {
@@ -92,6 +94,9 @@ model Tenant {
   deploymentMode DeploymentMode @default(SAAS) @map("deployment_mode")
   enabledModules String[]   @default(["conversations", "ai", "catalog", "inventory", "orders", "customers", "reports", "automations"]) @map("enabled_modules")
   templateKey  String?      @map("template_key")
+  /// Clave del asistente de alta: repetir la misma alta devuelve la empresa ya creada
+  provisioningKey String?   @unique @map("provisioning_key") @db.Uuid
+  activatedAt     DateTime? @map("activated_at") @db.Timestamptz(3)
   createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
 

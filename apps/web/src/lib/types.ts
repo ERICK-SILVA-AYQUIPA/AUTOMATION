@@ -11,7 +11,7 @@ export interface Me {
   role: Role;
   tenantId: string | null;
   permissions: string[];
-  tenant: { id: string; name: string; slug: string; currency: string; timezone: string; enabledModules: string[]; logoUrl: string | null; brandColor: string | null; deploymentMode: 'SAAS' | 'DEDICATED' | 'CUSTOM'; subscription: { status: string; trialEndsAt: string | null; currentPeriodEnd: string; plan: { code: string; name: string }; access: SubscriptionAccess } | null } | null;
+  tenant: { id: string; name: string; slug: string; status: 'ACTIVE' | 'SUSPENDED' | 'ONBOARDING'; currency: string; timezone: string; enabledModules: string[]; logoUrl: string | null; brandColor: string | null; deploymentMode: 'SAAS' | 'DEDICATED' | 'CUSTOM'; subscription: { status: string; trialEndsAt: string | null; currentPeriodEnd: string; plan: { code: string; name: string }; access: SubscriptionAccess } | null } | null;
   /** Instrucciones de pago configuradas por la plataforma (BILLING_CONTACT) */
   billingContact: string;
 }

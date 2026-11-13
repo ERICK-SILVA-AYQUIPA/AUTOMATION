@@ -71,8 +71,16 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
   - [x] Planes editables (precio, moneda, límites, funciones) con auditoría
   - [x] Módulos por empresa: menú filtrado y API con 403 `MODULE_DISABLED`
   - [ ] Precios reales de los planes en soles: **los decide Rick** desde Plataforma → Planes y precios
-  - [ ] Aviso de vencimiento en vivo sin recargar (error 4): pasa a la fase 3
-- [ ] Fase 3: alta de empresas desde la plataforma
+  - [x] Aviso de vencimiento en vivo sin recargar (error 4): resuelto en la fase 3
+- [x] Fase 3: alta de empresas desde la plataforma (ADR 039)
+  - [x] Asistente de alta en 5 pasos (empresa, marca y modalidad, plan y periodo, administrador, revisión) con borrador recuperable
+  - [x] Alta idempotente (también en paralelo) y transaccional; administrador invitado por correo
+  - [x] Estado «en preparación»: el equipo configura, el asistente no responde a clientes
+  - [x] Lista de puesta en marcha calculada (empresa y plataforma) y activación solo con las tareas obligatorias hechas
+  - [x] Reenvío de invitación si el correo falló; aviso «Tu cuenta está activa»
+  - [x] El panel relee la cuenta al volver a la pestaña, cada 5 min y al recibir 402 o MODULE_DISABLED
+  - [x] Métrica «solo por IA» de Inicio: solo conversaciones que el asistente respondió sin intervención humana
+  - [ ] Dominio propio: se registra, pero el DNS y el certificado se configuran en el servidor (fase 8)
 - [ ] Fase 4: automatizaciones
 - [ ] Fase 5: asistente IA ampliado
 - [ ] Fase 6: integraciones centralizadas

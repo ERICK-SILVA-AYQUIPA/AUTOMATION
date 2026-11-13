@@ -20,6 +20,16 @@ let onSessionExpired: (() => void) | null = null;
 export const setAccessToken = (t: string | null) => {
   accessToken = t;
 };
+let onAccessChanged: (() => void) | null = null;
+/**
+ * Se llama cuando la API indica que el acceso de la empresa cambió durante la
+ * sesión (plan vencido, módulo apagado): el panel vuelve a leer /auth/me para
+ * que avisos y menú no queden desactualizados hasta recargar.
+ */
+export function setAccessChangedHandler(fn: (() => void) | null) {
+  onAccessChanged = fn;
+}
+
 export const setSessionExpiredHandler = (fn: () => void) => {
   onSessionExpired = fn;
 };
@@ -76,6 +86,7 @@ export async function api<T = unknown>(path: string, opts: Opts = {}, retry = tr
     } catch {
       /* respuesta sin JSON */
     }
+    if (res.status === 402 || (res.status === 403 && body.code === 'MODULE_DISABLED')) onAccessChanged?.();
     const msg = Array.isArray(body.message) ? body.message.join('. ') : body.message;
     throw new ApiError(res.status, msg ?? (res.status === 429 ? 'Demasiadas solicitudes. Espera un momento.' : 'Ocurrió un error inesperado'), body.code, body.errors);
   }

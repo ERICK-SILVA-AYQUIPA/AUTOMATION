@@ -7,6 +7,7 @@ import type { TenantPrincipal } from '../common/context/principal.js';
 import { DatabaseService } from '../database/database.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { currentPeriod, getPlanLimits } from '../plans/plan-limits.js';
+import { computeOnboarding } from './onboarding.js';
 
 /** Perfil que la empresa edita por sí misma (dominio, modalidad y módulos los fija la plataforma). */
 export const tenantProfileSchema = z.object({
@@ -67,6 +68,15 @@ export class TenantsController {
         },
       };
     });
+  }
+
+  /** Puesta en marcha: qué falta para que la plataforma active la empresa (ADR 039) */
+  @RequirePermission('tenant:read')
+  @Get('onboarding')
+  onboarding(@TenantUser() p: TenantPrincipal) {
+    return this.db.tenant(p.tenantId, (tx) =>
+      computeOnboarding(tx, p.tenantId, { graceDays: this.env.BILLING_GRACE_DAYS, aiProviderConfigured: !!this.env.GEMINI_API_KEY, checkInvitations: false }),
+    );
   }
 
   /** Pagos registrados por la plataforma (solo lectura; solo el administrador de la empresa) */

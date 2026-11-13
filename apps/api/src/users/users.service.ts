@@ -71,7 +71,8 @@ export class UsersService {
     await this.sendInvitation(u.id, u.email, u.name);
   }
 
-  private async sendInvitation(userId: string, email: string, name: string) {
+  /** También la usa el alta de empresas desde la plataforma (ADR 039) */
+  async sendInvitation(userId: string, email: string, name: string) {
     const raw = await this.auth.issueToken(userId, AuthTokenType.INVITATION);
     const link = `${this.env.APP_PUBLIC_URL}/aceptar-invitacion?token=${encodeURIComponent(raw)}`;
     await this.mail.send({

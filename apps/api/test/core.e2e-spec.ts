@@ -158,4 +158,20 @@ describe('Núcleo multiempresa: avisos, bandeja, módulos, perfil y panel genera
     expect(d.body.whatsappNumbers).toHaveLength(1);
     expect(d.body.users[0].email).toBe('admin@core-a.test');
   });
+  it('inicio: «solo por IA» cuenta solo conversaciones que el asistente respondió sin intervención; reactivar no borra el historial', async () => {
+    // La conversación del panel tuvo respuesta de una persona: cuenta como derivada aunque la IA se reactive
+    await ctx.http().patch(`/api/v1/conversations/${conversationId}`).set(HA()).send({ botStatus: 'ACTIVE' }).expect(200);
+    expect((await owner.conversation.findUniqueOrThrow({ where: { id: conversationId } })).handoffAt).toBeInstanceOf(Date);
+    const n = await owner.whatsappNumber.findFirstOrThrow({ where: { tenantId: a.tenantId } });
+    const mk = async (phone: string, sender?: 'BOT') => {
+      const c = await owner.customer.create({ data: { tenantId: a.tenantId, phone, source: 'whatsapp' } });
+      const conv = await owner.conversation.create({ data: { tenantId: a.tenantId, customerId: c.id, whatsappNumberId: n.id, lastMessageAt: new Date() } });
+      await owner.message.create({ data: { tenantId: a.tenantId, conversationId: conv.id, direction: 'INBOUND', senderType: 'CUSTOMER', type: 'text', content: 'hola', status: 'received' } });
+      if (sender) await owner.message.create({ data: { tenantId: a.tenantId, conversationId: conv.id, direction: 'OUTBOUND', senderType: sender, type: 'text', content: 'respuesta', status: 'sent' } });
+    };
+    await mk('51987000501', 'BOT'); // respondida por la IA
+    await mk('51987000502'); // sin respuesta: no es «solo por IA»
+    const d = await ctx.http().get('/api/v1/dashboard').set(HA()).expect(200);
+    expect(d.body.conversations).toEqual({ received: 3, handledByAi: 1, transferredToHuman: 1 });
+  });
 });

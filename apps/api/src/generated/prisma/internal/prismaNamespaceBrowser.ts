@@ -136,6 +136,8 @@ export const TenantScalarFieldEnum = {
   deploymentMode: 'deploymentMode',
   enabledModules: 'enabledModules',
   templateKey: 'templateKey',
+  provisioningKey: 'provisioningKey',
+  activatedAt: 'activatedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

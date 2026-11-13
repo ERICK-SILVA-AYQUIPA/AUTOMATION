@@ -50,7 +50,7 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Sesión no válida');
     }
     if (session.user.status !== 'ACTIVE') throw new UnauthorizedException('Usuario inactivo');
-    if (session.user.tenant && session.user.tenant.status !== 'ACTIVE') {
+    if (session.user.tenant && session.user.tenant.status === 'SUSPENDED') {
       throw new ForbiddenException('La empresa está suspendida');
     }
 

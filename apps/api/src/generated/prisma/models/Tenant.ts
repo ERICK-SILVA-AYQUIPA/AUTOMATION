@@ -43,6 +43,8 @@ export type TenantMinAggregateOutputType = {
   customDomain: string | null
   deploymentMode: $Enums.DeploymentMode | null
   templateKey: string | null
+  provisioningKey: string | null
+  activatedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,6 +68,8 @@ export type TenantMaxAggregateOutputType = {
   customDomain: string | null
   deploymentMode: $Enums.DeploymentMode | null
   templateKey: string | null
+  provisioningKey: string | null
+  activatedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -90,6 +94,8 @@ export type TenantCountAggregateOutputType = {
   deploymentMode: number
   enabledModules: number
   templateKey: number
+  provisioningKey: number
+  activatedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -115,6 +121,8 @@ export type TenantMinAggregateInputType = {
   customDomain?: true
   deploymentMode?: true
   templateKey?: true
+  provisioningKey?: true
+  activatedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -138,6 +146,8 @@ export type TenantMaxAggregateInputType = {
   customDomain?: true
   deploymentMode?: true
   templateKey?: true
+  provisioningKey?: true
+  activatedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -162,6 +172,8 @@ export type TenantCountAggregateInputType = {
   deploymentMode?: true
   enabledModules?: true
   templateKey?: true
+  provisioningKey?: true
+  activatedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -259,6 +271,8 @@ export type TenantGroupByOutputType = {
   deploymentMode: $Enums.DeploymentMode
   enabledModules: string[]
   templateKey: string | null
+  provisioningKey: string | null
+  activatedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: TenantCountAggregateOutputType | null
@@ -304,6 +318,8 @@ export type TenantWhereInput = {
   deploymentMode?: Prisma.EnumDeploymentModeFilter<"Tenant"> | $Enums.DeploymentMode
   enabledModules?: Prisma.StringNullableListFilter<"Tenant">
   templateKey?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  provisioningKey?: Prisma.UuidNullableFilter<"Tenant"> | string | null
+  activatedAt?: Prisma.DateTimeNullableFilter<"Tenant"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   subscription?: Prisma.XOR<Prisma.SubscriptionNullableScalarRelationFilter, Prisma.SubscriptionWhereInput> | null
@@ -332,6 +348,8 @@ export type TenantOrderByWithRelationInput = {
   deploymentMode?: Prisma.SortOrder
   enabledModules?: Prisma.SortOrder
   templateKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  provisioningKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  activatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   subscription?: Prisma.SubscriptionOrderByWithRelationInput
@@ -344,6 +362,7 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   slug?: string
   customDomain?: string
+  provisioningKey?: string
   AND?: Prisma.TenantWhereInput | Prisma.TenantWhereInput[]
   OR?: Prisma.TenantWhereInput[]
   NOT?: Prisma.TenantWhereInput | Prisma.TenantWhereInput[]
@@ -363,13 +382,14 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   deploymentMode?: Prisma.EnumDeploymentModeFilter<"Tenant"> | $Enums.DeploymentMode
   enabledModules?: Prisma.StringNullableListFilter<"Tenant">
   templateKey?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  activatedAt?: Prisma.DateTimeNullableFilter<"Tenant"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   subscription?: Prisma.XOR<Prisma.SubscriptionNullableScalarRelationFilter, Prisma.SubscriptionWhereInput> | null
   payments?: Prisma.PaymentListRelationFilter
   users?: Prisma.UserListRelationFilter
   branches?: Prisma.BranchListRelationFilter
-}, "id" | "slug" | "customDomain">
+}, "id" | "slug" | "customDomain" | "provisioningKey">
 
 export type TenantOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -391,6 +411,8 @@ export type TenantOrderByWithAggregationInput = {
   deploymentMode?: Prisma.SortOrder
   enabledModules?: Prisma.SortOrder
   templateKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  provisioningKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  activatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TenantCountOrderByAggregateInput
@@ -421,6 +443,8 @@ export type TenantScalarWhereWithAggregatesInput = {
   deploymentMode?: Prisma.EnumDeploymentModeWithAggregatesFilter<"Tenant"> | $Enums.DeploymentMode
   enabledModules?: Prisma.StringNullableListFilter<"Tenant">
   templateKey?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  provisioningKey?: Prisma.UuidNullableWithAggregatesFilter<"Tenant"> | string | null
+  activatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
 }
@@ -445,6 +469,8 @@ export type TenantCreateInput = {
   deploymentMode?: $Enums.DeploymentMode
   enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
   templateKey?: string | null
+  provisioningKey?: string | null
+  activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
@@ -473,6 +499,8 @@ export type TenantUncheckedCreateInput = {
   deploymentMode?: $Enums.DeploymentMode
   enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
   templateKey?: string | null
+  provisioningKey?: string | null
+  activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
@@ -501,6 +529,8 @@ export type TenantUpdateInput = {
   deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
   enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provisioningKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
@@ -529,6 +559,8 @@ export type TenantUncheckedUpdateInput = {
   deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
   enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provisioningKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
@@ -557,6 +589,8 @@ export type TenantCreateManyInput = {
   deploymentMode?: $Enums.DeploymentMode
   enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
   templateKey?: string | null
+  provisioningKey?: string | null
+  activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -581,6 +615,8 @@ export type TenantUpdateManyMutationInput = {
   deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
   enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provisioningKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -605,6 +641,8 @@ export type TenantUncheckedUpdateManyInput = {
   deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
   enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provisioningKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -637,6 +675,8 @@ export type TenantCountOrderByAggregateInput = {
   deploymentMode?: Prisma.SortOrder
   enabledModules?: Prisma.SortOrder
   templateKey?: Prisma.SortOrder
+  provisioningKey?: Prisma.SortOrder
+  activatedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -660,6 +700,8 @@ export type TenantMaxOrderByAggregateInput = {
   customDomain?: Prisma.SortOrder
   deploymentMode?: Prisma.SortOrder
   templateKey?: Prisma.SortOrder
+  provisioningKey?: Prisma.SortOrder
+  activatedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -683,6 +725,8 @@ export type TenantMinOrderByAggregateInput = {
   customDomain?: Prisma.SortOrder
   deploymentMode?: Prisma.SortOrder
   templateKey?: Prisma.SortOrder
+  provisioningKey?: Prisma.SortOrder
+  activatedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -720,6 +764,10 @@ export type EnumDeploymentModeFieldUpdateOperationsInput = {
 export type TenantUpdateenabledModulesInput = {
   set?: string[]
   push?: string | string[]
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type TenantCreateNestedOneWithoutSubscriptionInput = {
@@ -800,6 +848,8 @@ export type TenantCreateWithoutSubscriptionInput = {
   deploymentMode?: $Enums.DeploymentMode
   enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
   templateKey?: string | null
+  provisioningKey?: string | null
+  activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
@@ -827,6 +877,8 @@ export type TenantUncheckedCreateWithoutSubscriptionInput = {
   deploymentMode?: $Enums.DeploymentMode
   enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
   templateKey?: string | null
+  provisioningKey?: string | null
+  activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
@@ -870,6 +922,8 @@ export type TenantUpdateWithoutSubscriptionInput = {
   deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
   enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provisioningKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
@@ -897,6 +951,8 @@ export type TenantUncheckedUpdateWithoutSubscriptionInput = {
   deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
   enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provisioningKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
@@ -924,6 +980,8 @@ export type TenantCreateWithoutPaymentsInput = {
   deploymentMode?: $Enums.DeploymentMode
   enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
   templateKey?: string | null
+  provisioningKey?: string | null
+  activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
@@ -951,6 +1009,8 @@ export type TenantUncheckedCreateWithoutPaymentsInput = {
   deploymentMode?: $Enums.DeploymentMode
   enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
   templateKey?: string | null
+  provisioningKey?: string | null
+  activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
@@ -994,6 +1054,8 @@ export type TenantUpdateWithoutPaymentsInput = {
   deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
   enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provisioningKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
@@ -1021,6 +1083,8 @@ export type TenantUncheckedUpdateWithoutPaymentsInput = {
   deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
   enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provisioningKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
@@ -1048,6 +1112,8 @@ export type TenantCreateWithoutUsersInput = {
   deploymentMode?: $Enums.DeploymentMode
   enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
   templateKey?: string | null
+  provisioningKey?: string | null
+  activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
@@ -1075,6 +1141,8 @@ export type TenantUncheckedCreateWithoutUsersInput = {
   deploymentMode?: $Enums.DeploymentMode
   enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
   templateKey?: string | null
+  provisioningKey?: string | null
+  activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
@@ -1118,6 +1186,8 @@ export type TenantUpdateWithoutUsersInput = {
   deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
   enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provisioningKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
@@ -1145,6 +1215,8 @@ export type TenantUncheckedUpdateWithoutUsersInput = {
   deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
   enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provisioningKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
@@ -1172,6 +1244,8 @@ export type TenantCreateWithoutBranchesInput = {
   deploymentMode?: $Enums.DeploymentMode
   enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
   templateKey?: string | null
+  provisioningKey?: string | null
+  activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
@@ -1199,6 +1273,8 @@ export type TenantUncheckedCreateWithoutBranchesInput = {
   deploymentMode?: $Enums.DeploymentMode
   enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
   templateKey?: string | null
+  provisioningKey?: string | null
+  activatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
@@ -1242,6 +1318,8 @@ export type TenantUpdateWithoutBranchesInput = {
   deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
   enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provisioningKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
@@ -1269,6 +1347,8 @@ export type TenantUncheckedUpdateWithoutBranchesInput = {
   deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
   enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provisioningKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
@@ -1345,6 +1425,8 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   deploymentMode?: boolean
   enabledModules?: boolean
   templateKey?: boolean
+  provisioningKey?: boolean
+  activatedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   subscription?: boolean | Prisma.Tenant$subscriptionArgs<ExtArgs>
@@ -1374,6 +1456,8 @@ export type TenantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   deploymentMode?: boolean
   enabledModules?: boolean
   templateKey?: boolean
+  provisioningKey?: boolean
+  activatedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["tenant"]>
@@ -1398,6 +1482,8 @@ export type TenantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   deploymentMode?: boolean
   enabledModules?: boolean
   templateKey?: boolean
+  provisioningKey?: boolean
+  activatedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["tenant"]>
@@ -1422,11 +1508,13 @@ export type TenantSelectScalar = {
   deploymentMode?: boolean
   enabledModules?: boolean
   templateKey?: boolean
+  provisioningKey?: boolean
+  activatedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "status" | "currency" | "timezone" | "legalName" | "taxId" | "country" | "address" | "phone" | "contactEmail" | "businessType" | "logoUrl" | "brandColor" | "customDomain" | "deploymentMode" | "enabledModules" | "templateKey" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
+export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "status" | "currency" | "timezone" | "legalName" | "taxId" | "country" | "address" | "phone" | "contactEmail" | "businessType" | "logoUrl" | "brandColor" | "customDomain" | "deploymentMode" | "enabledModules" | "templateKey" | "provisioningKey" | "activatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
 export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   subscription?: boolean | Prisma.Tenant$subscriptionArgs<ExtArgs>
   payments?: boolean | Prisma.Tenant$paymentsArgs<ExtArgs>
@@ -1471,6 +1559,11 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     deploymentMode: $Enums.DeploymentMode
     enabledModules: string[]
     templateKey: string | null
+    /**
+     * Clave del asistente de alta: repetir la misma alta devuelve la empresa ya creada
+     */
+    provisioningKey: string | null
+    activatedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["tenant"]>
@@ -1919,6 +2012,8 @@ export interface TenantFieldRefs {
   readonly deploymentMode: Prisma.FieldRef<"Tenant", 'DeploymentMode'>
   readonly enabledModules: Prisma.FieldRef<"Tenant", 'String[]'>
   readonly templateKey: Prisma.FieldRef<"Tenant", 'String'>
+  readonly provisioningKey: Prisma.FieldRef<"Tenant", 'String'>
+  readonly activatedAt: Prisma.FieldRef<"Tenant", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Tenant", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Tenant", 'DateTime'>
 }

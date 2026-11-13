@@ -100,6 +100,7 @@ export class AssistantService {
     if (!ctx) return { outcome: 'skipped', reason: 'conversación no encontrada' };
     const { conv, settings, tenant, sub, latest } = ctx;
     if (!settings?.isEnabled || !tenant.enabledModules.includes('ai')) return { outcome: 'skipped', reason: 'asistente desactivado' };
+    if (tenant.status === 'ONBOARDING') return { outcome: 'skipped', reason: 'empresa en preparación' };
     if (tenant.status !== 'ACTIVE') return { outcome: 'skipped', reason: 'empresa suspendida' };
     if (conv.status !== 'OPEN' || conv.botStatus !== 'ACTIVE') return { outcome: 'skipped', reason: 'atención humana' };
     if (!sub || subscriptionAccess(sub, this.env.BILLING_GRACE_DAYS).readOnly) return { outcome: 'skipped', reason: 'suscripción vencida' };

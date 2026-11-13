@@ -10,6 +10,7 @@ import { useAuth } from '@/lib/auth';
 import { money, num } from '@/lib/format';
 import { Button, Card, EmptyState, ErrorBox, Input, PageHeader, Skeleton, StatCard, Table, Td, Th } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
+import { OnboardingCard } from '@/components/onboarding';
 
 interface Dashboard {
   range: { from: string; to: string; timezone: string; currency: string };
@@ -67,6 +68,7 @@ export default function InicioPage() {
           </div>
         }
       />
+      <OnboardingCard />
       <ErrorBox error={error} />
       {isLoading || !data ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -82,7 +84,7 @@ export default function InicioPage() {
             <StatCard label="Pedidos completados" value={num(data.orders.completed)} hint="Entregados en el rango" icon={<CheckCircle2 className="size-4" />} />
             <StatCard label="Pedidos anulados" value={num(data.orders.cancelled)} hint="En el rango" icon={<XCircle className="size-4" />} />
             <StatCard label="Conversaciones" value={num(data.conversations.received)} hint={`${num(data.conversations.handledByAi)} atendidas solo por IA`} icon={<MessagesSquare className="size-4" />} />
-            <StatCard label="Transferidas a humano" value={num(data.conversations.transferredToHuman)} hint="WhatsApp se conecta en la Fase 4" icon={<Headset className="size-4" />} />
+            <StatCard label="Transferidas a humano" value={num(data.conversations.transferredToHuman)} hint="La IA las derivó o respondió una persona" icon={<Headset className="size-4" />} />
           </div>
 
           <Card className="p-4">
@@ -150,7 +152,7 @@ export default function InicioPage() {
               )}
             </Card>
           </div>
-          <p className="flex items-center gap-2 text-xs text-muted"><Bot className="size-3.5" /> Las métricas de conversaciones se llenarán cuando conectes WhatsApp (Fase 4) y el asistente (Fase 6).</p>
+          <p className="flex items-center gap-2 text-xs text-muted"><Bot className="size-3.5" /> Conversaciones nuevas del rango. «Solo por IA»: el asistente respondió y nadie del equipo tuvo que intervenir.</p>
         </div>
       )}
     </>

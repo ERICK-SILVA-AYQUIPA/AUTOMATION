@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { OnboardingTasks, type Onboarding } from '@/components/onboarding';
 import { api } from '@/lib/api';
 import { BUSINESS_TYPE, DEPLOYMENT_MODE, MODULE_LABEL, date, dateTime, num } from '@/lib/format';
 import type { SubscriptionAccess } from '@/lib/types';
@@ -9,7 +10,7 @@ import { Badge, Button, Dialog, ErrorBox, Field, Input, Loading, Select } from '
 import { useToast } from '@/components/ui/toast';
 
 interface TenantDetail {
-  id: string; name: string; slug: string; status: string; createdAt: string; currency: string; timezone: string;
+  id: string; name: string; slug: string; status: string; createdAt: string; activatedAt: string | null; currency: string; timezone: string;
   legalName: string | null; taxId: string | null; country: string; address: string | null; phone: string | null; contactEmail: string | null;
   businessType: string; logoUrl: string | null; brandColor: string | null; customDomain: string | null; deploymentMode: string; enabledModules: string[];
   subscription: { plan: { name: string }; access: SubscriptionAccess } | null;
@@ -90,6 +91,54 @@ function EditForm({ t, onSaved }: { t: TenantDetail; onSaved: () => void }) {
   );
 }
 
+function Setup({ t, onChanged }: { t: TenantDetail; onChanged: () => void }) {
+  const qc = useQueryClient();
+  const toast = useToast();
+  const q = useQuery({ queryKey: ['platform-onboarding', t.id], queryFn: () => api<Onboarding>(`/platform/tenants/${t.id}/onboarding`) });
+  const [busy, setBusy] = useState<string | null>(null);
+  const ob = q.data;
+  if (!ob) return q.isLoading ? <Loading /> : <ErrorBox error={q.error} />;
+  const invitePending = ob.tasks.some((x) => x.key === 'admin_joined' && !x.done);
+
+  async function run(what: 'activate' | 'resend') {
+    setBusy(what);
+    try {
+      if (what === 'activate') {
+        await api(`/platform/tenants/${t.id}/activate`, { method: 'POST' });
+        toast.success(`${t.name} está activa`);
+        onChanged();
+      } else {
+        const r = await api<{ email: string; sent: boolean; error?: string }[]>(`/platform/tenants/${t.id}/resend-invitation`, { method: 'POST' });
+        const failed = r.filter((x) => !x.sent);
+        if (failed.length) toast.error(failed[0]!.error ?? 'No se pudo enviar la invitación');
+        else toast.success(`Invitación enviada a ${r.map((x) => x.email).join(', ')}`);
+      }
+      qc.invalidateQueries({ queryKey: ['platform-onboarding', t.id] });
+    } catch (err) {
+      toast.error(err);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <div className="rounded-lg border border-border p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h3 className="font-medium">Puesta en marcha</h3>
+        {ob.status === 'ONBOARDING' ? <Badge tone="info">En preparación</Badge> : ob.activatedAt ? <span className="text-xs text-muted">Activa desde {dateTime(ob.activatedAt)}</span> : null}
+      </div>
+      <OnboardingTasks tasks={ob.tasks} />
+      <div className="mt-3 flex flex-wrap gap-2">
+        {ob.status === 'ONBOARDING' && (
+          <Button size="sm" loading={busy === 'activate'} disabled={!ob.canActivate} onClick={() => run('activate')} title={ob.canActivate ? undefined : 'Faltan tareas obligatorias'}>Activar empresa</Button>
+        )}
+        {invitePending && <Button size="sm" variant="secondary" loading={busy === 'resend'} onClick={() => run('resend')}>Reenviar invitación</Button>}
+      </div>
+      {ob.status === 'ONBOARDING' && !ob.canActivate && <p className="mt-2 text-xs text-muted">Se podrá activar cuando las tareas obligatorias estén hechas. Mientras tanto el asistente no responde a sus clientes.</p>}
+    </div>
+  );
+}
+
 export function TenantDetailDialog({ id, onClose, onChanged }: { id: string | null; onClose: () => void; onChanged: () => void }) {
   const q = useQuery({ queryKey: ['platform-tenant', id], queryFn: () => api<TenantDetail>(`/platform/tenants/${id}`), enabled: !!id });
   const t = q.data;
@@ -98,6 +147,7 @@ export function TenantDetailDialog({ id, onClose, onChanged }: { id: string | nu
       footer={<><Button variant="secondary" onClick={onClose}>Cerrar</Button>{t && <Button type="submit" form="tenant-edit">Guardar cambios</Button>}</>}>
       {q.isLoading ? <Loading /> : !t ? <ErrorBox error={q.error} /> : (
         <div className="flex flex-col gap-6 text-sm">
+          <Setup t={t} onChanged={() => { q.refetch(); onChanged(); }} />
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <h3 className="mb-1 font-medium">Contacto</h3>

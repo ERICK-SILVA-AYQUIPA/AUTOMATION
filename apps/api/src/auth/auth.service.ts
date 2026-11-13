@@ -15,9 +15,10 @@ import { MailService } from '../mail/mail.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { TokenService } from './token.service.js';
 import { randomToken, sha256 } from '../common/crypto/crypto.js';
-import { AuthTokenType, Role, PlanCode, AutomationKey } from '../generated/prisma/enums.js';
+import { AuthTokenType, Role, PlanCode } from '../generated/prisma/enums.js';
 import { permissionsFor } from '../common/permissions.js';
 import { subscriptionAccess } from '../plans/subscription-access.js';
+import { bootstrapTenant, slugify, uniqueSlug } from '../tenants/tenant-bootstrap.js';
 import type { RegisterCompanyInput, LoginInput, ResetPasswordInput, AcceptInvitationInput } from './auth.schemas.js';
 
 const ARGON_OPTS = { type: argon2.argon2id, memoryCost: 19_456, timeCost: 2, parallelism: 1 } as const;
@@ -41,14 +42,8 @@ export interface IssuedSession {
   refreshExpiresAt: Date;
 }
 
-export const slugify = (s: string) =>
-  s
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 48) || 'empresa';
+// Se mantiene la exportación para los módulos que ya la importan desde aquí
+export { slugify } from '../tenants/tenant-bootstrap.js';
 
 @Injectable()
 export class AuthService {
@@ -90,9 +85,9 @@ export class AuthService {
     const trialEnd = new Date(now.getTime() + this.env.TRIAL_DAYS * 86_400_000);
 
     const result = await this.db.system.$transaction(async (tx) => {
-      const slug = await this.uniqueSlug(tx, slugify(input.companyName));
+      const slug = await uniqueSlug(tx, slugify(input.companyName));
       const tenant = await tx.tenant.create({
-        data: { name: input.companyName.trim(), slug, currency: input.currency, timezone: input.timezone },
+        data: { name: input.companyName.trim(), slug, currency: input.currency, timezone: input.timezone, activatedAt: now },
       });
       await tx.subscription.create({
         data: {
@@ -104,11 +99,7 @@ export class AuthService {
           currentPeriodEnd: trialEnd,
         },
       });
-      await tx.branch.create({ data: { tenantId: tenant.id, name: 'Principal', isDefault: true } });
-      await tx.aiSettings.create({ data: { tenantId: tenant.id } });
-      await tx.automation.createMany({
-        data: Object.values(AutomationKey).map((key) => ({ tenantId: tenant.id, key })),
-      });
+      await bootstrapTenant(tx, tenant.id);
       const user = await tx.user.create({
         data: { tenantId: tenant.id, email, name: input.adminName.trim(), passwordHash, role: Role.TENANT_ADMIN },
       });
@@ -128,14 +119,6 @@ export class AuthService {
 
     await this.sendVerificationEmail(email, input.adminName, verifyToken);
     return { tenantId: result.tenant.id, tenantSlug: result.tenant.slug, userId: result.user.id };
-  }
-
-  private async uniqueSlug(tx: { tenant: { findUnique: (a: { where: { slug: string } }) => Promise<unknown> } }, base: string) {
-    for (let i = 0; i < 50; i++) {
-      const candidate = i === 0 ? base : `${base}-${i + 1}`;
-      if (!(await tx.tenant.findUnique({ where: { slug: candidate } }))) return candidate;
-    }
-    return `${base}-${randomToken(4).toLowerCase()}`;
   }
 
   // ------------------------------------------------------------------ login / sesiones
@@ -176,7 +159,7 @@ export class AuthService {
     if (!user.emailVerifiedAt) {
       throw new ForbiddenException({ message: 'Debes verificar tu correo antes de iniciar sesión', code: 'EMAIL_NOT_VERIFIED' });
     }
-    if (user.tenant && user.tenant.status !== 'ACTIVE') throw new ForbiddenException('La empresa está suspendida');
+    if (user.tenant && user.tenant.status === 'SUSPENDED') throw new ForbiddenException('La empresa está suspendida');
 
     if (argon2.needsRehash(user.passwordHash, ARGON_OPTS)) {
       await this.db.system.user.update({ where: { id: user.id }, data: { passwordHash: await this.hashPassword(input.password) } });
@@ -241,7 +224,7 @@ export class AuthService {
     }
     if (session.revokedAt || session.expiresAt < new Date()) throw invalid;
     const { user } = session;
-    if (user.status !== 'ACTIVE' || (user.tenant && user.tenant.status !== 'ACTIVE')) throw invalid;
+    if (user.status !== 'ACTIVE' || (user.tenant && user.tenant.status === 'SUSPENDED')) throw invalid;
 
     // Marcado atómico: solo una petición concurrente puede rotar este token.
     const claimed = await this.db.system.session.updateMany({
@@ -287,7 +270,7 @@ export class AuthService {
       where: { id: userId },
       select: {
         id: true, email: true, name: true, role: true, tenantId: true, emailVerifiedAt: true,
-        tenant: { select: { id: true, name: true, slug: true, currency: true, timezone: true, enabledModules: true, logoUrl: true, brandColor: true, deploymentMode: true, subscription: { select: { status: true, trialEndsAt: true, currentPeriodEnd: true, plan: { select: { code: true, name: true } } } } } },
+        tenant: { select: { id: true, name: true, slug: true, status: true, currency: true, timezone: true, enabledModules: true, logoUrl: true, brandColor: true, deploymentMode: true, subscription: { select: { status: true, trialEndsAt: true, currentPeriodEnd: true, plan: { select: { code: true, name: true } } } } } },
       },
     });
     const sub = u.tenant?.subscription;
