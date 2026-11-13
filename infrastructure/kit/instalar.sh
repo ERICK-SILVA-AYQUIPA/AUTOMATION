@@ -2,16 +2,32 @@
 # =============================================================================
 # Instalador de una instancia independiente de AI Sales Assistant (ADR 044).
 #   ./instalar.sh --verificar   solo comprueba los requisitos (no cambia nada)
+#   ./instalar.sh --verificar --carpeta <dir>   comprueba una instalación existente
+#                               con los requisitos de este paquete (actualizar.sh)
 #   ./instalar.sh               comprueba, instala, verifica la salud y carga
 #                               la configuración de la empresa (una sola vez)
 # No continúa si falta un requisito. Todo queda en instalacion-<fecha>.log.
 # =============================================================================
 set -uo pipefail
-cd "$(dirname "$0")"
+KIT="$(cd "$(dirname "$0")" && pwd)"
+ONLY_CHECK=0; TARGET=""
+while (( $# )); do
+  case "$1" in
+    --verificar) ONLY_CHECK=1;;
+    # Lo usa actualizar.sh: comprueba una instalación existente con los requisitos de ESTE paquete
+    --carpeta) TARGET="${2:-}"; shift;;
+    *) echo "Uso: ./instalar.sh [--verificar] [--carpeta <instalación existente>]"; exit 2;;
+  esac
+  shift
+done
+[[ -z "$TARGET" || $ONLY_CHECK -eq 1 ]] || { echo "--carpeta solo se usa con --verificar"; exit 2; }
+# Versión del kit (la del paquete); configuracion-cliente.json solo se usa en la primera instalación
+VERSION="$(grep -E '^APP_VERSION=' "$KIT/.env.production.example" 2>/dev/null | tail -1 | cut -d= -f2-)"
+[[ -n "$VERSION" && ( -n "$TARGET" || -f "$KIT/configuracion-cliente.json" ) ]] || { echo "Faltan .env.production.example o configuracion-cliente.json: este no es un paquete de entrega válido"; exit 1; }
+cd "${TARGET:-$KIT}" || exit 2
 DIR="$(pwd)"
 ENV_FILE=.env.production
 COMPOSE=(docker compose -f docker-compose.prod.yml --env-file "$ENV_FILE")
-ONLY_CHECK=0; [[ "${1:-}" == "--verificar" ]] && ONLY_CHECK=1
 LOG="$DIR/instalacion-$(date +%Y%m%d-%H%M%S).log"
 exec > >(tee -a "$LOG") 2>&1
 
@@ -22,8 +38,6 @@ note() { printf '  \033[33m!\033[0m %s\n' "$1"; warn=$((warn+1)); }
 envval() { grep -E "^$1=" "$ENV_FILE" 2>/dev/null | tail -1 | cut -d= -f2- | sed -e 's/^"//' -e 's/"$//'; }
 ver_ge() { [[ "$(printf '%s\n%s\n' "$2" "$1" | sort -V | head -1)" == "$2" ]]; }
 
-VERSION="$(sed -n 's/.*"appVersion": *"\([^"]*\)".*/\1/p' configuracion-cliente.json 2>/dev/null | head -1)"
-[[ -n "$VERSION" ]] || { echo "Falta configuracion-cliente.json: este no es un paquete de entrega válido"; exit 1; }
 echo "AI Sales Assistant ${VERSION} · instalación independiente · $(date -Is)"
 
 # ---------------------------------------------------------------- 1. Requisitos
@@ -50,11 +64,11 @@ awk "BEGIN{exit !($mem_gb >= 3.5)}" && pass "Memoria: ${mem_gb} GB" || fail "Mem
 echo "== Imágenes de la aplicación ${VERSION}"
 missing=()
 for img in aisa-api aisa-web aisa-migrate; do docker image inspect "$img:$VERSION" >/dev/null 2>&1 || missing+=("$img:$VERSION"); done
-if (( ${#missing[@]} )) && [[ -f "aisa-imagenes-$VERSION.tar.gz" ]]; then
+if (( ${#missing[@]} )) && [[ -f "$KIT/aisa-imagenes-$VERSION.tar.gz" ]]; then
   if (( ONLY_CHECK )); then note "Se cargarán desde aisa-imagenes-$VERSION.tar.gz al instalar"; missing=()
   else
     echo "  cargando aisa-imagenes-$VERSION.tar.gz…"
-    if docker load -i "aisa-imagenes-$VERSION.tar.gz" >/dev/null; then missing=(); for img in aisa-api aisa-web aisa-migrate; do docker image inspect "$img:$VERSION" >/dev/null 2>&1 || missing+=("$img:$VERSION"); done; fi
+    if docker load -i "$KIT/aisa-imagenes-$VERSION.tar.gz" >/dev/null; then missing=(); for img in aisa-api aisa-web aisa-migrate; do docker image inspect "$img:$VERSION" >/dev/null 2>&1 || missing+=("$img:$VERSION"); done; fi
   fi
 fi
 (( ${#missing[@]} )) && fail "Faltan imágenes: ${missing[*]} (copia aisa-imagenes-$VERSION.tar.gz junto a este script)" || pass "Imágenes de la versión $VERSION disponibles"
@@ -69,7 +83,7 @@ if [[ ! -f "$ENV_FILE" ]]; then
     while IFS= read -r line || [[ -n "$line" ]]; do
       if [[ "$line" =~ ^[A-Z0-9_]+=__GENERATE__$ ]]; then line="${line%%=*}=$(openssl rand -hex 32)"; fi
       printf '%s\n' "$line"
-    done < .env.production.example > "$ENV_FILE"
+    done < "$KIT/.env.production.example" > "$ENV_FILE"
     chmod 600 "$ENV_FILE"; created=1
     note "Creado $ENV_FILE con secretos aleatorios (permisos 600). Guarda una copia fuera del servidor"
   fi

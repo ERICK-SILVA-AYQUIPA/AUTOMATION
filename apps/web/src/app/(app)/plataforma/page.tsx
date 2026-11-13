@@ -10,6 +10,7 @@ import { PAYMENT_METHOD, date, money, num } from '@/lib/format';
 import { TenantDetailDialog } from './tenant-detail';
 import { PlansEditor } from './plans-editor';
 import { PlatformIntegrations } from './platform-integrations';
+import { SystemCard } from './system-card';
 import type { SubscriptionAccess } from '@/lib/types';
 import { Badge, Button, Card, Dialog, EmptyState, ErrorBox, Field, Input, Loading, PageHeader, Pagination, Select, StatCard, Table, Td, Textarea, Th, cn } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
@@ -181,7 +182,7 @@ function Platform() {
     setDetailState(id);
     if (!id && params.get('empresa')) router.replace('/plataforma');
   };
-  const [tab, setTab] = useState<'tenants' | 'plans' | 'integrations'>('tenants');
+  const [tab, setTab] = useState<'tenants' | 'plans' | 'integrations' | 'system'>('tenants');
   useEffect(() => {
     const t = setTimeout(() => { setDq(q.trim()); setPage(1); }, 300);
     return () => clearTimeout(t);
@@ -243,11 +244,11 @@ function Platform() {
         </div>
       )}
       <div className="mb-4 flex gap-1 text-sm" role="tablist">
-        {([['tenants', 'Empresas'], ['plans', 'Planes y precios'], ['integrations', 'Integraciones']] as const).map(([v, l]) => (
+        {([['tenants', 'Empresas'], ['plans', 'Planes y precios'], ['integrations', 'Integraciones'], ['system', 'Sistema y versiones']] as const).map(([v, l]) => (
           <button key={v} type="button" role="tab" aria-selected={tab === v} onClick={() => setTab(v)} className={cn('rounded-md px-3 py-1.5', tab === v ? 'bg-surface-2 font-medium text-text' : 'text-muted hover:text-text')}>{l}</button>
         ))}
       </div>
-      {tab === 'plans' ? <PlansEditor /> : tab === 'integrations' ? <PlatformIntegrations /> : (
+      {tab === 'plans' ? <PlansEditor /> : tab === 'integrations' ? <PlatformIntegrations /> : tab === 'system' ? <SystemCard /> : (
       <Card>
         <div className="flex flex-col gap-2 border-b border-border p-3 sm:flex-row">
           <div className="relative flex-1">

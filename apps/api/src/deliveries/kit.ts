@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -28,6 +29,7 @@ const FILES: [string, string, boolean][] = [
   ['infrastructure/scripts/backup.sh', 'infrastructure/scripts/backup.sh', true],
   ['infrastructure/scripts/restore.sh', 'infrastructure/scripts/restore.sh', true],
   ['infrastructure/kit/instalar.sh', 'instalar.sh', true],
+  ['infrastructure/kit/actualizar.sh', 'actualizar.sh', true],
   ['infrastructure/kit/salud.sh', 'salud.sh', true],
   ['infrastructure/kit/respaldo.sh', 'respaldo.sh', true],
   ['infrastructure/kit/restaurar.sh', 'restaurar.sh', true],
@@ -65,6 +67,13 @@ export function kitEntries(m: DeliveryManifest, root = kitRoot()): ZipEntry[] {
   const wf = 'services/n8n/workflows';
   for (const f of readdirSync(join(root, wf)).filter((x) => x.endsWith('.json')).sort()) out.push({ path: `instalacion/${wf}/${f}`, data: read(`${wf}/${f}`) });
   out.push({ path: 'instalacion/.env.production.example', data: renderEnv(read('.env.production.example').toString('utf8'), m) });
+  // Huellas de los archivos del kit tal como se entregan: actualizar.sh las usa
+  // para saber qué archivos personalizó el cliente y no pisarlos (ADR 045)
+  const sums = out
+    .map((f) => `${createHash('sha256').update(f.data).digest('hex')}  ${f.path.slice('instalacion/'.length)}`)
+    .sort((a, b) => (a.slice(66) < b.slice(66) ? -1 : 1))
+    .join('\n');
+  out.push({ path: 'instalacion/.kit-sha256', data: `${sums}\n` });
   out.push({ path: 'instalacion/configuracion-cliente.json', data: `${JSON.stringify(m, null, 2)}\n` });
   return out;
 }

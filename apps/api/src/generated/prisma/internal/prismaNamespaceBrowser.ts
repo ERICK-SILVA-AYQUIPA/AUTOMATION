@@ -56,6 +56,7 @@ export const ModelName = {
   Subscription: 'Subscription',
   Payment: 'Payment',
   Delivery: 'Delivery',
+  SystemUpdate: 'SystemUpdate',
   UsageCounter: 'UsageCounter',
   TenantCounter: 'TenantCounter',
   User: 'User',
@@ -212,6 +213,22 @@ export const DeliveryScalarFieldEnum = {
 } as const
 
 export type DeliveryScalarFieldEnum = (typeof DeliveryScalarFieldEnum)[keyof typeof DeliveryScalarFieldEnum]
+
+
+export const SystemUpdateScalarFieldEnum = {
+  id: 'id',
+  fromVersion: 'fromVersion',
+  toVersion: 'toVersion',
+  status: 'status',
+  migrations: 'migrations',
+  backupPath: 'backupPath',
+  detail: 'detail',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type SystemUpdateScalarFieldEnum = (typeof SystemUpdateScalarFieldEnum)[keyof typeof SystemUpdateScalarFieldEnum]
 
 
 export const UsageCounterScalarFieldEnum = {

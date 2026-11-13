@@ -387,7 +387,37 @@ Guarda **fuera del servidor** una copia de \`.env.production\`: sin \`DATA_ENCRY
 
 ## Actualización
 
-Las actualizaciones se entregan como una versión nueva de imágenes. El procedimiento hace primero un respaldo, aplica las migraciones y comprueba la salud; nunca toca \`.env.production\` ni la configuración de la empresa. Ver el procedimiento de actualización que acompaña a cada versión.
+Cada versión nueva llega como un paquete de entrega nuevo (con \`actualizar.sh\`) y su archivo de imágenes. Se ejecuta **desde el paquete nuevo**, indicando la carpeta instalada:
+
+\`\`\`bash
+unzip entrega-<nueva>.zip -d /opt/nueva && cd /opt/nueva/instalacion
+cp /ruta/aisa-imagenes-<nueva>.tar.gz .
+./actualizar.sh /opt/${m.system.domain ?? 'aisa'}/instalacion --verificar   # versión instalada y nueva, archivos, variables y migraciones pendientes
+./actualizar.sh /opt/${m.system.domain ?? 'aisa'}/instalacion               # respalda, actualiza, migra, comprueba y registra
+\`\`\`
+
+1. **Comprueba** que la instalación actual está sana, que la versión nueva es posterior y que están las imágenes de las dos versiones.
+2. **Respalda** todas las bases, los archivos y el kit actual en \`respaldos/antes-de-<versión>/\` (si el respaldo falla, no continúa).
+3. **Actualiza los archivos del kit sin pisar lo personalizado**: los que modificaste a mano se conservan y la versión nueva queda al lado como \`<archivo>.nuevo-<versión>\` (con \`--sobrescribir-personalizados\` se reemplazan; la copia anterior queda en el respaldo). \`.env.production\` nunca se reemplaza: solo cambia \`APP_VERSION\` y se añaden al final las variables nuevas. La configuración de la empresa (reglas, asistente, automatizaciones) vive en la base de datos y no se toca.
+4. **Migra y arranca** la versión nueva y **comprueba la salud** (incluida la versión en marcha).
+5. **Registra** el resultado en \`actualizaciones.jsonl\` y en el historial del sistema, y deja el detalle en \`actualizacion-<fecha>.log\`.
+
+Si algo falla después del respaldo, **vuelve solo a la versión anterior** con sus datos (bases, archivos y kit) y lo registra como «revertida». Para comprobar que la recuperación funciona en tu servidor: \`./actualizar.sh <carpeta> --ensayar-recuperacion\` (actualiza y después revierte a propósito).
+
+Las instalaciones hechas con la versión 0.8.x no guardaban las huellas del kit: la primera actualización necesita \`--base <carpeta del ZIP 0.8.x>/SHA256SUMS\`.
+
+### Recuperación manual
+
+Si la recuperación automática no terminara, en \`respaldos/antes-de-<versión>/<fecha>/\` están \`kit-<versión anterior>.tgz\` (archivos y \`.env.production\`), un volcado \`.dump\` por base y los volúmenes \`.tgz\`:
+
+\`\`\`bash
+docker compose -f docker-compose.prod.yml --env-file .env.production stop
+tar xzf respaldos/antes-de-<versión>/<fecha>/kit-<anterior>.tgz -C .          # vuelve a los archivos anteriores
+docker compose -f docker-compose.prod.yml --env-file .env.production up -d postgres redis
+CONFIRMAR=ai_sales ./restaurar.sh respaldos/antes-de-<versión>/<fecha>/ai_sales.dump ai_sales
+docker compose -f docker-compose.prod.yml --env-file .env.production up -d --no-build --wait
+./salud.sh
+\`\`\`
 `;
 }
 

@@ -68,6 +68,12 @@ export type Payment = Prisma.PaymentModel
  */
 export type Delivery = Prisma.DeliveryModel
 /**
+ * Model SystemUpdate
+ * Historial de actualizaciones de esta instalación (ADR 045). Lo escribe el
+ * actualizador con el CLI; solo el rol de sistema lo lee.
+ */
+export type SystemUpdate = Prisma.SystemUpdateModel
+/**
  * Model UsageCounter
  * 
  */

@@ -17,6 +17,9 @@ const META_SECRET = 'app-secret-de-meta-0123456789abcdef';
 const HOOK_SECRET = 'whsec_secreto-del-webhook-0123456789';
 
 /** Respuesta binaria de supertest */
+/** Cabecera y comentarios del .env de ejemplo */
+const env0 = (t: string) => t.split('\n').filter((l) => l.startsWith('#')).join('\n');
+
 const binary = (res: import('supertest').Response, cb: (e: Error | null, b: Buffer) => void) => {
   const chunks: Buffer[] = [];
   res.on('data', (c: Buffer) => chunks.push(c));
@@ -97,6 +100,13 @@ describe('Entrega de sistemas: paquete reproducible, sin secretos y solo para la
     ]));
     const file = (p: string) => files.find((f) => f.path === p)!;
     expect(file('instalacion/instalar.sh').mode & 0o111).toBeTruthy();
+    expect(file('instalacion/actualizar.sh').mode & 0o111).toBeTruthy();
+    // Huellas del kit para el actualizador: todos los archivos del kit salvo la configuración de la empresa
+    const kitSums = file('instalacion/.kit-sha256').data.toString().trim().split('\n').map((l) => l.split('  ') as [string, string]);
+    const kitFiles = paths.filter((p) => p.startsWith('instalacion/') && !['instalacion/.kit-sha256', 'instalacion/configuracion-cliente.json'].includes(p)).map((p) => p.slice(12)).sort();
+    expect(kitSums.map(([, p]) => p).sort()).toEqual(kitFiles);
+    for (const [h, p] of kitSums) expect(createHash('sha256').update(file(`instalacion/${p}`).data).digest('hex')).toBe(h);
+    expect(env0(file('instalacion/.env.production.example').data.toString())).not.toMatch(/deploy\.sh/);
     const env = file('instalacion/.env.production.example').data.toString();
     expect(env).toMatch(/^APP_DOMAIN=ventas\.andina\.test$/m);
     expect(env).toMatch(new RegExp(`^APP_VERSION=${APP_VERSION.replace(/\./g, '\\.')}$`, 'm'));

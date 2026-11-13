@@ -20,5 +20,10 @@ for i in $(seq 1 30); do
 done
 echo "  https://$domain/api/v1/health/ready → $body"
 [[ "$body" == *'"status":"ok"'* ]] || fail=1
+echo "== Versión"
+want="$(grep -E '^APP_VERSION=' .env.production | tail -1 | cut -d= -f2-)"
+have="$("${COMPOSE[@]}" exec -T api node dist/cli.js version 2>/dev/null | tail -1)"
+echo "  instalada: ${have:-desconocida} · esperada: ${want:-sin APP_VERSION}"
+[[ -n "$want" && "$have" == "$want" ]] || fail=1
 [[ $fail -eq 0 ]] && echo "RESULTADO: todo sano" || echo "RESULTADO: hay servicios con problemas"
 exit $fail

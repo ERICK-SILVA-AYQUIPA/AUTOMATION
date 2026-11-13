@@ -24,6 +24,7 @@ const stamp = Date.now().toString(36);
 const company = `Ferretería ${stamp}`;
 const domain = `ventas-${stamp}.cliente.test`;
 const work = mkdtempSync(join(tmpdir(), 'entrega-e2e-'));
+const VERSION = JSON.parse(readFileSync(new URL('../../api/package.json', import.meta.url), 'utf8')).version;
 
 const results = [];
 const errors = [];
@@ -96,14 +97,15 @@ try {
     const dlg = page.getByRole('dialog');
     const item = dlg.getByRole('listitem').filter({ hasText: '#1 ·' });
     first = await downloadPackage(item, 'Generar paquete');
-    if (!first.name.startsWith(`entrega-`) || !first.name.endsWith('-1-v0.8.0.zip')) throw new Error(`Nombre inesperado: ${first.name}`);
+    if (!first.name.startsWith(`entrega-`) || !first.name.endsWith(`-1-v${VERSION}.zip`)) throw new Error(`Nombre inesperado: ${first.name}`);
     const sha = createHash('sha256').update(first.bytes).digest('hex');
     await item.getByText(`SHA-256 ${sha}`).waitFor();
     await item.getByText('Paquete generado').waitFor();
     const out = join(work, 'x');
     execFileSync('unzip', ['-q', first.file, '-d', out]);
     execFileSync('sha256sum', ['-c', '--quiet', 'SHA256SUMS'], { cwd: out });
-    if (!(statSync(join(out, 'instalacion/instalar.sh')).mode & 0o111)) throw new Error('instalar.sh no es ejecutable');
+    for (const f of ['instalar.sh', 'actualizar.sh']) if (!(statSync(join(out, `instalacion/${f}`)).mode & 0o111)) throw new Error(`${f} no es ejecutable`);
+    execFileSync('sha256sum', ['-c', '--quiet', '.kit-sha256'], { cwd: join(out, 'instalacion') });
     const env = readFileSync(join(out, 'instalacion/.env.production.example'), 'utf8');
     if (!env.includes(`APP_DOMAIN=${domain}`) || !/^JWT_SECRET=__GENERATE__$/m.test(env)) throw new Error('El .env de ejemplo no es el esperado');
     const all = execFileSync('cat', execFileSync('find', [out, '-type', 'f']).toString().trim().split('\n')).toString();

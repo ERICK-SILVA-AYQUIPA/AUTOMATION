@@ -16,3 +16,6 @@ apps/api/storage/
 !.env.production.example
 dist-entregas/
 **/instalacion-*.log
+**/actualizacion-*.log
+**/actualizaciones.jsonl
+**/respaldos/

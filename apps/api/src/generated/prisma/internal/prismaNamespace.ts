@@ -402,6 +402,7 @@ export const ModelName = {
   Subscription: 'Subscription',
   Payment: 'Payment',
   Delivery: 'Delivery',
+  SystemUpdate: 'SystemUpdate',
   UsageCounter: 'UsageCounter',
   TenantCounter: 'TenantCounter',
   User: 'User',
@@ -451,7 +452,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "plan" | "tenant" | "subscription" | "payment" | "delivery" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "conversationNote" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "aiKnowledgeDoc" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog" | "integrationCheck" | "webhookEndpoint" | "webhookDelivery" | "reservation"
+    modelProps: "plan" | "tenant" | "subscription" | "payment" | "delivery" | "systemUpdate" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "conversationNote" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "aiKnowledgeDoc" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog" | "integrationCheck" | "webhookEndpoint" | "webhookDelivery" | "reservation"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -822,6 +823,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.DeliveryCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DeliveryCountAggregateOutputType> | number
+        }
+      }
+    }
+    SystemUpdate: {
+      payload: Prisma.$SystemUpdatePayload<ExtArgs>
+      fields: Prisma.SystemUpdateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SystemUpdateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemUpdatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SystemUpdateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemUpdatePayload>
+        }
+        findFirst: {
+          args: Prisma.SystemUpdateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemUpdatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SystemUpdateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemUpdatePayload>
+        }
+        findMany: {
+          args: Prisma.SystemUpdateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemUpdatePayload>[]
+        }
+        create: {
+          args: Prisma.SystemUpdateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemUpdatePayload>
+        }
+        createMany: {
+          args: Prisma.SystemUpdateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SystemUpdateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemUpdatePayload>[]
+        }
+        delete: {
+          args: Prisma.SystemUpdateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemUpdatePayload>
+        }
+        update: {
+          args: Prisma.SystemUpdateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemUpdatePayload>
+        }
+        deleteMany: {
+          args: Prisma.SystemUpdateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SystemUpdateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SystemUpdateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemUpdatePayload>[]
+        }
+        upsert: {
+          args: Prisma.SystemUpdateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemUpdatePayload>
+        }
+        aggregate: {
+          args: Prisma.SystemUpdateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSystemUpdate>
+        }
+        groupBy: {
+          args: Prisma.SystemUpdateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SystemUpdateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SystemUpdateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SystemUpdateCountAggregateOutputType> | number
         }
       }
     }
@@ -3486,6 +3561,22 @@ export const DeliveryScalarFieldEnum = {
 export type DeliveryScalarFieldEnum = (typeof DeliveryScalarFieldEnum)[keyof typeof DeliveryScalarFieldEnum]
 
 
+export const SystemUpdateScalarFieldEnum = {
+  id: 'id',
+  fromVersion: 'fromVersion',
+  toVersion: 'toVersion',
+  status: 'status',
+  migrations: 'migrations',
+  backupPath: 'backupPath',
+  detail: 'detail',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type SystemUpdateScalarFieldEnum = (typeof SystemUpdateScalarFieldEnum)[keyof typeof SystemUpdateScalarFieldEnum]
+
+
 export const UsageCounterScalarFieldEnum = {
   tenantId: 'tenantId',
   metric: 'metric',
@@ -4297,6 +4388,20 @@ export type ListEnumDeliveryStatusFieldRefInput<$PrismaModel> = FieldRefInputTyp
 
 
 /**
+ * Reference to a field of type 'SystemUpdateStatus'
+ */
+export type EnumSystemUpdateStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SystemUpdateStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'SystemUpdateStatus[]'
+ */
+export type ListEnumSystemUpdateStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SystemUpdateStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'Role'
  */
 export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role'>
@@ -4759,6 +4864,7 @@ export type GlobalOmitConfig = {
   subscription?: Prisma.SubscriptionOmit
   payment?: Prisma.PaymentOmit
   delivery?: Prisma.DeliveryOmit
+  systemUpdate?: Prisma.SystemUpdateOmit
   usageCounter?: Prisma.UsageCounterOmit
   tenantCounter?: Prisma.TenantCounterOmit
   user?: Prisma.UserOmit

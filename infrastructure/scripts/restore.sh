@@ -17,7 +17,10 @@ FILE="${1:?archivo .dump}"; DB="${2:?nombre de base}"
 case "$DB" in "$APP_DB_NAME") OWNER=$APP_DB_USER;; "$CHATWOOT_DB_NAME") OWNER=$CHATWOOT_DB_USER;;
   "$N8N_DB_NAME") OWNER=$N8N_DB_USER;; "$EVOLUTION_DB_NAME") OWNER=$EVOLUTION_DB_USER;;
   *) echo "Base desconocida: $DB" >&2; exit 1;; esac
-read -r -p "Se reemplazará la base '$DB'. Escribe el nombre para confirmar: " ans
+if [[ "${CONFIRMAR:-}" == "$DB" ]]; then ans="$DB"   # sin pregunta: CONFIRMAR=<nombre_base>
+else read -r -p "Se reemplazará la base '$DB'. Escribe el nombre para confirmar: " ans; fi
 [[ "$ans" == "$DB" ]] || { echo "Cancelado."; exit 1; }
-"${COMPOSE[@]}" exec -T postgres pg_restore -U "$POSTGRES_SUPERUSER" -d "$DB" --clean --if-exists --no-owner --role="$OWNER" < "$FILE"
+# Las extensiones (y sus comentarios) son del superusuario y ya existen en la base:
+# se excluyen para que el resto se restaure como el propietario sin errores
+"${COMPOSE[@]}" exec -T postgres sh -c "cat > /tmp/aisa-restore.dump && pg_restore -l /tmp/aisa-restore.dump | grep -vE ' EXTENSION ' > /tmp/aisa-restore.list && pg_restore -U '$POSTGRES_SUPERUSER' -d '$DB' --clean --if-exists --no-owner --role='$OWNER' --exit-on-error -L /tmp/aisa-restore.list /tmp/aisa-restore.dump" < "$FILE"
 echo "OK: '$DB' restaurada. Reinicia los servicios que la usan."

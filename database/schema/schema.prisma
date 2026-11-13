@@ -207,6 +207,33 @@ model Delivery {
   @@map("deliveries")
 }
 
+enum SystemUpdateStatus {
+  SUCCEEDED
+  FAILED
+  ROLLED_BACK
+}
+
+/// Historial de actualizaciones de esta instalación (ADR 045). Lo escribe el
+/// actualizador con el CLI; solo el rol de sistema lo lee.
+model SystemUpdate {
+  id          String             @id @default(uuid(7)) @db.Uuid
+  fromVersion String             @map("from_version")
+  toVersion   String             @map("to_version")
+  status      SystemUpdateStatus
+  /// Migraciones aplicadas durante la actualización
+  migrations  Json               @default("[]")
+  /// Carpeta del respaldo hecho antes de actualizar
+  backupPath  String?            @map("backup_path")
+  /// Archivos personalizados que se conservaron, avisos o causa del fallo
+  detail      String?
+  startedAt   DateTime           @map("started_at") @db.Timestamptz(3)
+  finishedAt  DateTime           @map("finished_at") @db.Timestamptz(3)
+  createdAt   DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([createdAt])
+  @@map("system_updates")
+}
+
 model UsageCounter {
   tenantId String @map("tenant_id") @db.Uuid
   metric   String

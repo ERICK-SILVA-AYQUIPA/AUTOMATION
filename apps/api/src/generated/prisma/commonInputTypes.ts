@@ -453,6 +453,23 @@ export type EnumDeliveryStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumDeliveryStatusFilter<$PrismaModel>
 }
 
+export type EnumSystemUpdateStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SystemUpdateStatus | Prisma.EnumSystemUpdateStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SystemUpdateStatus[] | Prisma.ListEnumSystemUpdateStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SystemUpdateStatus[] | Prisma.ListEnumSystemUpdateStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSystemUpdateStatusFilter<$PrismaModel> | $Enums.SystemUpdateStatus
+}
+
+export type EnumSystemUpdateStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SystemUpdateStatus | Prisma.EnumSystemUpdateStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SystemUpdateStatus[] | Prisma.ListEnumSystemUpdateStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SystemUpdateStatus[] | Prisma.ListEnumSystemUpdateStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSystemUpdateStatusWithAggregatesFilter<$PrismaModel> | $Enums.SystemUpdateStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSystemUpdateStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSystemUpdateStatusFilter<$PrismaModel>
+}
+
 export type EnumRoleFilter<$PrismaModel = never> = {
   equals?: $Enums.Role | Prisma.EnumRoleFieldRefInput<$PrismaModel>
   in?: $Enums.Role[] | Prisma.ListEnumRoleFieldRefInput<$PrismaModel>
@@ -1324,6 +1341,23 @@ export type NestedEnumDeliveryStatusWithAggregatesFilter<$PrismaModel = never> =
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumDeliveryStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumDeliveryStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumSystemUpdateStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SystemUpdateStatus | Prisma.EnumSystemUpdateStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SystemUpdateStatus[] | Prisma.ListEnumSystemUpdateStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SystemUpdateStatus[] | Prisma.ListEnumSystemUpdateStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSystemUpdateStatusFilter<$PrismaModel> | $Enums.SystemUpdateStatus
+}
+
+export type NestedEnumSystemUpdateStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SystemUpdateStatus | Prisma.EnumSystemUpdateStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SystemUpdateStatus[] | Prisma.ListEnumSystemUpdateStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SystemUpdateStatus[] | Prisma.ListEnumSystemUpdateStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSystemUpdateStatusWithAggregatesFilter<$PrismaModel> | $Enums.SystemUpdateStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSystemUpdateStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSystemUpdateStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumRoleFilter<$PrismaModel = never> = {

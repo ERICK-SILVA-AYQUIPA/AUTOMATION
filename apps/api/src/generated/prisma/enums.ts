@@ -78,6 +78,15 @@ export const DeliveryStatus = {
 export type DeliveryStatus = (typeof DeliveryStatus)[keyof typeof DeliveryStatus]
 
 
+export const SystemUpdateStatus = {
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  ROLLED_BACK: 'ROLLED_BACK'
+} as const
+
+export type SystemUpdateStatus = (typeof SystemUpdateStatus)[keyof typeof SystemUpdateStatus]
+
+
 export const Role = {
   PLATFORM_ADMIN: 'PLATFORM_ADMIN',
   TENANT_ADMIN: 'TENANT_ADMIN',

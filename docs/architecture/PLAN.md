@@ -115,7 +115,14 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
   - [x] Kit de instalación independiente: Docker Compose de la versión, variables de ejemplo, Caddy/HTTPS, migraciones, instalador que valida requisitos, salud, respaldo, restauración y registros
   - [x] Carga de la configuración de la empresa en la instancia nueva, una sola vez
   - [ ] Instalación en el servidor real del cliente: **pendiente de Rick** (servidor, dominio y SMTP); probado en local con certificados propios de Caddy
-- [ ] Fase 9: actualizaciones
+- [x] Fase 9: actualizaciones (ADR 045)
+  - [x] Versión instalada (`node dist/cli.js version`, panel «Sistema y versiones») y versión disponible (paquete nuevo; instalaciones entregadas con versión anterior)
+  - [x] Respaldo completo obligatorio antes de actualizar (`deploy.sh` y `actualizar.sh`)
+  - [x] Migraciones controladas (servicio `migrate`; pendientes listadas con `--verificar`) y salud con comprobación de versión
+  - [x] Historial de actualizaciones en la base (`system_updates`) y en `actualizaciones.jsonl`
+  - [x] Recuperación automática tras un fallo (bases, volúmenes, kit y `.env.production` del respaldo) y ensayo con `--ensayar-recuperacion`
+  - [x] Archivos personalizados y `.env.production` nunca se pisan sin autorización (`--sobrescribir-personalizados`)
+  - [ ] Actualización en el servidor real del cliente: **pendiente de Rick** (mismo requisito que la fase 8); probado en local de 0.8.0 a 0.9.0
 - [ ] Fase 10: cierre (pruebas, seguridad, documentación)
 
 ## FASE 7: automatizaciones, pedidos, inventario, notificaciones

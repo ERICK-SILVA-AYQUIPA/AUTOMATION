@@ -105,8 +105,20 @@ empresa. Restaurar: `PROD=1 ./infrastructure/scripts/restore.sh <archivo.dump> a
 cd /opt/aisa && git pull && ./infrastructure/scripts/deploy.sh
 ```
 
-Las migraciones se aplican solas antes de arrancar la nueva API. Haz una copia de
-seguridad antes de cada actualización.
+`deploy.sh` (ADR 045) lee la versión en marcha, hace un **respaldo completo antes de
+tocar nada** (`BACKUP_DIR`, por defecto `./backups`; si falla, no actualiza), construye,
+aplica las migraciones (servicio `migrate`; la API no arranca si fallan), comprueba la
+salud de la API nueva y **registra la actualización** (versión anterior y nueva,
+migraciones aplicadas y respaldo) en `/plataforma` → «Sistema y versiones».
+
+Si algo falla, indica dónde está el respaldo. Para volver atrás: `git checkout <versión
+anterior>`, `./infrastructure/scripts/deploy.sh` y, si la migración llegó a cambiar datos,
+`CONFIRMAR=ai_sales PROD=1 ./infrastructure/scripts/restore.sh <respaldo>/ai_sales.dump ai_sales`.
+
+Las personalizaciones de cada empresa (reglas, asistente, automatizaciones, plantillas)
+viven en la base de datos: una actualización nunca las reemplaza. Las versiones nuevas
+del catálogo de automatizaciones o de una plantilla se muestran como cambios
+disponibles y solo se aplican cuando la empresa (o la plataforma) lo autoriza.
 
 ## 8. Instalaciones independientes de clientes (paquete de entrega)
 
@@ -115,6 +127,15 @@ Para un cliente con **instancia dedicada** o **a medida** (ADR 044):
 1. En `/plataforma`, ficha de la empresa → «Entrega del sistema»: nombre del sistema, dominio del cliente y contacto de soporte → «Preparar entrega». Revisa requisitos e integraciones pendientes y pulsa «Generar paquete» (ZIP reproducible, con su huella SHA-256).
 2. En la máquina donde construyes: `./infrastructure/scripts/export-images.sh` → `dist-entregas/aisa-imagenes-<versión>.tar.gz` (+ `.sha256`). La versión debe ser la misma del paquete.
 3. En el servidor del cliente: descomprime el ZIP, copia el archivo de imágenes dentro de `instalacion/` y sigue `docs/instalacion.md` del paquete (`./instalar.sh --verificar`, `./instalar.sh`).
+
+**Actualizar una instalación independiente**: prepara una entrega nueva de la empresa
+(con la versión actual), descarga el paquete y las imágenes, y en el servidor del cliente,
+desde la carpeta `instalacion/` del paquete nuevo:
+`./actualizar.sh /opt/<dominio>/instalacion --verificar` y luego sin `--verificar`.
+Respalda todo antes, no pisa archivos personalizados ni `.env.production`, migra,
+comprueba la salud, registra el resultado y, si algo falla, vuelve solo a la versión
+anterior con sus datos. La pestaña «Sistema y versiones» lista las instalaciones
+entregadas con una versión anterior. Detalle en `docs/instalacion.md` del paquete.
 
 Para una prueba en una máquina con poco disco se puede bajar el mínimo de 20 GB con `INSTALAR_DISCO_MINIMO_GB=5 ./instalar.sh` (queda como aviso en el registro); en producción no se usa.
 

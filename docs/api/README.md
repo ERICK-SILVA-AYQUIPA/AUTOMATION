@@ -80,6 +80,14 @@ Con `readOnly`, toda petición que modifica datos responde **402** `{ code: "SUB
 | GET | `/platform/deliveries/:id/package` | ZIP (`application/zip`, cabecera `X-Package-Sha256`). La primera vez pasa a `GENERATED` y guarda la huella; después se comprueba contra ella (409 `NOT_REPRODUCIBLE` / `VERSION_CHANGED`) |
 | POST | `/platform/deliveries/:id/delivered` | Marca entregada (409 `NOT_GENERATED` si aún no hay paquete) |
 
+### Sistema y actualizaciones (ADR 045)
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/platform/system` | `{version, migrations: {applied, last, failed[]}, updates[] (últimas 20), installationsBehind[]}`. Solo `platform:manage` |
+
+CLI dentro del contenedor de la API: `node dist/cli.js version` y `node dist/cli.js registrar-actualizacion --desde X.Y.Z --hasta X.Y.Z --estado SUCCEEDED|FAILED|ROLLED_BACK --inicio <ISO> [--respaldo <ruta>] [--detalle <texto>]` (lo usan `deploy.sh` y `actualizar.sh`).
+
 ## Módulos por empresa (ADR 038)
 
 `GET /auth/me` devuelve `tenant.enabledModules` (subconjunto de `conversations, ai, catalog, inventory, orders, customers, reports, automations, reservations`) y `tenant.settings` (reglas de operación). Las rutas de un módulo apagado responden **403** `{ code: "MODULE_DISABLED" }`.
