@@ -111,6 +111,15 @@ describe('Catálogo, inventario y pedidos', () => {
     expect(sold).toBe(1);
   });
 
+  it('pedidos simultáneos de un cliente nuevo: todos se crean y el cliente queda una sola vez', async () => {
+    const phone = '51955500011';
+    const p = await ctx.http().post('/api/v1/products').set(H()).send({ sku: 'SIMULT', name: 'Pedido simultáneo', salePrice: 10, initialStock: 20 }).expect(201);
+    const vid = p.body.variants[0].id;
+    const results = await Promise.all(Array.from({ length: 8 }, () => ctx.http().post('/api/v1/orders').set(H()).send({ customer: { phone }, items: [{ variantId: vid, quantity: 1 }] })));
+    expect(results.map((r) => r.status)).toEqual(Array(8).fill(201));
+    expect(await owner.customer.count({ where: { phone } })).toBe(1);
+  });
+
   it('ventas concurrentes del último stock: nunca queda negativo', async () => {
     const p = await ctx.http().post('/api/v1/products').set(H()).send({ sku: 'ULTIMO', name: 'Último par', salePrice: 100, initialStock: 3 }).expect(201);
     const vid = p.body.variants[0].id;

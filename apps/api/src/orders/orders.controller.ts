@@ -2,12 +2,12 @@ import { RequireModule } from '../common/decorators/module.decorator.js';
 import { Body, Controller, Get, NotFoundException, Param, Patch, Post, Query, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { z } from 'zod';
+import { Prisma } from '../generated/prisma/client.js';
 import { RequirePermission, TenantUser } from '../common/decorators/auth.decorators.js';
 import type { TenantPrincipal } from '../common/context/principal.js';
 import { DatabaseService } from '../database/database.service.js';
 import { paged, paginationSchema } from '../common/pagination.js';
 import { OrdersService, orderInclude } from './orders.service.js';
-import type { Prisma } from '../generated/prisma/client.js';
 import { phone } from '../customers/customers.controller.js';
 
 const statusEnum = z.enum(['PENDING', 'CONFIRMED', 'PREPARING', 'SHIPPED', 'DELIVERED', 'CANCELLED']);
@@ -98,13 +98,19 @@ export class OrdersController {
   async create(@TenantUser() p: TenantPrincipal, @Body({ schema: createSchema }) b: z.infer<typeof createSchema>, @Res({ passthrough: true }) res: Response) {
     let customerId = b.customerId;
     if (!customerId && b.customer) {
-      const c = await this.db.tenant(p.tenantId, (tx) =>
-        tx.customer.upsert({
-          where: { tenantId_phone: { tenantId: p.tenantId, phone: b.customer!.phone } },
-          create: { tenantId: p.tenantId, phone: b.customer!.phone, name: b.customer!.name, source: 'manual' },
-          update: {},
-        }),
-      );
+      const where = { tenantId_phone: { tenantId: p.tenantId, phone: b.customer.phone } };
+      const upsert = () =>
+        this.db.tenant(p.tenantId, (tx) =>
+          tx.customer.upsert({ where, create: { tenantId: p.tenantId, phone: b.customer!.phone, name: b.customer!.name, source: 'manual' }, update: {}, select: { id: true } }),
+        );
+      // El upsert de Prisma no es atómico: dos pedidos simultáneos de un cliente nuevo
+      // chocan en el índice único; el perdedor lee el cliente que creó el otro.
+      const c = await upsert().catch(async (e: unknown) => {
+        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+          return this.db.tenant(p.tenantId, (tx) => tx.customer.findUniqueOrThrow({ where, select: { id: true } }));
+        }
+        throw e;
+      });
       customerId = c.id;
     }
     const r = await this.orders.create(
