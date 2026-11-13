@@ -70,6 +70,20 @@ Con `readOnly`, toda petición que modifica datos responde **402** `{ code: "SUB
 
 `GET /auth/me` devuelve `tenant.enabledModules` (subconjunto de `conversations, ai, catalog, inventory, orders, customers, reports, automations`). Las rutas de un módulo apagado responden **403** `{ code: "MODULE_DISABLED" }`.
 
+## Asistente IA (`/ai`), permiso `ai:configure`, módulo `ai`
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/ai/settings` | `{isEnabled, published, draft, hasUnpublishedChanges, draftUpdatedAt, draftTestedAt, publishedAt, testRequired, monthlyTokenCap, usage{period,tokens,replies,planTokenLimit,effectiveCap}, knowledge{maxDocs,budgetChars}, provider{configured,model}}` (nunca la clave) |
+| PUT | `/ai/settings/draft` | Guarda el borrador completo (esquema en `apps/api/src/ai/ai-profile.ts`; 400 con `errors` si no es válido). Anula la prueba anterior |
+| DELETE | `/ai/settings/draft` | Descarta el borrador y los cambios de documentos sin publicar (204) |
+| POST | `/ai/settings/publish` | Publica borrador y documentos. 409 `TEST_REQUIRED` si hay proveedor de IA y no se probó; 409 `NOTHING_TO_PUBLISH`. Auditado con los campos cambiados |
+| PATCH | `/ai/settings` | Inmediato: `{isEnabled?, monthlyTokenCap? (≥1000 o null)}`; 403 `PLAN_LIMIT` si supera `maxAiTokensPerMonth` del plan |
+| POST | `/ai/test` | `{target: draft\|published, messages[]}` → `{reply, tools, handoff, tokens}`. No envía nada ni crea pedidos. 503 `AI_NOT_CONFIGURED`/`AI_PROVIDER_ERROR`, 409 `AI_CAP_REACHED` |
+| GET | `/ai/knowledge` | Documentos con `state`: `new`, `modified`, `published`, `pending_delete` |
+| POST | `/ai/knowledge` | `{title, content}` (texto, hasta 20 000 caracteres); 403 `PLAN_LIMIT_REACHED` según `maxKnowledgeDocs` |
+| PUT / DELETE | `/ai/knowledge/:id` | Editar (queda sin publicar) / quitar (uno publicado se quita al publicar) |
+
 ## Automatizaciones (`/automations`), permiso `automations:manage`, módulo `automations`
 
 | Método | Ruta | Descripción |

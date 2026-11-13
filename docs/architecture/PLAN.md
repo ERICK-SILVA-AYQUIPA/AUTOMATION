@@ -88,7 +88,12 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
   - [x] Historial con filtros, motivo de omisión, errores y reintento manual; aviso en el panel si se agotan los reintentos
   - [x] Versiones: la empresa ve qué cambia y la aplica sin perder su configuración
   - [ ] Mensajes al cliente fuera de las 24 h: requieren plantillas aprobadas por Meta (pendiente de credenciales reales)
-- [ ] Fase 5: asistente IA ampliado
+- [x] Fase 5: asistente IA configurable (ADR 041)
+  - [x] Personalidad, idioma, horario con modo fuera de horario, pagos, entregas, devoluciones, preguntas frecuentes, preguntas previas, mensajes de derivación e indicaciones adicionales
+  - [x] Borrador → prueba en el panel → publicación (auditada); los clientes solo ven lo publicado
+  - [x] Documentos de conocimiento en texto con límite por plan
+  - [x] Tope mensual de tokens (plan y empresa) con derivación y aviso al alcanzarlo
+  - [ ] Prueba con la clave real de Gemini: **pendiente de Rick** (todo lo anterior se probó con un servidor Gemini simulado)
 - [ ] Fase 6: integraciones centralizadas
 - [ ] Fase 7: plantillas por sector
 - [ ] Fase 8: entrega de sistemas

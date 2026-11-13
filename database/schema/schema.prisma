@@ -783,17 +783,41 @@ model OutboundMessage {
 // ----------------------------------------------------------------- Configuración
 
 model AiSettings {
-  tenantId         String   @id @map("tenant_id") @db.Uuid
-  isEnabled        Boolean  @default(true) @map("is_enabled")
-  assistantName    String   @default("Asistente") @map("assistant_name")
-  tone             String   @default("amable y profesional")
-  welcomeMessage   String?  @map("welcome_message")
-  /// Información del negocio (horarios, envíos, pagos). Nunca precios ni stock.
-  businessInfo     String?  @map("business_info")
-  handoffKeywords  String[] @default(["humano", "asesor", "persona", "reclamo", "queja"]) @map("handoff_keywords")
-  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  tenantId         String    @id @map("tenant_id") @db.Uuid
+  /// Interruptor operativo (inmediato, no pasa por borrador)
+  isEnabled        Boolean   @default(true) @map("is_enabled")
+  /// Configuración publicada (la que usa el asistente con los clientes). Esquema: apps/api/src/ai/ai-profile.ts
+  profile          Json      @default("{}")
+  /// Cambios sin publicar; null = sin borrador
+  draft            Json?
+  draftUpdatedAt   DateTime? @map("draft_updated_at") @db.Timestamptz(3)
+  /// Última prueba del borrador vigente (publicar exige probarlo si hay proveedor de IA)
+  draftTestedAt    DateTime? @map("draft_tested_at") @db.Timestamptz(3)
+  publishedAt      DateTime? @map("published_at") @db.Timestamptz(3)
+  publishedById    String?   @map("published_by_id") @db.Uuid
+  /// Tope mensual de tokens que fija la empresa (null = solo el del plan)
+  monthlyTokenCap  Int?      @map("monthly_token_cap")
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   @@map("ai_settings")
+}
+
+/// Documentos de conocimiento del asistente (texto). Lo publicado lo usa con clientes; lo editado, solo en pruebas hasta publicar.
+model AiKnowledgeDoc {
+  id               String    @id @default(uuid(7)) @db.Uuid
+  tenantId         String    @map("tenant_id") @db.Uuid
+  title            String
+  content          String
+  publishedTitle   String?   @map("published_title")
+  publishedContent String?   @map("published_content")
+  /// Se quitará al publicar (hasta entonces sigue vigente con clientes)
+  pendingDelete    Boolean   @default(false) @map("pending_delete")
+  updatedById      String?   @map("updated_by_id") @db.Uuid
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([tenantId])
+  @@map("ai_knowledge_docs")
 }
 
 enum AutomationKey {

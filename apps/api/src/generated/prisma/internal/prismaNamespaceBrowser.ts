@@ -79,6 +79,7 @@ export const ModelName = {
   InboundEvent: 'InboundEvent',
   OutboundMessage: 'OutboundMessage',
   AiSettings: 'AiSettings',
+  AiKnowledgeDoc: 'AiKnowledgeDoc',
   Automation: 'Automation',
   AutomationEvent: 'AutomationEvent',
   TenantIntegration: 'TenantIntegration',
@@ -572,15 +573,33 @@ export type OutboundMessageScalarFieldEnum = (typeof OutboundMessageScalarFieldE
 export const AiSettingsScalarFieldEnum = {
   tenantId: 'tenantId',
   isEnabled: 'isEnabled',
-  assistantName: 'assistantName',
-  tone: 'tone',
-  welcomeMessage: 'welcomeMessage',
-  businessInfo: 'businessInfo',
-  handoffKeywords: 'handoffKeywords',
+  profile: 'profile',
+  draft: 'draft',
+  draftUpdatedAt: 'draftUpdatedAt',
+  draftTestedAt: 'draftTestedAt',
+  publishedAt: 'publishedAt',
+  publishedById: 'publishedById',
+  monthlyTokenCap: 'monthlyTokenCap',
   updatedAt: 'updatedAt'
 } as const
 
 export type AiSettingsScalarFieldEnum = (typeof AiSettingsScalarFieldEnum)[keyof typeof AiSettingsScalarFieldEnum]
+
+
+export const AiKnowledgeDocScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  title: 'title',
+  content: 'content',
+  publishedTitle: 'publishedTitle',
+  publishedContent: 'publishedContent',
+  pendingDelete: 'pendingDelete',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AiKnowledgeDocScalarFieldEnum = (typeof AiKnowledgeDocScalarFieldEnum)[keyof typeof AiKnowledgeDocScalarFieldEnum]
 
 
 export const AutomationScalarFieldEnum = {
@@ -675,6 +694,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {

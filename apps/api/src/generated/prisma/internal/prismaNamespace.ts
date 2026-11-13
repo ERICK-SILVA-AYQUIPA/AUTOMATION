@@ -425,6 +425,7 @@ export const ModelName = {
   InboundEvent: 'InboundEvent',
   OutboundMessage: 'OutboundMessage',
   AiSettings: 'AiSettings',
+  AiKnowledgeDoc: 'AiKnowledgeDoc',
   Automation: 'Automation',
   AutomationEvent: 'AutomationEvent',
   TenantIntegration: 'TenantIntegration',
@@ -445,7 +446,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "plan" | "tenant" | "subscription" | "payment" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "conversationNote" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog"
+    modelProps: "plan" | "tenant" | "subscription" | "payment" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "conversationNote" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "aiKnowledgeDoc" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2521,6 +2522,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AiKnowledgeDoc: {
+      payload: Prisma.$AiKnowledgeDocPayload<ExtArgs>
+      fields: Prisma.AiKnowledgeDocFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AiKnowledgeDocFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiKnowledgeDocPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AiKnowledgeDocFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiKnowledgeDocPayload>
+        }
+        findFirst: {
+          args: Prisma.AiKnowledgeDocFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiKnowledgeDocPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AiKnowledgeDocFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiKnowledgeDocPayload>
+        }
+        findMany: {
+          args: Prisma.AiKnowledgeDocFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiKnowledgeDocPayload>[]
+        }
+        create: {
+          args: Prisma.AiKnowledgeDocCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiKnowledgeDocPayload>
+        }
+        createMany: {
+          args: Prisma.AiKnowledgeDocCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AiKnowledgeDocCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiKnowledgeDocPayload>[]
+        }
+        delete: {
+          args: Prisma.AiKnowledgeDocDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiKnowledgeDocPayload>
+        }
+        update: {
+          args: Prisma.AiKnowledgeDocUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiKnowledgeDocPayload>
+        }
+        deleteMany: {
+          args: Prisma.AiKnowledgeDocDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AiKnowledgeDocUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AiKnowledgeDocUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiKnowledgeDocPayload>[]
+        }
+        upsert: {
+          args: Prisma.AiKnowledgeDocUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiKnowledgeDocPayload>
+        }
+        aggregate: {
+          args: Prisma.AiKnowledgeDocAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAiKnowledgeDoc>
+        }
+        groupBy: {
+          args: Prisma.AiKnowledgeDocGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AiKnowledgeDocGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AiKnowledgeDocCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AiKnowledgeDocCountAggregateOutputType> | number
+        }
+      }
+    }
     Automation: {
       payload: Prisma.$AutomationPayload<ExtArgs>
       fields: Prisma.AutomationFieldRefs
@@ -3400,15 +3475,33 @@ export type OutboundMessageScalarFieldEnum = (typeof OutboundMessageScalarFieldE
 export const AiSettingsScalarFieldEnum = {
   tenantId: 'tenantId',
   isEnabled: 'isEnabled',
-  assistantName: 'assistantName',
-  tone: 'tone',
-  welcomeMessage: 'welcomeMessage',
-  businessInfo: 'businessInfo',
-  handoffKeywords: 'handoffKeywords',
+  profile: 'profile',
+  draft: 'draft',
+  draftUpdatedAt: 'draftUpdatedAt',
+  draftTestedAt: 'draftTestedAt',
+  publishedAt: 'publishedAt',
+  publishedById: 'publishedById',
+  monthlyTokenCap: 'monthlyTokenCap',
   updatedAt: 'updatedAt'
 } as const
 
 export type AiSettingsScalarFieldEnum = (typeof AiSettingsScalarFieldEnum)[keyof typeof AiSettingsScalarFieldEnum]
+
+
+export const AiKnowledgeDocScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  title: 'title',
+  content: 'content',
+  publishedTitle: 'publishedTitle',
+  publishedContent: 'publishedContent',
+  pendingDelete: 'pendingDelete',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AiKnowledgeDocScalarFieldEnum = (typeof AiKnowledgeDocScalarFieldEnum)[keyof typeof AiKnowledgeDocScalarFieldEnum]
 
 
 export const AutomationScalarFieldEnum = {
@@ -3503,6 +3596,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -4141,6 +4242,7 @@ export type GlobalOmitConfig = {
   inboundEvent?: Prisma.InboundEventOmit
   outboundMessage?: Prisma.OutboundMessageOmit
   aiSettings?: Prisma.AiSettingsOmit
+  aiKnowledgeDoc?: Prisma.AiKnowledgeDocOmit
   automation?: Prisma.AutomationOmit
   automationEvent?: Prisma.AutomationEventOmit
   tenantIntegration?: Prisma.TenantIntegrationOmit

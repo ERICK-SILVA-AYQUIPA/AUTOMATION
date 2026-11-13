@@ -8,6 +8,10 @@ export const planLimitsSchema = z.object({
   maxConversationsPerMonth: z.number().int().positive(),
   maxProducts: z.number().int().positive(),
   maxBranches: z.number().int().positive(),
+  /** Tokens de IA al mes (opcional: sin valor = sin tope del plan) */
+  maxAiTokensPerMonth: z.number().int().positive().optional(),
+  /** Documentos de conocimiento del asistente (opcional: sin valor = 5) */
+  maxKnowledgeDocs: z.number().int().min(0).max(100).optional(),
   features: z.array(z.string()),
 });
 export type PlanLimits = z.infer<typeof planLimitsSchema>;

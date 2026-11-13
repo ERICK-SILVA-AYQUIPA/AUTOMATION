@@ -7,10 +7,10 @@ import { money, num } from '@/lib/format';
 import { Badge, Button, Card, ErrorBox, Field, Input, Loading, Select } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
 
-interface Limits { maxUsers: number; maxWhatsappNumbers: number; maxConversationsPerMonth: number; maxProducts: number; maxBranches: number; features: string[] }
+interface Limits { maxUsers: number; maxWhatsappNumbers: number; maxConversationsPerMonth: number; maxProducts: number; maxBranches: number; maxAiTokensPerMonth?: number; maxKnowledgeDocs?: number; features: string[] }
 interface Plan { id: string; code: string; name: string; priceMonthly: string; currency: string; limits: Limits; isActive: boolean; _count: { subscriptions: number } }
 
-const LIMIT_LABEL: [keyof Omit<Limits, 'features'>, string][] = [
+const LIMIT_LABEL: [Exclude<keyof Limits, 'features' | 'maxAiTokensPerMonth' | 'maxKnowledgeDocs'>, string][] = [
   ['maxUsers', 'Usuarios'], ['maxWhatsappNumbers', 'Números de WhatsApp'], ['maxConversationsPerMonth', 'Conversaciones al mes'],
   ['maxProducts', 'Productos'], ['maxBranches', 'Sucursales'],
 ];
@@ -26,6 +26,8 @@ function PlanCard({ plan }: { plan: Plan }) {
     name: plan.name, price: plan.priceMonthly, currency: plan.currency, isActive: plan.isActive,
     limits: Object.fromEntries(LIMIT_LABEL.map(([k]) => [k, String(plan.limits[k])])) as Record<string, string>,
     features: plan.limits.features,
+    aiTokens: plan.limits.maxAiTokensPerMonth ? String(plan.limits.maxAiTokensPerMonth) : '',
+    docs: String(plan.limits.maxKnowledgeDocs ?? 5),
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
@@ -39,7 +41,7 @@ function PlanCard({ plan }: { plan: Plan }) {
         method: 'PATCH',
         body: {
           name: f.name, priceMonthly: Number(f.price), currency: f.currency, isActive: f.isActive,
-          limits: { ...Object.fromEntries(LIMIT_LABEL.map(([k]) => [k, Number(f.limits[k])])), features: f.features },
+          limits: { ...Object.fromEntries(LIMIT_LABEL.map(([k]) => [k, Number(f.limits[k])])), ...(f.aiTokens ? { maxAiTokensPerMonth: Number(f.aiTokens) } : {}), maxKnowledgeDocs: Number(f.docs), features: f.features },
         },
       });
       toast.success(`Plan ${f.name} guardado`);
@@ -73,6 +75,8 @@ function PlanCard({ plan }: { plan: Plan }) {
           {LIMIT_LABEL.map(([k, l]) => (
             <Field key={k} label={l}><Input type="number" min={1} step={1} value={f.limits[k]} onChange={(e) => setF({ ...f, limits: { ...f.limits, [k]: e.target.value } })} required /></Field>
           ))}
+          <Field label="Tokens de IA al mes" hint="Vacío = sin tope del plan"><Input type="number" min={1} step={1} value={f.aiTokens} onChange={(e) => setF({ ...f, aiTokens: e.target.value })} /></Field>
+          <Field label="Documentos del asistente"><Input type="number" min={0} max={100} step={1} value={f.docs} onChange={(e) => setF({ ...f, docs: e.target.value })} required /></Field>
         </div>
         <fieldset className="grid gap-1">
           <legend className="mb-1 font-medium">Funciones incluidas</legend>

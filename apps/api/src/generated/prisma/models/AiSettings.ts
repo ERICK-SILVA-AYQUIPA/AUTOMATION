@@ -20,71 +20,97 @@ export type AiSettingsModel = runtime.Types.Result.DefaultSelection<Prisma.$AiSe
 
 export type AggregateAiSettings = {
   _count: AiSettingsCountAggregateOutputType | null
+  _avg: AiSettingsAvgAggregateOutputType | null
+  _sum: AiSettingsSumAggregateOutputType | null
   _min: AiSettingsMinAggregateOutputType | null
   _max: AiSettingsMaxAggregateOutputType | null
+}
+
+export type AiSettingsAvgAggregateOutputType = {
+  monthlyTokenCap: number | null
+}
+
+export type AiSettingsSumAggregateOutputType = {
+  monthlyTokenCap: number | null
 }
 
 export type AiSettingsMinAggregateOutputType = {
   tenantId: string | null
   isEnabled: boolean | null
-  assistantName: string | null
-  tone: string | null
-  welcomeMessage: string | null
-  businessInfo: string | null
+  draftUpdatedAt: Date | null
+  draftTestedAt: Date | null
+  publishedAt: Date | null
+  publishedById: string | null
+  monthlyTokenCap: number | null
   updatedAt: Date | null
 }
 
 export type AiSettingsMaxAggregateOutputType = {
   tenantId: string | null
   isEnabled: boolean | null
-  assistantName: string | null
-  tone: string | null
-  welcomeMessage: string | null
-  businessInfo: string | null
+  draftUpdatedAt: Date | null
+  draftTestedAt: Date | null
+  publishedAt: Date | null
+  publishedById: string | null
+  monthlyTokenCap: number | null
   updatedAt: Date | null
 }
 
 export type AiSettingsCountAggregateOutputType = {
   tenantId: number
   isEnabled: number
-  assistantName: number
-  tone: number
-  welcomeMessage: number
-  businessInfo: number
-  handoffKeywords: number
+  profile: number
+  draft: number
+  draftUpdatedAt: number
+  draftTestedAt: number
+  publishedAt: number
+  publishedById: number
+  monthlyTokenCap: number
   updatedAt: number
   _all: number
 }
 
 
+export type AiSettingsAvgAggregateInputType = {
+  monthlyTokenCap?: true
+}
+
+export type AiSettingsSumAggregateInputType = {
+  monthlyTokenCap?: true
+}
+
 export type AiSettingsMinAggregateInputType = {
   tenantId?: true
   isEnabled?: true
-  assistantName?: true
-  tone?: true
-  welcomeMessage?: true
-  businessInfo?: true
+  draftUpdatedAt?: true
+  draftTestedAt?: true
+  publishedAt?: true
+  publishedById?: true
+  monthlyTokenCap?: true
   updatedAt?: true
 }
 
 export type AiSettingsMaxAggregateInputType = {
   tenantId?: true
   isEnabled?: true
-  assistantName?: true
-  tone?: true
-  welcomeMessage?: true
-  businessInfo?: true
+  draftUpdatedAt?: true
+  draftTestedAt?: true
+  publishedAt?: true
+  publishedById?: true
+  monthlyTokenCap?: true
   updatedAt?: true
 }
 
 export type AiSettingsCountAggregateInputType = {
   tenantId?: true
   isEnabled?: true
-  assistantName?: true
-  tone?: true
-  welcomeMessage?: true
-  businessInfo?: true
-  handoffKeywords?: true
+  profile?: true
+  draft?: true
+  draftUpdatedAt?: true
+  draftTestedAt?: true
+  publishedAt?: true
+  publishedById?: true
+  monthlyTokenCap?: true
   updatedAt?: true
   _all?: true
 }
@@ -127,6 +153,18 @@ export type AiSettingsAggregateArgs<ExtArgs extends runtime.Types.Extensions.Int
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: AiSettingsAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: AiSettingsSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: AiSettingsMinAggregateInputType
@@ -157,6 +195,8 @@ export type AiSettingsGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   _count?: AiSettingsCountAggregateInputType | true
+  _avg?: AiSettingsAvgAggregateInputType
+  _sum?: AiSettingsSumAggregateInputType
   _min?: AiSettingsMinAggregateInputType
   _max?: AiSettingsMaxAggregateInputType
 }
@@ -164,13 +204,17 @@ export type AiSettingsGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 export type AiSettingsGroupByOutputType = {
   tenantId: string
   isEnabled: boolean
-  assistantName: string
-  tone: string
-  welcomeMessage: string | null
-  businessInfo: string | null
-  handoffKeywords: string[]
+  profile: runtime.JsonValue
+  draft: runtime.JsonValue | null
+  draftUpdatedAt: Date | null
+  draftTestedAt: Date | null
+  publishedAt: Date | null
+  publishedById: string | null
+  monthlyTokenCap: number | null
   updatedAt: Date
   _count: AiSettingsCountAggregateOutputType | null
+  _avg: AiSettingsAvgAggregateOutputType | null
+  _sum: AiSettingsSumAggregateOutputType | null
   _min: AiSettingsMinAggregateOutputType | null
   _max: AiSettingsMaxAggregateOutputType | null
 }
@@ -196,22 +240,26 @@ export type AiSettingsWhereInput = {
   NOT?: Prisma.AiSettingsWhereInput | Prisma.AiSettingsWhereInput[]
   tenantId?: Prisma.UuidFilter<"AiSettings"> | string
   isEnabled?: Prisma.BoolFilter<"AiSettings"> | boolean
-  assistantName?: Prisma.StringFilter<"AiSettings"> | string
-  tone?: Prisma.StringFilter<"AiSettings"> | string
-  welcomeMessage?: Prisma.StringNullableFilter<"AiSettings"> | string | null
-  businessInfo?: Prisma.StringNullableFilter<"AiSettings"> | string | null
-  handoffKeywords?: Prisma.StringNullableListFilter<"AiSettings">
+  profile?: Prisma.JsonFilter<"AiSettings">
+  draft?: Prisma.JsonNullableFilter<"AiSettings">
+  draftUpdatedAt?: Prisma.DateTimeNullableFilter<"AiSettings"> | Date | string | null
+  draftTestedAt?: Prisma.DateTimeNullableFilter<"AiSettings"> | Date | string | null
+  publishedAt?: Prisma.DateTimeNullableFilter<"AiSettings"> | Date | string | null
+  publishedById?: Prisma.UuidNullableFilter<"AiSettings"> | string | null
+  monthlyTokenCap?: Prisma.IntNullableFilter<"AiSettings"> | number | null
   updatedAt?: Prisma.DateTimeFilter<"AiSettings"> | Date | string
 }
 
 export type AiSettingsOrderByWithRelationInput = {
   tenantId?: Prisma.SortOrder
   isEnabled?: Prisma.SortOrder
-  assistantName?: Prisma.SortOrder
-  tone?: Prisma.SortOrder
-  welcomeMessage?: Prisma.SortOrderInput | Prisma.SortOrder
-  businessInfo?: Prisma.SortOrderInput | Prisma.SortOrder
-  handoffKeywords?: Prisma.SortOrder
+  profile?: Prisma.SortOrder
+  draft?: Prisma.SortOrderInput | Prisma.SortOrder
+  draftUpdatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  draftTestedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  publishedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  monthlyTokenCap?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -221,26 +269,32 @@ export type AiSettingsWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.AiSettingsWhereInput[]
   NOT?: Prisma.AiSettingsWhereInput | Prisma.AiSettingsWhereInput[]
   isEnabled?: Prisma.BoolFilter<"AiSettings"> | boolean
-  assistantName?: Prisma.StringFilter<"AiSettings"> | string
-  tone?: Prisma.StringFilter<"AiSettings"> | string
-  welcomeMessage?: Prisma.StringNullableFilter<"AiSettings"> | string | null
-  businessInfo?: Prisma.StringNullableFilter<"AiSettings"> | string | null
-  handoffKeywords?: Prisma.StringNullableListFilter<"AiSettings">
+  profile?: Prisma.JsonFilter<"AiSettings">
+  draft?: Prisma.JsonNullableFilter<"AiSettings">
+  draftUpdatedAt?: Prisma.DateTimeNullableFilter<"AiSettings"> | Date | string | null
+  draftTestedAt?: Prisma.DateTimeNullableFilter<"AiSettings"> | Date | string | null
+  publishedAt?: Prisma.DateTimeNullableFilter<"AiSettings"> | Date | string | null
+  publishedById?: Prisma.UuidNullableFilter<"AiSettings"> | string | null
+  monthlyTokenCap?: Prisma.IntNullableFilter<"AiSettings"> | number | null
   updatedAt?: Prisma.DateTimeFilter<"AiSettings"> | Date | string
 }, "tenantId">
 
 export type AiSettingsOrderByWithAggregationInput = {
   tenantId?: Prisma.SortOrder
   isEnabled?: Prisma.SortOrder
-  assistantName?: Prisma.SortOrder
-  tone?: Prisma.SortOrder
-  welcomeMessage?: Prisma.SortOrderInput | Prisma.SortOrder
-  businessInfo?: Prisma.SortOrderInput | Prisma.SortOrder
-  handoffKeywords?: Prisma.SortOrder
+  profile?: Prisma.SortOrder
+  draft?: Prisma.SortOrderInput | Prisma.SortOrder
+  draftUpdatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  draftTestedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  publishedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  monthlyTokenCap?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.AiSettingsCountOrderByAggregateInput
+  _avg?: Prisma.AiSettingsAvgOrderByAggregateInput
   _max?: Prisma.AiSettingsMaxOrderByAggregateInput
   _min?: Prisma.AiSettingsMinOrderByAggregateInput
+  _sum?: Prisma.AiSettingsSumOrderByAggregateInput
 }
 
 export type AiSettingsScalarWhereWithAggregatesInput = {
@@ -249,129 +303,148 @@ export type AiSettingsScalarWhereWithAggregatesInput = {
   NOT?: Prisma.AiSettingsScalarWhereWithAggregatesInput | Prisma.AiSettingsScalarWhereWithAggregatesInput[]
   tenantId?: Prisma.UuidWithAggregatesFilter<"AiSettings"> | string
   isEnabled?: Prisma.BoolWithAggregatesFilter<"AiSettings"> | boolean
-  assistantName?: Prisma.StringWithAggregatesFilter<"AiSettings"> | string
-  tone?: Prisma.StringWithAggregatesFilter<"AiSettings"> | string
-  welcomeMessage?: Prisma.StringNullableWithAggregatesFilter<"AiSettings"> | string | null
-  businessInfo?: Prisma.StringNullableWithAggregatesFilter<"AiSettings"> | string | null
-  handoffKeywords?: Prisma.StringNullableListFilter<"AiSettings">
+  profile?: Prisma.JsonWithAggregatesFilter<"AiSettings">
+  draft?: Prisma.JsonNullableWithAggregatesFilter<"AiSettings">
+  draftUpdatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AiSettings"> | Date | string | null
+  draftTestedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AiSettings"> | Date | string | null
+  publishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AiSettings"> | Date | string | null
+  publishedById?: Prisma.UuidNullableWithAggregatesFilter<"AiSettings"> | string | null
+  monthlyTokenCap?: Prisma.IntNullableWithAggregatesFilter<"AiSettings"> | number | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AiSettings"> | Date | string
 }
 
 export type AiSettingsCreateInput = {
   tenantId: string
   isEnabled?: boolean
-  assistantName?: string
-  tone?: string
-  welcomeMessage?: string | null
-  businessInfo?: string | null
-  handoffKeywords?: Prisma.AiSettingsCreatehandoffKeywordsInput | string[]
+  profile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  draft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftUpdatedAt?: Date | string | null
+  draftTestedAt?: Date | string | null
+  publishedAt?: Date | string | null
+  publishedById?: string | null
+  monthlyTokenCap?: number | null
   updatedAt?: Date | string
 }
 
 export type AiSettingsUncheckedCreateInput = {
   tenantId: string
   isEnabled?: boolean
-  assistantName?: string
-  tone?: string
-  welcomeMessage?: string | null
-  businessInfo?: string | null
-  handoffKeywords?: Prisma.AiSettingsCreatehandoffKeywordsInput | string[]
+  profile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  draft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftUpdatedAt?: Date | string | null
+  draftTestedAt?: Date | string | null
+  publishedAt?: Date | string | null
+  publishedById?: string | null
+  monthlyTokenCap?: number | null
   updatedAt?: Date | string
 }
 
 export type AiSettingsUpdateInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  assistantName?: Prisma.StringFieldUpdateOperationsInput | string
-  tone?: Prisma.StringFieldUpdateOperationsInput | string
-  welcomeMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  businessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  handoffKeywords?: Prisma.AiSettingsUpdatehandoffKeywordsInput | string[]
+  profile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  draft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  draftTestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monthlyTokenCap?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AiSettingsUncheckedUpdateInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  assistantName?: Prisma.StringFieldUpdateOperationsInput | string
-  tone?: Prisma.StringFieldUpdateOperationsInput | string
-  welcomeMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  businessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  handoffKeywords?: Prisma.AiSettingsUpdatehandoffKeywordsInput | string[]
+  profile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  draft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  draftTestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monthlyTokenCap?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AiSettingsCreateManyInput = {
   tenantId: string
   isEnabled?: boolean
-  assistantName?: string
-  tone?: string
-  welcomeMessage?: string | null
-  businessInfo?: string | null
-  handoffKeywords?: Prisma.AiSettingsCreatehandoffKeywordsInput | string[]
+  profile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  draft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftUpdatedAt?: Date | string | null
+  draftTestedAt?: Date | string | null
+  publishedAt?: Date | string | null
+  publishedById?: string | null
+  monthlyTokenCap?: number | null
   updatedAt?: Date | string
 }
 
 export type AiSettingsUpdateManyMutationInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  assistantName?: Prisma.StringFieldUpdateOperationsInput | string
-  tone?: Prisma.StringFieldUpdateOperationsInput | string
-  welcomeMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  businessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  handoffKeywords?: Prisma.AiSettingsUpdatehandoffKeywordsInput | string[]
+  profile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  draft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  draftTestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monthlyTokenCap?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AiSettingsUncheckedUpdateManyInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   isEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  assistantName?: Prisma.StringFieldUpdateOperationsInput | string
-  tone?: Prisma.StringFieldUpdateOperationsInput | string
-  welcomeMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  businessInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  handoffKeywords?: Prisma.AiSettingsUpdatehandoffKeywordsInput | string[]
+  profile?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  draft?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  draftTestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monthlyTokenCap?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AiSettingsCountOrderByAggregateInput = {
   tenantId?: Prisma.SortOrder
   isEnabled?: Prisma.SortOrder
-  assistantName?: Prisma.SortOrder
-  tone?: Prisma.SortOrder
-  welcomeMessage?: Prisma.SortOrder
-  businessInfo?: Prisma.SortOrder
-  handoffKeywords?: Prisma.SortOrder
+  profile?: Prisma.SortOrder
+  draft?: Prisma.SortOrder
+  draftUpdatedAt?: Prisma.SortOrder
+  draftTestedAt?: Prisma.SortOrder
+  publishedAt?: Prisma.SortOrder
+  publishedById?: Prisma.SortOrder
+  monthlyTokenCap?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type AiSettingsAvgOrderByAggregateInput = {
+  monthlyTokenCap?: Prisma.SortOrder
 }
 
 export type AiSettingsMaxOrderByAggregateInput = {
   tenantId?: Prisma.SortOrder
   isEnabled?: Prisma.SortOrder
-  assistantName?: Prisma.SortOrder
-  tone?: Prisma.SortOrder
-  welcomeMessage?: Prisma.SortOrder
-  businessInfo?: Prisma.SortOrder
+  draftUpdatedAt?: Prisma.SortOrder
+  draftTestedAt?: Prisma.SortOrder
+  publishedAt?: Prisma.SortOrder
+  publishedById?: Prisma.SortOrder
+  monthlyTokenCap?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type AiSettingsMinOrderByAggregateInput = {
   tenantId?: Prisma.SortOrder
   isEnabled?: Prisma.SortOrder
-  assistantName?: Prisma.SortOrder
-  tone?: Prisma.SortOrder
-  welcomeMessage?: Prisma.SortOrder
-  businessInfo?: Prisma.SortOrder
+  draftUpdatedAt?: Prisma.SortOrder
+  draftTestedAt?: Prisma.SortOrder
+  publishedAt?: Prisma.SortOrder
+  publishedById?: Prisma.SortOrder
+  monthlyTokenCap?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
-export type AiSettingsCreatehandoffKeywordsInput = {
-  set: string[]
-}
-
-export type AiSettingsUpdatehandoffKeywordsInput = {
-  set?: string[]
-  push?: string | string[]
+export type AiSettingsSumOrderByAggregateInput = {
+  monthlyTokenCap?: Prisma.SortOrder
 }
 
 
@@ -379,63 +452,85 @@ export type AiSettingsUpdatehandoffKeywordsInput = {
 export type AiSettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   tenantId?: boolean
   isEnabled?: boolean
-  assistantName?: boolean
-  tone?: boolean
-  welcomeMessage?: boolean
-  businessInfo?: boolean
-  handoffKeywords?: boolean
+  profile?: boolean
+  draft?: boolean
+  draftUpdatedAt?: boolean
+  draftTestedAt?: boolean
+  publishedAt?: boolean
+  publishedById?: boolean
+  monthlyTokenCap?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["aiSettings"]>
 
 export type AiSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   tenantId?: boolean
   isEnabled?: boolean
-  assistantName?: boolean
-  tone?: boolean
-  welcomeMessage?: boolean
-  businessInfo?: boolean
-  handoffKeywords?: boolean
+  profile?: boolean
+  draft?: boolean
+  draftUpdatedAt?: boolean
+  draftTestedAt?: boolean
+  publishedAt?: boolean
+  publishedById?: boolean
+  monthlyTokenCap?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["aiSettings"]>
 
 export type AiSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   tenantId?: boolean
   isEnabled?: boolean
-  assistantName?: boolean
-  tone?: boolean
-  welcomeMessage?: boolean
-  businessInfo?: boolean
-  handoffKeywords?: boolean
+  profile?: boolean
+  draft?: boolean
+  draftUpdatedAt?: boolean
+  draftTestedAt?: boolean
+  publishedAt?: boolean
+  publishedById?: boolean
+  monthlyTokenCap?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["aiSettings"]>
 
 export type AiSettingsSelectScalar = {
   tenantId?: boolean
   isEnabled?: boolean
-  assistantName?: boolean
-  tone?: boolean
-  welcomeMessage?: boolean
-  businessInfo?: boolean
-  handoffKeywords?: boolean
+  profile?: boolean
+  draft?: boolean
+  draftUpdatedAt?: boolean
+  draftTestedAt?: boolean
+  publishedAt?: boolean
+  publishedById?: boolean
+  monthlyTokenCap?: boolean
   updatedAt?: boolean
 }
 
-export type AiSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"tenantId" | "isEnabled" | "assistantName" | "tone" | "welcomeMessage" | "businessInfo" | "handoffKeywords" | "updatedAt", ExtArgs["result"]["aiSettings"]>
+export type AiSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"tenantId" | "isEnabled" | "profile" | "draft" | "draftUpdatedAt" | "draftTestedAt" | "publishedAt" | "publishedById" | "monthlyTokenCap" | "updatedAt", ExtArgs["result"]["aiSettings"]>
 
 export type $AiSettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AiSettings"
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     tenantId: string
-    isEnabled: boolean
-    assistantName: string
-    tone: string
-    welcomeMessage: string | null
     /**
-     * Información del negocio (horarios, envíos, pagos). Nunca precios ni stock.
+     * Interruptor operativo (inmediato, no pasa por borrador)
      */
-    businessInfo: string | null
-    handoffKeywords: string[]
+    isEnabled: boolean
+    /**
+     * Configuración publicada (la que usa el asistente con los clientes). Esquema: apps/api/src/ai/ai-profile.ts
+     */
+    profile: runtime.JsonValue
+    /**
+     * Cambios sin publicar; null = sin borrador
+     */
+    draft: runtime.JsonValue | null
+    draftUpdatedAt: Date | null
+    /**
+     * Última prueba del borrador vigente (publicar exige probarlo si hay proveedor de IA)
+     */
+    draftTestedAt: Date | null
+    publishedAt: Date | null
+    publishedById: string | null
+    /**
+     * Tope mensual de tokens que fija la empresa (null = solo el del plan)
+     */
+    monthlyTokenCap: number | null
     updatedAt: Date
   }, ExtArgs["result"]["aiSettings"]>
   composites: {}
@@ -862,11 +957,13 @@ export interface Prisma__AiSettingsClient<T, Null = never, ExtArgs extends runti
 export interface AiSettingsFieldRefs {
   readonly tenantId: Prisma.FieldRef<"AiSettings", 'String'>
   readonly isEnabled: Prisma.FieldRef<"AiSettings", 'Boolean'>
-  readonly assistantName: Prisma.FieldRef<"AiSettings", 'String'>
-  readonly tone: Prisma.FieldRef<"AiSettings", 'String'>
-  readonly welcomeMessage: Prisma.FieldRef<"AiSettings", 'String'>
-  readonly businessInfo: Prisma.FieldRef<"AiSettings", 'String'>
-  readonly handoffKeywords: Prisma.FieldRef<"AiSettings", 'String[]'>
+  readonly profile: Prisma.FieldRef<"AiSettings", 'Json'>
+  readonly draft: Prisma.FieldRef<"AiSettings", 'Json'>
+  readonly draftUpdatedAt: Prisma.FieldRef<"AiSettings", 'DateTime'>
+  readonly draftTestedAt: Prisma.FieldRef<"AiSettings", 'DateTime'>
+  readonly publishedAt: Prisma.FieldRef<"AiSettings", 'DateTime'>
+  readonly publishedById: Prisma.FieldRef<"AiSettings", 'String'>
+  readonly monthlyTokenCap: Prisma.FieldRef<"AiSettings", 'Int'>
   readonly updatedAt: Prisma.FieldRef<"AiSettings", 'DateTime'>
 }
     

@@ -52,7 +52,7 @@ describe('Asistente de IA (Gemini directo, herramientas seguras)', () => {
     variantB = pb.body.variants[0].id;
     numberId = (await owner.whatsappNumber.create({ data: { tenantId: a.tenantId, provider: 'CLOUD_API', displayPhone: '51900000009', phoneNumberId: '99887766', webhookKey: 'wk-ia-test', status: 'CONNECTED' } })).id;
     customerId = (await owner.customer.create({ data: { tenantId: a.tenantId, phone: '51987000222', waProfileName: 'Lucía', source: 'whatsapp' } })).id;
-    await owner.aiSettings.update({ where: { tenantId: a.tenantId }, data: { businessInfo: 'Delivery en Lima de 9 a 18 h. Pago con Yape.' } });
+    await owner.aiSettings.update({ where: { tenantId: a.tenantId }, data: { profile: { businessInfo: 'Delivery en Lima de 9 a 18 h. Pago con Yape.' } } });
   });
   afterAll(async () => {
     await ctx.app.close();
@@ -180,29 +180,159 @@ describe('Asistente de IA (Gemini directo, herramientas seguras)', () => {
     expect(await botMessages(conversationId)).toHaveLength(0);
   });
 
-  it('panel: configuración solo para el administrador y prueba sin enviar por WhatsApp', async () => {
+  it('panel: borrador, prueba y publicación; los clientes solo ven lo publicado', async () => {
     const s = await ctx.http().get('/api/v1/ai/settings').set(H()).expect(200);
-    expect(s.body).toMatchObject({ isEnabled: true, provider: { configured: true, model: 'gemini-modelo-prueba' } });
+    expect(s.body).toMatchObject({ isEnabled: true, draft: null, hasUnpublishedChanges: false, testRequired: true, provider: { configured: true, model: 'gemini-modelo-prueba' } });
+    expect(s.body.published.businessInfo).toBe('Delivery en Lima de 9 a 18 h. Pago con Yape.');
     expect(JSON.stringify(s.body)).not.toContain('clave-de-prueba-gemini');
-    const put = await ctx.http().put('/api/v1/ai/settings').set(H())
-      .send({ isEnabled: true, assistantName: 'Lula', tone: 'cercano', welcomeMessage: '', businessInfo: 'Abrimos de 8 a 20 h.', handoffKeywords: ['Humano', 'humano', 'reclamo'] }).expect(200);
-    expect(put.body).toMatchObject({ assistantName: 'Lula', welcomeMessage: null, handoffKeywords: ['humano', 'reclamo'] });
-    await ctx.http().put('/api/v1/ai/settings').set(H()).send({ isEnabled: true, assistantName: '', tone: 'x', handoffKeywords: [] }).expect(400);
 
+    const profile = { ...s.body.published, assistantName: 'Lula', tone: 'cercano', paymentMethods: ['Yape', 'Plin'], faqs: [{ question: '¿Hacen factura?', answer: 'Sí, con RUC.' }], handoffKeywords: ['Humano', 'humano', 'reclamo'], handoffMessage: 'Ya te atiende Rosa del equipo.' };
+    const bad = await ctx.http().put('/api/v1/ai/settings/draft').set(H()).send({ ...profile, assistantName: '' }).expect(400);
+    expect(bad.body.errors?.[0]?.path ?? JSON.stringify(bad.body)).toContain('assistantName');
+    await ctx.http().put('/api/v1/ai/settings/draft').set(H()).send({ ...profile, inventado: true }).expect(400);
+    const d = await ctx.http().put('/api/v1/ai/settings/draft').set(H()).send(profile).expect(200);
+    expect(d.body.draft.handoffKeywords).toEqual(['humano', 'reclamo']);
+
+    // Sin probar no se publica
+    const notTested = await ctx.http().post('/api/v1/ai/settings/publish').set(H()).expect(409);
+    expect(notTested.body.code).toBe('TEST_REQUIRED');
+
+    // Lo publicado sigue igual para los clientes mientras tanto
+    script = [textReply('Hola, ¿en qué te ayudo?')];
+    requests.length = 0;
+    const c = await inbound('hola');
+    await assistant.reply(a.tenantId, c.conversationId, c.messageId);
+    expect(requests[0]!.body.systemInstruction.parts[0]!.text).toContain('Eres Asistente');
+
+    // Prueba del borrador: mismo modelo, sin enviar nada por WhatsApp
     const outBefore = await owner.outboundMessage.count();
     script = [callReply('buscar_productos', { consulta: 'gaseosa' }), textReply('Cuesta S/ 3.50.')];
     requests.length = 0;
-    const t = await ctx.http().post('/api/v1/ai/test').set(H()).send({ messages: [{ role: 'customer', text: 'precio de la gaseosa' }] }).expect(200);
-    expect(t.body).toEqual({ reply: 'Cuesta S/ 3.50.', tools: ['buscar_productos'], handoff: null });
-    expect(requests[0]!.body.systemInstruction.parts[0]!.text).toContain('Eres Lula');
+    const t = await ctx.http().post('/api/v1/ai/test').set(H()).send({ target: 'draft', messages: [{ role: 'customer', text: 'precio de la gaseosa' }] }).expect(200);
+    expect(t.body).toMatchObject({ reply: 'Cuesta S/ 3.50.', tools: ['buscar_productos'], handoff: null });
+    const sys = requests[0]!.body.systemInstruction.parts[0]!.text;
+    expect(sys).toContain('Eres Lula');
+    expect(sys).toContain('Yape, Plin');
+    expect(sys).toContain('¿Hacen factura?');
     expect(await owner.outboundMessage.count()).toBe(outBefore);
 
-    script = [{ status: 503, body: { error: { message: 'overloaded' } } }];
-    const e = await ctx.http().post('/api/v1/ai/test').set(H()).send({ messages: [{ role: 'customer', text: 'hola' }] }).expect(503);
-    expect(e.body.code).toBe('AI_PROVIDER_ERROR');
+    // Cambiar el borrador después de probarlo vuelve a exigir prueba
+    await ctx.http().put('/api/v1/ai/settings/draft').set(H()).send({ ...profile, tone: 'formal' }).expect(200);
+    await ctx.http().post('/api/v1/ai/settings/publish').set(H()).expect(409);
+    script = [textReply('Buenas tardes.')];
+    await ctx.http().post('/api/v1/ai/test').set(H()).send({ messages: [{ role: 'customer', text: 'hola' }] }).expect(200);
+    const pub = await ctx.http().post('/api/v1/ai/settings/publish').set(H()).expect(200);
+    expect(pub.body.changed).toEqual(expect.arrayContaining(['assistantName', 'tone', 'paymentMethods', 'faqs', 'handoffMessage']));
+    const audit = await owner.auditLog.findFirstOrThrow({ where: { tenantId: a.tenantId, action: 'ai.published' } });
+    expect(audit.userId).toBe(a.userId);
 
-    // Un vendedor no configura el asistente
+    // Ahora sí lo usan los clientes, incluido el mensaje de derivación propio
+    const k = await inbound('quiero un humano');
+    await assistant.reply(a.tenantId, k.conversationId, k.messageId);
+    expect((await botMessages(k.conversationId))[0]!.content).toBe('Ya te atiende Rosa del equipo.');
+    const after = await ctx.http().get('/api/v1/ai/settings').set(H()).expect(200);
+    expect(after.body).toMatchObject({ draft: null, hasUnpublishedChanges: false, published: { assistantName: 'Lula', tone: 'formal' } });
+
+    script = [{ status: 503, body: { error: { message: 'overloaded' } } }];
+    const e = await ctx.http().post('/api/v1/ai/test').set(H()).send({ target: 'published', messages: [{ role: 'customer', text: 'hola' }] }).expect(503);
+    expect(e.body.code).toBe('AI_PROVIDER_ERROR');
+  });
+
+  it('documentos de conocimiento: se prueban en borrador, se publican, se descartan y respetan el límite del plan', async () => {
+    const doc = await ctx.http().post('/api/v1/ai/knowledge').set(H()).send({ title: 'Garantía', content: 'Las gaseosas no tienen garantía, solo cambio si llegan abiertas.' }).expect(201);
+    let list = await ctx.http().get('/api/v1/ai/knowledge').set(H()).expect(200);
+    expect(list.body).toEqual([expect.objectContaining({ id: doc.body.id, state: 'new' })]);
+    expect((await ctx.http().get('/api/v1/ai/settings').set(H())).body.hasUnpublishedChanges).toBe(true);
+
+    // Con clientes aún no está; en la prueba del borrador sí
+    script = [textReply('ok')];
+    requests.length = 0;
+    await ctx.http().post('/api/v1/ai/test').set(H()).send({ target: 'published', messages: [{ role: 'customer', text: 'garantía?' }] }).expect(200);
+    expect(requests[0]!.body.systemInstruction.parts[0]!.text).not.toContain('### Garantía');
+    script = [textReply('ok')];
+    requests.length = 0;
+    await ctx.http().post('/api/v1/ai/test').set(H()).send({ target: 'draft', messages: [{ role: 'customer', text: 'garantía?' }] }).expect(200);
+    expect(requests[0]!.body.systemInstruction.parts[0]!.text).toContain('### Garantía');
+    await ctx.http().post('/api/v1/ai/settings/publish').set(H()).expect(200);
+    list = await ctx.http().get('/api/v1/ai/knowledge').set(H()).expect(200);
+    expect(list.body[0].state).toBe('published');
+
+    // Editar y descartar vuelve a lo publicado; borrar uno publicado espera a publicar
+    await ctx.http().put(`/api/v1/ai/knowledge/${doc.body.id}`).set(H()).send({ title: 'Garantía', content: 'Texto cambiado' }).expect(200);
+    await ctx.http().delete('/api/v1/ai/settings/draft').set(H()).expect(204);
+    list = await ctx.http().get('/api/v1/ai/knowledge').set(H()).expect(200);
+    expect(list.body[0]).toMatchObject({ state: 'published', content: 'Las gaseosas no tienen garantía, solo cambio si llegan abiertas.' });
+    await ctx.http().delete(`/api/v1/ai/knowledge/${doc.body.id}`).set(H()).expect(204);
+    list = await ctx.http().get('/api/v1/ai/knowledge').set(H()).expect(200);
+    expect(list.body[0].state).toBe('pending_delete');
+
+    // Límite del plan (opcional en los límites; por defecto 5)
+    const plan = await owner.subscription.findUniqueOrThrow({ where: { tenantId: a.tenantId }, include: { plan: true } });
+    await owner.plan.update({ where: { id: plan.planId }, data: { limits: { ...(plan.plan.limits as object), maxKnowledgeDocs: 1 } } });
+    const over = await ctx.http().post('/api/v1/ai/knowledge').set(H()).send({ title: 'Otro', content: 'x' }).expect(201);
+    const lim = await ctx.http().post('/api/v1/ai/knowledge').set(H()).send({ title: 'Uno más', content: 'x' }).expect(403);
+    expect(lim.body.code).toBe('PLAN_LIMIT_REACHED');
+    await ctx.http().delete(`/api/v1/ai/knowledge/${over.body.id}`).set(H()).expect(204);
+    await owner.plan.update({ where: { id: plan.planId }, data: { limits: plan.plan.limits as object } });
+
+    // Otra empresa no ve ni toca los documentos
+    await ctx.http().delete('/api/v1/ai/settings/draft').set(H()).expect(204);
+    const runtimeB = await ctx.http().get('/api/v1/ai/knowledge').set({ Authorization: `Bearer ${b.accessToken}` }).expect(200);
+    expect(runtimeB.body).toEqual([]);
+    await ctx.http().put(`/api/v1/ai/knowledge/${doc.body.id}`).set({ Authorization: `Bearer ${b.accessToken}` }).send({ title: 'x', content: 'x' }).expect(404);
+  });
+
+  it('fuera de horario en modo solo aviso: envía el aviso una vez y no llama al modelo', async () => {
+    const s = await ctx.http().get('/api/v1/ai/settings').set(H()).expect(200);
+    const closed = { mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] };
+    await ctx.http().put('/api/v1/ai/settings/draft').set(H()).send({ ...s.body.published, hours: closed, outsideHours: 'MESSAGE' }).expect(400);
+    await ctx.http().put('/api/v1/ai/settings/draft').set(H()).send({ ...s.body.published, hours: closed, outsideHours: 'MESSAGE', outsideHoursMessage: 'Estamos cerrados; te respondemos al abrir.' }).expect(200);
+    script = [textReply('ok')];
+    await ctx.http().post('/api/v1/ai/test').set(H()).send({ messages: [{ role: 'customer', text: 'hola' }] }).expect(200);
+    await ctx.http().post('/api/v1/ai/settings/publish').set(H()).expect(200);
+
+    requests.length = 0;
+    const c = await inbound('hola, ¿tienen gaseosa?');
+    expect(await assistant.reply(a.tenantId, c.conversationId, c.messageId)).toMatchObject({ outcome: 'skipped', reason: 'fuera de horario' });
+    const m2 = await inbound('¿hola?', c.conversationId);
+    expect(await assistant.reply(a.tenantId, c.conversationId, m2.messageId)).toMatchObject({ outcome: 'skipped', reason: 'fuera de horario (aviso ya enviado)' });
+    expect(requests).toHaveLength(0);
+    expect((await botMessages(c.conversationId)).map((m) => m.content)).toEqual(['Estamos cerrados; te respondemos al abrir.']);
+
+    // Vuelve a atender siempre
+    await ctx.http().put('/api/v1/ai/settings/draft').set(H()).send({ ...s.body.published, hours: null, outsideHours: 'ANSWER' }).expect(200);
+    script = [textReply('ok')];
+    await ctx.http().post('/api/v1/ai/test').set(H()).send({ messages: [{ role: 'customer', text: 'hola' }] }).expect(200);
+    await ctx.http().post('/api/v1/ai/settings/publish').set(H()).expect(200);
+  });
+
+  it('tope de consumo: la empresa lo fija dentro del plan y al alcanzarlo pasa a una persona', async () => {
+    const plan = await owner.subscription.findUniqueOrThrow({ where: { tenantId: a.tenantId }, include: { plan: true } });
+    await owner.plan.update({ where: { id: plan.planId }, data: { limits: { ...(plan.plan.limits as object), maxAiTokensPerMonth: 50_000 } } });
+    const over = await ctx.http().patch('/api/v1/ai/settings').set(H()).send({ monthlyTokenCap: 60_000 }).expect(403);
+    expect(over.body.code).toBe('PLAN_LIMIT');
+    await ctx.http().patch('/api/v1/ai/settings').set(H()).send({ monthlyTokenCap: 2_000 }).expect(200);
+    const s = await ctx.http().get('/api/v1/ai/settings').set(H()).expect(200);
+    expect(s.body.usage).toMatchObject({ planTokenLimit: 50_000, effectiveCap: 2_000 });
+    expect(s.body.usage.tokens).toBeGreaterThan(0);
+
+    const { currentPeriod } = await import('../src/plans/plan-limits.js');
+    await owner.usageCounter.upsert({ where: { tenantId_metric_period: { tenantId: a.tenantId, metric: 'ai_tokens', period: currentPeriod() } }, create: { tenantId: a.tenantId, metric: 'ai_tokens', period: currentPeriod(), value: 2_000 }, update: { value: 2_000 } });
+    requests.length = 0;
+    const c = await inbound('hola');
+    expect(await assistant.reply(a.tenantId, c.conversationId, c.messageId)).toMatchObject({ outcome: 'handoff', reason: 'tope de consumo de IA del mes' });
+    expect(requests).toHaveLength(0);
+    expect(await owner.notification.count({ where: { tenantId: a.tenantId, type: 'ai_notice', data: { path: ['key'], equals: `ai_tokens:${currentPeriod()}` } } })).toBe(1);
+    const t = await ctx.http().post('/api/v1/ai/test').set(H()).send({ messages: [{ role: 'customer', text: 'hola' }] }).expect(409);
+    expect(t.body.code).toBe('AI_CAP_REACHED');
+    // Quitar el tope propio deja solo el del plan
+    await ctx.http().patch('/api/v1/ai/settings').set(H()).send({ monthlyTokenCap: null }).expect(200);
+    await owner.plan.update({ where: { id: plan.planId }, data: { limits: plan.plan.limits as object } });
+  });
+
+  it('solo el administrador configura el asistente', async () => {
     await owner.user.updateMany({ where: { email: 'admin@ia-b.test' }, data: { role: 'SELLER' } });
     await ctx.http().get('/api/v1/ai/settings').set({ Authorization: `Bearer ${b.accessToken}` }).expect(403);
+    await ctx.http().post('/api/v1/ai/settings/publish').set({ Authorization: `Bearer ${b.accessToken}` }).expect(403);
   });
 });

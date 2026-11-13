@@ -1,3 +1,4 @@
+import { hasBusinessInfo, readProfile } from '../ai/ai-profile.js';
 import type { Tx } from '../database/database.service.js';
 import { subscriptionAccess } from '../plans/subscription-access.js';
 
@@ -46,7 +47,7 @@ export async function computeOnboarding(tx: Tx, tenantId: string, o: Options): P
     tx.user.findMany({ where: { tenantId, role: 'TENANT_ADMIN', status: { not: 'DISABLED' } }, select: { id: true, status: true } }),
     tx.whatsappNumber.findMany({ where: { tenantId, isActive: true }, select: { status: true, lastWebhookAt: true } }),
     tx.product.count({ where: { tenantId, status: 'ACTIVE' } }),
-    tx.aiSettings.findUnique({ where: { tenantId }, select: { businessInfo: true } }),
+    tx.aiSettings.findUnique({ where: { tenantId }, select: { profile: true } }),
   ]);
   const joined = admins.some((a) => a.status === 'ACTIVE');
   let invited = joined;
@@ -73,7 +74,7 @@ export async function computeOnboarding(tx: Tx, tenantId: string, o: Options): P
   if (mod('catalog')) tasks.push({ key: 'catalog', label: 'Al menos un producto activo', done: products > 0, required: false, hint: 'Productos → Nuevo o importar CSV' });
   if (mod('ai')) {
     tasks.push(
-      { key: 'ai_settings', label: 'Información del negocio para el asistente', done: !!aiSettings?.businessInfo?.trim(), required: false, hint: 'Asistente IA → Información del negocio' },
+      { key: 'ai_settings', label: 'Información del negocio para el asistente', done: hasBusinessInfo(readProfile(aiSettings?.profile)), required: false, hint: 'Asistente IA: horario, pagos, entregas o preguntas frecuentes (publicado)' },
       { key: 'ai_provider', label: 'Clave del modelo de IA en el servidor', done: o.aiProviderConfigured, required: false, hint: o.aiProviderConfigured ? '' : 'Falta GEMINI_API_KEY: sin ella los mensajes los atiende el equipo' },
     );
   }

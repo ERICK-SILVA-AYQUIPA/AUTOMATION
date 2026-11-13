@@ -2,57 +2,174 @@
 
 import { useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bot, RotateCcw, Send, User, Wrench } from 'lucide-react';
-import { api } from '@/lib/api';
-import { Badge, Button, Card, ErrorBox, Field, Input, Loading, PageHeader, Textarea, cn } from '@/components/ui';
+import { Bot, FileText, Plus, RotateCcw, Send, Trash2, Upload, User, Wrench } from 'lucide-react';
+import { api, ApiError } from '@/lib/api';
+import { fieldErrors } from '@/lib/form';
+import { dateTime, num } from '@/lib/format';
+import { Badge, Button, Card, ErrorBox, Field, Input, Loading, PageHeader, Select, Textarea, cn } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
 import { RequirePermission } from '@/components/guard';
 
-interface AiSettings {
-  isEnabled: boolean;
-  assistantName: string;
-  tone: string;
-  welcomeMessage: string | null;
-  businessInfo: string | null;
-  handoffKeywords: string[];
-  provider: { configured: boolean; model: string };
+const DAYS = [['mon', 'Lunes'], ['tue', 'Martes'], ['wed', 'Miércoles'], ['thu', 'Jueves'], ['fri', 'Viernes'], ['sat', 'Sábado'], ['sun', 'Domingo']] as const;
+type Day = (typeof DAYS)[number][0];
+type Range = { open: string; close: string };
+interface Profile {
+  assistantName: string; tone: string; useEmojis: boolean; language: 'es' | 'en' | 'pt'; matchCustomerLanguage: boolean;
+  welcomeMessage: string; businessInfo: string; hours: Record<Day, Range[]> | null; outsideHours: 'ANSWER' | 'MESSAGE'; outsideHoursMessage: string;
+  paymentMethods: string[]; deliveryMethods: string[]; deliveryInfo: string; returnPolicy: string; faqs: { question: string; answer: string }[];
+  qualifyingQuestions: string[]; handoffKeywords: string[]; handoffMessage: string; handoffOutsideHoursMessage: string; extraInstructions: string;
 }
+interface AiSettings {
+  isEnabled: boolean; published: Profile; draft: Profile | null; hasUnpublishedChanges: boolean; draftUpdatedAt: string | null; draftTestedAt: string | null;
+  publishedAt: string | null; testRequired: boolean; monthlyTokenCap: number | null;
+  usage: { period: string; tokens: number; replies: number; planTokenLimit: number | null; effectiveCap: number | null };
+  knowledge: { maxDocs: number; budgetChars: number }; provider: { configured: boolean; model: string };
+}
+interface Doc { id: string; title: string; content: string; chars: number; updatedAt: string; state: 'new' | 'modified' | 'published' | 'pending_delete' }
 interface ChatLine { role: 'customer' | 'assistant'; text: string; tools?: string[]; handoff?: string | null }
-const TOOL_LABEL: Record<string, string> = {
-  buscar_productos: 'consultó el catálogo',
-  ver_pedidos_del_cliente: 'consultó pedidos',
-  crear_pedido: 'intentó crear un pedido',
-  derivar_a_humano: 'derivó a una persona',
-};
 
-function Settings({ data }: { data: AiSettings }) {
+const TOOL_LABEL: Record<string, string> = { buscar_productos: 'consultó el catálogo', ver_pedidos_del_cliente: 'consultó pedidos', crear_pedido: 'intentó crear un pedido', derivar_a_humano: 'derivó a una persona' };
+const DOC_STATE: Record<Doc['state'], { label: string; tone: 'success' | 'info' | 'warning' | 'danger' }> = {
+  published: { label: 'Publicado', tone: 'success' }, new: { label: 'Nuevo, sin publicar', tone: 'info' }, modified: { label: 'Editado, sin publicar', tone: 'warning' }, pending_delete: { label: 'Se quitará al publicar', tone: 'danger' },
+};
+const SECTIONS = [['personalidad', 'Personalidad'], ['horario', 'Horario'], ['ventas', 'Ventas y políticas'], ['faq', 'Preguntas frecuentes'], ['derivacion', 'Derivación']] as const;
+const EMPTY_WEEK: Record<Day, Range[]> = { mon: [{ open: '09:00', close: '18:00' }], tue: [{ open: '09:00', close: '18:00' }], wed: [{ open: '09:00', close: '18:00' }], thu: [{ open: '09:00', close: '18:00' }], fri: [{ open: '09:00', close: '18:00' }], sat: [{ open: '09:00', close: '13:00' }], sun: [] };
+
+const splitComma = (s: string) => s.split(',').map((x) => x.trim()).filter(Boolean);
+const splitLines = (s: string) => s.split('\n').map((x) => x.trim()).filter(Boolean);
+
+/** Formulario: las listas se editan como texto y se convierten al guardar */
+function toForm(p: Profile) {
+  return { ...p, paymentText: p.paymentMethods.join(', '), deliveryText: p.deliveryMethods.join(', '), keywordsText: p.handoffKeywords.join(', '), qualifyingText: p.qualifyingQuestions.join('\n') };
+}
+type Form = ReturnType<typeof toForm>;
+function fromForm(f: Form): Profile {
+  const { paymentText, deliveryText, keywordsText, qualifyingText, ...rest } = f;
+  return { ...rest, paymentMethods: splitComma(paymentText), deliveryMethods: splitComma(deliveryText), handoffKeywords: splitComma(keywordsText), qualifyingQuestions: splitLines(qualifyingText) };
+}
+
+function PublishBar({ d }: { d: AiSettings }) {
   const qc = useQueryClient();
   const toast = useToast();
-  const [f, setF] = useState({
-    isEnabled: data.isEnabled,
-    assistantName: data.assistantName,
-    tone: data.tone,
-    welcomeMessage: data.welcomeMessage ?? '',
-    businessInfo: data.businessInfo ?? '',
-    keywords: data.handoffKeywords.join(', '),
-  });
+  const [busy, setBusy] = useState<'publish' | 'discard' | null>(null);
+  const run = async (kind: 'publish' | 'discard') => {
+    setBusy(kind);
+    try {
+      if (kind === 'publish') {
+        await api('/ai/settings/publish', { method: 'POST' });
+        toast.success('Publicado: el asistente ya usa esta configuración con tus clientes');
+      } else {
+        await api('/ai/settings/draft', { method: 'DELETE' });
+        toast.success('Cambios descartados');
+      }
+      await qc.invalidateQueries({ queryKey: ['ai-settings'] });
+      await qc.invalidateQueries({ queryKey: ['ai-knowledge'] });
+    } catch (e) {
+      toast.error(e instanceof ApiError ? e.message : 'No se pudo completar la acción');
+    } finally {
+      setBusy(null);
+    }
+  };
+  const tested = !!d.draftTestedAt;
+  return (
+    <Card className={cn('mb-6 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between', d.hasUnpublishedChanges && 'border-warning/50')}>
+      <div className="text-sm">
+        {d.hasUnpublishedChanges ? (
+          <>
+            <p className="font-medium">Tienes cambios sin publicar</p>
+            <p className="text-muted">
+              Tus clientes siguen viendo la versión publicada{d.publishedAt ? ` el ${dateTime(d.publishedAt)}` : ''}.{' '}
+              {d.testRequired ? (tested ? 'Borrador probado: ya puedes publicarlo.' : 'Pruébalo en el chat de la derecha (modo Borrador) antes de publicar.') : 'Sin clave de IA en el servidor no se puede probar; puedes publicarlo igualmente.'}
+            </p>
+          </>
+        ) : (
+          <p className="text-muted">Todo publicado{d.publishedAt ? ` (${dateTime(d.publishedAt)})` : ''}. Los cambios se guardan como borrador hasta que los publiques.</p>
+        )}
+      </div>
+      {d.hasUnpublishedChanges && (
+        <div className="flex shrink-0 gap-2">
+          <Button variant="secondary" size="sm" loading={busy === 'discard'} onClick={() => run('discard')}>Descartar cambios</Button>
+          <Button size="sm" loading={busy === 'publish'} disabled={d.testRequired && !tested} onClick={() => run('publish')}>Publicar</Button>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function HoursEditor({ f, set }: { f: Form; set: (p: Partial<Form>) => void }) {
+  const hours = f.hours;
+  const setDay = (day: Day, ranges: Range[]) => set({ hours: { ...(hours ?? EMPTY_WEEK), [day]: ranges } });
+  return (
+    <div className="flex flex-col gap-4">
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" className="size-4 accent-[var(--primary)]" checked={!!hours} onChange={(e) => set({ hours: e.target.checked ? EMPTY_WEEK : null, ...(e.target.checked ? {} : { outsideHours: 'ANSWER' as const }) })} />
+        Tengo horario de atención
+      </label>
+      {hours && (
+        <>
+          <div className="flex flex-col gap-2">
+            {DAYS.map(([k, label]) => (
+              <div key={k} className="grid grid-cols-[6.5rem_1fr] items-center gap-2 text-sm">
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" className="size-4 accent-[var(--primary)]" checked={hours[k].length > 0} onChange={(e) => setDay(k, e.target.checked ? [{ open: '09:00', close: '18:00' }] : [])} aria-label={`Abierto el ${label.toLowerCase()}`} />
+                  {label}
+                </label>
+                {hours[k].length === 0 ? (
+                  <span className="text-muted">Cerrado</span>
+                ) : (
+                  <div className="flex flex-wrap items-center gap-2">
+                    {hours[k].map((r, i) => (
+                      <span key={i} className="flex items-center gap-1">
+                        <span className="w-28"><Input type="time" value={r.open} aria-label={`${label}: abre`} onChange={(e) => setDay(k, hours[k].map((x, j) => (j === i ? { ...x, open: e.target.value } : x)))} /></span>
+                        –
+                        <span className="w-28"><Input type="time" value={r.close} aria-label={`${label}: cierra`} onChange={(e) => setDay(k, hours[k].map((x, j) => (j === i ? { ...x, close: e.target.value } : x)))} /></span>
+                      </span>
+                    ))}
+                    {hours[k].length < 2 ? (
+                      <Button type="button" size="sm" variant="ghost" onClick={() => setDay(k, [...hours[k], { open: '15:00', close: '19:00' }])}>+ turno</Button>
+                    ) : (
+                      <Button type="button" size="sm" variant="ghost" onClick={() => setDay(k, hours[k].slice(0, 1))}>Quitar turno</Button>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <Field label="Fuera de horario">
+            <Select value={f.outsideHours} onChange={(e) => set({ outsideHours: e.target.value as Form['outsideHours'] })}>
+              <option value="ANSWER">Atender igual y avisar que el equipo confirma al abrir</option>
+              <option value="MESSAGE">Solo enviar un aviso (una vez cada 12 h)</option>
+            </Select>
+          </Field>
+          <Field label="Aviso fuera de horario" hint={f.outsideHours === 'MESSAGE' ? 'Obligatorio en este modo' : 'Opcional'}>
+            <Textarea rows={2} maxLength={500} value={f.outsideHoursMessage} onChange={(e) => set({ outsideHoursMessage: e.target.value })} />
+          </Field>
+        </>
+      )}
+    </div>
+  );
+}
+
+function ProfileEditor({ d }: { d: AiSettings }) {
+  const qc = useQueryClient();
+  const toast = useToast();
+  const base = d.draft ?? d.published;
+  const [f, setF] = useState<Form>(() => toForm(base));
+  const [tab, setTab] = useState<(typeof SECTIONS)[number][0]>('personalidad');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
+  const set = (p: Partial<Form>) => setF((x) => ({ ...x, ...p }));
+  const dirty = JSON.stringify(fromForm(f)) !== JSON.stringify(base);
+  const errs = fieldErrors(error);
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     setError(null);
     try {
-      await api('/ai/settings', {
-        method: 'PUT',
-        body: {
-          isEnabled: f.isEnabled, assistantName: f.assistantName, tone: f.tone, welcomeMessage: f.welcomeMessage, businessInfo: f.businessInfo,
-          handoffKeywords: f.keywords.split(',').map((k) => k.trim()).filter(Boolean),
-        },
-      });
-      toast.success('Asistente guardado');
-      qc.invalidateQueries({ queryKey: ['ai-settings'] });
+      await api('/ai/settings/draft', { method: 'PUT', body: fromForm(f) });
+      toast.success('Borrador guardado. Pruébalo y publícalo cuando esté listo.');
+      await qc.invalidateQueries({ queryKey: ['ai-settings'] });
     } catch (err) {
       setError(err);
     } finally {
@@ -63,37 +180,203 @@ function Settings({ data }: { data: AiSettings }) {
   return (
     <form onSubmit={save}>
       <Card className="flex flex-col gap-4 p-5">
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="font-medium">Configuración</h2>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" className="size-4 accent-[var(--primary)]" checked={f.isEnabled} onChange={(e) => setF({ ...f, isEnabled: e.target.checked })} />
-            Responder automáticamente por WhatsApp
-          </label>
+        <div role="tablist" aria-label="Secciones de la configuración" className="-mx-1 flex flex-wrap gap-1 border-b border-border pb-3">
+          {SECTIONS.map(([k, l]) => (
+            <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={cn('rounded-md px-3 py-1.5 text-sm', tab === k ? 'bg-primary/10 font-medium text-primary' : 'text-muted hover:bg-surface-2')}>
+              {l}
+            </button>
+          ))}
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Nombre del asistente"><Input value={f.assistantName} onChange={(e) => setF({ ...f, assistantName: e.target.value })} required maxLength={60} /></Field>
-          <Field label="Tono"><Input value={f.tone} onChange={(e) => setF({ ...f, tone: e.target.value })} required minLength={2} maxLength={120} /></Field>
-        </div>
-        <Field label="Información del negocio" hint="Horarios, zonas y costo de envío, medios de pago, cambios y devoluciones. No pongas precios ni stock: el asistente los consulta en tu catálogo.">
-          <Textarea rows={7} value={f.businessInfo} onChange={(e) => setF({ ...f, businessInfo: e.target.value })} maxLength={6000} />
-        </Field>
-        <Field label="Saludo (opcional)"><Input value={f.welcomeMessage} onChange={(e) => setF({ ...f, welcomeMessage: e.target.value })} maxLength={500} /></Field>
-        <Field label="Palabras que pasan la conversación a una persona" hint="Separadas por comas. Si el cliente escribe una, el asistente avisa y deja de responder.">
-          <Input value={f.keywords} onChange={(e) => setF({ ...f, keywords: e.target.value })} />
-        </Field>
+
+        {tab === 'personalidad' && (
+          <div className="flex flex-col gap-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Nombre del asistente" error={errs.assistantName}><Input value={f.assistantName} onChange={(e) => set({ assistantName: e.target.value })} required maxLength={60} /></Field>
+              <Field label="Tono" hint="Ej.: cercano y alegre, formal" error={errs.tone}><Input value={f.tone} onChange={(e) => set({ tone: e.target.value })} required minLength={2} maxLength={120} /></Field>
+              <Field label="Idioma principal">
+                <Select value={f.language} onChange={(e) => set({ language: e.target.value as Form['language'] })}>
+                  <option value="es">Español</option><option value="en">Inglés</option><option value="pt">Portugués</option>
+                </Select>
+              </Field>
+              <div className="flex flex-col justify-end gap-2 pb-1 text-sm">
+                <label className="flex items-center gap-2"><input type="checkbox" className="size-4 accent-[var(--primary)]" checked={f.matchCustomerLanguage} onChange={(e) => set({ matchCustomerLanguage: e.target.checked })} />Responder en el idioma del cliente</label>
+                <label className="flex items-center gap-2"><input type="checkbox" className="size-4 accent-[var(--primary)]" checked={f.useEmojis} onChange={(e) => set({ useEmojis: e.target.checked })} />Usar emojis</label>
+              </div>
+            </div>
+            <Field label="Saludo (opcional)"><Input value={f.welcomeMessage} onChange={(e) => set({ welcomeMessage: e.target.value })} maxLength={500} /></Field>
+            <Field label="Indicaciones adicionales (opcional)" hint="Cómo quieres que atienda. No puede cambiar precios, stock ni las reglas de seguridad.">
+              <Textarea rows={3} maxLength={2000} value={f.extraInstructions} onChange={(e) => set({ extraInstructions: e.target.value })} />
+            </Field>
+          </div>
+        )}
+
+        {tab === 'horario' && <HoursEditor f={f} set={set} />}
+
+        {tab === 'ventas' && (
+          <div className="flex flex-col gap-4">
+            <Field label="Medios de pago" hint="Separados por comas. Ej.: Yape, Plin, transferencia BCP, efectivo"><Input value={f.paymentText} onChange={(e) => set({ paymentText: e.target.value })} /></Field>
+            <Field label="Formas de entrega" hint="Separadas por comas. Ej.: delivery, recojo en tienda"><Input value={f.deliveryText} onChange={(e) => set({ deliveryText: e.target.value })} /></Field>
+            <Field label="Detalles de entrega" hint="Zonas, costos y plazos"><Textarea rows={3} maxLength={2000} value={f.deliveryInfo} onChange={(e) => set({ deliveryInfo: e.target.value })} /></Field>
+            <Field label="Cambios y devoluciones"><Textarea rows={3} maxLength={2000} value={f.returnPolicy} onChange={(e) => set({ returnPolicy: e.target.value })} /></Field>
+            <Field label="Información general" hint="Dirección, redes, lo que el cliente suele preguntar. No pongas precios ni stock: los consulta en tu catálogo.">
+              <Textarea rows={4} maxLength={6000} value={f.businessInfo} onChange={(e) => set({ businessInfo: e.target.value })} />
+            </Field>
+            <Field label="Preguntas antes de recomendar" hint="Una por línea (máx. 8). Ej.: ¿Para qué ocasión es?">
+              <Textarea rows={3} value={f.qualifyingText} onChange={(e) => set({ qualifyingText: e.target.value })} />
+            </Field>
+          </div>
+        )}
+
+        {tab === 'faq' && (
+          <div className="flex flex-col gap-3">
+            {f.faqs.length === 0 && <p className="text-sm text-muted">Agrega las preguntas que más te hacen y la respuesta exacta que quieres que dé el asistente.</p>}
+            {f.faqs.map((q, i) => (
+              <div key={i} className="grid gap-2 rounded-lg border border-border p-3">
+                <div className="flex items-end gap-2">
+                  <Field label={`Pregunta ${i + 1}`} className="flex-1"><Input value={q.question} maxLength={200} onChange={(e) => set({ faqs: f.faqs.map((x, j) => (j === i ? { ...x, question: e.target.value } : x)) })} /></Field>
+                  <Button type="button" variant="ghost" size="sm" aria-label={`Quitar pregunta ${i + 1}`} icon={<Trash2 className="size-4" />} onClick={() => set({ faqs: f.faqs.filter((_, j) => j !== i) })} />
+                </div>
+                <Field label="Respuesta"><Textarea rows={2} maxLength={1000} value={q.answer} onChange={(e) => set({ faqs: f.faqs.map((x, j) => (j === i ? { ...x, answer: e.target.value } : x)) })} /></Field>
+              </div>
+            ))}
+            {f.faqs.length < 40 && <Button type="button" variant="secondary" size="sm" className="self-start" icon={<Plus className="size-4" />} onClick={() => set({ faqs: [...f.faqs, { question: '', answer: '' }] })}>Agregar pregunta</Button>}
+          </div>
+        )}
+
+        {tab === 'derivacion' && (
+          <div className="flex flex-col gap-4">
+            <Field label="Palabras que pasan la conversación a una persona" hint="Separadas por comas. Si el cliente escribe una, se envía el mensaje de abajo y el asistente deja de responder.">
+              <Input value={f.keywordsText} onChange={(e) => set({ keywordsText: e.target.value })} />
+            </Field>
+            <Field label="Mensaje al derivar" error={errs.handoffMessage}><Textarea rows={2} required minLength={5} maxLength={500} value={f.handoffMessage} onChange={(e) => set({ handoffMessage: e.target.value })} /></Field>
+            <Field label="Mensaje al derivar fuera de horario (opcional)" hint="Si lo dejas vacío se usa el de arriba"><Textarea rows={2} maxLength={500} value={f.handoffOutsideHoursMessage} onChange={(e) => set({ handoffOutsideHoursMessage: e.target.value })} /></Field>
+          </div>
+        )}
+
         <ErrorBox error={error} />
-        <Button type="submit" className="self-end" loading={busy}>Guardar</Button>
+        <div className="flex items-center justify-end gap-3">
+          {dirty && <span className="text-xs text-muted">Cambios sin guardar</span>}
+          <Button type="submit" loading={busy} disabled={!dirty}>Guardar borrador</Button>
+        </div>
       </Card>
     </form>
   );
 }
 
-function TestChat({ configured }: { configured: boolean }) {
+function Knowledge({ d }: { d: AiSettings }) {
+  const qc = useQueryClient();
+  const toast = useToast();
+  const q = useQuery({ queryKey: ['ai-knowledge'], queryFn: () => api<Doc[]>('/ai/knowledge') });
+  const [edit, setEdit] = useState<{ id: string | null; title: string; content: string } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<unknown>(null);
+  const file = useRef<HTMLInputElement>(null);
+  const active = q.data?.filter((x) => x.state !== 'pending_delete').length ?? 0;
+  const refresh = async () => {
+    await qc.invalidateQueries({ queryKey: ['ai-knowledge'] });
+    await qc.invalidateQueries({ queryKey: ['ai-settings'] });
+  };
+
+  async function save(e: React.FormEvent) {
+    e.preventDefault();
+    if (!edit) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await api(edit.id ? `/ai/knowledge/${edit.id}` : '/ai/knowledge', { method: edit.id ? 'PUT' : 'POST', body: { title: edit.title, content: edit.content } });
+      toast.success('Documento guardado como borrador');
+      setEdit(null);
+      await refresh();
+    } catch (err) {
+      setError(err);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function remove(doc: Doc) {
+    try {
+      await api(`/ai/knowledge/${doc.id}`, { method: 'DELETE' });
+      toast.success(doc.state === 'new' ? 'Documento eliminado' : 'Se quitará al publicar');
+      await refresh();
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : 'No se pudo quitar');
+    }
+  }
+  async function readFile(f: File | undefined) {
+    if (!f) return;
+    if (!/\.(txt|md)$/i.test(f.name) || f.size > 200_000) {
+      toast.error('Sube un archivo .txt o .md de hasta 200 KB (para PDF o Word, copia y pega el texto)');
+      return;
+    }
+    const text = (await f.text()).slice(0, 20_000);
+    setEdit({ id: null, title: f.name.replace(/\.(txt|md)$/i, '').slice(0, 120), content: text });
+  }
+
+  return (
+    <Card className="mt-6 p-5">
+      <div className="mb-3 flex flex-col gap-3">
+        <div>
+          <h2 className="font-medium">Documentos del asistente</h2>
+          <p className="text-sm text-muted">Catálogos de servicios, condiciones, guías de tallas… El asistente los lee como referencia (hasta {num(d.knowledge.budgetChars)} caracteres en total). {active} de {d.knowledge.maxDocs} en tu plan.</p>
+        </div>
+        {!edit && (
+          <div className="flex flex-wrap gap-2">
+            <input ref={file} type="file" accept=".txt,.md,text/plain,text/markdown" className="hidden" onChange={(e) => { void readFile(e.target.files?.[0]); e.target.value = ''; }} aria-label="Subir archivo de texto" />
+            <Button size="sm" variant="secondary" icon={<Upload className="size-4" />} disabled={active >= d.knowledge.maxDocs} onClick={() => file.current?.click()}>Subir .txt</Button>
+            <Button size="sm" icon={<Plus className="size-4" />} disabled={active >= d.knowledge.maxDocs} onClick={() => setEdit({ id: null, title: '', content: '' })}>Nuevo documento</Button>
+          </div>
+        )}
+      </div>
+      {edit && (
+        <form onSubmit={save} className="mb-4 flex flex-col gap-3 rounded-lg border border-border p-4">
+          <Field label="Título"><Input value={edit.title} onChange={(e) => setEdit({ ...edit, title: e.target.value })} required maxLength={120} /></Field>
+          <Field label="Contenido" hint={`${num(edit.content.length)} / 20.000 caracteres`}><Textarea rows={8} value={edit.content} onChange={(e) => setEdit({ ...edit, content: e.target.value })} required maxLength={20_000} /></Field>
+          <ErrorBox error={error} />
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="secondary" onClick={() => { setEdit(null); setError(null); }}>Cancelar</Button>
+            <Button type="submit" loading={busy}>Guardar documento</Button>
+          </div>
+        </form>
+      )}
+      {q.isLoading ? <Loading /> : q.error ? <ErrorBox error={q.error} /> : !q.data?.length ? (
+        <p className="text-sm text-muted">Aún no hay documentos.</p>
+      ) : (
+        <ul className="divide-y divide-border">
+          {q.data.map((doc) => (
+            <li key={doc.id} className="flex items-center justify-between gap-3 py-2.5">
+              <div className="min-w-0">
+                <div className="flex min-w-0 items-center gap-2">
+                  <FileText className="size-4 shrink-0 text-muted" aria-hidden />
+                  <span className={cn('truncate text-sm font-medium', doc.state === 'pending_delete' && 'line-through text-muted')}>{doc.title}</span>
+                </div>
+                <div className="mt-1 flex items-center gap-2 pl-6 text-xs text-muted">
+                  <Badge tone={DOC_STATE[doc.state].tone}>{DOC_STATE[doc.state].label}</Badge>
+                  {num(doc.chars)} caracteres
+                </div>
+              </div>
+              {doc.state !== 'pending_delete' && (
+                <div className="flex shrink-0 gap-1">
+                  <Button size="sm" variant="ghost" onClick={() => setEdit({ id: doc.id, title: doc.title, content: doc.content })}>Editar</Button>
+                  <Button size="sm" variant="ghost" aria-label={`Quitar ${doc.title}`} icon={<Trash2 className="size-4" />} onClick={() => remove(doc)} />
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
+  );
+}
+
+function TestChat({ d }: { d: AiSettings }) {
+  const qc = useQueryClient();
+  const [target, setTarget] = useState<'draft' | 'published'>(d.hasUnpublishedChanges ? 'draft' : 'published');
   const [lines, setLines] = useState<ChatLine[]>([]);
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
   const end = useRef<HTMLDivElement>(null);
+  const configured = d.provider.configured;
 
   async function send(e: React.FormEvent) {
     e.preventDefault();
@@ -105,11 +388,9 @@ function TestChat({ configured }: { configured: boolean }) {
     setBusy(true);
     setError(null);
     try {
-      const r = await api<{ reply: string; tools: string[]; handoff: string | null }>('/ai/test', {
-        method: 'POST',
-        body: { messages: next.slice(-20).map((l) => ({ role: l.role, text: l.text })) },
-      });
+      const r = await api<{ reply: string; tools: string[]; handoff: string | null }>('/ai/test', { method: 'POST', body: { target, messages: next.slice(-20).map((l) => ({ role: l.role, text: l.text })) } });
       setLines([...next, { role: 'assistant', text: r.reply || '(sin respuesta)', tools: r.tools, handoff: r.handoff }]);
+      if (target === 'draft') await qc.invalidateQueries({ queryKey: ['ai-settings'] });
     } catch (err) {
       setError(err);
     } finally {
@@ -124,7 +405,14 @@ function TestChat({ configured }: { configured: boolean }) {
         <h2 className="font-medium">Probar el asistente</h2>
         {lines.length > 0 && <Button size="sm" variant="ghost" icon={<RotateCcw className="size-4" />} onClick={() => { setLines([]); setError(null); }}>Nueva prueba</Button>}
       </div>
-      <p className="mb-3 text-sm text-muted">Escribe como si fueras un cliente. Usa tu catálogo real y la configuración guardada; no envía nada por WhatsApp ni crea pedidos.</p>
+      <div role="radiogroup" aria-label="Versión a probar" className="mb-3 grid grid-cols-2 gap-1 rounded-lg bg-surface-2 p-1 text-sm">
+        {(['draft', 'published'] as const).map((k) => (
+          <button key={k} type="button" role="radio" aria-checked={target === k} onClick={() => { setTarget(k); setLines([]); }} className={cn('rounded-md px-3 py-1.5', target === k ? 'bg-surface font-medium shadow-sm' : 'text-muted')}>
+            {k === 'draft' ? 'Borrador' : 'Publicado'}
+          </button>
+        ))}
+      </div>
+      <p className="mb-3 text-sm text-muted">Escribe como si fueras un cliente. Usa tu catálogo real; no envía nada por WhatsApp ni crea pedidos. Cada prueba consume tokens de tu tope mensual.</p>
       <div className="flex min-h-64 flex-1 flex-col gap-3 overflow-y-auto rounded-lg bg-surface-2 p-3" aria-live="polite">
         {lines.length === 0 && <p className="m-auto text-sm text-muted">Ejemplo: «hola, ¿cuánto cuesta la gaseosa?»</p>}
         {lines.map((l, i) => (
@@ -149,6 +437,55 @@ function TestChat({ configured }: { configured: boolean }) {
   );
 }
 
+function Operation({ d }: { d: AiSettings }) {
+  const qc = useQueryClient();
+  const toast = useToast();
+  const [cap, setCap] = useState(d.monthlyTokenCap ? String(d.monthlyTokenCap) : '');
+  const [busy, setBusy] = useState<'toggle' | 'cap' | null>(null);
+  const patch = async (kind: 'toggle' | 'cap', body: Record<string, unknown>, ok: string) => {
+    setBusy(kind);
+    try {
+      await api('/ai/settings', { method: 'PATCH', body });
+      toast.success(ok);
+      await qc.invalidateQueries({ queryKey: ['ai-settings'] });
+    } catch (e) {
+      toast.error(e instanceof ApiError ? e.message : 'No se pudo guardar');
+    } finally {
+      setBusy(null);
+    }
+  };
+  const u = d.usage;
+  const pct = u.effectiveCap ? Math.min(100, Math.round((u.tokens / u.effectiveCap) * 100)) : null;
+  return (
+    <Card className="mt-6 flex flex-col gap-4 p-5">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h2 className="font-medium">Respuestas automáticas</h2>
+          <p className="text-sm text-muted">{d.isEnabled ? 'El asistente responde a tus clientes por WhatsApp.' : 'Apagado: los mensajes los atiende tu equipo.'} Este interruptor es inmediato.</p>
+        </div>
+        <Button size="sm" variant={d.isEnabled ? 'secondary' : 'primary'} loading={busy === 'toggle'} onClick={() => patch('toggle', { isEnabled: !d.isEnabled }, d.isEnabled ? 'Asistente apagado' : 'Asistente encendido')}>
+          {d.isEnabled ? 'Apagar' : 'Encender'}
+        </Button>
+      </div>
+      <div className="border-t border-border pt-4">
+        <h2 className="font-medium">Consumo de {u.period}</h2>
+        <p className="mt-1 text-sm text-muted">{num(u.replies)} respuestas · {num(u.tokens)} tokens{u.effectiveCap ? ` de ${num(u.effectiveCap)}` : ''}{u.planTokenLimit ? ` (tu plan permite ${num(u.planTokenLimit)})` : ''}</p>
+        {pct !== null && (
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface-2" role="progressbar" aria-valuenow={u.tokens} aria-valuemax={u.effectiveCap ?? undefined} aria-label="Tokens usados este mes">
+            <div className={cn('h-full rounded-full', pct >= 90 ? 'bg-danger' : pct >= 75 ? 'bg-warning' : 'bg-primary')} style={{ width: `${pct}%` }} />
+          </div>
+        )}
+        <form className="mt-3 flex items-end gap-2" onSubmit={(e) => { e.preventDefault(); void patch('cap', { monthlyTokenCap: cap ? Number(cap) : null }, 'Tope guardado'); }}>
+          <Field label="Tope mensual de tokens" hint="Al alcanzarlo, las conversaciones pasan a tu equipo. Vacío = solo el límite del plan." className="flex-1">
+            <Input type="number" min={1000} step={1000} max={u.planTokenLimit ?? undefined} value={cap} onChange={(e) => setCap(e.target.value)} />
+          </Field>
+          <Button type="submit" variant="secondary" loading={busy === 'cap'}>Guardar tope</Button>
+        </form>
+      </div>
+    </Card>
+  );
+}
+
 function Assistant() {
   const q = useQuery({ queryKey: ['ai-settings'], queryFn: () => api<AiSettings>('/ai/settings') });
   if (q.isLoading) return <Loading />;
@@ -159,18 +496,25 @@ function Assistant() {
       <PageHeader
         title="Asistente IA"
         description="Responde por WhatsApp con tu catálogo real. Nunca cambia precios ni stock: los pedidos quedan pendientes hasta que tu equipo los confirma."
-        actions={d.provider.configured ? <Badge tone={d.isEnabled ? 'success' : 'neutral'}>{d.isEnabled ? 'Activo' : 'Desactivado'}</Badge> : <Badge tone="warning">Sin conectar</Badge>}
+        actions={d.provider.configured ? <Badge tone={d.isEnabled ? 'success' : 'neutral'}>{d.isEnabled ? 'Activo' : 'Apagado'}</Badge> : <Badge tone="warning">Sin conectar</Badge>}
       />
       {!d.provider.configured && (
         <div role="status" className="mb-6 rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm">
           La IA todavía no está conectada en el servidor: falta la clave de Gemini (GEMINI_API_KEY). Mientras tanto los mensajes se reciben y los atiende tu equipo. Puedes dejar la configuración lista.
         </div>
       )}
+      <PublishBar d={d} />
       <div className="grid gap-6 lg:grid-cols-2">
-        <Settings key={JSON.stringify(d)} data={d} />
-        <TestChat configured={d.provider.configured} />
+        <div>
+          <ProfileEditor key={`${d.publishedAt ?? ''}-${d.draft ? 'borrador' : 'publicado'}`} d={d} />
+          <Knowledge d={d} />
+        </div>
+        <div>
+          <TestChat key={d.publishedAt ?? ''} d={d} />
+          <Operation key={`${d.monthlyTokenCap}`} d={d} />
+        </div>
       </div>
-      <p className="mt-4 text-xs text-muted">Modelo: {d.provider.model}. Los mensajes de los clientes se envían a Google (Gemini API) para generar la respuesta.</p>
+      <p className="mt-4 text-xs text-muted">Modelo: {d.provider.model}. Los mensajes de los clientes y la configuración se envían a Google (Gemini API) para generar la respuesta.</p>
     </>
   );
 }

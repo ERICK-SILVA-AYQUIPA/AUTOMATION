@@ -182,24 +182,56 @@ try {
     await page.waitForURL(/\/productos\/[0-9a-f-]{36}$/);
   });
 
-  await step('Asistente IA: activo, se guarda la información del negocio', async () => {
+  await step('Asistente IA: los cambios quedan en borrador y sin probar no se publican', async () => {
     await page.getByRole('link', { name: 'Asistente IA' }).click();
     await page.getByText('Activo', { exact: true }).waitFor();
-    await page.getByLabel('Información del negocio').fill('Delivery en Lima de 9 a 18 h. Pagos con Yape o transferencia.');
+    await page.getByText(/^Todo publicado/).waitFor();
     await label('Nombre del asistente').fill('Lula');
-    await page.getByRole('button', { name: 'Guardar' }).click();
-    await page.getByText('Asistente guardado').waitFor();
+    await page.getByRole('tab', { name: 'Ventas y políticas' }).click();
+    await label('Medios de pago').fill('Yape, transferencia');
+    await label('Información general').fill('Delivery en Lima de 9 a 18 h.');
+    await page.getByRole('tab', { name: 'Preguntas frecuentes' }).click();
+    await page.getByRole('button', { name: 'Agregar pregunta' }).click();
+    await label('Pregunta 1').fill('¿Hacen factura?');
+    await label('Respuesta').fill('Sí, con tu RUC.');
+    await page.getByRole('button', { name: 'Guardar borrador' }).click();
+    await page.getByText('Borrador guardado. Pruébalo y publícalo cuando esté listo.').waitFor();
+    await page.getByText('Tienes cambios sin publicar').waitFor();
+    if (!(await page.getByRole('button', { name: 'Publicar', exact: true }).isDisabled())) throw new Error('Se podía publicar sin probar');
   });
 
-  await step('Probar el asistente desde el panel: usa el precio real y no envía nada', async () => {
+  await step('Probar el borrador desde el panel (precio real, nada enviado) y publicarlo', async () => {
     const before = sent.length;
+    await page.getByRole('radio', { name: 'Borrador' }).click();
     await page.getByLabel('Mensaje de prueba').fill('precio de la gaseosa');
     await page.getByRole('button', { name: 'Enviar' }).click();
     await page.getByText('¡Hola! Gaseosa Cola 500 ml cuesta S/ 3.50. ¿Cuántas deseas?').waitFor();
     await page.getByText('consultó el catálogo').waitFor();
-    if (!geminiCalls.at(-1).systemInstruction.parts[0].text.includes('Eres Lula')) throw new Error('No usó la configuración guardada');
+    const sys = geminiCalls.at(-1).systemInstruction.parts[0].text;
+    if (!sys.includes('Eres Lula') || !sys.includes('Yape, transferencia') || !sys.includes('¿Hacen factura?')) throw new Error('La prueba no usó el borrador');
     if (sent.length !== before) throw new Error('La prueba envió un mensaje por WhatsApp');
+    await page.getByText('Borrador probado: ya puedes publicarlo.').waitFor();
     await page.screenshot({ path: `${SHOTS}/asistente-panel.png` });
+    await page.getByRole('button', { name: 'Publicar', exact: true }).click();
+    await page.getByText('Publicado: el asistente ya usa esta configuración con tus clientes').waitFor();
+    await page.getByText(/^Todo publicado/).waitFor();
+  });
+
+  await step('Documento del asistente: se agrega como borrador y se publica tras probarlo', async () => {
+    await page.getByRole('button', { name: 'Nuevo documento' }).click();
+    await label('Título').fill('Zonas de reparto');
+    await label('Contenido').fill('Repartimos en Miraflores, Surco y San Isidro.');
+    await page.getByRole('button', { name: 'Guardar documento' }).click();
+    await page.getByText('Nuevo, sin publicar').waitFor();
+    await page.getByText('Tienes cambios sin publicar').waitFor();
+    await page.getByRole('radio', { name: 'Borrador' }).click();
+    await page.getByLabel('Mensaje de prueba').fill('precio de la gaseosa');
+    await page.getByRole('button', { name: 'Enviar' }).click();
+    await page.getByText('Borrador probado: ya puedes publicarlo.').waitFor();
+    if (!geminiCalls.at(-1).systemInstruction.parts[0].text.includes('### Zonas de reparto')) throw new Error('La prueba no incluyó el documento');
+    await page.getByRole('button', { name: 'Publicar', exact: true }).click();
+    await page.locator('li').filter({ hasText: 'Zonas de reparto' }).getByText('Publicado', { exact: true }).waitFor();
+    await page.screenshot({ path: `${SHOTS}/asistente-documentos.png`, fullPage: true });
   });
 
   await step('Mensaje real por WhatsApp: el asistente responde solo con el precio del catálogo', async () => {

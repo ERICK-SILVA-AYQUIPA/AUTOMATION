@@ -159,6 +159,11 @@ export type OutboundMessage = Prisma.OutboundMessageModel
  */
 export type AiSettings = Prisma.AiSettingsModel
 /**
+ * Model AiKnowledgeDoc
+ * Documentos de conocimiento del asistente (texto). Lo publicado lo usa con clientes; lo editado, solo en pruebas hasta publicar.
+ */
+export type AiKnowledgeDoc = Prisma.AiKnowledgeDocModel
+/**
  * Model Automation
  * Flujos predefinidos que la empresa activa/configura (nunca edita: licencia n8n)
  */
