@@ -884,6 +884,8 @@ enum IntegrationType {
   CHATWOOT
   DIFY
   N8N
+  /// Clave propia de Gemini de la empresa (si no hay, se usa la de la plataforma)
+  GEMINI
 }
 
 model TenantIntegration {
@@ -898,6 +900,7 @@ model TenantIntegration {
   /// Clave de la URL de webhook (Chatwoot): /webhooks/chatwoot/<clave>
   webhookKey String?          @unique @map("webhook_key")
   lastError  String?          @map("last_error")
+  lastCheckedAt DateTime?     @map("last_checked_at") @db.Timestamptz(3)
   updatedAt  DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   @@unique([tenantId, type])
@@ -935,4 +938,71 @@ model AuditLog {
 
   @@index([tenantId, createdAt])
   @@map("audit_logs")
+}
+
+/// Resultado de cada comprobación de una integración (botón «Probar» o comprobación automática). tenant_id null = de la plataforma.
+model IntegrationCheck {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  tenantId    String?  @map("tenant_id") @db.Uuid
+  service     String
+  ok          Boolean
+  latencyMs   Int?     @map("latency_ms")
+  /// Detalle del resultado (sin secretos)
+  detail      String?
+  checkedById String?  @map("checked_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([tenantId, service, createdAt])
+  @@index([service, createdAt])
+  @@map("integration_checks")
+}
+
+enum WebhookDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+/// Webhooks salientes de la empresa: el sistema avisa a su URL de pedidos, stock y derivaciones, firmado con HMAC.
+model WebhookEndpoint {
+  id             String    @id @default(uuid(7)) @db.Uuid
+  tenantId       String    @map("tenant_id") @db.Uuid
+  url            String
+  description    String?
+  /// Secreto de firma cifrado (AES-256-GCM); solo se muestra completo al crearlo o rotarlo
+  secretEnc      String    @map("secret_enc")
+  secretHint     String    @map("secret_hint")
+  events         String[]
+  isActive       Boolean   @default(true) @map("is_active")
+  lastDeliveryAt DateTime? @map("last_delivery_at") @db.Timestamptz(3)
+  lastStatus     Int?      @map("last_status")
+  lastError      String?   @map("last_error")
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  deliveries WebhookDelivery[]
+
+  @@index([tenantId])
+  @@map("webhook_endpoints")
+}
+
+model WebhookDelivery {
+  id             String                @id @default(uuid(7)) @db.Uuid
+  tenantId       String                @map("tenant_id") @db.Uuid
+  endpointId     String                @map("endpoint_id") @db.Uuid
+  event          String
+  payload        Json
+  status         WebhookDeliveryStatus @default(PENDING)
+  attempts       Int                   @default(0)
+  nextAttemptAt  DateTime              @default(now()) @map("next_attempt_at") @db.Timestamptz(3)
+  responseStatus Int?                  @map("response_status")
+  lastError      String?               @map("last_error")
+  createdAt      DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
+  sentAt         DateTime?             @map("sent_at") @db.Timestamptz(3)
+
+  endpoint WebhookEndpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@index([status, nextAttemptAt])
+  @@index([endpointId, createdAt])
+  @@map("webhook_deliveries")
 }

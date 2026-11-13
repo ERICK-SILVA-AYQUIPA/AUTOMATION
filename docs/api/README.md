@@ -84,6 +84,40 @@ Con `readOnly`, toda petición que modifica datos responde **402** `{ code: "SUB
 | POST | `/ai/knowledge` | `{title, content}` (texto, hasta 20 000 caracteres); 403 `PLAN_LIMIT_REACHED` según `maxKnowledgeDocs` |
 | PUT / DELETE | `/ai/knowledge/:id` | Editar (queda sin publicar) / quitar (uno publicado se quita al publicar) |
 
+## Integraciones (`/integrations`), permiso `integrations:manage`
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/integrations` | Lista de 7 servicios (`whatsapp, ai, email, automations, chatwoot, webhooks, payments`) con `{status, detail, lastCheck, testable, howTo}`; `ai.ownKey` con `hint` (nunca la clave) |
+| POST | `/integrations/:service/test` | `whatsapp`, `ai`, `email` (correo al usuario actual), `webhooks` (ping a cada URL) → `{ok, ms, detail}`; queda en el historial |
+| GET | `/integrations/checks?service=&ok=` | Últimas 50 comprobaciones de la empresa |
+| PUT | `/integrations/ai/key` | `{apiKey}`: se valida con Google; 400 `INVALID_KEY` si la rechaza. Guarda cifrado → `{status, hint, detail}` |
+| DELETE | `/integrations/ai/key` | Quita la clave propia (vuelve a la de la plataforma) |
+| GET / POST | `/integrations/webhooks` | Lista `{events, items}` / crea `{url, description?, events[]}` → incluye `secret` **solo en esta respuesta**. 400 `INVALID_URL`, 403 `LIMIT_REACHED` (5) |
+| PATCH / DELETE | `/integrations/webhooks/:id` | `{url?, description?, events?, isActive?}` / borrar |
+| POST | `/integrations/webhooks/:id/rotate-secret` | Nuevo secreto (el anterior deja de valer) → `{id, secret}` |
+| POST | `/integrations/webhooks/:id/test` | Envía un `ping` firmado al momento → `{ok, status, error}` |
+| GET | `/integrations/webhooks/:id/deliveries?page=` | Historial de entregas |
+| POST | `/integrations/webhooks/deliveries/:id/retry` | Reencola una entrega `FAILED` (no los ping) |
+
+Panel general (permiso `platform:manage`): `GET /platform/integrations` (servicios del servidor con `configured`, variables de entorno y última prueba; números de WhatsApp por estado y con error; fallos de 7 días) y `POST /platform/integrations/:service/test` (`database, redis, gemini, smtp, n8n, chatwoot`; auditado).
+
+### Recibir webhooks
+
+Cada entrega es un `POST` JSON `{id, event, occurredAt, tenantId, data}` con las cabeceras `X-AISA-Event`, `X-AISA-Delivery` (= `id`, úsalo para descartar duplicados) y `X-AISA-Signature: t=<unix>,v1=<hex>`. Para verificarla:
+
+```js
+import { createHmac, timingSafeEqual } from 'node:crypto';
+function verify(secret, rawBody, header) {
+  const { t, v1 } = Object.fromEntries(header.split(',').map((p) => p.split('=')));
+  if (Math.abs(Date.now() / 1000 - Number(t)) > 300) return false; // más de 5 min: reenvío
+  const expected = createHmac('sha256', secret).update(`${t}.${rawBody}`).digest('hex');
+  return v1?.length === expected.length && timingSafeEqual(Buffer.from(v1), Buffer.from(expected));
+}
+```
+
+Usa el cuerpo **sin parsear**. Responde 2xx en menos de 10 s; cualquier otra respuesta se reintenta hasta 6 veces (30 s, 1 min, 2 min, 4 min, 8 min) y después queda `FAILED` con un aviso en el panel.
+
 ## Automatizaciones (`/automations`), permiso `automations:manage`, módulo `automations`
 
 | Método | Ruta | Descripción |

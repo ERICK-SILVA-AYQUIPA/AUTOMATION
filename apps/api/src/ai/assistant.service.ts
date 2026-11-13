@@ -1,5 +1,7 @@
-import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { decrypt } from '../common/crypto/crypto.js';
 import { ENV, type Env } from '../config/env.js';
+import { WebhookEvents } from '../webhooks/webhook-events.service.js';
 import { AutomationEvents } from '../automations/automation-events.service.js';
 import { DatabaseService, type Tx } from '../database/database.service.js';
 import { OutboundService } from '../messaging/outbound.service.js';
@@ -111,15 +113,25 @@ export class AssistantService {
     private readonly outbound: OutboundService,
     private readonly orders: OrdersService,
     private readonly automations: AutomationEvents,
+    private readonly webhooks: WebhookEvents,
   ) {}
 
+  /** Hay clave de la plataforma (las empresas pueden tener además la suya) */
   get configured() {
     return this.model.configured;
   }
 
+  /** Clave que usa la empresa: la suya si la conectó, si no la de la plataforma */
+  async providerFor(tenantId: string): Promise<{ key: string; source: 'tenant' | 'platform' } | null> {
+    const own = await this.db.tenant(tenantId, (tx) => tx.tenantIntegration.findUnique({ where: { tenantId_type: { tenantId, type: 'GEMINI' } }, select: { secretsEnc: true, status: true } }));
+    if (own?.secretsEnc && own.status === 'CONNECTED') return { key: decrypt(own.secretsEnc, this.env.DATA_ENCRYPTION_KEY), source: 'tenant' };
+    return this.model.configured ? { key: this.env.GEMINI_API_KEY, source: 'platform' } : null;
+  }
+
   /** Responde al mensaje entrante `messageId` si corresponde. */
   async reply(tenantId: string, conversationId: string, messageId: string): Promise<ReplyOutcome> {
-    if (!this.model.configured) return { outcome: 'skipped', reason: 'sin GEMINI_API_KEY' };
+    const provider = await this.providerFor(tenantId);
+    if (!provider) return { outcome: 'skipped', reason: 'sin GEMINI_API_KEY' };
     const ctx = await this.db.tenant(tenantId, async (tx) => {
       const conv = await tx.conversation.findFirst({ where: { id: conversationId, tenantId }, select: { id: true, status: true, botStatus: true, customerId: true } });
       if (!conv) return null;
@@ -186,7 +198,7 @@ export class AssistantService {
       orders: this.orders,
       requestHandoff: (r) => (handoffReason = r),
     };
-    const { text, tools, tokens } = await this.converse(systemPrompt(profile, tenant, new Date(), ctx.docs), transcript, toolCtx);
+    const { text, tools, tokens } = await this.converse(systemPrompt(profile, tenant, new Date(), ctx.docs), transcript, toolCtx, provider.key);
     await this.recordUsage(tenantId, tokens);
 
     // Mientras pensaba pudo llegar otro mensaje o tomar la conversación un agente
@@ -225,6 +237,8 @@ export class AssistantService {
     const keyword = matchesHandoffKeyword(transcript.at(-1)?.text ?? '', profile.handoffKeywords);
     if (keyword) return { reply: profile.handoffMessage, tools: [], handoff: `palabra clave: ${keyword}`, tokens: 0, draftUpdatedAt: settings.draftUpdatedAt };
     let handoff: string | null = null;
+    const provider = await this.providerFor(tenantId);
+    if (!provider) throw new ServiceUnavailableException({ code: 'AI_NOT_CONFIGURED', message: 'No hay clave de Gemini: conéctala en Integraciones o pide al administrador de la plataforma que configure GEMINI_API_KEY.' });
     const r = await this.converse(systemPrompt(profile, tenant, new Date(), docs), transcript, {
       tenantId,
       currency: tenant.currency,
@@ -234,7 +248,7 @@ export class AssistantService {
       db: (fn) => this.db.tenant(tenantId, fn),
       orders: this.orders,
       requestHandoff: (x) => (handoff = x),
-    });
+    }, provider.key);
     await this.recordUsage(tenantId, r.tokens);
     return { reply: r.text, tools: r.tools, handoff, tokens: r.tokens, draftUpdatedAt: settings.draftUpdatedAt };
   }
@@ -245,8 +259,8 @@ export class AssistantService {
     return this.db.tenant(tenantId, async (tx) => !!(await tx.message.findFirst({ where: { conversationId, direction: 'OUTBOUND', content: text, createdAt: { gte: since } }, select: { id: true } })));
   }
 
-  private async converse(system: string, transcript: TranscriptEntry[], ctx: ToolContext) {
-    const session = this.model.start({ system, transcript, tools: SALES_TOOLS });
+  private async converse(system: string, transcript: TranscriptEntry[], ctx: ToolContext, apiKey: string) {
+    const session = this.model.start({ system, transcript, tools: SALES_TOOLS }, apiKey);
     const used: string[] = [];
     let tokens = 0;
     for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
@@ -276,6 +290,7 @@ export class AssistantService {
         const who = conv.customer.name ?? conv.customer.waProfileName ?? conv.customer.phone ?? 'Un cliente';
         await tx.notification.create({ data: { tenantId, type: 'handoff', title: `${who} necesita atención`, body: `El asistente pasó la conversación a una persona (${reason}).`, data: { conversationId } } });
         await this.automations.emit(tx, tenantId, 'HANDOFF_NOTIFICATION', { conversationId, customerName: who, phone: conv.customer.phone, reason: reason.slice(0, 200) });
+        await this.webhooks.emit(tx, tenantId, 'conversation.handoff', { conversationId, customerName: who, phone: conv.customer.phone, reason: reason.slice(0, 200) });
       }
     });
     return { outcome: 'handoff', reason, ...(text ? { text } : {}) };

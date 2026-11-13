@@ -23,7 +23,7 @@ interface AiSettings {
   isEnabled: boolean; published: Profile; draft: Profile | null; hasUnpublishedChanges: boolean; draftUpdatedAt: string | null; draftTestedAt: string | null;
   publishedAt: string | null; testRequired: boolean; monthlyTokenCap: number | null;
   usage: { period: string; tokens: number; replies: number; planTokenLimit: number | null; effectiveCap: number | null };
-  knowledge: { maxDocs: number; budgetChars: number }; provider: { configured: boolean; model: string };
+  knowledge: { maxDocs: number; budgetChars: number }; provider: { configured: boolean; source: 'tenant' | 'platform' | null; model: string };
 }
 interface Doc { id: string; title: string; content: string; chars: number; updatedAt: string; state: 'new' | 'modified' | 'published' | 'pending_delete' }
 interface ChatLine { role: 'customer' | 'assistant'; text: string; tools?: string[]; handoff?: string | null }
@@ -500,7 +500,7 @@ function Assistant() {
       />
       {!d.provider.configured && (
         <div role="status" className="mb-6 rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm">
-          La IA todavía no está conectada en el servidor: falta la clave de Gemini (GEMINI_API_KEY). Mientras tanto los mensajes se reciben y los atiende tu equipo. Puedes dejar la configuración lista.
+          La IA todavía no está conectada: falta la clave de Gemini (de la plataforma, o la tuya propia en Integraciones → Asistente IA). Mientras tanto los mensajes se reciben y los atiende tu equipo. Puedes dejar la configuración lista.
         </div>
       )}
       <PublishBar d={d} />
@@ -514,7 +514,7 @@ function Assistant() {
           <Operation key={`${d.monthlyTokenCap}`} d={d} />
         </div>
       </div>
-      <p className="mt-4 text-xs text-muted">Modelo: {d.provider.model}. Los mensajes de los clientes y la configuración se envían a Google (Gemini API) para generar la respuesta.</p>
+      <p className="mt-4 text-xs text-muted">Modelo: {d.provider.model}{d.provider.source === 'tenant' ? ' (con la clave propia de tu empresa)' : ''}. Los mensajes de los clientes y la configuración se envían a Google (Gemini API) para generar la respuesta.</p>
     </>
   );
 }

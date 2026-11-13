@@ -41,7 +41,8 @@ export class GeminiChatModel implements ChatModel {
     return !!this.env.GEMINI_API_KEY;
   }
 
-  start(input: { system: string; transcript: TranscriptEntry[]; tools: ToolSpec[] }): ChatSession {
+  /** `apiKey`: clave propia de la empresa; sin ella, la de la plataforma */
+  start(input: { system: string; transcript: TranscriptEntry[]; tools: ToolSpec[] }, apiKey?: string): ChatSession {
     const contents: Content[] = [];
     // Gemini exige alternar user/model: se agrupan mensajes seguidos del mismo lado
     for (const t of input.transcript) {
@@ -60,7 +61,7 @@ export class GeminiChatModel implements ChatModel {
       generationConfig: { temperature: 0.4, maxOutputTokens: 2048 },
     };
     return {
-      next: () => this.generate(body, contents),
+      next: () => this.generate(body, contents, apiKey || this.env.GEMINI_API_KEY),
       addToolResults: (results) => {
         contents.push({
           role: 'user',
@@ -72,14 +73,39 @@ export class GeminiChatModel implements ChatModel {
     };
   }
 
-  private async generate(base: object, contents: Content[]): Promise<ModelTurn> {
-    if (!this.configured) throw new LlmError('Falta GEMINI_API_KEY', false);
+  /**
+   * Comprueba la clave con una petición real y gratuita (models.get): confirma
+   * que la clave es válida y que el modelo configurado existe para ella.
+   */
+  async check(apiKey?: string): Promise<{ ok: boolean; ms: number; detail: string }> {
+    const key = apiKey || this.env.GEMINI_API_KEY;
+    const t = Date.now();
+    if (!key) return { ok: false, ms: 0, detail: 'Sin clave configurada' };
+    const url = `${this.env.GEMINI_BASE_URL.replace(/\/$/, '')}/v1beta/models/${encodeURIComponent(this.env.GEMINI_MODEL)}`;
+    try {
+      const res = await fetch(url, { headers: { 'x-goog-api-key': key }, signal: AbortSignal.timeout(15_000) });
+      const raw = await res.text();
+      if (res.ok) return { ok: true, ms: Date.now() - t, detail: `Clave válida; modelo ${this.env.GEMINI_MODEL} disponible` };
+      let msg = raw.slice(0, 200);
+      try {
+        msg = (JSON.parse(raw) as { error?: { message?: string } }).error?.message ?? msg;
+      } catch {
+        /* cuerpo no JSON */
+      }
+      return { ok: false, ms: Date.now() - t, detail: `Gemini ${res.status}: ${msg}` };
+    } catch (e) {
+      return { ok: false, ms: Date.now() - t, detail: `Sin conexión con Gemini: ${(e as Error).message}` };
+    }
+  }
+
+  private async generate(base: object, contents: Content[], key: string): Promise<ModelTurn> {
+    if (!key) throw new LlmError('Falta GEMINI_API_KEY', false);
     const url = `${this.env.GEMINI_BASE_URL.replace(/\/$/, '')}/v1beta/models/${encodeURIComponent(this.env.GEMINI_MODEL)}:generateContent`;
     let res: Response;
     try {
       res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': this.env.GEMINI_API_KEY },
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
         body: JSON.stringify({ ...base, contents }),
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });

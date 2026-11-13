@@ -235,7 +235,17 @@ export type AutomationEventStatus = (typeof AutomationEventStatus)[keyof typeof 
 export const IntegrationType = {
   CHATWOOT: 'CHATWOOT',
   DIFY: 'DIFY',
-  N8N: 'N8N'
+  N8N: 'N8N',
+  GEMINI: 'GEMINI'
 } as const
 
 export type IntegrationType = (typeof IntegrationType)[keyof typeof IntegrationType]
+
+
+export const WebhookDeliveryStatus = {
+  PENDING: 'PENDING',
+  SENT: 'SENT',
+  FAILED: 'FAILED'
+} as const
+
+export type WebhookDeliveryStatus = (typeof WebhookDeliveryStatus)[keyof typeof WebhookDeliveryStatus]

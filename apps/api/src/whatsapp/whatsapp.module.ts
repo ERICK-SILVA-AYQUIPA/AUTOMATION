@@ -7,6 +7,6 @@ import { WhatsappWebhookController } from './webhook.controller.js';
 @Module({
   controllers: [WhatsappNumbersController, WhatsappWebhookController],
   providers: [CloudApiClient, WhatsappNumbersService],
-  exports: [CloudApiClient],
+  exports: [CloudApiClient, WhatsappNumbersService],
 })
 export class WhatsappModule {}

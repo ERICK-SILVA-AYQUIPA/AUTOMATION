@@ -1,5 +1,6 @@
 import { NOTIFIABLE_STATUSES } from '../automations/catalog.js';
 import { AutomationEvents } from '../automations/automation-events.service.js';
+import { WebhookEvents } from '../webhooks/webhook-events.service.js';
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService, type Tx } from '../database/database.service.js';
 import { InventoryService } from '../inventory/inventory.service.js';
@@ -58,6 +59,7 @@ export class OrdersService {
     private readonly db: DatabaseService,
     private readonly inventory: InventoryService,
     private readonly automations: AutomationEvents,
+    private readonly webhooks: WebhookEvents,
   ) {}
 
   async create(actor: OrderActor, input: CreateOrderInput): Promise<{ order: Prisma.OrderGetPayload<{ include: typeof orderInclude }>; created: boolean }> {
@@ -133,6 +135,11 @@ export class OrdersService {
       // La variante única de un producto simple no aporta nada al nombre
       items: lines.map((l) => ({ name: l.variantName === 'Única' ? l.productName : `${l.productName} (${l.variantName})`, quantity: l.quantity })),
     });
+    await this.webhooks.emit(tx, actor.tenantId, 'order.created', {
+      orderId: order.id, number: order.number, channel: input.channel, status: 'PENDING', total: subtotal.toFixed(2), currency: tenant.currency,
+      customer: { id: customer.id, name: customer.name ?? customer.waProfileName ?? null, phone: customer.phone ?? null },
+      items: lines.map((l) => ({ variantId: l.variantId, sku: l.sku, name: l.productName, variant: l.variantName, quantity: l.quantity, unitPrice: l.unitPrice.toFixed(2) })),
+    });
     if (input.confirm) await this.transitionInTx(tx, actor, order.id, 'CONFIRMED', null);
     return tx.order.findUniqueOrThrow({ where: { id: order.id }, include: orderInclude });
   }
@@ -178,8 +185,9 @@ export class OrdersService {
     });
     await tx.orderStatusHistory.create({ data: { tenantId: actor.tenantId, orderId, fromStatus: from, toStatus: to, userId: actor.userId, note } });
     // Aviso al cliente (lo filtra la configuración de la empresa); se envía después de confirmar la transacción
+    const o = await tx.order.findUniqueOrThrow({ where: { id: orderId }, select: { number: true, conversationId: true } });
+    await this.webhooks.emit(tx, actor.tenantId, 'order.status_changed', { orderId, number: o.number, from, to, note });
     if ((NOTIFIABLE_STATUSES as readonly string[]).includes(to)) {
-      const o = await tx.order.findUniqueOrThrow({ where: { id: orderId }, select: { number: true, conversationId: true } });
       await this.automations.emit(tx, actor.tenantId, 'ORDER_STATUS_NOTIFICATION', { orderId, number: o.number, status: to, from, viaWhatsapp: !!o.conversationId }, { dedupeKey: `${orderId}:${to}` });
     }
   }

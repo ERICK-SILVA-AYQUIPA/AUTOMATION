@@ -34,6 +34,16 @@ export class MailService {
     }
   }
 
+  get configured() {
+    return !!this.transport;
+  }
+
+  /** Conexión y autenticación con el servidor SMTP (sin enviar nada) */
+  async verify(): Promise<void> {
+    if (!this.transport) throw new Error('SMTP no configurado (SMTP_HOST)');
+    await this.transport.verify();
+  }
+
   /** Permite a las pruebas inyectar un transporte (p. ej. jsonTransport). */
   useTransport(t: Transporter) {
     this.transport = t;

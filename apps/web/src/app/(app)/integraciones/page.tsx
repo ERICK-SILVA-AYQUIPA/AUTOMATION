@@ -10,6 +10,7 @@ import { Badge, Button, Card, Dialog, EmptyState, ErrorBox, Field, Input, Loadin
 import { useToast } from '@/components/ui/toast';
 import { RequirePermission } from '@/components/guard';
 import { ChatwootCard } from '@/components/chatwoot';
+import { GeminiKeyCard, IntegrationErrors, IntegrationsOverview, WebhooksSection } from './center';
 
 interface WaNumber {
   id: string; provider: 'CLOUD_API' | 'EVOLUTION'; label: string | null; displayPhone: string | null; phoneNumberId: string | null; wabaId: string | null;
@@ -211,6 +212,7 @@ function NumberCard({ n, onWebhook, onCreds, onTest }: { n: WaNumber; onWebhook:
         toast.success(n.isActive ? 'Número desactivado: los mensajes que lleguen se ignorarán' : 'Número activado');
       }
       qc.invalidateQueries({ queryKey: ['wa-numbers'] });
+      qc.invalidateQueries({ queryKey: ['integrations'] });
     } catch (err) {
       toast.error(err);
     } finally {
@@ -260,9 +262,15 @@ function Integrations() {
     <>
       <PageHeader
         title="Integraciones"
-        description="Conecta los números de WhatsApp de tu negocio (API oficial de WhatsApp Cloud de Meta) y la bandeja de agentes."
-        actions={<Button icon={<Plus className="size-4" />} onClick={() => setDlg({ kind: 'new' })}>Conectar número</Button>}
+        description="Estado real de cada servicio que usa tu empresa, con su última prueba. Las claves se guardan cifradas y nunca se muestran completas."
       />
+      <IntegrationsOverview />
+      <IntegrationErrors />
+
+      <div className="mb-3 mt-8 flex items-end justify-between gap-2">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">Números de WhatsApp</h2>
+        <Button size="sm" icon={<Plus className="size-4" />} onClick={() => setDlg({ kind: 'new' })}>Conectar número</Button>
+      </div>
       {list.isLoading ? <Loading /> : list.error ? <ErrorBox error={list.error} /> : !list.data?.length ? (
         <Card>
           <EmptyState
@@ -283,11 +291,19 @@ function Integrations() {
       <h2 className="mb-3 mt-8 text-sm font-semibold uppercase tracking-wide text-muted">Atención humana</h2>
       <ChatwootCard />
 
+      <h2 className="mb-3 mt-8 text-sm font-semibold uppercase tracking-wide text-muted">Asistente IA</h2>
+      <GeminiKeyCard />
+
+      <h2 className="mb-1 mt-8 text-sm font-semibold uppercase tracking-wide text-muted">Webhooks</h2>
+      <p className="mb-3 text-sm text-muted">Cada entrega va firmada (HMAC-SHA256) y se reintenta hasta 6 veces con espera creciente si tu sistema no responde 2xx.</p>
+      <WebhooksSection />
+
       {dlg?.kind === 'new' && (
         <NewNumberDialog
           onClose={close}
           onCreated={(n) => {
             qc.invalidateQueries({ queryKey: ['wa-numbers'] });
+            qc.invalidateQueries({ queryKey: ['integrations'] });
             toast.success(`Número ${n.displayPhone ?? ''} verificado y guardado`);
             // Siguiente paso obligatorio: configurar el webhook en Meta
             setDlg({ kind: 'webhook', n });

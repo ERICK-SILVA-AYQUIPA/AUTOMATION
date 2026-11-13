@@ -29,6 +29,8 @@ import { AiModule } from './ai/ai.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
 import { InternalModule } from './automations/internal.module.js';
 import { AutomationsApiModule } from './automations/automations-api.module.js';
+import { IntegrationsModule } from './integrations/integrations.module.js';
+import { WebhooksModule } from './webhooks/webhooks.module.js';
 import { MessagingModule } from './messaging/messaging.module.js';
 import { AuthGuard } from './common/guards/auth.guard.js';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
@@ -89,6 +91,8 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
     AutomationsModule,
     InternalModule,
     AutomationsApiModule,
+    WebhooksModule,
+    IntegrationsModule,
     ChatwootModule,
     AiModule,
     NotificationsModule,

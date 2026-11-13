@@ -11,6 +11,8 @@ import { AutomationsModule } from './automations/automations.module.js';
 import { ChatwootModule } from './chatwoot/chatwoot.module.js';
 import { AiModule } from './ai/ai.module.js';
 import { AutomationDispatcher } from './automations/automation-dispatcher.js';
+import { WebhookDispatcher } from './webhooks/webhook-dispatcher.js';
+import { WebhooksModule } from './webhooks/webhooks.module.js';
 
 /** Proceso worker: consume las colas de WhatsApp y del asistente de IA y entrega eventos a n8n. No expone HTTP. */
 @Module({
@@ -31,9 +33,10 @@ import { AutomationDispatcher } from './automations/automation-dispatcher.js';
     QueuesModule,
     MessagingModule,
     AutomationsModule,
+    WebhooksModule,
     ChatwootModule,
     AiModule,
   ],
-  providers: [QueueWorkers, AutomationDispatcher],
+  providers: [QueueWorkers, AutomationDispatcher, WebhookDispatcher],
 })
 export class WorkerModule {}

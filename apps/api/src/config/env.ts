@@ -73,6 +73,8 @@ const schema = z.object({
   CHATWOOT_PLATFORM_TOKEN: z.string().default(''),
   /** URL de la API vista desde Chatwoot (sus webhooks) */
   CHATWOOT_WEBHOOK_BASE_URL: z.url().default('http://host.docker.internal:4000'),
+  /** Solo desarrollo y pruebas: permite webhooks salientes de empresas hacia direcciones privadas o http */
+  WEBHOOKS_ALLOW_PRIVATE_NETWORK: z.enum(['true', 'false']).default('false'),
 
   /** Carpeta de archivos subidos (volumen persistente en despliegue) */
   STORAGE_DIR: z.string().default('./storage'),
@@ -132,6 +134,7 @@ export function productionProblems(e: z.infer<typeof schema>): string[] {
   if (!e.SMTP_HOST) out.push('SMTP_HOST es obligatorio (verificación de correo y recuperación de contraseña)');
   if (e.MAIL_FROM.includes('@localhost')) out.push('MAIL_FROM debe usar un dominio real');
   if (e.N8N_WEBHOOK_BASE_URL && !e.N8N_INTERNAL_TOKEN) out.push('N8N_INTERNAL_TOKEN es obligatorio si N8N_WEBHOOK_BASE_URL está definido');
+  if (e.WEBHOOKS_ALLOW_PRIVATE_NETWORK === 'true') out.push('WEBHOOKS_ALLOW_PRIVATE_NETWORK solo puede ser true en desarrollo y pruebas');
   if (e.CHATWOOT_PLATFORM_TOKEN && !publicHttps(e.CHATWOOT_WEBHOOK_BASE_URL)) out.push('CHATWOOT_WEBHOOK_BASE_URL debe ser la URL https pública de la API');
   if (e.WHATSAPP_GRAPH_BASE_URL !== 'https://graph.facebook.com') out.push('WHATSAPP_GRAPH_BASE_URL solo puede cambiarse en desarrollo y pruebas');
   if (e.GEMINI_BASE_URL !== 'https://generativelanguage.googleapis.com') out.push('GEMINI_BASE_URL solo puede cambiarse en desarrollo y pruebas');

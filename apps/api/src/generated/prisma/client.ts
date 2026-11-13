@@ -214,3 +214,18 @@ export type Notification = Prisma.NotificationModel
  * 
  */
 export type AuditLog = Prisma.AuditLogModel
+/**
+ * Model IntegrationCheck
+ * Resultado de cada comprobación de una integración (botón «Probar» o comprobación automática). tenant_id null = de la plataforma.
+ */
+export type IntegrationCheck = Prisma.IntegrationCheckModel
+/**
+ * Model WebhookEndpoint
+ * Webhooks salientes de la empresa: el sistema avisa a su URL de pedidos, stock y derivaciones, firmado con HMAC.
+ */
+export type WebhookEndpoint = Prisma.WebhookEndpointModel
+/**
+ * Model WebhookDelivery
+ * 
+ */
+export type WebhookDelivery = Prisma.WebhookDeliveryModel

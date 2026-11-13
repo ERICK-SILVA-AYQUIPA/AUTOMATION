@@ -39,7 +39,7 @@ export interface ChatSession {
 
 export interface ChatModel {
   readonly configured: boolean;
-  start(input: { system: string; transcript: TranscriptEntry[]; tools: ToolSpec[] }): ChatSession;
+  start(input: { system: string; transcript: TranscriptEntry[]; tools: ToolSpec[] }, apiKey?: string): ChatSession;
 }
 
 /** Error del proveedor. retryable: conviene reintentar más tarde (cuota, caída, tiempo agotado) */

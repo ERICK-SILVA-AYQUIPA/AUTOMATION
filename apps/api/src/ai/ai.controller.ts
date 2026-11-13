@@ -42,7 +42,8 @@ export class AiController {
   ) {}
 
   @Get('settings')
-  get(@TenantUser() p: TenantPrincipal) {
+  async get(@TenantUser() p: TenantPrincipal) {
+    const provider = await this.assistant.providerFor(p.tenantId);
     return this.db.tenant(p.tenantId, async (tx) => {
       const s = await settingsOf(tx, p.tenantId);
       const [limits, usage, docChanges] = await Promise.all([
@@ -59,11 +60,11 @@ export class AiController {
         draftUpdatedAt: s.draftUpdatedAt,
         draftTestedAt: s.draftTestedAt,
         publishedAt: s.publishedAt,
-        testRequired: this.assistant.configured,
+        testRequired: !!provider,
         monthlyTokenCap: s.monthlyTokenCap,
         usage: { period: currentPeriod(), tokens: used.ai_tokens ?? 0, replies: used.ai_replies ?? 0, planTokenLimit: limits.maxAiTokensPerMonth ?? null, effectiveCap: tokenCap(limits, s.monthlyTokenCap) },
         knowledge: { maxDocs: limits.maxKnowledgeDocs ?? DEFAULT_MAX_DOCS, budgetChars: KNOWLEDGE_BUDGET },
-        provider: { configured: this.assistant.configured, model: this.env.GEMINI_MODEL },
+        provider: { configured: !!provider, source: provider?.source ?? null, model: this.env.GEMINI_MODEL },
       };
     });
   }
@@ -97,14 +98,15 @@ export class AiController {
   /** Publica el borrador y los documentos. Con proveedor de IA configurado exige haber probado la versión vigente del borrador. */
   @Post('settings/publish')
   @HttpCode(200)
-  publish(@TenantUser() p: TenantPrincipal) {
+  async publish(@TenantUser() p: TenantPrincipal) {
+    const provider = await this.assistant.providerFor(p.tenantId);
     return this.db.tenant(p.tenantId, async (tx) => {
       const [s] = await tx.$queryRaw<{ draft: unknown; profile: unknown; draft_tested_at: Date | null }[]>`
         SELECT draft, profile, draft_tested_at FROM ai_settings WHERE tenant_id = ${p.tenantId}::uuid FOR UPDATE`;
       if (!s) throw new NotFoundException('Asistente no configurado');
       const docChanges = await pendingDocChanges(tx);
       if (!s.draft && docChanges === 0) throw new ConflictException({ code: 'NOTHING_TO_PUBLISH', message: 'No hay cambios sin publicar' });
-      if (this.assistant.configured && !s.draft_tested_at) throw new ConflictException({ code: 'TEST_REQUIRED', message: 'Prueba el borrador al menos una vez antes de publicarlo' });
+      if (provider && !s.draft_tested_at) throw new ConflictException({ code: 'TEST_REQUIRED', message: 'Prueba el borrador al menos una vez antes de publicarlo' });
       const before = readProfile(s.profile);
       const next = s.draft ? readProfile(s.draft) : before;
       await tx.aiKnowledgeDoc.deleteMany({ where: { pendingDelete: true } });
@@ -194,7 +196,6 @@ export class AiController {
   @HttpCode(200)
   @Post('test')
   async test(@TenantUser() p: TenantPrincipal, @Body({ schema: testSchema }) b: z.infer<typeof testSchema>) {
-    if (!this.assistant.configured) throw new ServiceUnavailableException({ code: 'AI_NOT_CONFIGURED', message: 'El asistente aún no tiene clave de Gemini configurada en el servidor (GEMINI_API_KEY).' });
     try {
       const r = await this.assistant.test(p.tenantId, b.target, b.messages);
       if (b.target === 'draft' && r.reply) {

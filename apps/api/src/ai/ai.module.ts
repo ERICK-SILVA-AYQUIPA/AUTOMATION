@@ -9,6 +9,6 @@ import { GeminiChatModel } from './gemini.client.js';
   imports: [MessagingModule, OrdersModule],
   controllers: [AiController],
   providers: [GeminiChatModel, AssistantService],
-  exports: [AssistantService],
+  exports: [AssistantService, GeminiChatModel],
 })
 export class AiModule {}

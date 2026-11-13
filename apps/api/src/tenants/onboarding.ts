@@ -43,12 +43,14 @@ export async function computeOnboarding(tx: Tx, tenantId: string, o: Options): P
       subscription: { select: { status: true, trialEndsAt: true, currentPeriodEnd: true } },
     },
   });
-  const [admins, numbers, products, aiSettings] = await Promise.all([
+  const [admins, numbers, products, aiSettings, ownKey] = await Promise.all([
     tx.user.findMany({ where: { tenantId, role: 'TENANT_ADMIN', status: { not: 'DISABLED' } }, select: { id: true, status: true } }),
     tx.whatsappNumber.findMany({ where: { tenantId, isActive: true }, select: { status: true, lastWebhookAt: true } }),
     tx.product.count({ where: { tenantId, status: 'ACTIVE' } }),
     tx.aiSettings.findUnique({ where: { tenantId }, select: { profile: true } }),
+    tx.tenantIntegration.count({ where: { tenantId, type: 'GEMINI', status: 'CONNECTED' } }),
   ]);
+  const aiProvider = o.aiProviderConfigured || ownKey > 0;
   const joined = admins.some((a) => a.status === 'ACTIVE');
   let invited = joined;
   if (!invited && o.checkInvitations && admins.length) {
@@ -75,7 +77,7 @@ export async function computeOnboarding(tx: Tx, tenantId: string, o: Options): P
   if (mod('ai')) {
     tasks.push(
       { key: 'ai_settings', label: 'Información del negocio para el asistente', done: hasBusinessInfo(readProfile(aiSettings?.profile)), required: false, hint: 'Asistente IA: horario, pagos, entregas o preguntas frecuentes (publicado)' },
-      { key: 'ai_provider', label: 'Clave del modelo de IA en el servidor', done: o.aiProviderConfigured, required: false, hint: o.aiProviderConfigured ? '' : 'Falta GEMINI_API_KEY: sin ella los mensajes los atiende el equipo' },
+      { key: 'ai_provider', label: 'Clave del modelo de IA en el servidor', done: aiProvider, required: false, hint: aiProvider ? '' : 'Falta la clave de Gemini (de la plataforma o propia en Integraciones): sin ella los mensajes los atiende el equipo' },
     );
   }
   return {

@@ -33,3 +33,7 @@ Modelos disponibles: https://ai.google.dev/gemini-api/docs/models
 
 - Integración (Gemini simulado): `pnpm --filter @aisa/api test:e2e` (`test/ai.e2e-spec.ts`).
 - Navegador: `apps/web/e2e/assistant.mjs` (instrucciones en su cabecera).
+
+## Clave propia de cada empresa (fase 6)
+
+Además de la clave de la plataforma (`GEMINI_API_KEY`), cada empresa puede usar la suya desde **Integraciones → Asistente IA → Usar mi clave**. La clave se comprueba con una petición real y gratuita (`GET /v1beta/models/{GEMINI_MODEL}`) antes de guardarse; si Google la rechaza no se guarda. Se guarda cifrada con `DATA_ENCRYPTION_KEY` y en pantalla solo se ven sus 4 últimos caracteres. Mientras esté válida, el asistente de esa empresa la usa en lugar de la de la plataforma; al quitarla vuelve a la de la plataforma. El botón «Probar» de Integraciones (empresa) y de `/plataforma → Integraciones` (servidor) hacen la misma comprobación real.

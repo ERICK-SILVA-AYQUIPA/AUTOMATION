@@ -10,6 +10,6 @@ import { ChatwootController } from './chatwoot.controller.js';
   imports: [MessagingModule],
   controllers: [ChatwootController, ChatwootWebhookController],
   providers: [ChatwootClient, ChatwootService, ChatwootSyncService, ChatwootWebhookService],
-  exports: [ChatwootService, ChatwootSyncService],
+  exports: [ChatwootService, ChatwootSyncService, ChatwootClient],
 })
 export class ChatwootModule {}

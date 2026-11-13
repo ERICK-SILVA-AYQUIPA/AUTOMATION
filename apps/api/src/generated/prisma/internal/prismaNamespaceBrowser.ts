@@ -84,7 +84,10 @@ export const ModelName = {
   AutomationEvent: 'AutomationEvent',
   TenantIntegration: 'TenantIntegration',
   Notification: 'Notification',
-  AuditLog: 'AuditLog'
+  AuditLog: 'AuditLog',
+  IntegrationCheck: 'IntegrationCheck',
+  WebhookEndpoint: 'WebhookEndpoint',
+  WebhookDelivery: 'WebhookDelivery'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -644,6 +647,7 @@ export const TenantIntegrationScalarFieldEnum = {
   status: 'status',
   webhookKey: 'webhookKey',
   lastError: 'lastError',
+  lastCheckedAt: 'lastCheckedAt',
   updatedAt: 'updatedAt'
 } as const
 
@@ -679,6 +683,57 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const IntegrationCheckScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  service: 'service',
+  ok: 'ok',
+  latencyMs: 'latencyMs',
+  detail: 'detail',
+  checkedById: 'checkedById',
+  createdAt: 'createdAt'
+} as const
+
+export type IntegrationCheckScalarFieldEnum = (typeof IntegrationCheckScalarFieldEnum)[keyof typeof IntegrationCheckScalarFieldEnum]
+
+
+export const WebhookEndpointScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  url: 'url',
+  description: 'description',
+  secretEnc: 'secretEnc',
+  secretHint: 'secretHint',
+  events: 'events',
+  isActive: 'isActive',
+  lastDeliveryAt: 'lastDeliveryAt',
+  lastStatus: 'lastStatus',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WebhookEndpointScalarFieldEnum = (typeof WebhookEndpointScalarFieldEnum)[keyof typeof WebhookEndpointScalarFieldEnum]
+
+
+export const WebhookDeliveryScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  endpointId: 'endpointId',
+  event: 'event',
+  payload: 'payload',
+  status: 'status',
+  attempts: 'attempts',
+  nextAttemptAt: 'nextAttemptAt',
+  responseStatus: 'responseStatus',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  sentAt: 'sentAt'
+} as const
+
+export type WebhookDeliveryScalarFieldEnum = (typeof WebhookDeliveryScalarFieldEnum)[keyof typeof WebhookDeliveryScalarFieldEnum]
 
 
 export const SortOrder = {

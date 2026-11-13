@@ -32,6 +32,7 @@ export type TenantIntegrationMinAggregateOutputType = {
   status: $Enums.ConnectionStatus | null
   webhookKey: string | null
   lastError: string | null
+  lastCheckedAt: Date | null
   updatedAt: Date | null
 }
 
@@ -43,6 +44,7 @@ export type TenantIntegrationMaxAggregateOutputType = {
   status: $Enums.ConnectionStatus | null
   webhookKey: string | null
   lastError: string | null
+  lastCheckedAt: Date | null
   updatedAt: Date | null
 }
 
@@ -55,6 +57,7 @@ export type TenantIntegrationCountAggregateOutputType = {
   status: number
   webhookKey: number
   lastError: number
+  lastCheckedAt: number
   updatedAt: number
   _all: number
 }
@@ -68,6 +71,7 @@ export type TenantIntegrationMinAggregateInputType = {
   status?: true
   webhookKey?: true
   lastError?: true
+  lastCheckedAt?: true
   updatedAt?: true
 }
 
@@ -79,6 +83,7 @@ export type TenantIntegrationMaxAggregateInputType = {
   status?: true
   webhookKey?: true
   lastError?: true
+  lastCheckedAt?: true
   updatedAt?: true
 }
 
@@ -91,6 +96,7 @@ export type TenantIntegrationCountAggregateInputType = {
   status?: true
   webhookKey?: true
   lastError?: true
+  lastCheckedAt?: true
   updatedAt?: true
   _all?: true
 }
@@ -176,6 +182,7 @@ export type TenantIntegrationGroupByOutputType = {
   status: $Enums.ConnectionStatus
   webhookKey: string | null
   lastError: string | null
+  lastCheckedAt: Date | null
   updatedAt: Date
   _count: TenantIntegrationCountAggregateOutputType | null
   _min: TenantIntegrationMinAggregateOutputType | null
@@ -209,6 +216,7 @@ export type TenantIntegrationWhereInput = {
   status?: Prisma.EnumConnectionStatusFilter<"TenantIntegration"> | $Enums.ConnectionStatus
   webhookKey?: Prisma.StringNullableFilter<"TenantIntegration"> | string | null
   lastError?: Prisma.StringNullableFilter<"TenantIntegration"> | string | null
+  lastCheckedAt?: Prisma.DateTimeNullableFilter<"TenantIntegration"> | Date | string | null
   updatedAt?: Prisma.DateTimeFilter<"TenantIntegration"> | Date | string
 }
 
@@ -221,6 +229,7 @@ export type TenantIntegrationOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   webhookKey?: Prisma.SortOrderInput | Prisma.SortOrder
   lastError?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastCheckedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -237,6 +246,7 @@ export type TenantIntegrationWhereUniqueInput = Prisma.AtLeast<{
   secretsEnc?: Prisma.StringNullableFilter<"TenantIntegration"> | string | null
   status?: Prisma.EnumConnectionStatusFilter<"TenantIntegration"> | $Enums.ConnectionStatus
   lastError?: Prisma.StringNullableFilter<"TenantIntegration"> | string | null
+  lastCheckedAt?: Prisma.DateTimeNullableFilter<"TenantIntegration"> | Date | string | null
   updatedAt?: Prisma.DateTimeFilter<"TenantIntegration"> | Date | string
 }, "id" | "webhookKey" | "tenantId_type">
 
@@ -249,6 +259,7 @@ export type TenantIntegrationOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   webhookKey?: Prisma.SortOrderInput | Prisma.SortOrder
   lastError?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastCheckedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TenantIntegrationCountOrderByAggregateInput
   _max?: Prisma.TenantIntegrationMaxOrderByAggregateInput
@@ -267,6 +278,7 @@ export type TenantIntegrationScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumConnectionStatusWithAggregatesFilter<"TenantIntegration"> | $Enums.ConnectionStatus
   webhookKey?: Prisma.StringNullableWithAggregatesFilter<"TenantIntegration"> | string | null
   lastError?: Prisma.StringNullableWithAggregatesFilter<"TenantIntegration"> | string | null
+  lastCheckedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"TenantIntegration"> | Date | string | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"TenantIntegration"> | Date | string
 }
 
@@ -279,6 +291,7 @@ export type TenantIntegrationCreateInput = {
   status?: $Enums.ConnectionStatus
   webhookKey?: string | null
   lastError?: string | null
+  lastCheckedAt?: Date | string | null
   updatedAt?: Date | string
 }
 
@@ -291,6 +304,7 @@ export type TenantIntegrationUncheckedCreateInput = {
   status?: $Enums.ConnectionStatus
   webhookKey?: string | null
   lastError?: string | null
+  lastCheckedAt?: Date | string | null
   updatedAt?: Date | string
 }
 
@@ -303,6 +317,7 @@ export type TenantIntegrationUpdateInput = {
   status?: Prisma.EnumConnectionStatusFieldUpdateOperationsInput | $Enums.ConnectionStatus
   webhookKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -315,6 +330,7 @@ export type TenantIntegrationUncheckedUpdateInput = {
   status?: Prisma.EnumConnectionStatusFieldUpdateOperationsInput | $Enums.ConnectionStatus
   webhookKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -327,6 +343,7 @@ export type TenantIntegrationCreateManyInput = {
   status?: $Enums.ConnectionStatus
   webhookKey?: string | null
   lastError?: string | null
+  lastCheckedAt?: Date | string | null
   updatedAt?: Date | string
 }
 
@@ -339,6 +356,7 @@ export type TenantIntegrationUpdateManyMutationInput = {
   status?: Prisma.EnumConnectionStatusFieldUpdateOperationsInput | $Enums.ConnectionStatus
   webhookKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -351,6 +369,7 @@ export type TenantIntegrationUncheckedUpdateManyInput = {
   status?: Prisma.EnumConnectionStatusFieldUpdateOperationsInput | $Enums.ConnectionStatus
   webhookKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -368,6 +387,7 @@ export type TenantIntegrationCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   webhookKey?: Prisma.SortOrder
   lastError?: Prisma.SortOrder
+  lastCheckedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -379,6 +399,7 @@ export type TenantIntegrationMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   webhookKey?: Prisma.SortOrder
   lastError?: Prisma.SortOrder
+  lastCheckedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -390,6 +411,7 @@ export type TenantIntegrationMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   webhookKey?: Prisma.SortOrder
   lastError?: Prisma.SortOrder
+  lastCheckedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -408,6 +430,7 @@ export type TenantIntegrationSelect<ExtArgs extends runtime.Types.Extensions.Int
   status?: boolean
   webhookKey?: boolean
   lastError?: boolean
+  lastCheckedAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["tenantIntegration"]>
 
@@ -420,6 +443,7 @@ export type TenantIntegrationSelectCreateManyAndReturn<ExtArgs extends runtime.T
   status?: boolean
   webhookKey?: boolean
   lastError?: boolean
+  lastCheckedAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["tenantIntegration"]>
 
@@ -432,6 +456,7 @@ export type TenantIntegrationSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   status?: boolean
   webhookKey?: boolean
   lastError?: boolean
+  lastCheckedAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["tenantIntegration"]>
 
@@ -444,10 +469,11 @@ export type TenantIntegrationSelectScalar = {
   status?: boolean
   webhookKey?: boolean
   lastError?: boolean
+  lastCheckedAt?: boolean
   updatedAt?: boolean
 }
 
-export type TenantIntegrationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "type" | "config" | "secretsEnc" | "status" | "webhookKey" | "lastError" | "updatedAt", ExtArgs["result"]["tenantIntegration"]>
+export type TenantIntegrationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "type" | "config" | "secretsEnc" | "status" | "webhookKey" | "lastError" | "lastCheckedAt" | "updatedAt", ExtArgs["result"]["tenantIntegration"]>
 
 export type $TenantIntegrationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "TenantIntegration"
@@ -470,6 +496,7 @@ export type $TenantIntegrationPayload<ExtArgs extends runtime.Types.Extensions.I
      */
     webhookKey: string | null
     lastError: string | null
+    lastCheckedAt: Date | null
     updatedAt: Date
   }, ExtArgs["result"]["tenantIntegration"]>
   composites: {}
@@ -902,6 +929,7 @@ export interface TenantIntegrationFieldRefs {
   readonly status: Prisma.FieldRef<"TenantIntegration", 'ConnectionStatus'>
   readonly webhookKey: Prisma.FieldRef<"TenantIntegration", 'String'>
   readonly lastError: Prisma.FieldRef<"TenantIntegration", 'String'>
+  readonly lastCheckedAt: Prisma.FieldRef<"TenantIntegration", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"TenantIntegration", 'DateTime'>
 }
     

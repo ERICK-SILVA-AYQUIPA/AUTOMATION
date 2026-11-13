@@ -94,7 +94,13 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
   - [x] Documentos de conocimiento en texto con límite por plan
   - [x] Tope mensual de tokens (plan y empresa) con derivación y aviso al alcanzarlo
   - [ ] Prueba con la clave real de Gemini: **pendiente de Rick** (todo lo anterior se probó con un servidor Gemini simulado)
-- [ ] Fase 6: integraciones centralizadas
+- [x] Fase 6: integraciones centralizadas (ADR 042)
+  - [x] Centro de integraciones de la empresa: estado real de WhatsApp, Gemini, correo, n8n, Chatwoot, webhooks y pagos, con última prueba, botón «Probar» (petición real) e historial de errores
+  - [x] Clave propia de Gemini por empresa: validada con Google antes de guardarse, cifrada, solo se muestra el final; el asistente la usa en lugar de la de la plataforma
+  - [x] Webhooks salientes firmados (HMAC-SHA256) con reintentos, historial de entregas, reintento manual, rotación de secreto y protección SSRF
+  - [x] Pestaña «Integraciones» del panel general: prueba real de base de datos, Redis, Gemini, SMTP, n8n y Chatwoot, con las variables de entorno de cada uno
+  - [ ] Pagos: sin proveedor (cobro manual, ADR 036) hasta que Rick elija y se pruebe uno
+  - [ ] Prueba con claves reales de Gemini y Meta y con un SMTP real: **pendiente de Rick** (probado con servidores simulados y Mailpit)
 - [ ] Fase 7: plantillas por sector
 - [ ] Fase 8: entrega de sistemas
 - [ ] Fase 9: actualizaciones
