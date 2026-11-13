@@ -109,7 +109,12 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
   - [x] Clientes comerciales (razón social) e historial de compras
   - [x] Reservas de mesa y citas con horario, aforo protegido ante reservas simultáneas, estados, herramientas del asistente, webhooks y recordatorio por WhatsApp
   - [ ] Capacidad y horario reales de cada negocio: **los define cada empresa** (no se inventan)
-- [ ] Fase 8: entrega de sistemas
+- [x] Fase 8: entrega de sistemas (ADR 044)
+  - [x] Entregas desde el panel general: foto sin secretos con módulos, funciones, configuración, requisitos, integraciones pendientes y acceso inicial
+  - [x] ZIP reproducible (huella SHA-256 comprobada en cada descarga) con manuales, guías de WhatsApp e IA y soporte
+  - [x] Kit de instalación independiente: Docker Compose de la versión, variables de ejemplo, Caddy/HTTPS, migraciones, instalador que valida requisitos, salud, respaldo, restauración y registros
+  - [x] Carga de la configuración de la empresa en la instancia nueva, una sola vez
+  - [ ] Instalación en el servidor real del cliente: **pendiente de Rick** (servidor, dominio y SMTP); probado en local con certificados propios de Caddy
 - [ ] Fase 9: actualizaciones
 - [ ] Fase 10: cierre (pruebas, seguridad, documentación)
 

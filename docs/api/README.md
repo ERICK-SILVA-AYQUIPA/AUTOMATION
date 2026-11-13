@@ -69,6 +69,17 @@ Con `readOnly`, toda petición que modifica datos responde **402** `{ code: "SUB
 | GET | `/platform/tenants/:id/template?key=` | **Vista previa** con el estado real de la empresa: `{template, current {key, version}, changes[{section, field, from, to}], blocked[{…, note}]}` (no aplica nada) |
 | POST | `/platform/tenants/:id/template` | `{key, sections[]}` con `sections` ⊂ `modules, settings, automations, ai, categories`: aplica **solo** esas secciones (lo del asistente va al **borrador**; las categorías solo se crean si faltan; las automatizaciones que el plan no incluye no se encienden). Auditado `platform.template_applied` |
 
+### Entrega de sistemas (ADR 044)
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/platform/tenants/:id/deliveries` | Entregas de la empresa |
+| POST | `/platform/tenants/:id/deliveries` | `{systemName, domain?, supportContact, notes?}` → 201 con `manifest`. `domain` obligatorio en DEDICATED/CUSTOM (400 `DOMAIN_REQUIRED`) y prohibido en SaaS (400 `DOMAIN_NOT_ALLOWED`) |
+| GET | `/platform/deliveries/:id` | Entrega con su `manifest` (sin secretos) |
+| POST | `/platform/deliveries/:id/refresh` | Vuelve a tomar la foto; solo en `DRAFT` (409 `DELIVERY_FROZEN` si ya hay paquete) |
+| GET | `/platform/deliveries/:id/package` | ZIP (`application/zip`, cabecera `X-Package-Sha256`). La primera vez pasa a `GENERATED` y guarda la huella; después se comprueba contra ella (409 `NOT_REPRODUCIBLE` / `VERSION_CHANGED`) |
+| POST | `/platform/deliveries/:id/delivered` | Marca entregada (409 `NOT_GENERATED` si aún no hay paquete) |
+
 ## Módulos por empresa (ADR 038)
 
 `GET /auth/me` devuelve `tenant.enabledModules` (subconjunto de `conversations, ai, catalog, inventory, orders, customers, reports, automations, reservations`) y `tenant.settings` (reglas de operación). Las rutas de un módulo apagado responden **403** `{ code: "MODULE_DISABLED" }`.

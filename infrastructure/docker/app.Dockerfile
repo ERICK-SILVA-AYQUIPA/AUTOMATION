@@ -45,6 +45,14 @@ FROM node:22-bookworm-slim AS api
 ENV NODE_ENV=production STORAGE_DIR=/data/storage
 WORKDIR /app
 COPY --from=build --chown=node:node /out/api ./
+# Kit de instalación independiente de esta versión (paquetes de entrega, ADR 044)
+COPY --from=build --chown=node:node /repo/docker-compose.prod.yml /repo/.env.production.example /app/kit/
+COPY --from=build --chown=node:node /repo/infrastructure/caddy /app/kit/infrastructure/caddy
+COPY --from=build --chown=node:node /repo/infrastructure/docker/postgres /app/kit/infrastructure/docker/postgres
+COPY --from=build --chown=node:node /repo/infrastructure/scripts /app/kit/infrastructure/scripts
+COPY --from=build --chown=node:node /repo/infrastructure/kit /app/kit/infrastructure/kit
+COPY --from=build --chown=node:node /repo/services/n8n /app/kit/services/n8n
+COPY --from=build --chown=node:node /repo/services/chatwoot /app/kit/services/chatwoot
 RUN mkdir -p /data/storage && chown -R node:node /data
 USER node
 EXPOSE 4000

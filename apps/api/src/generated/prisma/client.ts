@@ -63,6 +63,11 @@ export type Subscription = Prisma.SubscriptionModel
  */
 export type Payment = Prisma.PaymentModel
 /**
+ * Model Delivery
+ * Entrega de un sistema a un cliente (ADR 044). Solo la plataforma la lee y escribe.
+ */
+export type Delivery = Prisma.DeliveryModel
+/**
  * Model UsageCounter
  * 
  */

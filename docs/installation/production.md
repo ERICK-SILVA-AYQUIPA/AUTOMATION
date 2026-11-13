@@ -108,7 +108,19 @@ cd /opt/aisa && git pull && ./infrastructure/scripts/deploy.sh
 Las migraciones se aplican solas antes de arrancar la nueva API. Haz una copia de
 seguridad antes de cada actualización.
 
-## 8. Lista de comprobación antes de vender
+## 8. Instalaciones independientes de clientes (paquete de entrega)
+
+Para un cliente con **instancia dedicada** o **a medida** (ADR 044):
+
+1. En `/plataforma`, ficha de la empresa → «Entrega del sistema»: nombre del sistema, dominio del cliente y contacto de soporte → «Preparar entrega». Revisa requisitos e integraciones pendientes y pulsa «Generar paquete» (ZIP reproducible, con su huella SHA-256).
+2. En la máquina donde construyes: `./infrastructure/scripts/export-images.sh` → `dist-entregas/aisa-imagenes-<versión>.tar.gz` (+ `.sha256`). La versión debe ser la misma del paquete.
+3. En el servidor del cliente: descomprime el ZIP, copia el archivo de imágenes dentro de `instalacion/` y sigue `docs/instalacion.md` del paquete (`./instalar.sh --verificar`, `./instalar.sh`).
+
+Para una prueba en una máquina con poco disco se puede bajar el mínimo de 20 GB con `INSTALAR_DISCO_MINIMO_GB=5 ./instalar.sh` (queda como aviso en el registro); en producción no se usa.
+
+El paquete no lleva contraseñas ni claves: el instalador genera los secretos en el servidor y las credenciales de WhatsApp e IA se configuran allí.
+
+## 9. Lista de comprobación antes de vender
 
 - [ ] DNS y HTTPS: `https://APP_DOMAIN` abre con candado válido.
 - [ ] SMTP: el registro de una empresa de prueba recibe el correo de verificación (revisa spam, SPF y DKIM).

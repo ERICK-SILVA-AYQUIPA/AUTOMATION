@@ -9,6 +9,7 @@ import type { SubscriptionAccess } from '@/lib/types';
 import { Badge, Button, Dialog, ErrorBox, Field, Input, Loading, Select } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
 import { TemplateCard } from './template-card';
+import { DeliveriesCard } from './deliveries-card';
 
 interface TenantDetail {
   id: string; name: string; slug: string; status: string; createdAt: string; activatedAt: string | null; currency: string; timezone: string;
@@ -150,6 +151,7 @@ export function TenantDetailDialog({ id, onClose, onChanged }: { id: string | nu
         <div className="flex flex-col gap-6 text-sm">
           <Setup t={t} onChanged={() => { q.refetch(); onChanged(); }} />
           <TemplateCard tenantId={t.id} businessType={t.businessType} onApplied={() => { q.refetch(); onChanged(); }} />
+          <DeliveriesCard key={t.deploymentMode} tenant={t} />
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <h3 className="mb-1 font-medium">Contacto</h3>

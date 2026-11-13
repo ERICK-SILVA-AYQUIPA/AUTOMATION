@@ -19,6 +19,7 @@ import { CatalogModule } from './catalog/catalog.module.js';
 import { CustomersModule } from './customers/customers.module.js';
 import { OrdersModule } from './orders/orders.module.js';
 import { ReservationsModule } from './reservations/reservations.module.js';
+import { DeliveriesModule } from './deliveries/deliveries.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
 import { REDIS, RedisModule } from './health/redis.provider.js';
 import type { Redis } from 'ioredis';
@@ -87,6 +88,7 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
     CustomersModule,
     OrdersModule,
     ReservationsModule,
+    DeliveriesModule,
     DashboardModule,
     QueuesModule,
     MessagingModule,

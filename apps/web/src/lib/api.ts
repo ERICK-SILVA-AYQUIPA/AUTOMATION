@@ -101,7 +101,11 @@ export async function download(path: string, query?: Opts['query'], retry = true
   for (const [k, v] of Object.entries(query ?? {})) if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, String(v));
   const res = await fetch(url, { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {}, credentials: 'include' });
   if (res.status === 401 && retry && (await refreshAccessToken())) return download(path, query, false);
-  if (!res.ok) throw new ApiError(res.status, 'No se pudo descargar el archivo');
+  if (!res.ok) {
+    // El motivo que da la API (p. ej. versión distinta) vale más que un mensaje genérico
+    const body = (await res.json().catch(() => null)) as { message?: string; code?: string } | null;
+    throw new ApiError(res.status, body?.message ?? 'No se pudo descargar el archivo', body?.code);
+  }
   const name = /filename="([^"]+)"/.exec(res.headers.get('content-disposition') ?? '')?.[1] ?? 'descarga';
   const href = URL.createObjectURL(await res.blob());
   const a = document.createElement('a');

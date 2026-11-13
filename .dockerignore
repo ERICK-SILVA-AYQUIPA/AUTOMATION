@@ -14,3 +14,4 @@ apps/api/src/generated
 apps/web/e2e/screenshots
 backups
 services/dify/upstream
+dist-entregas

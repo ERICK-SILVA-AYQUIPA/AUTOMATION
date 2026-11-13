@@ -106,6 +106,7 @@ model Tenant {
 
   subscription Subscription?
   payments     Payment[]
+  deliveries   Delivery[]
   users        User[]
   branches     Branch[]
 
@@ -164,6 +165,46 @@ model Payment {
 
   @@index([tenantId, createdAt])
   @@map("payments")
+}
+
+enum DeliveryStatus {
+  /// Preparada: datos y vista previa, aún sin paquete
+  DRAFT
+  /// Paquete generado (se puede volver a descargar: es reproducible)
+  GENERATED
+  /// Entregada al cliente
+  DELIVERED
+}
+
+/// Entrega de un sistema a un cliente (ADR 044). Solo la plataforma la lee y escribe.
+model Delivery {
+  id             String         @id @default(uuid(7)) @db.Uuid
+  tenantId       String         @map("tenant_id") @db.Uuid
+  number         Int
+  systemName     String         @map("system_name")
+  deploymentMode DeploymentMode @map("deployment_mode")
+  /// Versión de la aplicación con la que se genera el paquete
+  appVersion     String         @map("app_version")
+  /// Dominio de la instalación independiente (DEDICATED / CUSTOM)
+  domain         String?
+  supportContact String         @map("support_contact")
+  notes          String?
+  /// Foto de la empresa al preparar la entrega: módulos, funciones, configuración, requisitos e integraciones pendientes (sin secretos)
+  manifest       Json
+  status         DeliveryStatus @default(DRAFT)
+  packageSha256  String?        @map("package_sha256") @db.Char(64)
+  packageBytes   Int?           @map("package_bytes")
+  generatedAt    DateTime?      @map("generated_at") @db.Timestamptz(3)
+  deliveredAt    DateTime?      @map("delivered_at") @db.Timestamptz(3)
+  createdById    String?        @map("created_by_id") @db.Uuid
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, number])
+  @@index([tenantId, createdAt])
+  @@map("deliveries")
 }
 
 model UsageCounter {

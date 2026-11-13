@@ -69,6 +69,15 @@ export const PaymentMethod = {
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]
 
 
+export const DeliveryStatus = {
+  DRAFT: 'DRAFT',
+  GENERATED: 'GENERATED',
+  DELIVERED: 'DELIVERED'
+} as const
+
+export type DeliveryStatus = (typeof DeliveryStatus)[keyof typeof DeliveryStatus]
+
+
 export const Role = {
   PLATFORM_ADMIN: 'PLATFORM_ADMIN',
   TENANT_ADMIN: 'TENANT_ADMIN',
