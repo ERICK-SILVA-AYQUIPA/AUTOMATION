@@ -55,8 +55,9 @@ const graph = createServer((req, res) => {
     if (req.method === 'GET' && m && !m[2]) return res.end(JSON.stringify({ id: m[1], display_phone_number: '+51 900 000 002', verified_name: 'Bodega Chatwoot', quality_rating: 'GREEN' }));
     if (req.method === 'POST' && m?.[2]) {
       const b = JSON.parse(body);
-      sent.push(b);
-      return res.end(JSON.stringify({ messaging_product: 'whatsapp', contacts: [{ input: b.to, wa_id: b.to }], messages: [{ id: `wamid.CW${stamp}${++seq}` }] }));
+      const id = `wamid.CW${stamp}${++seq}`;
+      sent.push({ ...b, id });
+      return res.end(JSON.stringify({ messaging_product: 'whatsapp', contacts: [{ input: b.to, wa_id: b.to }], messages: [{ id }] }));
     }
     res.statusCode = 404;
     res.end(JSON.stringify({ error: { message: 'Unknown path', code: 100 } }));
@@ -200,7 +201,7 @@ try {
   await step('El panel muestra la respuesta del agente y el asistente queda en pausa', async () => {
     await page.bringToFront();
     await page.getByText(AGENT_REPLY).waitFor({ timeout: 15_000 });
-    await page.getByText('Atención humana').waitFor({ timeout: 15_000 });
+    await page.locator('section').getByText('Atención humana').waitFor({ timeout: 15_000 });
     const c = await panelApi(`/conversations/${conversationId}`);
     const m = c.body.messages.find((x) => x.content === AGENT_REPLY);
     if (m?.senderType !== 'AGENT' || c.body.botStatus !== 'PAUSED') throw new Error(`Inesperado: ${JSON.stringify({ senderType: m?.senderType, bot: c.body.botStatus })}`);
@@ -219,7 +220,9 @@ try {
   });
 
   await step('El estado "leído" de WhatsApp llega a Chatwoot', async () => {
-    const wamid = `wamid.CW${stamp}1`;
+    // Id que Meta asignó a la respuesta del agente (si el asistente IA está activo, antes pudo salir su mensaje)
+    const wamid = sent.find((x) => x.text?.body === AGENT_REPLY)?.id;
+    if (!wamid) throw new Error('No se encontró el envío de la respuesta del agente');
     await postWebhook(webhookUrl, envelope({ statuses: [{ id: wamid, status: 'read', timestamp: String(Math.floor(Date.now() / 1000)), recipient_id: CUSTOMER }] }));
     // Chatwoot muestra el doble check de leído con el título "Read"/"Leído" en la burbuja
     await until('estado leído en Chatwoot', async () => {

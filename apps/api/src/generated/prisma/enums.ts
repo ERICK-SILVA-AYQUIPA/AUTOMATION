@@ -36,6 +36,27 @@ export const SubscriptionStatus = {
 export type SubscriptionStatus = (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus]
 
 
+export const BusinessType = {
+  RETAIL: 'RETAIL',
+  RESTAURANT: 'RESTAURANT',
+  DISTRIBUTOR: 'DISTRIBUTOR',
+  SERVICES: 'SERVICES',
+  PHARMACY: 'PHARMACY',
+  OTHER: 'OTHER'
+} as const
+
+export type BusinessType = (typeof BusinessType)[keyof typeof BusinessType]
+
+
+export const DeploymentMode = {
+  SAAS: 'SAAS',
+  DEDICATED: 'DEDICATED',
+  CUSTOM: 'CUSTOM'
+} as const
+
+export type DeploymentMode = (typeof DeploymentMode)[keyof typeof DeploymentMode]
+
+
 export const PaymentMethod = {
   YAPE: 'YAPE',
   PLIN: 'PLIN',

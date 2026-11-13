@@ -287,7 +287,7 @@ export class AuthService {
       where: { id: userId },
       select: {
         id: true, email: true, name: true, role: true, tenantId: true, emailVerifiedAt: true,
-        tenant: { select: { id: true, name: true, slug: true, currency: true, timezone: true, subscription: { select: { status: true, trialEndsAt: true, currentPeriodEnd: true, plan: { select: { code: true, name: true } } } } } },
+        tenant: { select: { id: true, name: true, slug: true, currency: true, timezone: true, enabledModules: true, logoUrl: true, brandColor: true, deploymentMode: true, subscription: { select: { status: true, trialEndsAt: true, currentPeriodEnd: true, plan: { select: { code: true, name: true } } } } } },
       },
     });
     const sub = u.tenant?.subscription;

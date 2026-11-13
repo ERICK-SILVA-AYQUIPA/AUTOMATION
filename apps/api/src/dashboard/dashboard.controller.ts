@@ -1,3 +1,4 @@
+import { RequireModule } from '../common/decorators/module.decorator.js';
 import { BadRequestException, Controller, Get, Query, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { z } from 'zod';
@@ -98,6 +99,7 @@ export class DashboardController {
   }
 
   /** Reporte de ventas por día (CSV) del rango indicado. */
+  @RequireModule('reports')
   @RequirePermission('reports:read')
   @Get('reports/sales.csv')
   async salesCsv(@TenantUser() p: TenantPrincipal, @Query({ schema: rangeSchema }) q: z.infer<typeof rangeSchema>, @Res() res: Response) {

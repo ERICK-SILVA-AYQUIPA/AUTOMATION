@@ -1,3 +1,4 @@
+import { RequireModule } from '../common/decorators/module.decorator.js';
 import {
   BadRequestException, Body, Controller, Delete, Get, HttpCode, NotFoundException, Param, Patch, Post, Query, Res, UploadedFile, UseInterceptors,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import {
 
 const uuid = { schema: z.uuid() };
 
+@RequireModule('catalog')
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly cats: CategoriesService) {}
@@ -48,6 +50,7 @@ export class CategoriesController {
   }
 }
 
+@RequireModule('catalog')
 @Controller('products')
 export class ProductsController {
   constructor(

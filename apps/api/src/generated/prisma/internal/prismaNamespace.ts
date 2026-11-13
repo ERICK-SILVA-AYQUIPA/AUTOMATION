@@ -420,6 +420,7 @@ export const ModelName = {
   OrderStatusHistory: 'OrderStatusHistory',
   WhatsappNumber: 'WhatsappNumber',
   Conversation: 'Conversation',
+  ConversationNote: 'ConversationNote',
   Message: 'Message',
   InboundEvent: 'InboundEvent',
   OutboundMessage: 'OutboundMessage',
@@ -444,7 +445,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "plan" | "tenant" | "subscription" | "payment" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog"
+    modelProps: "plan" | "tenant" | "subscription" | "payment" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "conversationNote" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2150,6 +2151,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ConversationNote: {
+      payload: Prisma.$ConversationNotePayload<ExtArgs>
+      fields: Prisma.ConversationNoteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ConversationNoteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConversationNotePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ConversationNoteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConversationNotePayload>
+        }
+        findFirst: {
+          args: Prisma.ConversationNoteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConversationNotePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ConversationNoteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConversationNotePayload>
+        }
+        findMany: {
+          args: Prisma.ConversationNoteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConversationNotePayload>[]
+        }
+        create: {
+          args: Prisma.ConversationNoteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConversationNotePayload>
+        }
+        createMany: {
+          args: Prisma.ConversationNoteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ConversationNoteCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConversationNotePayload>[]
+        }
+        delete: {
+          args: Prisma.ConversationNoteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConversationNotePayload>
+        }
+        update: {
+          args: Prisma.ConversationNoteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConversationNotePayload>
+        }
+        deleteMany: {
+          args: Prisma.ConversationNoteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ConversationNoteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ConversationNoteUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConversationNotePayload>[]
+        }
+        upsert: {
+          args: Prisma.ConversationNoteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConversationNotePayload>
+        }
+        aggregate: {
+          args: Prisma.ConversationNoteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateConversationNote>
+        }
+        groupBy: {
+          args: Prisma.ConversationNoteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ConversationNoteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ConversationNoteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ConversationNoteCountAggregateOutputType> | number
+        }
+      }
+    }
     Message: {
       payload: Prisma.$MessagePayload<ExtArgs>
       fields: Prisma.MessageFieldRefs
@@ -2876,6 +2951,19 @@ export const TenantScalarFieldEnum = {
   status: 'status',
   currency: 'currency',
   timezone: 'timezone',
+  legalName: 'legalName',
+  taxId: 'taxId',
+  country: 'country',
+  address: 'address',
+  phone: 'phone',
+  contactEmail: 'contactEmail',
+  businessType: 'businessType',
+  logoUrl: 'logoUrl',
+  brandColor: 'brandColor',
+  customDomain: 'customDomain',
+  deploymentMode: 'deploymentMode',
+  enabledModules: 'enabledModules',
+  templateKey: 'templateKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -3227,6 +3315,7 @@ export const ConversationScalarFieldEnum = {
   handoffReason: 'handoffReason',
   handoffAt: 'handoffAt',
   assignedUserId: 'assignedUserId',
+  tags: 'tags',
   chatwootConversationId: 'chatwootConversationId',
   difyConversationId: 'difyConversationId',
   context: 'context',
@@ -3236,6 +3325,18 @@ export const ConversationScalarFieldEnum = {
 } as const
 
 export type ConversationScalarFieldEnum = (typeof ConversationScalarFieldEnum)[keyof typeof ConversationScalarFieldEnum]
+
+
+export const ConversationNoteScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  conversationId: 'conversationId',
+  authorId: 'authorId',
+  body: 'body',
+  createdAt: 'createdAt'
+} as const
+
+export type ConversationNoteScalarFieldEnum = (typeof ConversationNoteScalarFieldEnum)[keyof typeof ConversationNoteScalarFieldEnum]
 
 
 export const MessageScalarFieldEnum = {
@@ -3517,6 +3618,34 @@ export type EnumTenantStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'TenantStatus[]'
  */
 export type ListEnumTenantStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TenantStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'BusinessType'
+ */
+export type EnumBusinessTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BusinessType'>
+    
+
+
+/**
+ * Reference to a field of type 'BusinessType[]'
+ */
+export type ListEnumBusinessTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BusinessType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DeploymentMode'
+ */
+export type EnumDeploymentModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeploymentMode'>
+    
+
+
+/**
+ * Reference to a field of type 'DeploymentMode[]'
+ */
+export type ListEnumDeploymentModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeploymentMode[]'>
     
 
 
@@ -4001,6 +4130,7 @@ export type GlobalOmitConfig = {
   orderStatusHistory?: Prisma.OrderStatusHistoryOmit
   whatsappNumber?: Prisma.WhatsappNumberOmit
   conversation?: Prisma.ConversationOmit
+  conversationNote?: Prisma.ConversationNoteOmit
   message?: Prisma.MessageOmit
   inboundEvent?: Prisma.InboundEventOmit
   outboundMessage?: Prisma.OutboundMessageOmit

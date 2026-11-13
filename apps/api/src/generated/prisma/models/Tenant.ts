@@ -31,6 +31,18 @@ export type TenantMinAggregateOutputType = {
   status: $Enums.TenantStatus | null
   currency: string | null
   timezone: string | null
+  legalName: string | null
+  taxId: string | null
+  country: string | null
+  address: string | null
+  phone: string | null
+  contactEmail: string | null
+  businessType: $Enums.BusinessType | null
+  logoUrl: string | null
+  brandColor: string | null
+  customDomain: string | null
+  deploymentMode: $Enums.DeploymentMode | null
+  templateKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -42,6 +54,18 @@ export type TenantMaxAggregateOutputType = {
   status: $Enums.TenantStatus | null
   currency: string | null
   timezone: string | null
+  legalName: string | null
+  taxId: string | null
+  country: string | null
+  address: string | null
+  phone: string | null
+  contactEmail: string | null
+  businessType: $Enums.BusinessType | null
+  logoUrl: string | null
+  brandColor: string | null
+  customDomain: string | null
+  deploymentMode: $Enums.DeploymentMode | null
+  templateKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -53,6 +77,19 @@ export type TenantCountAggregateOutputType = {
   status: number
   currency: number
   timezone: number
+  legalName: number
+  taxId: number
+  country: number
+  address: number
+  phone: number
+  contactEmail: number
+  businessType: number
+  logoUrl: number
+  brandColor: number
+  customDomain: number
+  deploymentMode: number
+  enabledModules: number
+  templateKey: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -66,6 +103,18 @@ export type TenantMinAggregateInputType = {
   status?: true
   currency?: true
   timezone?: true
+  legalName?: true
+  taxId?: true
+  country?: true
+  address?: true
+  phone?: true
+  contactEmail?: true
+  businessType?: true
+  logoUrl?: true
+  brandColor?: true
+  customDomain?: true
+  deploymentMode?: true
+  templateKey?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -77,6 +126,18 @@ export type TenantMaxAggregateInputType = {
   status?: true
   currency?: true
   timezone?: true
+  legalName?: true
+  taxId?: true
+  country?: true
+  address?: true
+  phone?: true
+  contactEmail?: true
+  businessType?: true
+  logoUrl?: true
+  brandColor?: true
+  customDomain?: true
+  deploymentMode?: true
+  templateKey?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -88,6 +149,19 @@ export type TenantCountAggregateInputType = {
   status?: true
   currency?: true
   timezone?: true
+  legalName?: true
+  taxId?: true
+  country?: true
+  address?: true
+  phone?: true
+  contactEmail?: true
+  businessType?: true
+  logoUrl?: true
+  brandColor?: true
+  customDomain?: true
+  deploymentMode?: true
+  enabledModules?: true
+  templateKey?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -172,6 +246,19 @@ export type TenantGroupByOutputType = {
   status: $Enums.TenantStatus
   currency: string
   timezone: string
+  legalName: string | null
+  taxId: string | null
+  country: string
+  address: string | null
+  phone: string | null
+  contactEmail: string | null
+  businessType: $Enums.BusinessType
+  logoUrl: string | null
+  brandColor: string | null
+  customDomain: string | null
+  deploymentMode: $Enums.DeploymentMode
+  enabledModules: string[]
+  templateKey: string | null
   createdAt: Date
   updatedAt: Date
   _count: TenantCountAggregateOutputType | null
@@ -204,6 +291,19 @@ export type TenantWhereInput = {
   status?: Prisma.EnumTenantStatusFilter<"Tenant"> | $Enums.TenantStatus
   currency?: Prisma.StringFilter<"Tenant"> | string
   timezone?: Prisma.StringFilter<"Tenant"> | string
+  legalName?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  taxId?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  country?: Prisma.StringFilter<"Tenant"> | string
+  address?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  phone?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  contactEmail?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  businessType?: Prisma.EnumBusinessTypeFilter<"Tenant"> | $Enums.BusinessType
+  logoUrl?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  brandColor?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  customDomain?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  deploymentMode?: Prisma.EnumDeploymentModeFilter<"Tenant"> | $Enums.DeploymentMode
+  enabledModules?: Prisma.StringNullableListFilter<"Tenant">
+  templateKey?: Prisma.StringNullableFilter<"Tenant"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   subscription?: Prisma.XOR<Prisma.SubscriptionNullableScalarRelationFilter, Prisma.SubscriptionWhereInput> | null
@@ -219,6 +319,19 @@ export type TenantOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
+  legalName?: Prisma.SortOrderInput | Prisma.SortOrder
+  taxId?: Prisma.SortOrderInput | Prisma.SortOrder
+  country?: Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  contactEmail?: Prisma.SortOrderInput | Prisma.SortOrder
+  businessType?: Prisma.SortOrder
+  logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  brandColor?: Prisma.SortOrderInput | Prisma.SortOrder
+  customDomain?: Prisma.SortOrderInput | Prisma.SortOrder
+  deploymentMode?: Prisma.SortOrder
+  enabledModules?: Prisma.SortOrder
+  templateKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   subscription?: Prisma.SubscriptionOrderByWithRelationInput
@@ -230,6 +343,7 @@ export type TenantOrderByWithRelationInput = {
 export type TenantWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   slug?: string
+  customDomain?: string
   AND?: Prisma.TenantWhereInput | Prisma.TenantWhereInput[]
   OR?: Prisma.TenantWhereInput[]
   NOT?: Prisma.TenantWhereInput | Prisma.TenantWhereInput[]
@@ -237,13 +351,25 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumTenantStatusFilter<"Tenant"> | $Enums.TenantStatus
   currency?: Prisma.StringFilter<"Tenant"> | string
   timezone?: Prisma.StringFilter<"Tenant"> | string
+  legalName?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  taxId?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  country?: Prisma.StringFilter<"Tenant"> | string
+  address?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  phone?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  contactEmail?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  businessType?: Prisma.EnumBusinessTypeFilter<"Tenant"> | $Enums.BusinessType
+  logoUrl?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  brandColor?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  deploymentMode?: Prisma.EnumDeploymentModeFilter<"Tenant"> | $Enums.DeploymentMode
+  enabledModules?: Prisma.StringNullableListFilter<"Tenant">
+  templateKey?: Prisma.StringNullableFilter<"Tenant"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   subscription?: Prisma.XOR<Prisma.SubscriptionNullableScalarRelationFilter, Prisma.SubscriptionWhereInput> | null
   payments?: Prisma.PaymentListRelationFilter
   users?: Prisma.UserListRelationFilter
   branches?: Prisma.BranchListRelationFilter
-}, "id" | "slug">
+}, "id" | "slug" | "customDomain">
 
 export type TenantOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -252,6 +378,19 @@ export type TenantOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
+  legalName?: Prisma.SortOrderInput | Prisma.SortOrder
+  taxId?: Prisma.SortOrderInput | Prisma.SortOrder
+  country?: Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  contactEmail?: Prisma.SortOrderInput | Prisma.SortOrder
+  businessType?: Prisma.SortOrder
+  logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  brandColor?: Prisma.SortOrderInput | Prisma.SortOrder
+  customDomain?: Prisma.SortOrderInput | Prisma.SortOrder
+  deploymentMode?: Prisma.SortOrder
+  enabledModules?: Prisma.SortOrder
+  templateKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TenantCountOrderByAggregateInput
@@ -269,6 +408,19 @@ export type TenantScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumTenantStatusWithAggregatesFilter<"Tenant"> | $Enums.TenantStatus
   currency?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
   timezone?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
+  legalName?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  taxId?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  country?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
+  address?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  phone?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  contactEmail?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  businessType?: Prisma.EnumBusinessTypeWithAggregatesFilter<"Tenant"> | $Enums.BusinessType
+  logoUrl?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  brandColor?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  customDomain?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  deploymentMode?: Prisma.EnumDeploymentModeWithAggregatesFilter<"Tenant"> | $Enums.DeploymentMode
+  enabledModules?: Prisma.StringNullableListFilter<"Tenant">
+  templateKey?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
 }
@@ -280,6 +432,19 @@ export type TenantCreateInput = {
   status?: $Enums.TenantStatus
   currency?: string
   timezone?: string
+  legalName?: string | null
+  taxId?: string | null
+  country?: string
+  address?: string | null
+  phone?: string | null
+  contactEmail?: string | null
+  businessType?: $Enums.BusinessType
+  logoUrl?: string | null
+  brandColor?: string | null
+  customDomain?: string | null
+  deploymentMode?: $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
+  templateKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
@@ -295,6 +460,19 @@ export type TenantUncheckedCreateInput = {
   status?: $Enums.TenantStatus
   currency?: string
   timezone?: string
+  legalName?: string | null
+  taxId?: string | null
+  country?: string
+  address?: string | null
+  phone?: string | null
+  contactEmail?: string | null
+  businessType?: $Enums.BusinessType
+  logoUrl?: string | null
+  brandColor?: string | null
+  customDomain?: string | null
+  deploymentMode?: $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
+  templateKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
@@ -310,6 +488,19 @@ export type TenantUpdateInput = {
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessType?: Prisma.EnumBusinessTypeFieldUpdateOperationsInput | $Enums.BusinessType
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brandColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
@@ -325,6 +516,19 @@ export type TenantUncheckedUpdateInput = {
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessType?: Prisma.EnumBusinessTypeFieldUpdateOperationsInput | $Enums.BusinessType
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brandColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
@@ -340,6 +544,19 @@ export type TenantCreateManyInput = {
   status?: $Enums.TenantStatus
   currency?: string
   timezone?: string
+  legalName?: string | null
+  taxId?: string | null
+  country?: string
+  address?: string | null
+  phone?: string | null
+  contactEmail?: string | null
+  businessType?: $Enums.BusinessType
+  logoUrl?: string | null
+  brandColor?: string | null
+  customDomain?: string | null
+  deploymentMode?: $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
+  templateKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -351,6 +568,19 @@ export type TenantUpdateManyMutationInput = {
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessType?: Prisma.EnumBusinessTypeFieldUpdateOperationsInput | $Enums.BusinessType
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brandColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -362,8 +592,29 @@ export type TenantUncheckedUpdateManyInput = {
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessType?: Prisma.EnumBusinessTypeFieldUpdateOperationsInput | $Enums.BusinessType
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brandColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type StringNullableListFilter<$PrismaModel = never> = {
+  equals?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
+  has?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
+  hasEvery?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  hasSome?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  isEmpty?: boolean
 }
 
 export type TenantCountOrderByAggregateInput = {
@@ -373,6 +624,19 @@ export type TenantCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
+  legalName?: Prisma.SortOrder
+  taxId?: Prisma.SortOrder
+  country?: Prisma.SortOrder
+  address?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  contactEmail?: Prisma.SortOrder
+  businessType?: Prisma.SortOrder
+  logoUrl?: Prisma.SortOrder
+  brandColor?: Prisma.SortOrder
+  customDomain?: Prisma.SortOrder
+  deploymentMode?: Prisma.SortOrder
+  enabledModules?: Prisma.SortOrder
+  templateKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -384,6 +648,18 @@ export type TenantMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
+  legalName?: Prisma.SortOrder
+  taxId?: Prisma.SortOrder
+  country?: Prisma.SortOrder
+  address?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  contactEmail?: Prisma.SortOrder
+  businessType?: Prisma.SortOrder
+  logoUrl?: Prisma.SortOrder
+  brandColor?: Prisma.SortOrder
+  customDomain?: Prisma.SortOrder
+  deploymentMode?: Prisma.SortOrder
+  templateKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -395,6 +671,18 @@ export type TenantMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
+  legalName?: Prisma.SortOrder
+  taxId?: Prisma.SortOrder
+  country?: Prisma.SortOrder
+  address?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  contactEmail?: Prisma.SortOrder
+  businessType?: Prisma.SortOrder
+  logoUrl?: Prisma.SortOrder
+  brandColor?: Prisma.SortOrder
+  customDomain?: Prisma.SortOrder
+  deploymentMode?: Prisma.SortOrder
+  templateKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -409,8 +697,29 @@ export type TenantNullableScalarRelationFilter = {
   isNot?: Prisma.TenantWhereInput | null
 }
 
+export type TenantCreateenabledModulesInput = {
+  set: string[]
+}
+
 export type EnumTenantStatusFieldUpdateOperationsInput = {
   set?: $Enums.TenantStatus
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
+}
+
+export type EnumBusinessTypeFieldUpdateOperationsInput = {
+  set?: $Enums.BusinessType
+}
+
+export type EnumDeploymentModeFieldUpdateOperationsInput = {
+  set?: $Enums.DeploymentMode
+}
+
+export type TenantUpdateenabledModulesInput = {
+  set?: string[]
+  push?: string | string[]
 }
 
 export type TenantCreateNestedOneWithoutSubscriptionInput = {
@@ -478,6 +787,19 @@ export type TenantCreateWithoutSubscriptionInput = {
   status?: $Enums.TenantStatus
   currency?: string
   timezone?: string
+  legalName?: string | null
+  taxId?: string | null
+  country?: string
+  address?: string | null
+  phone?: string | null
+  contactEmail?: string | null
+  businessType?: $Enums.BusinessType
+  logoUrl?: string | null
+  brandColor?: string | null
+  customDomain?: string | null
+  deploymentMode?: $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
+  templateKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
@@ -492,6 +814,19 @@ export type TenantUncheckedCreateWithoutSubscriptionInput = {
   status?: $Enums.TenantStatus
   currency?: string
   timezone?: string
+  legalName?: string | null
+  taxId?: string | null
+  country?: string
+  address?: string | null
+  phone?: string | null
+  contactEmail?: string | null
+  businessType?: $Enums.BusinessType
+  logoUrl?: string | null
+  brandColor?: string | null
+  customDomain?: string | null
+  deploymentMode?: $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
+  templateKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
@@ -522,6 +857,19 @@ export type TenantUpdateWithoutSubscriptionInput = {
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessType?: Prisma.EnumBusinessTypeFieldUpdateOperationsInput | $Enums.BusinessType
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brandColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
@@ -536,6 +884,19 @@ export type TenantUncheckedUpdateWithoutSubscriptionInput = {
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessType?: Prisma.EnumBusinessTypeFieldUpdateOperationsInput | $Enums.BusinessType
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brandColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
@@ -550,6 +911,19 @@ export type TenantCreateWithoutPaymentsInput = {
   status?: $Enums.TenantStatus
   currency?: string
   timezone?: string
+  legalName?: string | null
+  taxId?: string | null
+  country?: string
+  address?: string | null
+  phone?: string | null
+  contactEmail?: string | null
+  businessType?: $Enums.BusinessType
+  logoUrl?: string | null
+  brandColor?: string | null
+  customDomain?: string | null
+  deploymentMode?: $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
+  templateKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
@@ -564,6 +938,19 @@ export type TenantUncheckedCreateWithoutPaymentsInput = {
   status?: $Enums.TenantStatus
   currency?: string
   timezone?: string
+  legalName?: string | null
+  taxId?: string | null
+  country?: string
+  address?: string | null
+  phone?: string | null
+  contactEmail?: string | null
+  businessType?: $Enums.BusinessType
+  logoUrl?: string | null
+  brandColor?: string | null
+  customDomain?: string | null
+  deploymentMode?: $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
+  templateKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
@@ -594,6 +981,19 @@ export type TenantUpdateWithoutPaymentsInput = {
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessType?: Prisma.EnumBusinessTypeFieldUpdateOperationsInput | $Enums.BusinessType
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brandColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
@@ -608,6 +1008,19 @@ export type TenantUncheckedUpdateWithoutPaymentsInput = {
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessType?: Prisma.EnumBusinessTypeFieldUpdateOperationsInput | $Enums.BusinessType
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brandColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
@@ -622,6 +1035,19 @@ export type TenantCreateWithoutUsersInput = {
   status?: $Enums.TenantStatus
   currency?: string
   timezone?: string
+  legalName?: string | null
+  taxId?: string | null
+  country?: string
+  address?: string | null
+  phone?: string | null
+  contactEmail?: string | null
+  businessType?: $Enums.BusinessType
+  logoUrl?: string | null
+  brandColor?: string | null
+  customDomain?: string | null
+  deploymentMode?: $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
+  templateKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
@@ -636,6 +1062,19 @@ export type TenantUncheckedCreateWithoutUsersInput = {
   status?: $Enums.TenantStatus
   currency?: string
   timezone?: string
+  legalName?: string | null
+  taxId?: string | null
+  country?: string
+  address?: string | null
+  phone?: string | null
+  contactEmail?: string | null
+  businessType?: $Enums.BusinessType
+  logoUrl?: string | null
+  brandColor?: string | null
+  customDomain?: string | null
+  deploymentMode?: $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
+  templateKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
@@ -666,6 +1105,19 @@ export type TenantUpdateWithoutUsersInput = {
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessType?: Prisma.EnumBusinessTypeFieldUpdateOperationsInput | $Enums.BusinessType
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brandColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
@@ -680,6 +1132,19 @@ export type TenantUncheckedUpdateWithoutUsersInput = {
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessType?: Prisma.EnumBusinessTypeFieldUpdateOperationsInput | $Enums.BusinessType
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brandColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
@@ -694,6 +1159,19 @@ export type TenantCreateWithoutBranchesInput = {
   status?: $Enums.TenantStatus
   currency?: string
   timezone?: string
+  legalName?: string | null
+  taxId?: string | null
+  country?: string
+  address?: string | null
+  phone?: string | null
+  contactEmail?: string | null
+  businessType?: $Enums.BusinessType
+  logoUrl?: string | null
+  brandColor?: string | null
+  customDomain?: string | null
+  deploymentMode?: $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
+  templateKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
@@ -708,6 +1186,19 @@ export type TenantUncheckedCreateWithoutBranchesInput = {
   status?: $Enums.TenantStatus
   currency?: string
   timezone?: string
+  legalName?: string | null
+  taxId?: string | null
+  country?: string
+  address?: string | null
+  phone?: string | null
+  contactEmail?: string | null
+  businessType?: $Enums.BusinessType
+  logoUrl?: string | null
+  brandColor?: string | null
+  customDomain?: string | null
+  deploymentMode?: $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
+  templateKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
@@ -738,6 +1229,19 @@ export type TenantUpdateWithoutBranchesInput = {
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessType?: Prisma.EnumBusinessTypeFieldUpdateOperationsInput | $Enums.BusinessType
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brandColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
@@ -752,6 +1256,19 @@ export type TenantUncheckedUpdateWithoutBranchesInput = {
   status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessType?: Prisma.EnumBusinessTypeFieldUpdateOperationsInput | $Enums.BusinessType
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brandColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
@@ -815,6 +1332,19 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   status?: boolean
   currency?: boolean
   timezone?: boolean
+  legalName?: boolean
+  taxId?: boolean
+  country?: boolean
+  address?: boolean
+  phone?: boolean
+  contactEmail?: boolean
+  businessType?: boolean
+  logoUrl?: boolean
+  brandColor?: boolean
+  customDomain?: boolean
+  deploymentMode?: boolean
+  enabledModules?: boolean
+  templateKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   subscription?: boolean | Prisma.Tenant$subscriptionArgs<ExtArgs>
@@ -831,6 +1361,19 @@ export type TenantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   status?: boolean
   currency?: boolean
   timezone?: boolean
+  legalName?: boolean
+  taxId?: boolean
+  country?: boolean
+  address?: boolean
+  phone?: boolean
+  contactEmail?: boolean
+  businessType?: boolean
+  logoUrl?: boolean
+  brandColor?: boolean
+  customDomain?: boolean
+  deploymentMode?: boolean
+  enabledModules?: boolean
+  templateKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["tenant"]>
@@ -842,6 +1385,19 @@ export type TenantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   status?: boolean
   currency?: boolean
   timezone?: boolean
+  legalName?: boolean
+  taxId?: boolean
+  country?: boolean
+  address?: boolean
+  phone?: boolean
+  contactEmail?: boolean
+  businessType?: boolean
+  logoUrl?: boolean
+  brandColor?: boolean
+  customDomain?: boolean
+  deploymentMode?: boolean
+  enabledModules?: boolean
+  templateKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["tenant"]>
@@ -853,11 +1409,24 @@ export type TenantSelectScalar = {
   status?: boolean
   currency?: boolean
   timezone?: boolean
+  legalName?: boolean
+  taxId?: boolean
+  country?: boolean
+  address?: boolean
+  phone?: boolean
+  contactEmail?: boolean
+  businessType?: boolean
+  logoUrl?: boolean
+  brandColor?: boolean
+  customDomain?: boolean
+  deploymentMode?: boolean
+  enabledModules?: boolean
+  templateKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "status" | "currency" | "timezone" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
+export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "status" | "currency" | "timezone" | "legalName" | "taxId" | "country" | "address" | "phone" | "contactEmail" | "businessType" | "logoUrl" | "brandColor" | "customDomain" | "deploymentMode" | "enabledModules" | "templateKey" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
 export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   subscription?: boolean | Prisma.Tenant$subscriptionArgs<ExtArgs>
   payments?: boolean | Prisma.Tenant$paymentsArgs<ExtArgs>
@@ -883,6 +1452,25 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     status: $Enums.TenantStatus
     currency: string
     timezone: string
+    /**
+     * Perfil de la empresa (lo edita la propia empresa)
+     */
+    legalName: string | null
+    taxId: string | null
+    country: string
+    address: string | null
+    phone: string | null
+    contactEmail: string | null
+    businessType: $Enums.BusinessType
+    logoUrl: string | null
+    brandColor: string | null
+    /**
+     * Solo la plataforma: dominio, modalidad, módulos y plantilla
+     */
+    customDomain: string | null
+    deploymentMode: $Enums.DeploymentMode
+    enabledModules: string[]
+    templateKey: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["tenant"]>
@@ -1318,6 +1906,19 @@ export interface TenantFieldRefs {
   readonly status: Prisma.FieldRef<"Tenant", 'TenantStatus'>
   readonly currency: Prisma.FieldRef<"Tenant", 'String'>
   readonly timezone: Prisma.FieldRef<"Tenant", 'String'>
+  readonly legalName: Prisma.FieldRef<"Tenant", 'String'>
+  readonly taxId: Prisma.FieldRef<"Tenant", 'String'>
+  readonly country: Prisma.FieldRef<"Tenant", 'String'>
+  readonly address: Prisma.FieldRef<"Tenant", 'String'>
+  readonly phone: Prisma.FieldRef<"Tenant", 'String'>
+  readonly contactEmail: Prisma.FieldRef<"Tenant", 'String'>
+  readonly businessType: Prisma.FieldRef<"Tenant", 'BusinessType'>
+  readonly logoUrl: Prisma.FieldRef<"Tenant", 'String'>
+  readonly brandColor: Prisma.FieldRef<"Tenant", 'String'>
+  readonly customDomain: Prisma.FieldRef<"Tenant", 'String'>
+  readonly deploymentMode: Prisma.FieldRef<"Tenant", 'DeploymentMode'>
+  readonly enabledModules: Prisma.FieldRef<"Tenant", 'String[]'>
+  readonly templateKey: Prisma.FieldRef<"Tenant", 'String'>
   readonly createdAt: Prisma.FieldRef<"Tenant", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Tenant", 'DateTime'>
 }

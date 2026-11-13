@@ -52,6 +52,24 @@ model Plan {
   @@map("plans")
 }
 
+enum BusinessType {
+  RETAIL
+  RESTAURANT
+  DISTRIBUTOR
+  SERVICES
+  PHARMACY
+  OTHER
+}
+
+enum DeploymentMode {
+  /// Empresa dentro de la plataforma central (modalidad A)
+  SAAS
+  /// Instancia propia con su dominio y base de datos (modalidad B)
+  DEDICATED
+  /// Núcleo común con módulos y automatizaciones adaptados (modalidad C)
+  CUSTOM
+}
+
 model Tenant {
   id           String       @id @default(uuid(7)) @db.Uuid
   name         String
@@ -59,6 +77,21 @@ model Tenant {
   status       TenantStatus @default(ACTIVE)
   currency     String       @default("PEN") @db.Char(3)
   timezone     String       @default("America/Lima")
+  /// Perfil de la empresa (lo edita la propia empresa)
+  legalName    String?      @map("legal_name")
+  taxId        String?      @map("tax_id")
+  country      String       @default("PE") @db.Char(2)
+  address      String?
+  phone        String?
+  contactEmail String?      @map("contact_email")
+  businessType BusinessType @default(RETAIL) @map("business_type")
+  logoUrl      String?      @map("logo_url")
+  brandColor   String?      @map("brand_color")
+  /// Solo la plataforma: dominio, modalidad, módulos y plantilla
+  customDomain String?      @unique @map("custom_domain")
+  deploymentMode DeploymentMode @default(SAAS) @map("deployment_mode")
+  enabledModules String[]   @default(["conversations", "ai", "catalog", "inventory", "orders", "customers", "reports", "automations"]) @map("enabled_modules")
+  templateKey  String?      @map("template_key")
   createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
 
@@ -612,6 +645,8 @@ model Conversation {
   handoffReason          String?            @map("handoff_reason")
   handoffAt              DateTime?          @map("handoff_at") @db.Timestamptz(3)
   assignedUserId         String?            @map("assigned_user_id") @db.Uuid
+  /// Etiquetas libres de la empresa (p. ej. "mayorista", "urgente")
+  tags                   String[]           @default([])
   chatwootConversationId Int?               @map("chatwoot_conversation_id")
   difyConversationId     String?            @map("dify_conversation_id")
   /// Memoria de la conversación: productos consultados, carrito, etc.
@@ -624,10 +659,26 @@ model Conversation {
   whatsappNumber WhatsappNumber @relation(fields: [whatsappNumberId], references: [id])
   messages       Message[]
   orders         Order[]
+  notes          ConversationNote[]
 
   @@index([tenantId, status, lastMessageAt])
   @@index([tenantId, customerId])
   @@map("conversations")
+}
+
+/// Nota interna del equipo: nunca se envía al cliente ni a la IA
+model ConversationNote {
+  id             String   @id @default(uuid(7)) @db.Uuid
+  tenantId       String   @map("tenant_id") @db.Uuid
+  conversationId String   @map("conversation_id") @db.Uuid
+  authorId       String?  @map("author_id") @db.Uuid
+  body           String
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, conversationId, createdAt])
+  @@map("conversation_notes")
 }
 
 enum MessageDirection {

@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Building2, Search, Wallet } from 'lucide-react';
+import { Building2, Eye, Search, Wallet } from 'lucide-react';
 import { api } from '@/lib/api';
-import { date, money, num } from '@/lib/format';
+import { PAYMENT_METHOD, date, money, num } from '@/lib/format';
+import { TenantDetailDialog } from './tenant-detail';
+import { PlansEditor } from './plans-editor';
 import type { SubscriptionAccess } from '@/lib/types';
-import { Badge, Button, Card, Dialog, EmptyState, ErrorBox, Field, Input, Loading, PageHeader, Pagination, Select, StatCard, Table, Td, Textarea, Th } from '@/components/ui';
+import { Badge, Button, Card, Dialog, EmptyState, ErrorBox, Field, Input, Loading, PageHeader, Pagination, Select, StatCard, Table, Td, Textarea, Th, cn } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
 import { RequirePermission } from '@/components/guard';
 
@@ -14,11 +16,19 @@ interface Tenant {
   id: string; name: string; slug: string; status: 'ACTIVE' | 'SUSPENDED'; createdAt: string; currency: string;
   subscription: { status: string; trialEndsAt: string | null; currentPeriodEnd: string; plan: { code: string; name: string }; access: SubscriptionAccess } | null; _count: { users: number };
 }
-interface Metrics { tenants: { total: number; active: number; suspended: number }; activeUsers: number; subscriptions: { plan: string; status: string; count: number }[]; last30Days: { orders: number; conversations: number } }
+interface Revenue { currency: string; amount: string; payments: number }
+interface Metrics {
+  tenants: { total: number; active: number; suspended: number }; activeUsers: number; pendingRenewals: number;
+  subscriptions: Record<SubscriptionAccess['state'], number> & { byPlan: Record<string, number> };
+  revenue: { thisMonth: Revenue[]; last30Days: Revenue[] };
+  ai: { period: string; replies: number; tokens: number };
+  last30Days: { messages: number; inboundMessages: number; orders: number; conversations: number; automations: { sent: number; pending: number; failed: number } };
+  errors: { whatsappNumbers: number; inboundEventsFailed: number; automationsFailed: number };
+}
+const revenueText = (r: Revenue[]) => (r.length ? r.map((x) => money(x.amount, x.currency)).join(' + ') : money(0, 'PEN'));
 const PLANS = [{ code: 'BASIC', name: 'Básico' }, { code: 'PROFESSIONAL', name: 'Profesional' }, { code: 'ENTERPRISE', name: 'Empresarial' }];
 interface PlanRow { code: string; name: string; priceMonthly: string; currency: string }
 interface Payment { id: string; amount: string; currency: string; months: number; method: string; reference: string | null; paidAt: string; periodStart: string; periodEnd: string; plan: { code: string; name: string } }
-const METHODS: Record<string, string> = { YAPE: 'Yape', PLIN: 'Plin', BANK_TRANSFER: 'Transferencia', CASH: 'Efectivo', OTHER: 'Otro' };
 const ACCESS: Record<SubscriptionAccess['state'], { label: string; tone: 'info' | 'success' | 'warning' | 'danger' }> = {
   TRIAL: { label: 'Prueba', tone: 'info' },
   ACTIVE: { label: 'Pagado', tone: 'success' },
@@ -111,7 +121,7 @@ function PaymentDialog({ tenant, onClose, onDone }: { tenant: Tenant | null; onC
           </Field>
           <Field label="Medio">
             <Select value={form.method} onChange={(e) => setForm({ ...form, method: e.target.value })}>
-              {Object.entries(METHODS).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+              {Object.entries(PAYMENT_METHOD).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
             </Select>
           </Field>
         </div>
@@ -132,7 +142,7 @@ function PaymentDialog({ tenant, onClose, onDone }: { tenant: Tenant | null; onC
                   <Td>{p.plan.name} · {p.months} {p.months === 1 ? 'mes' : 'meses'}</Td>
                   <Td className="text-muted">{date(p.periodStart)} – {date(p.periodEnd)}</Td>
                   <Td className="text-right tabular-nums">{money(p.amount, p.currency)}</Td>
-                  <Td>{METHODS[p.method] ?? p.method}{p.reference && <span className="block text-xs text-muted">{p.reference}</span>}</Td>
+                  <Td>{PAYMENT_METHOD[p.method] ?? p.method}{p.reference && <span className="block text-xs text-muted">{p.reference}</span>}</Td>
                 </tr>
               ))}
             </tbody>
@@ -161,11 +171,14 @@ function Platform() {
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
   const [billing, setBilling] = useState<Tenant | null>(null);
+  const [detail, setDetail] = useState<string | null>(null);
+  const [tab, setTab] = useState<'tenants' | 'plans'>('tenants');
   useEffect(() => {
     const t = setTimeout(() => { setDq(q.trim()); setPage(1); }, 300);
     return () => clearTimeout(t);
   }, [q]);
   const metrics = useQuery({ queryKey: ['platform-metrics'], queryFn: () => api<Metrics>('/platform/metrics') });
+  const plans = useQuery({ queryKey: ['platform-plans'], queryFn: () => api<PlanRow[]>('/platform/plans') });
   const list = useQuery({
     queryKey: ['platform-tenants', dq, status, page],
     queryFn: () => api<{ items: Tenant[]; total: number; page: number; pageSize: number }>('/platform/tenants', { query: { q: dq, status, page, pageSize: 20 } }),
@@ -209,11 +222,22 @@ function Platform() {
       {m && (
         <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard label="Empresas" value={num(m.tenants.total)} hint={`${num(m.tenants.active)} activas · ${num(m.tenants.suspended)} suspendidas`} />
+          <StatCard label="Suscripciones" value={`${num(m.subscriptions.ACTIVE)} pagadas`} hint={`${num(m.subscriptions.TRIAL)} en prueba · ${num(m.subscriptions.CANCELED)} canceladas`} />
+          <StatCard label="Por renovar" value={num(m.pendingRenewals)} tone={m.pendingRenewals ? 'warning' : undefined} hint={`${num(m.subscriptions.GRACE)} en gracia · ${num(m.subscriptions.EXPIRED)} en solo lectura`} />
+          <StatCard label="Ingresos del mes" value={revenueText(m.revenue.thisMonth)} hint={`30 días: ${revenueText(m.revenue.last30Days)} · pagos registrados a mano`} />
           <StatCard label="Usuarios activos" value={num(m.activeUsers)} />
-          <StatCard label="Pedidos (30 días)" value={num(m.last30Days.orders)} />
-          <StatCard label="Conversaciones (30 días)" value={num(m.last30Days.conversations)} />
+          <StatCard label="Mensajes (30 días)" value={num(m.last30Days.messages)} hint={`${num(m.last30Days.inboundMessages)} recibidos · ${num(m.last30Days.conversations)} conversaciones nuevas · ${num(m.last30Days.orders)} pedidos`} />
+          <StatCard label={`IA (${m.ai.period})`} value={`${num(m.ai.replies)} respuestas`} hint={`${num(m.ai.tokens)} tokens`} />
+          <StatCard label="Errores" value={num(m.errors.whatsappNumbers + m.errors.inboundEventsFailed + m.errors.automationsFailed)} tone={m.errors.whatsappNumbers + m.errors.inboundEventsFailed + m.errors.automationsFailed ? 'danger' : undefined}
+            hint={`${num(m.errors.whatsappNumbers)} números de WhatsApp con fallo · ${num(m.errors.inboundEventsFailed)} mensajes sin procesar · ${num(m.errors.automationsFailed)} automatizaciones fallidas (30 días)`} />
         </div>
       )}
+      <div className="mb-4 flex gap-1 text-sm" role="tablist">
+        {([['tenants', 'Empresas'], ['plans', 'Planes y precios']] as const).map(([v, l]) => (
+          <button key={v} type="button" role="tab" aria-selected={tab === v} onClick={() => setTab(v)} className={cn('rounded-md px-3 py-1.5', tab === v ? 'bg-surface-2 font-medium text-text' : 'text-muted hover:text-text')}>{l}</button>
+        ))}
+      </div>
+      {tab === 'plans' ? <PlansEditor /> : (
       <Card>
         <div className="flex flex-col gap-2 border-b border-border p-3 sm:flex-row">
           <div className="relative flex-1">
@@ -234,10 +258,10 @@ function Platform() {
               <tbody>
                 {list.data.items.map((t) => (
                   <tr key={t.id}>
-                    <Td><span className="font-medium">{t.name}</span><span className="block text-xs text-muted">{t.slug}</span></Td>
+                    <Td><button type="button" onClick={() => setDetail(t.id)} className="text-left font-medium hover:underline">{t.name}</button><span className="block text-xs text-muted">{t.slug}</span></Td>
                     <Td>
                       <Select className="h-8 w-36" value={t.subscription?.plan.code ?? ''} onChange={(e) => setPlan(t, e.target.value)} aria-label={`Plan de ${t.name}`}>
-                        {PLANS.map((p) => <option key={p.code} value={p.code}>{p.name}</option>)}
+                        {(plans.data ?? PLANS).map((p) => <option key={p.code} value={p.code}>{p.name}</option>)}
                       </Select>
                     </Td>
                     <Td><AccessCell s={t.subscription} /></Td>
@@ -245,6 +269,7 @@ function Platform() {
                     <Td className="text-muted">{date(t.createdAt)}</Td>
                     <Td><Badge tone={t.status === 'ACTIVE' ? 'success' : 'danger'}>{t.status === 'ACTIVE' ? 'Activa' : 'Suspendida'}</Badge></Td>
                     <Td className="whitespace-nowrap text-right">
+                      <Button size="sm" variant="ghost" icon={<Eye className="size-4" />} onClick={() => setDetail(t.id)} className="mr-2" aria-label={`Ver ${t.name}`}>Ficha</Button>
                       <Button size="sm" variant="secondary" icon={<Wallet className="size-4" />} onClick={() => setBilling(t)} className="mr-2">Cobro</Button>
                       {t.status === 'ACTIVE'
                         ? <Button size="sm" variant="secondary" onClick={() => setSuspend(t)}>Suspender</Button>
@@ -258,6 +283,8 @@ function Platform() {
           </>
         )}
       </Card>
+      )}
+      <TenantDetailDialog id={detail} onClose={() => setDetail(null)} onChanged={refresh} />
       <PaymentDialog key={billing?.id ?? 'none'} tenant={billing} onClose={() => setBilling(null)} onDone={() => { refresh(); qc.invalidateQueries({ queryKey: ['platform-payments'] }); }} />
       <Dialog open={!!suspend} onClose={() => setSuspend(null)} title={`¿Suspender ${suspend?.name}?`} footer={<><Button variant="secondary" onClick={() => setSuspend(null)}>Cancelar</Button><Button variant="danger" loading={busy} onClick={() => setTenantStatus(suspend!, 'SUSPENDED', reason)}>Suspender</Button></>}>
         <div className="flex flex-col gap-3 text-sm">

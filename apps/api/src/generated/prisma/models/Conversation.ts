@@ -78,6 +78,7 @@ export type ConversationCountAggregateOutputType = {
   handoffReason: number
   handoffAt: number
   assignedUserId: number
+  tags: number
   chatwootConversationId: number
   difyConversationId: number
   context: number
@@ -140,6 +141,7 @@ export type ConversationCountAggregateInputType = {
   handoffReason?: true
   handoffAt?: true
   assignedUserId?: true
+  tags?: true
   chatwootConversationId?: true
   difyConversationId?: true
   context?: true
@@ -245,6 +247,7 @@ export type ConversationGroupByOutputType = {
   handoffReason: string | null
   handoffAt: Date | null
   assignedUserId: string | null
+  tags: string[]
   chatwootConversationId: number | null
   difyConversationId: string | null
   context: runtime.JsonValue
@@ -286,6 +289,7 @@ export type ConversationWhereInput = {
   handoffReason?: Prisma.StringNullableFilter<"Conversation"> | string | null
   handoffAt?: Prisma.DateTimeNullableFilter<"Conversation"> | Date | string | null
   assignedUserId?: Prisma.UuidNullableFilter<"Conversation"> | string | null
+  tags?: Prisma.StringNullableListFilter<"Conversation">
   chatwootConversationId?: Prisma.IntNullableFilter<"Conversation"> | number | null
   difyConversationId?: Prisma.StringNullableFilter<"Conversation"> | string | null
   context?: Prisma.JsonFilter<"Conversation">
@@ -296,6 +300,7 @@ export type ConversationWhereInput = {
   whatsappNumber?: Prisma.XOR<Prisma.WhatsappNumberScalarRelationFilter, Prisma.WhatsappNumberWhereInput>
   messages?: Prisma.MessageListRelationFilter
   orders?: Prisma.OrderListRelationFilter
+  notes?: Prisma.ConversationNoteListRelationFilter
 }
 
 export type ConversationOrderByWithRelationInput = {
@@ -308,6 +313,7 @@ export type ConversationOrderByWithRelationInput = {
   handoffReason?: Prisma.SortOrderInput | Prisma.SortOrder
   handoffAt?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  tags?: Prisma.SortOrder
   chatwootConversationId?: Prisma.SortOrderInput | Prisma.SortOrder
   difyConversationId?: Prisma.SortOrderInput | Prisma.SortOrder
   context?: Prisma.SortOrder
@@ -318,6 +324,7 @@ export type ConversationOrderByWithRelationInput = {
   whatsappNumber?: Prisma.WhatsappNumberOrderByWithRelationInput
   messages?: Prisma.MessageOrderByRelationAggregateInput
   orders?: Prisma.OrderOrderByRelationAggregateInput
+  notes?: Prisma.ConversationNoteOrderByRelationAggregateInput
 }
 
 export type ConversationWhereUniqueInput = Prisma.AtLeast<{
@@ -333,6 +340,7 @@ export type ConversationWhereUniqueInput = Prisma.AtLeast<{
   handoffReason?: Prisma.StringNullableFilter<"Conversation"> | string | null
   handoffAt?: Prisma.DateTimeNullableFilter<"Conversation"> | Date | string | null
   assignedUserId?: Prisma.UuidNullableFilter<"Conversation"> | string | null
+  tags?: Prisma.StringNullableListFilter<"Conversation">
   chatwootConversationId?: Prisma.IntNullableFilter<"Conversation"> | number | null
   difyConversationId?: Prisma.StringNullableFilter<"Conversation"> | string | null
   context?: Prisma.JsonFilter<"Conversation">
@@ -343,6 +351,7 @@ export type ConversationWhereUniqueInput = Prisma.AtLeast<{
   whatsappNumber?: Prisma.XOR<Prisma.WhatsappNumberScalarRelationFilter, Prisma.WhatsappNumberWhereInput>
   messages?: Prisma.MessageListRelationFilter
   orders?: Prisma.OrderListRelationFilter
+  notes?: Prisma.ConversationNoteListRelationFilter
 }, "id">
 
 export type ConversationOrderByWithAggregationInput = {
@@ -355,6 +364,7 @@ export type ConversationOrderByWithAggregationInput = {
   handoffReason?: Prisma.SortOrderInput | Prisma.SortOrder
   handoffAt?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  tags?: Prisma.SortOrder
   chatwootConversationId?: Prisma.SortOrderInput | Prisma.SortOrder
   difyConversationId?: Prisma.SortOrderInput | Prisma.SortOrder
   context?: Prisma.SortOrder
@@ -381,6 +391,7 @@ export type ConversationScalarWhereWithAggregatesInput = {
   handoffReason?: Prisma.StringNullableWithAggregatesFilter<"Conversation"> | string | null
   handoffAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Conversation"> | Date | string | null
   assignedUserId?: Prisma.UuidNullableWithAggregatesFilter<"Conversation"> | string | null
+  tags?: Prisma.StringNullableListFilter<"Conversation">
   chatwootConversationId?: Prisma.IntNullableWithAggregatesFilter<"Conversation"> | number | null
   difyConversationId?: Prisma.StringNullableWithAggregatesFilter<"Conversation"> | string | null
   context?: Prisma.JsonWithAggregatesFilter<"Conversation">
@@ -397,6 +408,7 @@ export type ConversationCreateInput = {
   handoffReason?: string | null
   handoffAt?: Date | string | null
   assignedUserId?: string | null
+  tags?: Prisma.ConversationCreatetagsInput | string[]
   chatwootConversationId?: number | null
   difyConversationId?: string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -407,6 +419,7 @@ export type ConversationCreateInput = {
   whatsappNumber: Prisma.WhatsappNumberCreateNestedOneWithoutConversationsInput
   messages?: Prisma.MessageCreateNestedManyWithoutConversationInput
   orders?: Prisma.OrderCreateNestedManyWithoutConversationInput
+  notes?: Prisma.ConversationNoteCreateNestedManyWithoutConversationInput
 }
 
 export type ConversationUncheckedCreateInput = {
@@ -419,6 +432,7 @@ export type ConversationUncheckedCreateInput = {
   handoffReason?: string | null
   handoffAt?: Date | string | null
   assignedUserId?: string | null
+  tags?: Prisma.ConversationCreatetagsInput | string[]
   chatwootConversationId?: number | null
   difyConversationId?: string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -427,6 +441,7 @@ export type ConversationUncheckedCreateInput = {
   updatedAt?: Date | string
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutConversationInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutConversationInput
+  notes?: Prisma.ConversationNoteUncheckedCreateNestedManyWithoutConversationInput
 }
 
 export type ConversationUpdateInput = {
@@ -437,6 +452,7 @@ export type ConversationUpdateInput = {
   handoffReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   handoffAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ConversationUpdatetagsInput | string[]
   chatwootConversationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   difyConversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -447,6 +463,7 @@ export type ConversationUpdateInput = {
   whatsappNumber?: Prisma.WhatsappNumberUpdateOneRequiredWithoutConversationsNestedInput
   messages?: Prisma.MessageUpdateManyWithoutConversationNestedInput
   orders?: Prisma.OrderUpdateManyWithoutConversationNestedInput
+  notes?: Prisma.ConversationNoteUpdateManyWithoutConversationNestedInput
 }
 
 export type ConversationUncheckedUpdateInput = {
@@ -459,6 +476,7 @@ export type ConversationUncheckedUpdateInput = {
   handoffReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   handoffAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ConversationUpdatetagsInput | string[]
   chatwootConversationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   difyConversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -467,6 +485,7 @@ export type ConversationUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.MessageUncheckedUpdateManyWithoutConversationNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutConversationNestedInput
+  notes?: Prisma.ConversationNoteUncheckedUpdateManyWithoutConversationNestedInput
 }
 
 export type ConversationCreateManyInput = {
@@ -479,6 +498,7 @@ export type ConversationCreateManyInput = {
   handoffReason?: string | null
   handoffAt?: Date | string | null
   assignedUserId?: string | null
+  tags?: Prisma.ConversationCreatetagsInput | string[]
   chatwootConversationId?: number | null
   difyConversationId?: string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -495,6 +515,7 @@ export type ConversationUpdateManyMutationInput = {
   handoffReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   handoffAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ConversationUpdatetagsInput | string[]
   chatwootConversationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   difyConversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -513,6 +534,7 @@ export type ConversationUncheckedUpdateManyInput = {
   handoffReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   handoffAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ConversationUpdatetagsInput | string[]
   chatwootConversationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   difyConversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -546,6 +568,7 @@ export type ConversationCountOrderByAggregateInput = {
   handoffReason?: Prisma.SortOrder
   handoffAt?: Prisma.SortOrder
   assignedUserId?: Prisma.SortOrder
+  tags?: Prisma.SortOrder
   chatwootConversationId?: Prisma.SortOrder
   difyConversationId?: Prisma.SortOrder
   context?: Prisma.SortOrder
@@ -701,12 +724,35 @@ export type ConversationUncheckedUpdateManyWithoutWhatsappNumberNestedInput = {
   deleteMany?: Prisma.ConversationScalarWhereInput | Prisma.ConversationScalarWhereInput[]
 }
 
+export type ConversationCreatetagsInput = {
+  set: string[]
+}
+
 export type EnumConversationStatusFieldUpdateOperationsInput = {
   set?: $Enums.ConversationStatus
 }
 
 export type EnumBotStatusFieldUpdateOperationsInput = {
   set?: $Enums.BotStatus
+}
+
+export type ConversationUpdatetagsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type ConversationCreateNestedOneWithoutNotesInput = {
+  create?: Prisma.XOR<Prisma.ConversationCreateWithoutNotesInput, Prisma.ConversationUncheckedCreateWithoutNotesInput>
+  connectOrCreate?: Prisma.ConversationCreateOrConnectWithoutNotesInput
+  connect?: Prisma.ConversationWhereUniqueInput
+}
+
+export type ConversationUpdateOneRequiredWithoutNotesNestedInput = {
+  create?: Prisma.XOR<Prisma.ConversationCreateWithoutNotesInput, Prisma.ConversationUncheckedCreateWithoutNotesInput>
+  connectOrCreate?: Prisma.ConversationCreateOrConnectWithoutNotesInput
+  upsert?: Prisma.ConversationUpsertWithoutNotesInput
+  connect?: Prisma.ConversationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ConversationUpdateToOneWithWhereWithoutNotesInput, Prisma.ConversationUpdateWithoutNotesInput>, Prisma.ConversationUncheckedUpdateWithoutNotesInput>
 }
 
 export type ConversationCreateNestedOneWithoutMessagesInput = {
@@ -731,6 +777,7 @@ export type ConversationCreateWithoutCustomerInput = {
   handoffReason?: string | null
   handoffAt?: Date | string | null
   assignedUserId?: string | null
+  tags?: Prisma.ConversationCreatetagsInput | string[]
   chatwootConversationId?: number | null
   difyConversationId?: string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -740,6 +787,7 @@ export type ConversationCreateWithoutCustomerInput = {
   whatsappNumber: Prisma.WhatsappNumberCreateNestedOneWithoutConversationsInput
   messages?: Prisma.MessageCreateNestedManyWithoutConversationInput
   orders?: Prisma.OrderCreateNestedManyWithoutConversationInput
+  notes?: Prisma.ConversationNoteCreateNestedManyWithoutConversationInput
 }
 
 export type ConversationUncheckedCreateWithoutCustomerInput = {
@@ -751,6 +799,7 @@ export type ConversationUncheckedCreateWithoutCustomerInput = {
   handoffReason?: string | null
   handoffAt?: Date | string | null
   assignedUserId?: string | null
+  tags?: Prisma.ConversationCreatetagsInput | string[]
   chatwootConversationId?: number | null
   difyConversationId?: string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -759,6 +808,7 @@ export type ConversationUncheckedCreateWithoutCustomerInput = {
   updatedAt?: Date | string
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutConversationInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutConversationInput
+  notes?: Prisma.ConversationNoteUncheckedCreateNestedManyWithoutConversationInput
 }
 
 export type ConversationCreateOrConnectWithoutCustomerInput = {
@@ -800,6 +850,7 @@ export type ConversationScalarWhereInput = {
   handoffReason?: Prisma.StringNullableFilter<"Conversation"> | string | null
   handoffAt?: Prisma.DateTimeNullableFilter<"Conversation"> | Date | string | null
   assignedUserId?: Prisma.UuidNullableFilter<"Conversation"> | string | null
+  tags?: Prisma.StringNullableListFilter<"Conversation">
   chatwootConversationId?: Prisma.IntNullableFilter<"Conversation"> | number | null
   difyConversationId?: Prisma.StringNullableFilter<"Conversation"> | string | null
   context?: Prisma.JsonFilter<"Conversation">
@@ -816,6 +867,7 @@ export type ConversationCreateWithoutOrdersInput = {
   handoffReason?: string | null
   handoffAt?: Date | string | null
   assignedUserId?: string | null
+  tags?: Prisma.ConversationCreatetagsInput | string[]
   chatwootConversationId?: number | null
   difyConversationId?: string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -825,6 +877,7 @@ export type ConversationCreateWithoutOrdersInput = {
   customer: Prisma.CustomerCreateNestedOneWithoutConversationsInput
   whatsappNumber: Prisma.WhatsappNumberCreateNestedOneWithoutConversationsInput
   messages?: Prisma.MessageCreateNestedManyWithoutConversationInput
+  notes?: Prisma.ConversationNoteCreateNestedManyWithoutConversationInput
 }
 
 export type ConversationUncheckedCreateWithoutOrdersInput = {
@@ -837,6 +890,7 @@ export type ConversationUncheckedCreateWithoutOrdersInput = {
   handoffReason?: string | null
   handoffAt?: Date | string | null
   assignedUserId?: string | null
+  tags?: Prisma.ConversationCreatetagsInput | string[]
   chatwootConversationId?: number | null
   difyConversationId?: string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -844,6 +898,7 @@ export type ConversationUncheckedCreateWithoutOrdersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutConversationInput
+  notes?: Prisma.ConversationNoteUncheckedCreateNestedManyWithoutConversationInput
 }
 
 export type ConversationCreateOrConnectWithoutOrdersInput = {
@@ -870,6 +925,7 @@ export type ConversationUpdateWithoutOrdersInput = {
   handoffReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   handoffAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ConversationUpdatetagsInput | string[]
   chatwootConversationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   difyConversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -879,6 +935,7 @@ export type ConversationUpdateWithoutOrdersInput = {
   customer?: Prisma.CustomerUpdateOneRequiredWithoutConversationsNestedInput
   whatsappNumber?: Prisma.WhatsappNumberUpdateOneRequiredWithoutConversationsNestedInput
   messages?: Prisma.MessageUpdateManyWithoutConversationNestedInput
+  notes?: Prisma.ConversationNoteUpdateManyWithoutConversationNestedInput
 }
 
 export type ConversationUncheckedUpdateWithoutOrdersInput = {
@@ -891,6 +948,7 @@ export type ConversationUncheckedUpdateWithoutOrdersInput = {
   handoffReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   handoffAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ConversationUpdatetagsInput | string[]
   chatwootConversationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   difyConversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -898,6 +956,7 @@ export type ConversationUncheckedUpdateWithoutOrdersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.MessageUncheckedUpdateManyWithoutConversationNestedInput
+  notes?: Prisma.ConversationNoteUncheckedUpdateManyWithoutConversationNestedInput
 }
 
 export type ConversationCreateWithoutWhatsappNumberInput = {
@@ -908,6 +967,7 @@ export type ConversationCreateWithoutWhatsappNumberInput = {
   handoffReason?: string | null
   handoffAt?: Date | string | null
   assignedUserId?: string | null
+  tags?: Prisma.ConversationCreatetagsInput | string[]
   chatwootConversationId?: number | null
   difyConversationId?: string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -917,6 +977,7 @@ export type ConversationCreateWithoutWhatsappNumberInput = {
   customer: Prisma.CustomerCreateNestedOneWithoutConversationsInput
   messages?: Prisma.MessageCreateNestedManyWithoutConversationInput
   orders?: Prisma.OrderCreateNestedManyWithoutConversationInput
+  notes?: Prisma.ConversationNoteCreateNestedManyWithoutConversationInput
 }
 
 export type ConversationUncheckedCreateWithoutWhatsappNumberInput = {
@@ -928,6 +989,7 @@ export type ConversationUncheckedCreateWithoutWhatsappNumberInput = {
   handoffReason?: string | null
   handoffAt?: Date | string | null
   assignedUserId?: string | null
+  tags?: Prisma.ConversationCreatetagsInput | string[]
   chatwootConversationId?: number | null
   difyConversationId?: string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -936,6 +998,7 @@ export type ConversationUncheckedCreateWithoutWhatsappNumberInput = {
   updatedAt?: Date | string
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutConversationInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutConversationInput
+  notes?: Prisma.ConversationNoteUncheckedCreateNestedManyWithoutConversationInput
 }
 
 export type ConversationCreateOrConnectWithoutWhatsappNumberInput = {
@@ -964,6 +1027,106 @@ export type ConversationUpdateManyWithWhereWithoutWhatsappNumberInput = {
   data: Prisma.XOR<Prisma.ConversationUpdateManyMutationInput, Prisma.ConversationUncheckedUpdateManyWithoutWhatsappNumberInput>
 }
 
+export type ConversationCreateWithoutNotesInput = {
+  id?: string
+  tenantId: string
+  status?: $Enums.ConversationStatus
+  botStatus?: $Enums.BotStatus
+  handoffReason?: string | null
+  handoffAt?: Date | string | null
+  assignedUserId?: string | null
+  tags?: Prisma.ConversationCreatetagsInput | string[]
+  chatwootConversationId?: number | null
+  difyConversationId?: string | null
+  context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  lastMessageAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  customer: Prisma.CustomerCreateNestedOneWithoutConversationsInput
+  whatsappNumber: Prisma.WhatsappNumberCreateNestedOneWithoutConversationsInput
+  messages?: Prisma.MessageCreateNestedManyWithoutConversationInput
+  orders?: Prisma.OrderCreateNestedManyWithoutConversationInput
+}
+
+export type ConversationUncheckedCreateWithoutNotesInput = {
+  id?: string
+  tenantId: string
+  customerId: string
+  whatsappNumberId: string
+  status?: $Enums.ConversationStatus
+  botStatus?: $Enums.BotStatus
+  handoffReason?: string | null
+  handoffAt?: Date | string | null
+  assignedUserId?: string | null
+  tags?: Prisma.ConversationCreatetagsInput | string[]
+  chatwootConversationId?: number | null
+  difyConversationId?: string | null
+  context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  lastMessageAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutConversationInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutConversationInput
+}
+
+export type ConversationCreateOrConnectWithoutNotesInput = {
+  where: Prisma.ConversationWhereUniqueInput
+  create: Prisma.XOR<Prisma.ConversationCreateWithoutNotesInput, Prisma.ConversationUncheckedCreateWithoutNotesInput>
+}
+
+export type ConversationUpsertWithoutNotesInput = {
+  update: Prisma.XOR<Prisma.ConversationUpdateWithoutNotesInput, Prisma.ConversationUncheckedUpdateWithoutNotesInput>
+  create: Prisma.XOR<Prisma.ConversationCreateWithoutNotesInput, Prisma.ConversationUncheckedCreateWithoutNotesInput>
+  where?: Prisma.ConversationWhereInput
+}
+
+export type ConversationUpdateToOneWithWhereWithoutNotesInput = {
+  where?: Prisma.ConversationWhereInput
+  data: Prisma.XOR<Prisma.ConversationUpdateWithoutNotesInput, Prisma.ConversationUncheckedUpdateWithoutNotesInput>
+}
+
+export type ConversationUpdateWithoutNotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumConversationStatusFieldUpdateOperationsInput | $Enums.ConversationStatus
+  botStatus?: Prisma.EnumBotStatusFieldUpdateOperationsInput | $Enums.BotStatus
+  handoffReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handoffAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ConversationUpdatetagsInput | string[]
+  chatwootConversationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  difyConversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customer?: Prisma.CustomerUpdateOneRequiredWithoutConversationsNestedInput
+  whatsappNumber?: Prisma.WhatsappNumberUpdateOneRequiredWithoutConversationsNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutConversationNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutConversationNestedInput
+}
+
+export type ConversationUncheckedUpdateWithoutNotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappNumberId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumConversationStatusFieldUpdateOperationsInput | $Enums.ConversationStatus
+  botStatus?: Prisma.EnumBotStatusFieldUpdateOperationsInput | $Enums.BotStatus
+  handoffReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handoffAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ConversationUpdatetagsInput | string[]
+  chatwootConversationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  difyConversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutConversationNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutConversationNestedInput
+}
+
 export type ConversationCreateWithoutMessagesInput = {
   id?: string
   tenantId: string
@@ -972,6 +1135,7 @@ export type ConversationCreateWithoutMessagesInput = {
   handoffReason?: string | null
   handoffAt?: Date | string | null
   assignedUserId?: string | null
+  tags?: Prisma.ConversationCreatetagsInput | string[]
   chatwootConversationId?: number | null
   difyConversationId?: string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -981,6 +1145,7 @@ export type ConversationCreateWithoutMessagesInput = {
   customer: Prisma.CustomerCreateNestedOneWithoutConversationsInput
   whatsappNumber: Prisma.WhatsappNumberCreateNestedOneWithoutConversationsInput
   orders?: Prisma.OrderCreateNestedManyWithoutConversationInput
+  notes?: Prisma.ConversationNoteCreateNestedManyWithoutConversationInput
 }
 
 export type ConversationUncheckedCreateWithoutMessagesInput = {
@@ -993,6 +1158,7 @@ export type ConversationUncheckedCreateWithoutMessagesInput = {
   handoffReason?: string | null
   handoffAt?: Date | string | null
   assignedUserId?: string | null
+  tags?: Prisma.ConversationCreatetagsInput | string[]
   chatwootConversationId?: number | null
   difyConversationId?: string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -1000,6 +1166,7 @@ export type ConversationUncheckedCreateWithoutMessagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutConversationInput
+  notes?: Prisma.ConversationNoteUncheckedCreateNestedManyWithoutConversationInput
 }
 
 export type ConversationCreateOrConnectWithoutMessagesInput = {
@@ -1026,6 +1193,7 @@ export type ConversationUpdateWithoutMessagesInput = {
   handoffReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   handoffAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ConversationUpdatetagsInput | string[]
   chatwootConversationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   difyConversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -1035,6 +1203,7 @@ export type ConversationUpdateWithoutMessagesInput = {
   customer?: Prisma.CustomerUpdateOneRequiredWithoutConversationsNestedInput
   whatsappNumber?: Prisma.WhatsappNumberUpdateOneRequiredWithoutConversationsNestedInput
   orders?: Prisma.OrderUpdateManyWithoutConversationNestedInput
+  notes?: Prisma.ConversationNoteUpdateManyWithoutConversationNestedInput
 }
 
 export type ConversationUncheckedUpdateWithoutMessagesInput = {
@@ -1047,6 +1216,7 @@ export type ConversationUncheckedUpdateWithoutMessagesInput = {
   handoffReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   handoffAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ConversationUpdatetagsInput | string[]
   chatwootConversationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   difyConversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -1054,6 +1224,7 @@ export type ConversationUncheckedUpdateWithoutMessagesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.OrderUncheckedUpdateManyWithoutConversationNestedInput
+  notes?: Prisma.ConversationNoteUncheckedUpdateManyWithoutConversationNestedInput
 }
 
 export type ConversationCreateManyCustomerInput = {
@@ -1065,6 +1236,7 @@ export type ConversationCreateManyCustomerInput = {
   handoffReason?: string | null
   handoffAt?: Date | string | null
   assignedUserId?: string | null
+  tags?: Prisma.ConversationCreatetagsInput | string[]
   chatwootConversationId?: number | null
   difyConversationId?: string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -1081,6 +1253,7 @@ export type ConversationUpdateWithoutCustomerInput = {
   handoffReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   handoffAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ConversationUpdatetagsInput | string[]
   chatwootConversationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   difyConversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -1090,6 +1263,7 @@ export type ConversationUpdateWithoutCustomerInput = {
   whatsappNumber?: Prisma.WhatsappNumberUpdateOneRequiredWithoutConversationsNestedInput
   messages?: Prisma.MessageUpdateManyWithoutConversationNestedInput
   orders?: Prisma.OrderUpdateManyWithoutConversationNestedInput
+  notes?: Prisma.ConversationNoteUpdateManyWithoutConversationNestedInput
 }
 
 export type ConversationUncheckedUpdateWithoutCustomerInput = {
@@ -1101,6 +1275,7 @@ export type ConversationUncheckedUpdateWithoutCustomerInput = {
   handoffReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   handoffAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ConversationUpdatetagsInput | string[]
   chatwootConversationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   difyConversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -1109,6 +1284,7 @@ export type ConversationUncheckedUpdateWithoutCustomerInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.MessageUncheckedUpdateManyWithoutConversationNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutConversationNestedInput
+  notes?: Prisma.ConversationNoteUncheckedUpdateManyWithoutConversationNestedInput
 }
 
 export type ConversationUncheckedUpdateManyWithoutCustomerInput = {
@@ -1120,6 +1296,7 @@ export type ConversationUncheckedUpdateManyWithoutCustomerInput = {
   handoffReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   handoffAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ConversationUpdatetagsInput | string[]
   chatwootConversationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   difyConversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -1137,6 +1314,7 @@ export type ConversationCreateManyWhatsappNumberInput = {
   handoffReason?: string | null
   handoffAt?: Date | string | null
   assignedUserId?: string | null
+  tags?: Prisma.ConversationCreatetagsInput | string[]
   chatwootConversationId?: number | null
   difyConversationId?: string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -1153,6 +1331,7 @@ export type ConversationUpdateWithoutWhatsappNumberInput = {
   handoffReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   handoffAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ConversationUpdatetagsInput | string[]
   chatwootConversationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   difyConversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -1162,6 +1341,7 @@ export type ConversationUpdateWithoutWhatsappNumberInput = {
   customer?: Prisma.CustomerUpdateOneRequiredWithoutConversationsNestedInput
   messages?: Prisma.MessageUpdateManyWithoutConversationNestedInput
   orders?: Prisma.OrderUpdateManyWithoutConversationNestedInput
+  notes?: Prisma.ConversationNoteUpdateManyWithoutConversationNestedInput
 }
 
 export type ConversationUncheckedUpdateWithoutWhatsappNumberInput = {
@@ -1173,6 +1353,7 @@ export type ConversationUncheckedUpdateWithoutWhatsappNumberInput = {
   handoffReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   handoffAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ConversationUpdatetagsInput | string[]
   chatwootConversationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   difyConversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -1181,6 +1362,7 @@ export type ConversationUncheckedUpdateWithoutWhatsappNumberInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.MessageUncheckedUpdateManyWithoutConversationNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutConversationNestedInput
+  notes?: Prisma.ConversationNoteUncheckedUpdateManyWithoutConversationNestedInput
 }
 
 export type ConversationUncheckedUpdateManyWithoutWhatsappNumberInput = {
@@ -1192,6 +1374,7 @@ export type ConversationUncheckedUpdateManyWithoutWhatsappNumberInput = {
   handoffReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   handoffAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ConversationUpdatetagsInput | string[]
   chatwootConversationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   difyConversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   context?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -1208,11 +1391,13 @@ export type ConversationUncheckedUpdateManyWithoutWhatsappNumberInput = {
 export type ConversationCountOutputType = {
   messages: number
   orders: number
+  notes: number
 }
 
 export type ConversationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   messages?: boolean | ConversationCountOutputTypeCountMessagesArgs
   orders?: boolean | ConversationCountOutputTypeCountOrdersArgs
+  notes?: boolean | ConversationCountOutputTypeCountNotesArgs
 }
 
 /**
@@ -1239,6 +1424,13 @@ export type ConversationCountOutputTypeCountOrdersArgs<ExtArgs extends runtime.T
   where?: Prisma.OrderWhereInput
 }
 
+/**
+ * ConversationCountOutputType without action
+ */
+export type ConversationCountOutputTypeCountNotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ConversationNoteWhereInput
+}
+
 
 export type ConversationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1250,6 +1442,7 @@ export type ConversationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   handoffReason?: boolean
   handoffAt?: boolean
   assignedUserId?: boolean
+  tags?: boolean
   chatwootConversationId?: boolean
   difyConversationId?: boolean
   context?: boolean
@@ -1260,6 +1453,7 @@ export type ConversationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   whatsappNumber?: boolean | Prisma.WhatsappNumberDefaultArgs<ExtArgs>
   messages?: boolean | Prisma.Conversation$messagesArgs<ExtArgs>
   orders?: boolean | Prisma.Conversation$ordersArgs<ExtArgs>
+  notes?: boolean | Prisma.Conversation$notesArgs<ExtArgs>
   _count?: boolean | Prisma.ConversationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["conversation"]>
 
@@ -1273,6 +1467,7 @@ export type ConversationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   handoffReason?: boolean
   handoffAt?: boolean
   assignedUserId?: boolean
+  tags?: boolean
   chatwootConversationId?: boolean
   difyConversationId?: boolean
   context?: boolean
@@ -1293,6 +1488,7 @@ export type ConversationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   handoffReason?: boolean
   handoffAt?: boolean
   assignedUserId?: boolean
+  tags?: boolean
   chatwootConversationId?: boolean
   difyConversationId?: boolean
   context?: boolean
@@ -1313,6 +1509,7 @@ export type ConversationSelectScalar = {
   handoffReason?: boolean
   handoffAt?: boolean
   assignedUserId?: boolean
+  tags?: boolean
   chatwootConversationId?: boolean
   difyConversationId?: boolean
   context?: boolean
@@ -1321,12 +1518,13 @@ export type ConversationSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ConversationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "customerId" | "whatsappNumberId" | "status" | "botStatus" | "handoffReason" | "handoffAt" | "assignedUserId" | "chatwootConversationId" | "difyConversationId" | "context" | "lastMessageAt" | "createdAt" | "updatedAt", ExtArgs["result"]["conversation"]>
+export type ConversationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "customerId" | "whatsappNumberId" | "status" | "botStatus" | "handoffReason" | "handoffAt" | "assignedUserId" | "tags" | "chatwootConversationId" | "difyConversationId" | "context" | "lastMessageAt" | "createdAt" | "updatedAt", ExtArgs["result"]["conversation"]>
 export type ConversationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   whatsappNumber?: boolean | Prisma.WhatsappNumberDefaultArgs<ExtArgs>
   messages?: boolean | Prisma.Conversation$messagesArgs<ExtArgs>
   orders?: boolean | Prisma.Conversation$ordersArgs<ExtArgs>
+  notes?: boolean | Prisma.Conversation$notesArgs<ExtArgs>
   _count?: boolean | Prisma.ConversationCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ConversationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1345,6 +1543,7 @@ export type $ConversationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     whatsappNumber: Prisma.$WhatsappNumberPayload<ExtArgs>
     messages: Prisma.$MessagePayload<ExtArgs>[]
     orders: Prisma.$OrderPayload<ExtArgs>[]
+    notes: Prisma.$ConversationNotePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1356,6 +1555,10 @@ export type $ConversationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     handoffReason: string | null
     handoffAt: Date | null
     assignedUserId: string | null
+    /**
+     * Etiquetas libres de la empresa (p. ej. "mayorista", "urgente")
+     */
+    tags: string[]
     chatwootConversationId: number | null
     difyConversationId: string | null
     /**
@@ -1763,6 +1966,7 @@ export interface Prisma__ConversationClient<T, Null = never, ExtArgs extends run
   whatsappNumber<T extends Prisma.WhatsappNumberDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WhatsappNumberDefaultArgs<ExtArgs>>): Prisma.Prisma__WhatsappNumberClient<runtime.Types.Result.GetResult<Prisma.$WhatsappNumberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   messages<T extends Prisma.Conversation$messagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Conversation$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   orders<T extends Prisma.Conversation$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Conversation$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notes<T extends Prisma.Conversation$notesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Conversation$notesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConversationNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1801,6 +2005,7 @@ export interface ConversationFieldRefs {
   readonly handoffReason: Prisma.FieldRef<"Conversation", 'String'>
   readonly handoffAt: Prisma.FieldRef<"Conversation", 'DateTime'>
   readonly assignedUserId: Prisma.FieldRef<"Conversation", 'String'>
+  readonly tags: Prisma.FieldRef<"Conversation", 'String[]'>
   readonly chatwootConversationId: Prisma.FieldRef<"Conversation", 'Int'>
   readonly difyConversationId: Prisma.FieldRef<"Conversation", 'String'>
   readonly context: Prisma.FieldRef<"Conversation", 'Json'>
@@ -2253,6 +2458,30 @@ export type Conversation$ordersArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.OrderScalarFieldEnum | Prisma.OrderScalarFieldEnum[]
+}
+
+/**
+ * Conversation.notes
+ */
+export type Conversation$notesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ConversationNote
+   */
+  select?: Prisma.ConversationNoteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ConversationNote
+   */
+  omit?: Prisma.ConversationNoteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ConversationNoteInclude<ExtArgs> | null
+  where?: Prisma.ConversationNoteWhereInput
+  orderBy?: Prisma.ConversationNoteOrderByWithRelationInput | Prisma.ConversationNoteOrderByWithRelationInput[]
+  cursor?: Prisma.ConversationNoteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ConversationNoteScalarFieldEnum | Prisma.ConversationNoteScalarFieldEnum[]
 }
 
 /**

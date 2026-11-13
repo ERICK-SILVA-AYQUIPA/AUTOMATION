@@ -1,6 +1,11 @@
 import { BadRequestException, Body, Controller, Get, Inject, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
 import { ENV, type Env } from '../config/env.js';
 import { addMonths, subscriptionAccess } from '../plans/subscription-access.js';
+import { PlatformMetricsService } from './platform-metrics.service.js';
+import { tenantProfileSchema } from '../tenants/tenants.controller.js';
+import { MODULES } from '../common/decorators/module.decorator.js';
+import { planLimitsSchema } from '../plans/plan-limits.js';
+import type { Prisma } from '../generated/prisma/client.js';
 import { z } from 'zod';
 import { CurrentUser, RequirePermission } from '../common/decorators/auth.decorators.js';
 import type { Principal } from '../common/context/principal.js';
@@ -27,6 +32,25 @@ const paymentSchema = z.object({
   paidAt: z.coerce.date().optional(),
 });
 const cancelSchema = z.object({ reason: z.string().trim().max(500).optional() });
+/** La plataforma edita además lo que la empresa no puede: dominio, modalidad y módulos */
+const platformTenantSchema = tenantProfileSchema
+  .extend({
+    customDomain: z.string().trim().toLowerCase().regex(/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/, 'Dominio no válido').max(253).nullable(),
+    deploymentMode: z.enum(['SAAS', 'DEDICATED', 'CUSTOM']),
+    enabledModules: z.array(z.enum(MODULES)).max(MODULES.length),
+  })
+  .partial()
+  .refine((v) => Object.keys(v).length > 0, 'Nada que actualizar');
+const planUpdateSchema = z
+  .object({
+    name: z.string().trim().min(2).max(60),
+    priceMonthly: z.number().nonnegative().max(1_000_000).multipleOf(0.01),
+    currency: z.string().regex(/^[A-Z]{3}$/),
+    limits: planLimitsSchema,
+    isActive: z.boolean(),
+  })
+  .partial()
+  .refine((v) => Object.keys(v).length > 0, 'Nada que actualizar');
 
 /**
  * Panel del ADMINISTRADOR GENERAL. Única zona que usa el rol de sistema para
@@ -39,6 +63,7 @@ export class PlatformController {
     private readonly db: DatabaseService,
     private readonly audit: AuditService,
     @Inject(ENV) private readonly env: Env,
+    private readonly metricsService: PlatformMetricsService,
   ) {}
 
   @Get('tenants')
@@ -152,23 +177,58 @@ export class PlatformController {
   }
 
   @Get('metrics')
-  async metrics() {
-    const since = new Date(Date.now() - 30 * 86_400_000);
-    const [tenants, active, users, byPlan, orders30d, conversations30d] = await Promise.all([
-      this.db.system.tenant.count(),
-      this.db.system.tenant.count({ where: { status: 'ACTIVE' } }),
-      this.db.system.user.count({ where: { tenantId: { not: null }, status: 'ACTIVE' } }),
-      this.db.system.subscription.groupBy({ by: ['planId', 'status'], _count: { _all: true } }),
-      this.db.system.order.count({ where: { createdAt: { gte: since }, status: { not: 'CANCELLED' } } }),
-      this.db.system.conversation.count({ where: { createdAt: { gte: since } } }),
+  metrics() {
+    return this.metricsService.overview();
+  }
+
+  @Get('tenants/:id')
+  async tenant(@Param('id', { schema: z.uuid() }) id: string) {
+    const t = await this.db.system.tenant.findUnique({
+      where: { id },
+      include: {
+        subscription: { include: { plan: { select: { code: true, name: true, priceMonthly: true, currency: true } } } },
+        users: { where: { role: 'TENANT_ADMIN' }, select: { id: true, name: true, email: true, status: true, emailVerifiedAt: true } },
+        _count: { select: { users: true } },
+      },
+    });
+    if (!t) throw new NotFoundException('Empresa no encontrada');
+    const [numbers, integrations, usage] = await Promise.all([
+      this.db.system.whatsappNumber.findMany({ where: { tenantId: id }, select: { id: true, displayPhone: true, status: true, lastError: true, lastWebhookAt: true, isActive: true } }),
+      this.db.system.tenantIntegration.findMany({ where: { tenantId: id }, select: { type: true, status: true, lastError: true, updatedAt: true } }),
+      this.metricsService.tenantUsage(id),
     ]);
-    const plans = await this.db.system.plan.findMany({ select: { id: true, code: true } });
-    const code = new Map(plans.map((p) => [p.id, p.code]));
     return {
-      tenants: { total: tenants, active, suspended: tenants - active },
-      activeUsers: users,
-      subscriptions: byPlan.map((b) => ({ plan: code.get(b.planId), status: b.status, count: b._count._all })),
-      last30Days: { orders: orders30d, conversations: conversations30d },
+      ...t,
+      subscription: t.subscription && { ...t.subscription, access: subscriptionAccess(t.subscription, this.env.BILLING_GRACE_DAYS) },
+      whatsappNumbers: numbers,
+      integrations,
+      usage,
     };
+  }
+
+  @Patch('tenants/:id')
+  async updateTenant(@CurrentUser() p: Principal, @Param('id', { schema: z.uuid() }) id: string, @Body({ schema: platformTenantSchema }) body: z.infer<typeof platformTenantSchema>) {
+    const data: Prisma.TenantUpdateInput = { ...body, ...(body.enabledModules ? { enabledModules: [...new Set(body.enabledModules)] } : {}) };
+    const t = await this.db.system.tenant.update({ where: { id }, data }).catch((e: { code?: string }) => {
+      if (e.code === 'P2002') throw new BadRequestException('Ese dominio ya lo usa otra empresa');
+      return null;
+    });
+    if (!t) throw new NotFoundException('Empresa no encontrada');
+    await this.audit.system({ tenantId: id, userId: p.userId, action: 'platform.tenant_updated', entityType: 'tenant', entityId: id, metadata: body });
+    return t;
+  }
+
+  @Get('plans/all')
+  allPlans() {
+    return this.db.system.plan.findMany({ orderBy: { priceMonthly: 'asc' }, include: { _count: { select: { subscriptions: true } } } });
+  }
+
+  /** Precios, moneda y límites de cada plan: los decide el dueño de la plataforma, no el código. */
+  @Patch('plans/:code')
+  async updatePlan(@CurrentUser() p: Principal, @Param('code', { schema: z.enum(['BASIC', 'PROFESSIONAL', 'ENTERPRISE']) }) code: 'BASIC' | 'PROFESSIONAL' | 'ENTERPRISE', @Body({ schema: planUpdateSchema }) body: z.infer<typeof planUpdateSchema>) {
+    const before = await this.db.system.plan.findUniqueOrThrow({ where: { code } });
+    const plan = await this.db.system.plan.update({ where: { code }, data: body });
+    await this.audit.system({ tenantId: null, userId: p.userId, action: 'platform.plan_updated', entityType: 'plan', entityId: plan.id, metadata: { code, before: { priceMonthly: before.priceMonthly.toString(), currency: before.currency, limits: before.limits }, after: body } });
+    return plan;
   }
 }

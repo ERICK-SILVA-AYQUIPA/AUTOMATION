@@ -3,6 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { DatabaseService } from '../../database/database.service.js';
 import { TokenService } from '../../auth/token.service.js';
 import { ALLOW_READ_ONLY, IS_PUBLIC, REQUIRED_PERMISSIONS } from '../decorators/auth.decorators.js';
+import { REQUIRED_MODULE, type ModuleKey } from '../decorators/module.decorator.js';
 import { ENV, type Env } from '../../config/env.js';
 import { readOnlyError, subscriptionAccess } from '../../plans/subscription-access.js';
 import { hasPermission, type Permission } from '../permissions.js';
@@ -42,7 +43,7 @@ export class AuthGuard implements CanActivate {
         revokedAt: true,
         expiresAt: true,
         userId: true,
-        user: { select: { status: true, tenantId: true, role: true, tenant: { select: { status: true, subscription: { select: { status: true, trialEndsAt: true, currentPeriodEnd: true } } } } } },
+        user: { select: { status: true, tenantId: true, role: true, tenant: { select: { status: true, enabledModules: true, subscription: { select: { status: true, trialEndsAt: true, currentPeriodEnd: true } } } } } },
       },
     });
     if (!session || session.revokedAt || session.expiresAt < new Date() || session.userId !== claims.sub) {
@@ -66,6 +67,12 @@ export class AuthGuard implements CanActivate {
     const required = this.reflector.getAllAndOverride<Permission[]>(REQUIRED_PERMISSIONS, targets) ?? [];
     for (const p of required) {
       if (!hasPermission(principal.role, p)) throw new ForbiddenException('No tienes permiso para esta acción');
+    }
+
+    // Módulo apagado para esta empresa (plantilla o plan)
+    const mod = this.reflector.getAllAndOverride<ModuleKey | undefined>(REQUIRED_MODULE, targets);
+    if (mod && session.user.tenant && !session.user.tenant.enabledModules.includes(mod)) {
+      throw new ForbiddenException({ code: 'MODULE_DISABLED', message: 'Este módulo no está activado para tu empresa' });
     }
 
     // Suscripción vencida o cancelada: la empresa puede consultar, pero no modificar.

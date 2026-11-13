@@ -1,3 +1,4 @@
+import { RequireModule } from '../common/decorators/module.decorator.js';
 import { Body, Controller, Get, NotFoundException, Param, Patch, Post, Query, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { z } from 'zod';
@@ -32,6 +33,7 @@ const listSchema = paginationSchema.extend({
   to: z.coerce.date().optional(),
 });
 
+@RequireModule('orders')
 @Controller('orders')
 export class OrdersController {
   constructor(

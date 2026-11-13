@@ -134,6 +134,11 @@ export type WhatsappNumber = Prisma.WhatsappNumberModel
  */
 export type Conversation = Prisma.ConversationModel
 /**
+ * Model ConversationNote
+ * Nota interna del equipo: nunca se envía al cliente ni a la IA
+ */
+export type ConversationNote = Prisma.ConversationNoteModel
+/**
  * Model Message
  * 
  */

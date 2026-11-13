@@ -114,7 +114,7 @@ try {
 
   await step('Registrar pago por Yape: plan Profesional, 1 mes', async () => {
     const row = admin.getByRole('row').filter({ hasText: company });
-    await row.getByRole('button', { name: 'Cobro' }).click();
+    await row.getByRole('button', { name: 'Cobro', exact: true }).click();
     const dlg = admin.getByRole('dialog');
     await dlg.getByText('Sin pagos registrados.').waitFor();
     await dlg.getByLabel('Plan').selectOption('PROFESSIONAL');

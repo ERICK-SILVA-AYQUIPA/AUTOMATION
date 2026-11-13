@@ -32,7 +32,7 @@ Contraseñas: mínimo 10 caracteres con letras y números; hash Argon2id.
 | Método | Ruta | Permiso |
 |---|---|---|
 | GET | `/tenant` | `tenant:read` (empresa, plan, límites y uso del periodo) |
-| PATCH | `/tenant` | `tenant:settings` |
+| PATCH | `/tenant` | `tenant:settings`. Perfil: `name, currency, timezone, legalName, taxId (RUC de 11 dígitos si country=PE), country, address, phone, contactEmail, businessType (RETAIL\|RESTAURANT\|DISTRIBUTOR\|SERVICES\|PHARMACY\|OTHER), logoUrl (https), brandColor (#rrggbb)`. Dominio, modalidad y módulos no: los fija la plataforma |
 | GET | `/users`, `/users/:id` | `users:read` |
 | POST | `/users` | `users:manage` (invitación por correo; respeta `maxUsers` del plan) |
 | POST | `/users/:id/resend-invitation` | `users:manage` |
@@ -55,7 +55,23 @@ Con `readOnly`, toda petición que modifica datos responde **402** `{ code: "SUB
 | POST | `/platform/tenants/:id/payments` | Registra un pago manual `{planCode, months 1-24, amount, currency, method: YAPE\|PLIN\|BANK_TRANSFER\|CASH\|OTHER, reference?, paidAt?}`: activa el plan; si el periodo sigue vigente los meses se suman al final |
 | GET | `/platform/tenants/:id/payments` | Historial de pagos de la empresa |
 | POST | `/platform/tenants/:id/cancel-subscription` | Cancela: la empresa queda en solo lectura de inmediato |
-| GET | `/platform/metrics` | Métricas globales |
+| GET | `/platform/metrics` | Empresas, suscripciones por **estado de acceso calculado** y por plan, renovaciones pendientes, ingresos (mes y 30 días, por moneda), consumo de IA del mes, mensajes, pedidos, automatizaciones y errores |
+| GET | `/platform/tenants/:id` | Ficha: perfil, administradores, acceso, números de WhatsApp, integraciones y consumo |
+| PATCH | `/platform/tenants/:id` | Perfil + `customDomain` (único), `deploymentMode` (SAAS\|DEDICATED\|CUSTOM), `enabledModules` |
+| GET | `/platform/plans/all` | Todos los planes con límites y nº de empresas |
+| PATCH | `/platform/plans/:code` | `{name?, priceMonthly?, currency?, limits?, isActive?}` (auditado) |
+
+## Módulos por empresa (ADR 038)
+
+`GET /auth/me` devuelve `tenant.enabledModules` (subconjunto de `conversations, ai, catalog, inventory, orders, customers, reports, automations`). Las rutas de un módulo apagado responden **403** `{ code: "MODULE_DISABLED" }`.
+
+## Avisos (`/notifications`), cualquier usuario de la empresa
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/notifications?unread=true&limit=30` | `{items, unread}`: avisos de la empresa y los dirigidos al usuario (derivación a persona, WhatsApp desconectado, stock bajo, automatización fallida) |
+| POST | `/notifications/:id/read` | Marca como leído (204) |
+| POST | `/notifications/read-all` | Marca todos como leídos (204) |
 
 ## WhatsApp (`/whatsapp/numbers`) — permiso `integrations:manage`
 
@@ -79,9 +95,11 @@ Con `readOnly`, toda petición que modifica datos responde **402** `{ code: "SUB
 
 | Método | Ruta | Permiso |
 |---|---|---|
-| GET | `/conversations?status=&q=&page=&pageSize=` | `conversations:read` |
-| GET | `/conversations/:id` | `conversations:read` (últimos 500 mensajes y fin de la ventana de 24 h) |
-| POST | `/conversations/:id/messages` | `conversations:reply`. `{text, idempotencyKey}`; fuera de la ventana responde `OUTSIDE_SERVICE_WINDOW` |
+| GET | `/conversations?status=&q=&view=human\|mine\|unassigned&tag=&page=&pageSize=` | `conversations:read` |
+| GET | `/conversations/:id` | `conversations:read` (últimos 500 mensajes, notas internas, `people` con los nombres de autores y asignado, y fin de la ventana de 24 h) |
+| POST | `/conversations/:id/messages` | `conversations:reply`. `{text, idempotencyKey}`; fuera de la ventana responde `OUTSIDE_SERVICE_WINDOW`. Pausa la IA y asigna la conversación a quien responde si no tenía a nadie |
+| PATCH | `/conversations/:id` | `conversations:reply`. `{status?: OPEN\|RESOLVED, botStatus?: ACTIVE\|PAUSED, assignedUserId?, tags?}`. Asignar a otra persona exige `conversations:assign`; cerrar reactiva la IA para la próxima conversación |
+| POST | `/conversations/:id/notes` | `conversations:reply`. `{body}`: nota interna (el cliente no la ve; no se edita ni se borra) |
 
 ## Chatwoot (`/integrations/chatwoot`)
 

@@ -1,3 +1,4 @@
+import { RequireModule } from '../common/decorators/module.decorator.js';
 import { BadRequestException, Body, Controller, ForbiddenException, Get, Post, Query } from '@nestjs/common';
 import { z } from 'zod';
 import { RequirePermission, TenantUser } from '../common/decorators/auth.decorators.js';
@@ -39,6 +40,7 @@ const listSchema = paginationSchema.extend({
   to: z.coerce.date().optional(),
 });
 
+@RequireModule('inventory')
 @Controller('inventory')
 export class InventoryController {
   constructor(

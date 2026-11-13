@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   LayoutDashboard, MessagesSquare, Bot, Package, Tags, Boxes, ShoppingCart, Users, Workflow, Plug, BarChart3, UserCog, Settings,
   Menu, X, Search, Sun, Moon, Monitor, LogOut, MessageSquareText, Building2, Bell,
@@ -13,24 +13,24 @@ import { useTheme } from '@/lib/theme';
 import { api } from '@/lib/api';
 import { cn, Spinner } from '@/components/ui';
 import { SubscriptionBanner } from '@/components/subscription-banner';
-import { ROLE_LABEL, customerLabel, money, phoneLabel } from '@/lib/format';
+import { ROLE_LABEL, customerLabel, dateTime, money, phoneLabel } from '@/lib/format';
 import type { Customer, Order, Paged, Product } from '@/lib/types';
 
-interface NavItem { href: string; label: string; icon: typeof LayoutDashboard; permission?: string; soon?: string }
+interface NavItem { href: string; label: string; icon: typeof LayoutDashboard; permission?: string; soon?: string; module?: string }
 
 /** Módulos con "soon" aún no están construidos: se muestran deshabilitados, nunca como enlaces rotos. */
 const NAV: NavItem[] = [
   { href: '/inicio', label: 'Inicio', icon: LayoutDashboard, permission: 'tenant:read' },
-  { href: '/conversaciones', label: 'Conversaciones', icon: MessagesSquare, permission: 'conversations:read' },
-  { href: '/asistente', label: 'Asistente IA', icon: Bot, permission: 'ai:configure' },
-  { href: '/productos', label: 'Productos', icon: Package, permission: 'products:read' },
-  { href: '/categorias', label: 'Categorías', icon: Tags, permission: 'products:read' },
-  { href: '/inventario', label: 'Inventario', icon: Boxes, permission: 'inventory:read' },
-  { href: '/pedidos', label: 'Pedidos', icon: ShoppingCart, permission: 'orders:read' },
-  { href: '/clientes', label: 'Clientes', icon: Users, permission: 'customers:read' },
-  { href: '/automatizaciones', label: 'Automatizaciones', icon: Workflow, permission: 'automations:manage', soon: 'Fase 7' },
+  { href: '/conversaciones', label: 'Conversaciones', icon: MessagesSquare, permission: 'conversations:read', module: 'conversations' },
+  { href: '/asistente', label: 'Asistente IA', icon: Bot, permission: 'ai:configure', module: 'ai' },
+  { href: '/productos', label: 'Productos', icon: Package, permission: 'products:read', module: 'catalog' },
+  { href: '/categorias', label: 'Categorías', icon: Tags, permission: 'products:read', module: 'catalog' },
+  { href: '/inventario', label: 'Inventario', icon: Boxes, permission: 'inventory:read', module: 'inventory' },
+  { href: '/pedidos', label: 'Pedidos', icon: ShoppingCart, permission: 'orders:read', module: 'orders' },
+  { href: '/clientes', label: 'Clientes', icon: Users, permission: 'customers:read', module: 'customers' },
+  { href: '/automatizaciones', label: 'Automatizaciones', icon: Workflow, permission: 'automations:manage', soon: 'Fase 4', module: 'automations' },
   { href: '/integraciones', label: 'Integraciones', icon: Plug, permission: 'integrations:manage' },
-  { href: '/reportes', label: 'Reportes', icon: BarChart3, permission: 'reports:read' },
+  { href: '/reportes', label: 'Reportes', icon: BarChart3, permission: 'reports:read', module: 'reports' },
   { href: '/usuarios', label: 'Usuarios', icon: UserCog, permission: 'users:read' },
   { href: '/configuracion', label: 'Configuración', icon: Settings, permission: 'tenant:read' },
 ];
@@ -40,7 +40,8 @@ const PLATFORM_NAV: NavItem[] = [{ href: '/plataforma', label: 'Empresas', icon:
 function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { me, can } = useAuth();
   const path = usePathname();
-  const items = (me?.role === 'PLATFORM_ADMIN' ? PLATFORM_NAV : NAV).filter((i) => !i.permission || can(i.permission));
+  const modules = me?.tenant?.enabledModules;
+  const items = (me?.role === 'PLATFORM_ADMIN' ? PLATFORM_NAV : NAV).filter((i) => (!i.permission || can(i.permission)) && (!i.module || !modules || modules.includes(i.module)));
   return (
     <nav className="flex h-full flex-col gap-1 p-3" aria-label="Menú principal">
       <div className="mb-4 flex items-center gap-2 px-2 pt-1">
@@ -183,20 +184,78 @@ function ThemeSwitch() {
   );
 }
 
+interface Notice { id: string; type: string; title: string; body: string; data: Record<string, unknown>; readAt: string | null; createdAt: string }
+
+/** A dónde lleva cada aviso según los datos que guardó el backend */
+function noticeHref(n: Notice): string | null {
+  const d = n.data ?? {};
+  if (typeof d.conversationId === 'string') return `/conversaciones?id=${d.conversationId}`;
+  if (typeof d.productId === 'string') return `/productos/${d.productId}`;
+  if (typeof d.whatsappNumberId === 'string') return '/integraciones';
+  return null;
+}
+
 function Notifications() {
+  const router = useRouter();
+  const qc = useQueryClient();
   const { can } = useAuth();
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
   const { data } = useQuery({
-    queryKey: ['stock-alerts'],
-    enabled: can('inventory:read'),
-    queryFn: () => api<{ id: string }[]>('/inventory/alerts'),
-    refetchInterval: 60_000,
+    queryKey: ['notifications'],
+    queryFn: () => api<{ items: Notice[]; unread: number }>('/notifications', { query: { limit: 20 } }),
+    refetchInterval: 30_000,
   });
-  if (!can('inventory:read')) return null;
+  useEffect(() => {
+    const h = (e: MouseEvent) => !box.current?.contains(e.target as Node) && setOpen(false);
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, []);
+  const refresh = () => qc.invalidateQueries({ queryKey: ['notifications'] });
+  async function openNotice(n: Notice) {
+    if (!n.readAt) await api(`/notifications/${n.id}/read`, { method: 'POST' }).catch(() => undefined);
+    refresh();
+    const href = noticeHref(n);
+    if (href) {
+      setOpen(false);
+      router.push(href);
+    }
+  }
+  async function readAll() {
+    await api('/notifications/read-all', { method: 'POST' }).catch(() => undefined);
+    refresh();
+  }
+  const unread = data?.unread ?? 0;
   return (
-    <Link href="/inventario?tab=alertas" className="relative rounded-lg p-2 text-muted hover:bg-surface-2 hover:text-text" aria-label={`Alertas de stock: ${data?.length ?? 0}`}>
-      <Bell className="size-4" />
-      {!!data?.length && <span className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-danger text-[10px] font-semibold text-white">{data.length > 9 ? '9+' : data.length}</span>}
-    </Link>
+    <div ref={box} className="relative">
+      <button type="button" onClick={() => setOpen((v) => !v)} className="relative rounded-lg p-2 text-muted hover:bg-surface-2 hover:text-text" aria-label={`Avisos sin leer: ${unread}`} aria-expanded={open}>
+        <Bell className="size-4" />
+        {unread > 0 && <span className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-danger text-[10px] font-semibold text-white">{unread > 9 ? '9+' : unread}</span>}
+      </button>
+      {open && (
+        <div className="absolute right-0 top-11 z-40 w-[min(22rem,calc(100vw-2rem))] rounded-xl border border-border bg-surface shadow-xl" role="dialog" aria-label="Avisos">
+          <div className="flex items-center justify-between border-b border-border px-3 py-2">
+            <p className="text-sm font-medium">Avisos</p>
+            {unread > 0 && <button type="button" onClick={readAll} className="text-xs text-primary hover:underline">Marcar todo como leído</button>}
+          </div>
+          <ul className="max-h-96 overflow-y-auto">
+            {!data?.items.length && <li className="p-4 text-center text-sm text-muted">No tienes avisos.</li>}
+            {data?.items.map((n) => (
+              <li key={n.id}>
+                <button type="button" onClick={() => openNotice(n)} className={cn('flex w-full flex-col gap-0.5 border-b border-border px-3 py-2 text-left text-sm hover:bg-surface-2', !n.readAt && 'bg-primary/5')}>
+                  <span className="flex items-center gap-2 font-medium">{!n.readAt && <span className="size-2 shrink-0 rounded-full bg-primary" aria-label="Sin leer" />}{n.title}</span>
+                  <span className="text-xs text-muted">{n.body}</span>
+                  <span className="text-[11px] text-muted">{dateTime(n.createdAt)}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          {can('inventory:read') && (
+            <Link href="/inventario?tab=alertas" onClick={() => setOpen(false)} className="block px-3 py-2 text-center text-xs text-primary hover:underline">Ver alertas de stock</Link>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 

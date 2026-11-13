@@ -8,13 +8,26 @@ import { DatabaseService } from '../database/database.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { currentPeriod, getPlanLimits } from '../plans/plan-limits.js';
 
-const updateTenantSchema = z
-  .object({
-    name: z.string().trim().min(2).max(120).optional(),
-    currency: z.string().regex(/^[A-Z]{3}$/).optional(),
-    timezone: z.string().min(3).max(64).optional(),
-  })
-  .refine((v) => Object.keys(v).length > 0, 'Nada que actualizar');
+/** Perfil que la empresa edita por sí misma (dominio, modalidad y módulos los fija la plataforma). */
+export const tenantProfileSchema = z.object({
+  name: z.string().trim().min(2).max(120),
+  currency: z.string().regex(/^[A-Z]{3}$/),
+  timezone: z.string().min(3).max(64).refine((tz) => Intl.supportedValuesOf('timeZone').includes(tz) || tz === 'UTC', 'Zona horaria no válida'),
+  legalName: z.string().trim().max(200).nullable(),
+  /** RUC peruano (11 dígitos) u otro identificador fiscal si el país no es PE */
+  taxId: z.string().trim().max(30).nullable(),
+  country: z.string().regex(/^[A-Z]{2}$/),
+  address: z.string().trim().max(300).nullable(),
+  phone: z.string().trim().max(30).nullable(),
+  contactEmail: z.email().max(200).nullable(),
+  businessType: z.enum(['RETAIL', 'RESTAURANT', 'DISTRIBUTOR', 'SERVICES', 'PHARMACY', 'OTHER']),
+  logoUrl: z.url({ protocol: /^https$/ }).max(500).nullable(),
+  brandColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).nullable(),
+});
+const updateTenantSchema = tenantProfileSchema
+  .partial()
+  .refine((v) => Object.keys(v).length > 0, 'Nada que actualizar')
+  .refine((v) => !(v.country === 'PE' && v.taxId && !/^(10|15|17|20)\d{9}$/.test(v.taxId)), { message: 'El RUC debe tener 11 dígitos y empezar por 10, 15, 17 o 20', path: ['taxId'] });
 
 /** Datos de la empresa del usuario autenticado (siempre la suya: RLS). */
 @Controller('tenant')

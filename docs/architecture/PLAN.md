@@ -60,5 +60,26 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
 - [ ] Prueba con la clave real de Gemini (pendiente: la clave está en otro entorno de la nube)
 - [ ] Validación automática de la respuesta (precios citados sin herramienta): hoy lo controlan las reglas del prompt
 
+## EVOLUCIÓN (2026-11-13): plataforma reutilizable. Ver `AUDITORIA-2026-11.md`
+- [x] Fase 1: auditoría del repositorio
+- [x] Fase 2: núcleo multiempresa (ADR 038)
+  - [x] Avisos visibles: API `/notifications` y campana con enlace a la conversación, producto o integración
+  - [x] Bandeja: reactivar o pausar la IA, cerrar y reabrir, asignar, etiquetas, notas internas, filtros (atención humana, mías, sin asignar, etiqueta)
+  - [x] Responder desde el panel pausa la IA y asigna la conversación (error encontrado en esta fase)
+  - [x] Métricas de la plataforma con el estado de acceso real, ingresos, consumo de IA y errores
+  - [x] Perfil completo de la empresa; ficha de la empresa en la plataforma (dominio, modalidad, módulos)
+  - [x] Planes editables (precio, moneda, límites, funciones) con auditoría
+  - [x] Módulos por empresa: menú filtrado y API con 403 `MODULE_DISABLED`
+  - [ ] Precios reales de los planes en soles: **los decide Rick** desde Plataforma → Planes y precios
+  - [ ] Aviso de vencimiento en vivo sin recargar (error 4): pasa a la fase 3
+- [ ] Fase 3: alta de empresas desde la plataforma
+- [ ] Fase 4: automatizaciones
+- [ ] Fase 5: asistente IA ampliado
+- [ ] Fase 6: integraciones centralizadas
+- [ ] Fase 7: plantillas por sector
+- [ ] Fase 8: entrega de sistemas
+- [ ] Fase 9: actualizaciones
+- [ ] Fase 10: cierre (pruebas, seguridad, documentación)
+
 ## FASE 7: automatizaciones, pedidos, inventario, notificaciones
 ## FASE 8: seguridad, pruebas E2E, optimización, documentación, producción

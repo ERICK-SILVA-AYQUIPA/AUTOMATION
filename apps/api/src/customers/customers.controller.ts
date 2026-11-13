@@ -1,3 +1,4 @@
+import { RequireModule } from '../common/decorators/module.decorator.js';
 import { Body, Controller, Get, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
 import { z } from 'zod';
 import { RequirePermission, TenantUser } from '../common/decorators/auth.decorators.js';
@@ -26,6 +27,7 @@ const listSchema = paginationSchema.extend({
   tag: z.string().trim().max(30).optional(),
 });
 
+@RequireModule('customers')
 @Controller('customers')
 export class CustomersController {
   constructor(private readonly db: DatabaseService) {}

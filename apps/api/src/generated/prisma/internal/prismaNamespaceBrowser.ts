@@ -74,6 +74,7 @@ export const ModelName = {
   OrderStatusHistory: 'OrderStatusHistory',
   WhatsappNumber: 'WhatsappNumber',
   Conversation: 'Conversation',
+  ConversationNote: 'ConversationNote',
   Message: 'Message',
   InboundEvent: 'InboundEvent',
   OutboundMessage: 'OutboundMessage',
@@ -122,6 +123,19 @@ export const TenantScalarFieldEnum = {
   status: 'status',
   currency: 'currency',
   timezone: 'timezone',
+  legalName: 'legalName',
+  taxId: 'taxId',
+  country: 'country',
+  address: 'address',
+  phone: 'phone',
+  contactEmail: 'contactEmail',
+  businessType: 'businessType',
+  logoUrl: 'logoUrl',
+  brandColor: 'brandColor',
+  customDomain: 'customDomain',
+  deploymentMode: 'deploymentMode',
+  enabledModules: 'enabledModules',
+  templateKey: 'templateKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -473,6 +487,7 @@ export const ConversationScalarFieldEnum = {
   handoffReason: 'handoffReason',
   handoffAt: 'handoffAt',
   assignedUserId: 'assignedUserId',
+  tags: 'tags',
   chatwootConversationId: 'chatwootConversationId',
   difyConversationId: 'difyConversationId',
   context: 'context',
@@ -482,6 +497,18 @@ export const ConversationScalarFieldEnum = {
 } as const
 
 export type ConversationScalarFieldEnum = (typeof ConversationScalarFieldEnum)[keyof typeof ConversationScalarFieldEnum]
+
+
+export const ConversationNoteScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  conversationId: 'conversationId',
+  authorId: 'authorId',
+  body: 'body',
+  createdAt: 'createdAt'
+} as const
+
+export type ConversationNoteScalarFieldEnum = (typeof ConversationNoteScalarFieldEnum)[keyof typeof ConversationNoteScalarFieldEnum]
 
 
 export const MessageScalarFieldEnum = {

@@ -5,17 +5,23 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { LogOut, Monitor } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
-import { dateTime, date, money, num } from '@/lib/format';
-import { Badge, Button, Card, ErrorBox, Field, Input, Loading, PageHeader, Select } from '@/components/ui';
+import { BUSINESS_TYPE, PAYMENT_METHOD, dateTime, date, money, num } from '@/lib/format';
+import { Badge, Button, Card, ErrorBox, Field, Input, Loading, PageHeader, Select, Textarea } from '@/components/ui';
 import type { Branch, SubscriptionAccess } from '@/lib/types';
 import { useToast } from '@/components/ui/toast';
 import { RequirePermission } from '@/components/guard';
 
 interface Tenant {
   id: string; name: string; slug: string; currency: string; timezone: string; status: string; createdAt: string;
+  legalName: string | null; taxId: string | null; country: string; address: string | null; phone: string | null; contactEmail: string | null;
+  businessType: string; logoUrl: string | null; brandColor: string | null; customDomain: string | null; deploymentMode: string;
   subscription: { status: string; trialEndsAt: string | null; currentPeriodEnd: string | null; plan: { code: string; name: string; priceMonthly: string; currency: string }; access: SubscriptionAccess } | null;
   limits: { maxUsers: number; maxWhatsappNumbers: number; maxConversationsPerMonth: number; maxProducts: number; maxBranches: number; features: string[] };
   usage: { period: string; users: number; products: number; whatsappNumbers: number; conversations?: number };
+}
+interface Profile {
+  name: string; currency: string; timezone: string; country: string; businessType: string; legalName: string; taxId: string;
+  address: string; phone: string; contactEmail: string; logoUrl: string; brandColor: string; useColor: boolean;
 }
 interface Session { id: string; userAgent: string | null; ip: string | null; createdAt: string; expiresAt: string; current: boolean }
 
@@ -26,7 +32,6 @@ const ACCESS: Record<SubscriptionAccess['state'], { label: string; tone: 'info' 
   EXPIRED: { label: 'Solo lectura', tone: 'danger' },
   CANCELED: { label: 'Cancelada', tone: 'danger' },
 };
-const METHODS: Record<string, string> = { YAPE: 'Yape', PLIN: 'Plin', BANK_TRANSFER: 'Transferencia', CASH: 'Efectivo', OTHER: 'Otro' };
 interface Payment { id: string; amount: string; currency: string; months: number; method: string; reference: string | null; paidAt: string; periodEnd: string; plan: { name: string } }
 const FEATURE_LABEL: Record<string, string> = {
   human_handoff: 'Transferencia a humano', reports: 'Reportes', advanced_automations: 'Automatizaciones avanzadas',
@@ -56,7 +61,7 @@ function Settings() {
   const sessions = useQuery({ queryKey: ['sessions'], queryFn: () => api<Session[]>('/auth/sessions') });
   const branches = useQuery({ queryKey: ['branches'], queryFn: () => api<Branch[]>('/branches') });
   const payments = useQuery({ queryKey: ['tenant-payments'], queryFn: () => api<Payment[]>('/tenant/payments'), enabled: can('tenant:settings') });
-  const [draft, setDraft] = useState<{ name: string; currency: string; timezone: string } | null>(null);
+  const [draft, setDraft] = useState<Profile | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
 
@@ -65,7 +70,15 @@ function Settings() {
     setBusy(true);
     setError(null);
     try {
-      await api('/tenant', { method: 'PATCH', body: f });
+      const n = (v: string) => (v.trim() ? v.trim() : null);
+      await api('/tenant', {
+        method: 'PATCH',
+        body: {
+          name: f.name, currency: f.currency, timezone: f.timezone, country: f.country.toUpperCase(), businessType: f.businessType,
+          legalName: n(f.legalName), taxId: n(f.taxId), address: n(f.address), phone: n(f.phone), contactEmail: n(f.contactEmail),
+          logoUrl: n(f.logoUrl), brandColor: f.useColor ? f.brandColor : null,
+        },
+      });
       await reload();
       await qc.invalidateQueries();
       setDraft(null);
@@ -89,7 +102,11 @@ function Settings() {
   if (t.isLoading) return <Loading />;
   if (!t.data) return <ErrorBox error={t.error} />;
   const d = t.data;
-  const f = draft ?? { name: d.name, currency: d.currency, timezone: d.timezone };
+  const f: Profile = draft ?? {
+    name: d.name, currency: d.currency, timezone: d.timezone, country: d.country, businessType: d.businessType,
+    legalName: d.legalName ?? '', taxId: d.taxId ?? '', address: d.address ?? '', phone: d.phone ?? '', contactEmail: d.contactEmail ?? '',
+    logoUrl: d.logoUrl ?? '', brandColor: d.brandColor ?? '#2563eb', useColor: !!d.brandColor,
+  };
   const setF = setDraft;
   const sub = d.subscription;
   const zones = TIMEZONES.includes(f.timezone) ? TIMEZONES : [f.timezone, ...TIMEZONES];
@@ -101,7 +118,28 @@ function Settings() {
         <form onSubmit={save}>
           <Card className="flex flex-col gap-4 p-5">
             <h2 className="font-medium">Empresa</h2>
-            <Field label="Nombre comercial"><Input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} disabled={!edit} required minLength={2} maxLength={120} /></Field>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Nombre comercial"><Input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} disabled={!edit} required minLength={2} maxLength={120} /></Field>
+              <Field label="Razón social"><Input value={f.legalName} onChange={(e) => setF({ ...f, legalName: e.target.value })} disabled={!edit} maxLength={200} /></Field>
+              <Field label={f.country === 'PE' ? 'RUC' : 'Identificador fiscal'} hint={f.country === 'PE' ? '11 dígitos' : undefined}>
+                <Input value={f.taxId} onChange={(e) => setF({ ...f, taxId: e.target.value })} disabled={!edit} maxLength={30} inputMode={f.country === 'PE' ? 'numeric' : undefined} pattern={f.country === 'PE' ? '(10|15|17|20)[0-9]{9}' : undefined} title={f.country === 'PE' ? 'El RUC tiene 11 dígitos y empieza por 10, 15, 17 o 20' : undefined} />
+              </Field>
+              <Field label="País" hint="Código de 2 letras (PE, CO, MX…)"><Input value={f.country} onChange={(e) => setF({ ...f, country: e.target.value.toUpperCase() })} disabled={!edit} required pattern="[A-Za-z]{2}" maxLength={2} /></Field>
+              <Field label="Tipo de negocio">
+                <Select value={f.businessType} onChange={(e) => setF({ ...f, businessType: e.target.value })} disabled={!edit}>
+                  {Object.entries(BUSINESS_TYPE).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+                </Select>
+              </Field>
+              <Field label="Teléfono"><Input value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} disabled={!edit} maxLength={30} type="tel" /></Field>
+              <Field label="Correo de contacto"><Input value={f.contactEmail} onChange={(e) => setF({ ...f, contactEmail: e.target.value })} disabled={!edit} maxLength={200} type="email" /></Field>
+              <Field label="Logotipo (URL https)"><Input value={f.logoUrl} onChange={(e) => setF({ ...f, logoUrl: e.target.value })} disabled={!edit} maxLength={500} type="url" pattern="https://.*" placeholder="https://…" /></Field>
+            </div>
+            <Field label="Dirección"><Textarea rows={2} value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} disabled={!edit} maxLength={300} /></Field>
+            <div className="flex items-center gap-3 text-sm">
+              <label className="flex items-center gap-2"><input type="checkbox" className="size-4 accent-[var(--primary)]" checked={f.useColor} onChange={(e) => setF({ ...f, useColor: e.target.checked })} disabled={!edit} />Color de marca</label>
+              {f.useColor && <input type="color" aria-label="Color de marca" value={f.brandColor} onChange={(e) => setF({ ...f, brandColor: e.target.value })} disabled={!edit} className="h-8 w-12 cursor-pointer rounded border border-border bg-transparent" />}
+              {f.useColor && <span className="font-mono text-xs text-muted">{f.brandColor}</span>}
+            </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Moneda" hint="Se usa en precios y pedidos nuevos">
                 <Select value={f.currency} onChange={(e) => setF({ ...f, currency: e.target.value })} disabled={!edit}>
@@ -114,7 +152,7 @@ function Settings() {
                 </Select>
               </Field>
             </div>
-            <p className="text-xs text-muted">Identificador: {d.slug} · creada el {date(d.createdAt)}</p>
+            <p className="text-xs text-muted">Identificador: {d.slug} · creada el {date(d.createdAt)}{d.customDomain && ` · dominio ${d.customDomain}`}</p>
             <ErrorBox error={error} />
             {edit && <Button type="submit" className="self-end" loading={busy}>Guardar</Button>}
           </Card>
@@ -150,7 +188,7 @@ function Settings() {
               <ul className="flex flex-col gap-1 text-sm">
                 {payments.data.slice(0, 6).map((p) => (
                   <li key={p.id} className="flex justify-between gap-2">
-                    <span>{date(p.paidAt)} · {p.plan.name} · {p.months} {p.months === 1 ? 'mes' : 'meses'} <span className="text-muted">({METHODS[p.method] ?? p.method})</span></span>
+                    <span>{date(p.paidAt)} · {p.plan.name} · {p.months} {p.months === 1 ? 'mes' : 'meses'} <span className="text-muted">({PAYMENT_METHOD[p.method] ?? p.method})</span></span>
                     <span className="tabular-nums">{money(p.amount, p.currency)}</span>
                   </li>
                 ))}

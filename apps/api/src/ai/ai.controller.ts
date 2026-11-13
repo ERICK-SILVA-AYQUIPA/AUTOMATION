@@ -1,3 +1,4 @@
+import { RequireModule } from '../common/decorators/module.decorator.js';
 import { Body, Controller, Get, HttpCode, Inject, Put, Post, ServiceUnavailableException } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { z } from 'zod';
@@ -23,6 +24,7 @@ const testSchema = z.object({
 
 /** Configuración y prueba del asistente de IA de la empresa (FASE 6, ADR 037). */
 @RequirePermission('ai:configure')
+@RequireModule('ai')
 @Controller('ai')
 export class AiController {
   constructor(

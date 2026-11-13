@@ -88,7 +88,7 @@ export class AssistantService {
       if (!conv) return null;
       const [settings, tenant, sub, latest, history, usage] = await Promise.all([
         tx.aiSettings.findUnique({ where: { tenantId } }),
-        tx.tenant.findUniqueOrThrow({ where: { id: tenantId }, select: { name: true, currency: true, timezone: true, status: true } }),
+        tx.tenant.findUniqueOrThrow({ where: { id: tenantId }, select: { name: true, currency: true, timezone: true, status: true, enabledModules: true } }),
         tx.subscription.findFirst({ select: { status: true, trialEndsAt: true, currentPeriodEnd: true } }),
         tx.message.findFirst({ where: { conversationId, direction: 'INBOUND' }, orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], select: { id: true, content: true } }),
         tx.message.findMany({ where: { conversationId }, orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], take: HISTORY, select: { direction: true, type: true, content: true } }),
@@ -99,7 +99,7 @@ export class AssistantService {
     });
     if (!ctx) return { outcome: 'skipped', reason: 'conversación no encontrada' };
     const { conv, settings, tenant, sub, latest } = ctx;
-    if (!settings?.isEnabled) return { outcome: 'skipped', reason: 'asistente desactivado' };
+    if (!settings?.isEnabled || !tenant.enabledModules.includes('ai')) return { outcome: 'skipped', reason: 'asistente desactivado' };
     if (tenant.status !== 'ACTIVE') return { outcome: 'skipped', reason: 'empresa suspendida' };
     if (conv.status !== 'OPEN' || conv.botStatus !== 'ACTIVE') return { outcome: 'skipped', reason: 'atención humana' };
     if (!sub || subscriptionAccess(sub, this.env.BILLING_GRACE_DAYS).readOnly) return { outcome: 'skipped', reason: 'suscripción vencida' };

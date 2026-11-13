@@ -41,3 +41,17 @@ export const phoneLabel = (phone: string | null | undefined) => (phone ? `+${pho
 
 /** Nombre del cliente: el guardado por la empresa, o el de su perfil de WhatsApp, o el teléfono */
 export const customerLabel = (c: { name: string | null; phone: string | null; waProfileName?: string | null }) => c.name ?? c.waProfileName ?? phoneLabel(c.phone);
+
+export const PAYMENT_METHOD: Record<string, string> = { YAPE: 'Yape', PLIN: 'Plin', BANK_TRANSFER: 'Transferencia', CASH: 'Efectivo', OTHER: 'Otro' };
+
+export const BUSINESS_TYPE: Record<string, string> = {
+  RETAIL: 'Tienda / comercio', RESTAURANT: 'Restaurante', DISTRIBUTOR: 'Distribuidora', SERVICES: 'Servicios', PHARMACY: 'Farmacia', OTHER: 'Otro',
+};
+
+export const DEPLOYMENT_MODE: Record<string, string> = { SAAS: 'SaaS compartido', DEDICATED: 'Instancia dedicada', CUSTOM: 'Solución a medida' };
+
+/** Mismo orden y claves que MODULES en la API (common/decorators/module.decorator.ts) */
+export const MODULE_LABEL: Record<string, string> = {
+  conversations: 'Conversaciones', ai: 'Asistente IA', catalog: 'Productos y categorías', inventory: 'Inventario',
+  orders: 'Pedidos', customers: 'Clientes', reports: 'Reportes', automations: 'Automatizaciones',
+};

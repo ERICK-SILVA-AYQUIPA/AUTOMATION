@@ -216,7 +216,7 @@ try {
   await step('Un reclamo pasa la conversación a una persona y el asistente deja de responder', async () => {
     await inbound('IN2', 'tengo un reclamo con mi pedido');
     await page.locator('section').getByText(/Te comunico con una persona de nuestro equipo/).waitFor({ timeout: 20_000 });
-    await page.getByText('Atención humana').first().waitFor({ timeout: 10_000 });
+    await page.locator('section').getByText('Atención humana').first().waitFor({ timeout: 10_000 });
     const calls = geminiCalls.length;
     const outs = sent.length;
     await inbound('IN3', '¿hola?');
@@ -225,6 +225,92 @@ try {
     if (geminiCalls.length !== calls || sent.length !== outs) throw new Error('El asistente respondió con la conversación en atención humana');
     await page.screenshot({ path: `${SHOTS}/asistente-derivado.png` });
   });
+
+  await step('Aviso en la campana: lleva a la conversación derivada y queda leído', async () => {
+    await page.reload();
+    const bell = page.getByRole('button', { name: /^Avisos sin leer: [1-9]/ });
+    await bell.waitFor({ timeout: 35_000 });
+    await bell.click();
+    await page.getByRole('dialog', { name: 'Avisos' }).getByRole('button', { name: /Carla Cliente necesita atención/ }).click();
+    await page.waitForURL(/\/conversaciones\?id=[0-9a-f-]{36}$/);
+    await page.getByText('IA en pausa: palabra clave: reclamo', { exact: false }).waitFor();
+    await page.getByRole('button', { name: 'Avisos sin leer: 0' }).waitFor({ timeout: 10_000 });
+  });
+
+  await step('Nota interna, etiqueta y filtro de la bandeja', async () => {
+    await page.getByText(/Notas internas \(0\)/).click();
+    await page.getByLabel('Nueva nota interna').fill('Cliente frecuente: ofrecer delivery gratis');
+    await page.getByRole('button', { name: 'Guardar', exact: true }).click();
+    await page.getByText('Cliente frecuente: ofrecer delivery gratis').waitFor();
+    await page.getByText('Rosa Prueba ·', { exact: false }).first().waitFor();
+    await page.getByLabel('Nueva etiqueta').fill('Reclamo');
+    await page.getByLabel('Nueva etiqueta').press('Enter');
+    await page.getByRole('button', { name: 'Quitar etiqueta reclamo' }).waitFor();
+    await page.getByLabel('Filtrar bandeja').selectOption('human');
+    await page.getByRole('button', { name: /Carla Cliente/ }).waitFor();
+    await page.getByLabel('Filtrar por etiqueta').fill('otra');
+    await page.getByText('Sin conversaciones').waitFor();
+    await page.getByLabel('Filtrar por etiqueta').fill('reclamo');
+    await page.getByRole('button', { name: /Carla Cliente/ }).waitFor();
+    await page.screenshot({ path: `${SHOTS}/bandeja-controles.png` });
+  });
+
+  await step('Reactivar la IA: vuelve a responder; luego se cierra la conversación', async () => {
+    await page.getByRole('button', { name: 'Reactivar IA' }).click();
+    await page.getByText('La IA vuelve a responder esta conversación').waitFor();
+    await page.getByRole('button', { name: 'Pausar IA' }).waitFor();
+    const outs = sent.length;
+    await inbound('IN4', 'y la gaseosa, ¿cuánto cuesta?');
+    for (let i = 0; i < 60 && sent.length === outs; i++) await new Promise((r) => setTimeout(r, 250));
+    if (!sent.slice(outs).some((s) => s.text?.body?.includes('S/ 3.50'))) throw new Error('La IA no respondió tras reactivarla');
+    await page.getByRole('button', { name: 'Cerrar conversación' }).click();
+    await page.getByText('Conversación cerrada').waitFor();
+    await page.getByRole('button', { name: 'Reabrir' }).waitFor();
+  });
+
+  await step('Configuración: perfil de la empresa con RUC', async () => {
+    await page.goto(`${WEB}/configuracion`);
+    await label('Razón social').fill('Bodega IA S.A.C.');
+    await label('RUC').fill('20123456789');
+    await label('Teléfono').fill('+51 900 000 001');
+    await label('Tipo de negocio').selectOption('RETAIL');
+    await page.getByRole('button', { name: 'Guardar', exact: true }).first().click();
+    await page.getByText('Datos de la empresa guardados').waitFor();
+    await page.reload();
+    if ((await label('RUC').inputValue()) !== '20123456789') throw new Error('No se guardó el RUC');
+  });
+
+  if (process.env.PLATFORM_ADMIN_EMAIL) {
+    await step('Plataforma: apagar el módulo Pedidos lo quita del menú de la empresa', async () => {
+      const admin = await (await browser.newContext({ viewport: { width: 1360, height: 900 }, locale: 'es-PE' })).newPage();
+      admin.on('pageerror', (e) => consoleErrors.push(e.stack ?? e.message));
+      await admin.goto(`${WEB}/login`);
+      await admin.getByLabel('Correo', { exact: true }).fill(process.env.PLATFORM_ADMIN_EMAIL);
+      await admin.getByLabel('Contraseña', { exact: true }).fill(process.env.PLATFORM_ADMIN_PASSWORD);
+      await admin.getByRole('button', { name: 'Entrar' }).click();
+      await admin.waitForURL(/\/plataforma$/);
+      await admin.getByText('Por renovar').waitFor();
+      await admin.getByText(/^IA \(/).waitFor();
+      await admin.getByLabel('Buscar empresa').fill(`Bodega IA ${stamp}`);
+      await admin.getByRole('button', { name: `Ver Bodega IA ${stamp}` }).click();
+      const dlg = admin.getByRole('dialog');
+      await dlg.getByText('Bodega IA S.A.C.').or(dlg.getByLabel('Razón social')).first().waitFor();
+      await dlg.getByText('Rosa Prueba').waitFor();
+      await dlg.getByLabel('Pedidos').uncheck();
+      await dlg.getByRole('button', { name: 'Guardar cambios' }).click();
+      await admin.getByText('Empresa actualizada').waitFor();
+      await admin.screenshot({ path: `${SHOTS}/plataforma-ficha.png` });
+      await admin.keyboard.press('Escape');
+      await admin.getByRole('tab', { name: 'Planes y precios' }).click();
+      await admin.getByText('Los precios iniciales').waitFor();
+      await admin.screenshot({ path: `${SHOTS}/plataforma-planes.png`, fullPage: true });
+
+      await page.reload();
+      await page.getByRole('navigation', { name: 'Menú principal' }).getByRole('link', { name: 'Productos', exact: true }).first().waitFor();
+      if (await page.getByRole('navigation', { name: 'Menú principal' }).getByRole('link', { name: 'Pedidos', exact: true }).count()) throw new Error('Pedidos sigue en el menú');
+      await admin.close();
+    });
+  }
 
   if (consoleErrors.length) throw new Error(`Errores en la consola: ${consoleErrors.join(' | ').slice(0, 500)}`);
 } finally {
