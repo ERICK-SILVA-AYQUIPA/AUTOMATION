@@ -79,6 +79,7 @@ const leadSelect = {
   id: true, number: true, name: true, company: true, phone: true, email: true, sector: true, need: true, source: true, sourceDetail: true,
   estimatedBudget: true, budgetCurrency: true, interestMode: true, interestPlan: true, interestModules: true, status: true,
   ownerId: true, nextAction: true, nextActionAt: true, lostReason: true, tenantId: true, convertedAt: true, statusChangedAt: true, createdAt: true, updatedAt: true,
+  followUpConsent: true, followUpConsentAt: true, followUpConsentSource: true,
   owner: { select: { id: true, name: true, email: true } },
 } satisfies Prisma.SalesLeadSelect;
 

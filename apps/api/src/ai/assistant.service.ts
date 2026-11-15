@@ -13,6 +13,8 @@ import { LlmError, type TranscriptEntry } from './chat-model.js';
 import { runTool, toolsFor, type ToolContext, type ToolFeatures } from './ai-tools.js';
 import { ReservationsService } from '../reservations/reservations.service.js';
 import { readSettings } from '../tenants/tenant-settings.js';
+import { COMMERCIAL_TOOLS, commercialSystemPrompt, runCommercialTool, type AgentContext } from '../commercial/agent.js';
+import { houseTenantId, readCommercial } from '../commercial/settings.js';
 import { LANGUAGES, describeHours, hasBusinessInfo, isOpen, readProfile, type AiProfile } from './ai-profile.js';
 
 const HISTORY = 20;
@@ -143,11 +145,13 @@ export class AssistantService {
 
   /** Responde al mensaje entrante `messageId` si corresponde. */
   async reply(tenantId: string, conversationId: string, messageId: string): Promise<ReplyOutcome> {
-    const resolution = await this.router.resolve(tenantId, 'ASSISTANT');
+    // La empresa interna de la plataforma atiende su WhatsApp con el agente comercial (ADR 048)
+    const house = (await houseTenantId(this.db)) === tenantId;
+    const resolution = await this.router.resolve(tenantId, house ? 'COMMERCIAL' : 'ASSISTANT');
     // Sin ningún proveedor asignado no hay asistente (lo atiende el equipo, como siempre)
     if (!resolution.ok && resolution.code === 'NOT_CONFIGURED') return { outcome: 'skipped', reason: resolution.reason };
     const ctx = await this.db.tenant(tenantId, async (tx) => {
-      const conv = await tx.conversation.findFirst({ where: { id: conversationId, tenantId }, select: { id: true, status: true, botStatus: true, customerId: true } });
+      const conv = await tx.conversation.findFirst({ where: { id: conversationId, tenantId }, select: { id: true, status: true, botStatus: true, customerId: true, customer: { select: { phone: true } } } });
       if (!conv) return null;
       const [settings, tenant, sub, latest, history, usage, tokens, docs] = await Promise.all([
         tx.aiSettings.findUnique({ where: { tenantId } }),
@@ -220,7 +224,9 @@ export class AssistantService {
       features: featuresOf(tenant),
       requestHandoff: (r) => (handoffReason = r),
     };
-    const { text, tools, tokens } = await this.converse(tenantId, resolution.ai, systemPrompt(profile, tenant, new Date(), ctx.docs, promptExtras(tenant)), transcript, toolCtx);
+    const { text, tools, tokens } = house
+      ? await this.converseCommercial(tenantId, resolution.ai, transcript, conversationId, conv.customer.phone, (r) => (handoffReason = r))
+      : await this.converse(tenantId, resolution.ai, systemPrompt(profile, tenant, new Date(), ctx.docs, promptExtras(tenant)), transcript, toolCtx);
     await this.recordUsage(tenantId, tokens);
 
     // Mientras pensaba pudo llegar otro mensaje o tomar la conversación un agente
@@ -286,6 +292,15 @@ export class AssistantService {
   /** Conversación con el modelo y las herramientas del asistente de la empresa */
   private converse(tenantId: string, ai: ResolvedAi, system: string, transcript: TranscriptEntry[], ctx: ToolContext) {
     return runConversation(this.router, tenantId, 'ASSISTANT', ai, { system, transcript, tools: toolsFor(ctx.features), run: (name, args) => runTool(ctx, name, args) });
+  }
+
+  /** Agente comercial por el WhatsApp de la empresa interna: datos de la plataforma, prospectos en el centro comercial */
+  private async converseCommercial(tenantId: string, ai: ResolvedAi, transcript: TranscriptEntry[], conversationId: string, phone: string | null, requestHandoff: (r: string) => void) {
+    const c = await readCommercial(this.db);
+    const digits = phone?.replace(/^\+/, '');
+    const lead = digits ? await this.db.system.salesLead.findFirst({ where: { status: { not: 'LOST' }, phone: { in: [digits, `+${digits}`] } }, orderBy: { createdAt: 'desc' }, select: { id: true } }) : null;
+    const actx: AgentContext = { channel: 'WHATSAPP', leadId: lead?.id ?? null, phone: phone ? `+${digits}` : null, sessionId: null, conversationId, test: false, requestHandoff };
+    return runConversation(this.router, tenantId, 'COMMERCIAL', ai, { system: commercialSystemPrompt(c, 'WHATSAPP', new Date()), transcript, tools: COMMERCIAL_TOOLS, run: (name, args) => runCommercialTool(this.db, actx, name, args) });
   }
 
   private send(tenantId: string, conversationId: string, messageId: string, text: string) {

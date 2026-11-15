@@ -61,6 +61,20 @@ Pruebas: `api-center.e2e-spec.ts` (API y PostgreSQL) y `api-center.mjs` (navegad
 | Convertir en cliente | El asistente de alta llega con los datos del prospecto, crea la empresa en preparación e invita al administrador | Probado en local (correo en Mailpit) |
 | Separación de nuestro negocio y el de las empresas | Las tablas no son accesibles para el rol de ejecución; una empresa recibe 403 | Probado |
 
+## Fase B: página comercial y agente comercial (ADR 048)
+
+| Criterio | Cómo se demuestra | Estado |
+|---|---|---|
+| Página con presentación, problemas, beneficios, funciones, sectores, modalidades, planes, cómo contratar, preguntas y contacto | `commercial.mjs` (visitante sin sesión) | Probado en local |
+| Funciones y planes reales, sin precios inventados | Módulos, plantillas y planes salen del sistema; el precio solo si la plataforma lo publica (`commercial.e2e-spec.ts`) | Probado |
+| Testimonios solo reales | Exigen fecha de autorización; sin testimonios no hay sección | Probado |
+| Recorrido del visitante: sector, necesidad, planes, demostración | «Es mi sector» abre el formulario con el sector elegido; la solicitud crea el prospecto con próxima acción | Probado en navegador |
+| Agente que explica, compara planes, registra prospectos, agenda demostraciones y deriva a un vendedor | Chat web con la IA de la empresa interna (servidor local que responde como Anthropic) | Probado en local; **con un modelo real: pendiente de clave** |
+| No inventa precios, no acepta contratos ni pagos | No tiene herramientas para eso; reglas fijas en el sistema; prueba: precio no publicado no aparece | Probado |
+| Operaciones registradas | Prospecto, solicitud, derivación e historial del chat en el centro comercial | Probado |
+| Agente por WhatsApp | Responde en la empresa interna con el número que da Meta y deriva a la bandeja (`commercial.e2e-spec.ts`) | Probado en local; **con número real de Meta: pendiente** |
+| Seguimiento con consentimiento | Consentimiento guardado con fecha y canal; seguimiento como tarea del equipo | Parcial: **el envío automático al prospecto no está implementado** |
+
 ## Seguridad (fase 10)
 
 - Dependencias de producción: `pnpm audit --prod` sin vulnerabilidades conocidas (2026-11-13). No se añadieron dependencias en las fases 8 y 9: el ZIP y el actualizador usan solo Node y herramientas del sistema.

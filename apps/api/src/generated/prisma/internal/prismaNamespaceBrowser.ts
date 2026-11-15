@@ -96,7 +96,10 @@ export const ModelName = {
   AiAssignment: 'AiAssignment',
   AiUsageEvent: 'AiUsageEvent',
   SalesLead: 'SalesLead',
-  SalesActivity: 'SalesActivity'
+  SalesActivity: 'SalesActivity',
+  CommercialSettings: 'CommercialSettings',
+  SalesChatSession: 'SalesChatSession',
+  SalesChatMessage: 'SalesChatMessage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -928,6 +931,9 @@ export const SalesLeadScalarFieldEnum = {
   nextAction: 'nextAction',
   nextActionAt: 'nextActionAt',
   lostReason: 'lostReason',
+  followUpConsent: 'followUpConsent',
+  followUpConsentAt: 'followUpConsentAt',
+  followUpConsentSource: 'followUpConsentSource',
   tenantId: 'tenantId',
   convertedAt: 'convertedAt',
   statusChangedAt: 'statusChangedAt',
@@ -950,6 +956,56 @@ export const SalesActivityScalarFieldEnum = {
 } as const
 
 export type SalesActivityScalarFieldEnum = (typeof SalesActivityScalarFieldEnum)[keyof typeof SalesActivityScalarFieldEnum]
+
+
+export const CommercialSettingsScalarFieldEnum = {
+  id: 'id',
+  published: 'published',
+  headline: 'headline',
+  subheadline: 'subheadline',
+  problems: 'problems',
+  benefits: 'benefits',
+  faqs: 'faqs',
+  testimonials: 'testimonials',
+  contactEmail: 'contactEmail',
+  contactWhatsapp: 'contactWhatsapp',
+  showPrices: 'showPrices',
+  chatEnabled: 'chatEnabled',
+  agentName: 'agentName',
+  agentInstructions: 'agentInstructions',
+  houseTenantId: 'houseTenantId',
+  publishedAt: 'publishedAt',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CommercialSettingsScalarFieldEnum = (typeof CommercialSettingsScalarFieldEnum)[keyof typeof CommercialSettingsScalarFieldEnum]
+
+
+export const SalesChatSessionScalarFieldEnum = {
+  id: 'id',
+  tokenHash: 'tokenHash',
+  leadId: 'leadId',
+  messageCount: 'messageCount',
+  handoffReason: 'handoffReason',
+  handoffAt: 'handoffAt',
+  lastMessageAt: 'lastMessageAt',
+  createdAt: 'createdAt'
+} as const
+
+export type SalesChatSessionScalarFieldEnum = (typeof SalesChatSessionScalarFieldEnum)[keyof typeof SalesChatSessionScalarFieldEnum]
+
+
+export const SalesChatMessageScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  role: 'role',
+  text: 'text',
+  tools: 'tools',
+  createdAt: 'createdAt'
+} as const
+
+export type SalesChatMessageScalarFieldEnum = (typeof SalesChatMessageScalarFieldEnum)[keyof typeof SalesChatMessageScalarFieldEnum]
 
 
 export const SortOrder = {

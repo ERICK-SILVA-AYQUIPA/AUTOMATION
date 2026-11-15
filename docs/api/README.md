@@ -173,6 +173,25 @@ Centro de APIs de la plataforma (permiso `platform:manage`, `/platform/api-cente
 | POST | `/platform/sales/leads/:id/payment` | Validación administrativa: `{amount, currency, method, reference, paidAt, verifiedInAccount: true, note?}`. Solo desde `PAYMENT_PENDING` (409 `NOT_PAYMENT_PENDING`) |
 | GET | `/platform/sales/leads/:id/conversion` | Datos para el asistente de alta; 409 `LEAD_NOT_READY` sin pago confirmado. El alta (`POST /platform/tenants`) acepta `leadId` |
 
+### Página comercial y agente (ADR 048)
+
+Plataforma (`platform:manage`):
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET / PUT | `/platform/commercial` | Textos de la página, contacto, `showPrices`, `chatEnabled`, nombre e indicaciones del agente, `houseTenantId`; la respuesta trae `agent {available, reason, label}` y las empresas elegibles. Publicar exige `headline`; testimonios con `authorizedAt` |
+| POST | `/platform/commercial/agent/test` | `{messages:[{role: customer|assistant, text}]}`: prueba sin registrar nada. 503 `AGENT_UNAVAILABLE` |
+| GET | `/platform/commercial/leads/:id/chats` | Conversaciones del chat web de un prospecto |
+
+Públicas (sin sesión, con límite por IP):
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/public/commercial` | Contenido publicado con módulos, sectores, modalidades, planes (precio `null` si no se publica) y preguntas. 404 `NOT_PUBLISHED` |
+| POST | `/public/leads` | `{name, company?, phone?, email?, sector?, need, interestPlan?, interestMode?, intent: DEMO|PROPOSAL|CONTACT, preferredTime?, acceptPrivacy: true, followUpConsent}` (teléfono o correo obligatorio). 5 por minuto |
+| POST | `/public/chat` | Inicia una conversación: `{id, token, maxMessages}`. 404 `CHAT_DISABLED`, 503 `AGENT_UNAVAILABLE` |
+| POST | `/public/chat/:id/messages` | `{token, text}` → `{reply, handoff, registered, remaining}`. 401 `CHAT_SESSION`, 409 `CHAT_LIMIT` |
+
 Panel general (permiso `platform:manage`): `GET /platform/integrations` (servicios del servidor con `configured`, variables de entorno y última prueba; números de WhatsApp por estado y con error; fallos de 7 días) y `POST /platform/integrations/:service/test` (`database, redis, gemini, smtp, n8n, chatwoot`; auditado).
 
 ### Recibir webhooks

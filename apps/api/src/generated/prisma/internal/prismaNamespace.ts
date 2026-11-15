@@ -442,7 +442,10 @@ export const ModelName = {
   AiAssignment: 'AiAssignment',
   AiUsageEvent: 'AiUsageEvent',
   SalesLead: 'SalesLead',
-  SalesActivity: 'SalesActivity'
+  SalesActivity: 'SalesActivity',
+  CommercialSettings: 'CommercialSettings',
+  SalesChatSession: 'SalesChatSession',
+  SalesChatMessage: 'SalesChatMessage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -458,7 +461,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "plan" | "tenant" | "subscription" | "payment" | "delivery" | "systemUpdate" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "conversationNote" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "aiKnowledgeDoc" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog" | "integrationCheck" | "webhookEndpoint" | "webhookDelivery" | "reservation" | "providerCredential" | "aiModel" | "aiAssignment" | "aiUsageEvent" | "salesLead" | "salesActivity"
+    modelProps: "plan" | "tenant" | "subscription" | "payment" | "delivery" | "systemUpdate" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "conversationNote" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "aiKnowledgeDoc" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog" | "integrationCheck" | "webhookEndpoint" | "webhookDelivery" | "reservation" | "providerCredential" | "aiModel" | "aiAssignment" | "aiUsageEvent" | "salesLead" | "salesActivity" | "commercialSettings" | "salesChatSession" | "salesChatMessage"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3866,6 +3869,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CommercialSettings: {
+      payload: Prisma.$CommercialSettingsPayload<ExtArgs>
+      fields: Prisma.CommercialSettingsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CommercialSettingsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSettingsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CommercialSettingsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSettingsPayload>
+        }
+        findFirst: {
+          args: Prisma.CommercialSettingsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSettingsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CommercialSettingsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSettingsPayload>
+        }
+        findMany: {
+          args: Prisma.CommercialSettingsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSettingsPayload>[]
+        }
+        create: {
+          args: Prisma.CommercialSettingsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSettingsPayload>
+        }
+        createMany: {
+          args: Prisma.CommercialSettingsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CommercialSettingsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSettingsPayload>[]
+        }
+        delete: {
+          args: Prisma.CommercialSettingsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSettingsPayload>
+        }
+        update: {
+          args: Prisma.CommercialSettingsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSettingsPayload>
+        }
+        deleteMany: {
+          args: Prisma.CommercialSettingsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CommercialSettingsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CommercialSettingsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSettingsPayload>[]
+        }
+        upsert: {
+          args: Prisma.CommercialSettingsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSettingsPayload>
+        }
+        aggregate: {
+          args: Prisma.CommercialSettingsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCommercialSettings>
+        }
+        groupBy: {
+          args: Prisma.CommercialSettingsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommercialSettingsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CommercialSettingsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommercialSettingsCountAggregateOutputType> | number
+        }
+      }
+    }
+    SalesChatSession: {
+      payload: Prisma.$SalesChatSessionPayload<ExtArgs>
+      fields: Prisma.SalesChatSessionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SalesChatSessionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatSessionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SalesChatSessionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatSessionPayload>
+        }
+        findFirst: {
+          args: Prisma.SalesChatSessionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatSessionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SalesChatSessionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatSessionPayload>
+        }
+        findMany: {
+          args: Prisma.SalesChatSessionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatSessionPayload>[]
+        }
+        create: {
+          args: Prisma.SalesChatSessionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatSessionPayload>
+        }
+        createMany: {
+          args: Prisma.SalesChatSessionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SalesChatSessionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatSessionPayload>[]
+        }
+        delete: {
+          args: Prisma.SalesChatSessionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatSessionPayload>
+        }
+        update: {
+          args: Prisma.SalesChatSessionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatSessionPayload>
+        }
+        deleteMany: {
+          args: Prisma.SalesChatSessionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SalesChatSessionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SalesChatSessionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatSessionPayload>[]
+        }
+        upsert: {
+          args: Prisma.SalesChatSessionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatSessionPayload>
+        }
+        aggregate: {
+          args: Prisma.SalesChatSessionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSalesChatSession>
+        }
+        groupBy: {
+          args: Prisma.SalesChatSessionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SalesChatSessionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SalesChatSessionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SalesChatSessionCountAggregateOutputType> | number
+        }
+      }
+    }
+    SalesChatMessage: {
+      payload: Prisma.$SalesChatMessagePayload<ExtArgs>
+      fields: Prisma.SalesChatMessageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SalesChatMessageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatMessagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SalesChatMessageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatMessagePayload>
+        }
+        findFirst: {
+          args: Prisma.SalesChatMessageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatMessagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SalesChatMessageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatMessagePayload>
+        }
+        findMany: {
+          args: Prisma.SalesChatMessageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatMessagePayload>[]
+        }
+        create: {
+          args: Prisma.SalesChatMessageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatMessagePayload>
+        }
+        createMany: {
+          args: Prisma.SalesChatMessageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SalesChatMessageCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatMessagePayload>[]
+        }
+        delete: {
+          args: Prisma.SalesChatMessageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatMessagePayload>
+        }
+        update: {
+          args: Prisma.SalesChatMessageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatMessagePayload>
+        }
+        deleteMany: {
+          args: Prisma.SalesChatMessageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SalesChatMessageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SalesChatMessageUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatMessagePayload>[]
+        }
+        upsert: {
+          args: Prisma.SalesChatMessageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesChatMessagePayload>
+        }
+        aggregate: {
+          args: Prisma.SalesChatMessageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSalesChatMessage>
+        }
+        groupBy: {
+          args: Prisma.SalesChatMessageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SalesChatMessageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SalesChatMessageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SalesChatMessageCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -4718,6 +4943,9 @@ export const SalesLeadScalarFieldEnum = {
   nextAction: 'nextAction',
   nextActionAt: 'nextActionAt',
   lostReason: 'lostReason',
+  followUpConsent: 'followUpConsent',
+  followUpConsentAt: 'followUpConsentAt',
+  followUpConsentSource: 'followUpConsentSource',
   tenantId: 'tenantId',
   convertedAt: 'convertedAt',
   statusChangedAt: 'statusChangedAt',
@@ -4740,6 +4968,56 @@ export const SalesActivityScalarFieldEnum = {
 } as const
 
 export type SalesActivityScalarFieldEnum = (typeof SalesActivityScalarFieldEnum)[keyof typeof SalesActivityScalarFieldEnum]
+
+
+export const CommercialSettingsScalarFieldEnum = {
+  id: 'id',
+  published: 'published',
+  headline: 'headline',
+  subheadline: 'subheadline',
+  problems: 'problems',
+  benefits: 'benefits',
+  faqs: 'faqs',
+  testimonials: 'testimonials',
+  contactEmail: 'contactEmail',
+  contactWhatsapp: 'contactWhatsapp',
+  showPrices: 'showPrices',
+  chatEnabled: 'chatEnabled',
+  agentName: 'agentName',
+  agentInstructions: 'agentInstructions',
+  houseTenantId: 'houseTenantId',
+  publishedAt: 'publishedAt',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CommercialSettingsScalarFieldEnum = (typeof CommercialSettingsScalarFieldEnum)[keyof typeof CommercialSettingsScalarFieldEnum]
+
+
+export const SalesChatSessionScalarFieldEnum = {
+  id: 'id',
+  tokenHash: 'tokenHash',
+  leadId: 'leadId',
+  messageCount: 'messageCount',
+  handoffReason: 'handoffReason',
+  handoffAt: 'handoffAt',
+  lastMessageAt: 'lastMessageAt',
+  createdAt: 'createdAt'
+} as const
+
+export type SalesChatSessionScalarFieldEnum = (typeof SalesChatSessionScalarFieldEnum)[keyof typeof SalesChatSessionScalarFieldEnum]
+
+
+export const SalesChatMessageScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  role: 'role',
+  text: 'text',
+  tools: 'tools',
+  createdAt: 'createdAt'
+} as const
+
+export type SalesChatMessageScalarFieldEnum = (typeof SalesChatMessageScalarFieldEnum)[keyof typeof SalesChatMessageScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -5378,6 +5656,20 @@ export type ListEnumSalesActivityTypeFieldRefInput<$PrismaModel> = FieldRefInput
 
 
 /**
+ * Reference to a field of type 'SalesChatRole'
+ */
+export type EnumSalesChatRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SalesChatRole'>
+    
+
+
+/**
+ * Reference to a field of type 'SalesChatRole[]'
+ */
+export type ListEnumSalesChatRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SalesChatRole[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -5587,6 +5879,9 @@ export type GlobalOmitConfig = {
   aiUsageEvent?: Prisma.AiUsageEventOmit
   salesLead?: Prisma.SalesLeadOmit
   salesActivity?: Prisma.SalesActivityOmit
+  commercialSettings?: Prisma.CommercialSettingsOmit
+  salesChatSession?: Prisma.SalesChatSessionOmit
+  salesChatMessage?: Prisma.SalesChatMessageOmit
 }
 
 /* Types for Logging */

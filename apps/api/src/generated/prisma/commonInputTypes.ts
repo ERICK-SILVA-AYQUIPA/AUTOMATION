@@ -1058,6 +1058,23 @@ export type EnumSalesActivityTypeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumSalesActivityTypeFilter<$PrismaModel>
 }
 
+export type EnumSalesChatRoleFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalesChatRole | Prisma.EnumSalesChatRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.SalesChatRole[] | Prisma.ListEnumSalesChatRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalesChatRole[] | Prisma.ListEnumSalesChatRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalesChatRoleFilter<$PrismaModel> | $Enums.SalesChatRole
+}
+
+export type EnumSalesChatRoleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalesChatRole | Prisma.EnumSalesChatRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.SalesChatRole[] | Prisma.ListEnumSalesChatRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalesChatRole[] | Prisma.ListEnumSalesChatRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalesChatRoleWithAggregatesFilter<$PrismaModel> | $Enums.SalesChatRole
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSalesChatRoleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSalesChatRoleFilter<$PrismaModel>
+}
+
 export type NestedUuidFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -2055,6 +2072,23 @@ export type NestedEnumSalesActivityTypeWithAggregatesFilter<$PrismaModel = never
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumSalesActivityTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumSalesActivityTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumSalesChatRoleFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalesChatRole | Prisma.EnumSalesChatRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.SalesChatRole[] | Prisma.ListEnumSalesChatRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalesChatRole[] | Prisma.ListEnumSalesChatRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalesChatRoleFilter<$PrismaModel> | $Enums.SalesChatRole
+}
+
+export type NestedEnumSalesChatRoleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalesChatRole | Prisma.EnumSalesChatRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.SalesChatRole[] | Prisma.ListEnumSalesChatRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalesChatRole[] | Prisma.ListEnumSalesChatRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalesChatRoleWithAggregatesFilter<$PrismaModel> | $Enums.SalesChatRole
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSalesChatRoleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSalesChatRoleFilter<$PrismaModel>
 }
 
 

@@ -372,6 +372,7 @@ export type TenantWhereInput = {
   payments?: Prisma.PaymentListRelationFilter
   deliveries?: Prisma.DeliveryListRelationFilter
   salesLead?: Prisma.XOR<Prisma.SalesLeadNullableScalarRelationFilter, Prisma.SalesLeadWhereInput> | null
+  commercialHouse?: Prisma.CommercialSettingsListRelationFilter
   users?: Prisma.UserListRelationFilter
   branches?: Prisma.BranchListRelationFilter
 }
@@ -406,6 +407,7 @@ export type TenantOrderByWithRelationInput = {
   payments?: Prisma.PaymentOrderByRelationAggregateInput
   deliveries?: Prisma.DeliveryOrderByRelationAggregateInput
   salesLead?: Prisma.SalesLeadOrderByWithRelationInput
+  commercialHouse?: Prisma.CommercialSettingsOrderByRelationAggregateInput
   users?: Prisma.UserOrderByRelationAggregateInput
   branches?: Prisma.BranchOrderByRelationAggregateInput
 }
@@ -443,6 +445,7 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   payments?: Prisma.PaymentListRelationFilter
   deliveries?: Prisma.DeliveryListRelationFilter
   salesLead?: Prisma.XOR<Prisma.SalesLeadNullableScalarRelationFilter, Prisma.SalesLeadWhereInput> | null
+  commercialHouse?: Prisma.CommercialSettingsListRelationFilter
   users?: Prisma.UserListRelationFilter
   branches?: Prisma.BranchListRelationFilter
 }, "id" | "slug" | "customDomain" | "provisioningKey">
@@ -541,6 +544,7 @@ export type TenantCreateInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
   deliveries?: Prisma.DeliveryCreateNestedManyWithoutTenantInput
   salesLead?: Prisma.SalesLeadCreateNestedOneWithoutTenantInput
+  commercialHouse?: Prisma.CommercialSettingsCreateNestedManyWithoutHouseTenantInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   branches?: Prisma.BranchCreateNestedManyWithoutTenantInput
 }
@@ -575,6 +579,7 @@ export type TenantUncheckedCreateInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
   deliveries?: Prisma.DeliveryUncheckedCreateNestedManyWithoutTenantInput
   salesLead?: Prisma.SalesLeadUncheckedCreateNestedOneWithoutTenantInput
+  commercialHouse?: Prisma.CommercialSettingsUncheckedCreateNestedManyWithoutHouseTenantInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
   branches?: Prisma.BranchUncheckedCreateNestedManyWithoutTenantInput
 }
@@ -609,6 +614,7 @@ export type TenantUpdateInput = {
   payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
   deliveries?: Prisma.DeliveryUpdateManyWithoutTenantNestedInput
   salesLead?: Prisma.SalesLeadUpdateOneWithoutTenantNestedInput
+  commercialHouse?: Prisma.CommercialSettingsUpdateManyWithoutHouseTenantNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   branches?: Prisma.BranchUpdateManyWithoutTenantNestedInput
 }
@@ -643,6 +649,7 @@ export type TenantUncheckedUpdateInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
   deliveries?: Prisma.DeliveryUncheckedUpdateManyWithoutTenantNestedInput
   salesLead?: Prisma.SalesLeadUncheckedUpdateOneWithoutTenantNestedInput
+  commercialHouse?: Prisma.CommercialSettingsUncheckedUpdateManyWithoutHouseTenantNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
   branches?: Prisma.BranchUncheckedUpdateManyWithoutTenantNestedInput
 }
@@ -962,6 +969,22 @@ export type TenantUpdateOneWithoutSalesLeadNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutSalesLeadInput, Prisma.TenantUpdateWithoutSalesLeadInput>, Prisma.TenantUncheckedUpdateWithoutSalesLeadInput>
 }
 
+export type TenantCreateNestedOneWithoutCommercialHouseInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutCommercialHouseInput, Prisma.TenantUncheckedCreateWithoutCommercialHouseInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutCommercialHouseInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneWithoutCommercialHouseNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutCommercialHouseInput, Prisma.TenantUncheckedCreateWithoutCommercialHouseInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutCommercialHouseInput
+  upsert?: Prisma.TenantUpsertWithoutCommercialHouseInput
+  disconnect?: Prisma.TenantWhereInput | boolean
+  delete?: Prisma.TenantWhereInput | boolean
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutCommercialHouseInput, Prisma.TenantUpdateWithoutCommercialHouseInput>, Prisma.TenantUncheckedUpdateWithoutCommercialHouseInput>
+}
+
 export type TenantCreateWithoutSubscriptionInput = {
   id?: string
   name: string
@@ -991,6 +1014,7 @@ export type TenantCreateWithoutSubscriptionInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
   deliveries?: Prisma.DeliveryCreateNestedManyWithoutTenantInput
   salesLead?: Prisma.SalesLeadCreateNestedOneWithoutTenantInput
+  commercialHouse?: Prisma.CommercialSettingsCreateNestedManyWithoutHouseTenantInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   branches?: Prisma.BranchCreateNestedManyWithoutTenantInput
 }
@@ -1024,6 +1048,7 @@ export type TenantUncheckedCreateWithoutSubscriptionInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
   deliveries?: Prisma.DeliveryUncheckedCreateNestedManyWithoutTenantInput
   salesLead?: Prisma.SalesLeadUncheckedCreateNestedOneWithoutTenantInput
+  commercialHouse?: Prisma.CommercialSettingsUncheckedCreateNestedManyWithoutHouseTenantInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
   branches?: Prisma.BranchUncheckedCreateNestedManyWithoutTenantInput
 }
@@ -1073,6 +1098,7 @@ export type TenantUpdateWithoutSubscriptionInput = {
   payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
   deliveries?: Prisma.DeliveryUpdateManyWithoutTenantNestedInput
   salesLead?: Prisma.SalesLeadUpdateOneWithoutTenantNestedInput
+  commercialHouse?: Prisma.CommercialSettingsUpdateManyWithoutHouseTenantNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   branches?: Prisma.BranchUpdateManyWithoutTenantNestedInput
 }
@@ -1106,6 +1132,7 @@ export type TenantUncheckedUpdateWithoutSubscriptionInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
   deliveries?: Prisma.DeliveryUncheckedUpdateManyWithoutTenantNestedInput
   salesLead?: Prisma.SalesLeadUncheckedUpdateOneWithoutTenantNestedInput
+  commercialHouse?: Prisma.CommercialSettingsUncheckedUpdateManyWithoutHouseTenantNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
   branches?: Prisma.BranchUncheckedUpdateManyWithoutTenantNestedInput
 }
@@ -1139,6 +1166,7 @@ export type TenantCreateWithoutPaymentsInput = {
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
   deliveries?: Prisma.DeliveryCreateNestedManyWithoutTenantInput
   salesLead?: Prisma.SalesLeadCreateNestedOneWithoutTenantInput
+  commercialHouse?: Prisma.CommercialSettingsCreateNestedManyWithoutHouseTenantInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   branches?: Prisma.BranchCreateNestedManyWithoutTenantInput
 }
@@ -1172,6 +1200,7 @@ export type TenantUncheckedCreateWithoutPaymentsInput = {
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
   deliveries?: Prisma.DeliveryUncheckedCreateNestedManyWithoutTenantInput
   salesLead?: Prisma.SalesLeadUncheckedCreateNestedOneWithoutTenantInput
+  commercialHouse?: Prisma.CommercialSettingsUncheckedCreateNestedManyWithoutHouseTenantInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
   branches?: Prisma.BranchUncheckedCreateNestedManyWithoutTenantInput
 }
@@ -1221,6 +1250,7 @@ export type TenantUpdateWithoutPaymentsInput = {
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
   deliveries?: Prisma.DeliveryUpdateManyWithoutTenantNestedInput
   salesLead?: Prisma.SalesLeadUpdateOneWithoutTenantNestedInput
+  commercialHouse?: Prisma.CommercialSettingsUpdateManyWithoutHouseTenantNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   branches?: Prisma.BranchUpdateManyWithoutTenantNestedInput
 }
@@ -1254,6 +1284,7 @@ export type TenantUncheckedUpdateWithoutPaymentsInput = {
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
   deliveries?: Prisma.DeliveryUncheckedUpdateManyWithoutTenantNestedInput
   salesLead?: Prisma.SalesLeadUncheckedUpdateOneWithoutTenantNestedInput
+  commercialHouse?: Prisma.CommercialSettingsUncheckedUpdateManyWithoutHouseTenantNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
   branches?: Prisma.BranchUncheckedUpdateManyWithoutTenantNestedInput
 }
@@ -1287,6 +1318,7 @@ export type TenantCreateWithoutDeliveriesInput = {
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
   payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
   salesLead?: Prisma.SalesLeadCreateNestedOneWithoutTenantInput
+  commercialHouse?: Prisma.CommercialSettingsCreateNestedManyWithoutHouseTenantInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   branches?: Prisma.BranchCreateNestedManyWithoutTenantInput
 }
@@ -1320,6 +1352,7 @@ export type TenantUncheckedCreateWithoutDeliveriesInput = {
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
   salesLead?: Prisma.SalesLeadUncheckedCreateNestedOneWithoutTenantInput
+  commercialHouse?: Prisma.CommercialSettingsUncheckedCreateNestedManyWithoutHouseTenantInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
   branches?: Prisma.BranchUncheckedCreateNestedManyWithoutTenantInput
 }
@@ -1369,6 +1402,7 @@ export type TenantUpdateWithoutDeliveriesInput = {
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
   salesLead?: Prisma.SalesLeadUpdateOneWithoutTenantNestedInput
+  commercialHouse?: Prisma.CommercialSettingsUpdateManyWithoutHouseTenantNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   branches?: Prisma.BranchUpdateManyWithoutTenantNestedInput
 }
@@ -1402,6 +1436,7 @@ export type TenantUncheckedUpdateWithoutDeliveriesInput = {
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
   salesLead?: Prisma.SalesLeadUncheckedUpdateOneWithoutTenantNestedInput
+  commercialHouse?: Prisma.CommercialSettingsUncheckedUpdateManyWithoutHouseTenantNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
   branches?: Prisma.BranchUncheckedUpdateManyWithoutTenantNestedInput
 }
@@ -1436,6 +1471,7 @@ export type TenantCreateWithoutUsersInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
   deliveries?: Prisma.DeliveryCreateNestedManyWithoutTenantInput
   salesLead?: Prisma.SalesLeadCreateNestedOneWithoutTenantInput
+  commercialHouse?: Prisma.CommercialSettingsCreateNestedManyWithoutHouseTenantInput
   branches?: Prisma.BranchCreateNestedManyWithoutTenantInput
 }
 
@@ -1469,6 +1505,7 @@ export type TenantUncheckedCreateWithoutUsersInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
   deliveries?: Prisma.DeliveryUncheckedCreateNestedManyWithoutTenantInput
   salesLead?: Prisma.SalesLeadUncheckedCreateNestedOneWithoutTenantInput
+  commercialHouse?: Prisma.CommercialSettingsUncheckedCreateNestedManyWithoutHouseTenantInput
   branches?: Prisma.BranchUncheckedCreateNestedManyWithoutTenantInput
 }
 
@@ -1518,6 +1555,7 @@ export type TenantUpdateWithoutUsersInput = {
   payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
   deliveries?: Prisma.DeliveryUpdateManyWithoutTenantNestedInput
   salesLead?: Prisma.SalesLeadUpdateOneWithoutTenantNestedInput
+  commercialHouse?: Prisma.CommercialSettingsUpdateManyWithoutHouseTenantNestedInput
   branches?: Prisma.BranchUpdateManyWithoutTenantNestedInput
 }
 
@@ -1551,6 +1589,7 @@ export type TenantUncheckedUpdateWithoutUsersInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
   deliveries?: Prisma.DeliveryUncheckedUpdateManyWithoutTenantNestedInput
   salesLead?: Prisma.SalesLeadUncheckedUpdateOneWithoutTenantNestedInput
+  commercialHouse?: Prisma.CommercialSettingsUncheckedUpdateManyWithoutHouseTenantNestedInput
   branches?: Prisma.BranchUncheckedUpdateManyWithoutTenantNestedInput
 }
 
@@ -1584,6 +1623,7 @@ export type TenantCreateWithoutBranchesInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
   deliveries?: Prisma.DeliveryCreateNestedManyWithoutTenantInput
   salesLead?: Prisma.SalesLeadCreateNestedOneWithoutTenantInput
+  commercialHouse?: Prisma.CommercialSettingsCreateNestedManyWithoutHouseTenantInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
 }
 
@@ -1617,6 +1657,7 @@ export type TenantUncheckedCreateWithoutBranchesInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
   deliveries?: Prisma.DeliveryUncheckedCreateNestedManyWithoutTenantInput
   salesLead?: Prisma.SalesLeadUncheckedCreateNestedOneWithoutTenantInput
+  commercialHouse?: Prisma.CommercialSettingsUncheckedCreateNestedManyWithoutHouseTenantInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
 }
 
@@ -1666,6 +1707,7 @@ export type TenantUpdateWithoutBranchesInput = {
   payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
   deliveries?: Prisma.DeliveryUpdateManyWithoutTenantNestedInput
   salesLead?: Prisma.SalesLeadUpdateOneWithoutTenantNestedInput
+  commercialHouse?: Prisma.CommercialSettingsUpdateManyWithoutHouseTenantNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
 }
 
@@ -1699,6 +1741,7 @@ export type TenantUncheckedUpdateWithoutBranchesInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
   deliveries?: Prisma.DeliveryUncheckedUpdateManyWithoutTenantNestedInput
   salesLead?: Prisma.SalesLeadUncheckedUpdateOneWithoutTenantNestedInput
+  commercialHouse?: Prisma.CommercialSettingsUncheckedUpdateManyWithoutHouseTenantNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
 }
 
@@ -1731,6 +1774,7 @@ export type TenantCreateWithoutSalesLeadInput = {
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
   payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
   deliveries?: Prisma.DeliveryCreateNestedManyWithoutTenantInput
+  commercialHouse?: Prisma.CommercialSettingsCreateNestedManyWithoutHouseTenantInput
   users?: Prisma.UserCreateNestedManyWithoutTenantInput
   branches?: Prisma.BranchCreateNestedManyWithoutTenantInput
 }
@@ -1764,6 +1808,7 @@ export type TenantUncheckedCreateWithoutSalesLeadInput = {
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
   deliveries?: Prisma.DeliveryUncheckedCreateNestedManyWithoutTenantInput
+  commercialHouse?: Prisma.CommercialSettingsUncheckedCreateNestedManyWithoutHouseTenantInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
   branches?: Prisma.BranchUncheckedCreateNestedManyWithoutTenantInput
 }
@@ -1813,6 +1858,7 @@ export type TenantUpdateWithoutSalesLeadInput = {
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
   deliveries?: Prisma.DeliveryUpdateManyWithoutTenantNestedInput
+  commercialHouse?: Prisma.CommercialSettingsUpdateManyWithoutHouseTenantNestedInput
   users?: Prisma.UserUpdateManyWithoutTenantNestedInput
   branches?: Prisma.BranchUpdateManyWithoutTenantNestedInput
 }
@@ -1846,6 +1892,159 @@ export type TenantUncheckedUpdateWithoutSalesLeadInput = {
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
   deliveries?: Prisma.DeliveryUncheckedUpdateManyWithoutTenantNestedInput
+  commercialHouse?: Prisma.CommercialSettingsUncheckedUpdateManyWithoutHouseTenantNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
+  branches?: Prisma.BranchUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutCommercialHouseInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.TenantStatus
+  currency?: string
+  timezone?: string
+  legalName?: string | null
+  taxId?: string | null
+  country?: string
+  address?: string | null
+  phone?: string | null
+  contactEmail?: string | null
+  businessType?: $Enums.BusinessType
+  logoUrl?: string | null
+  brandColor?: string | null
+  customDomain?: string | null
+  deploymentMode?: $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
+  templateKey?: string | null
+  templateVersion?: number | null
+  settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  provisioningKey?: string | null
+  activatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
+  deliveries?: Prisma.DeliveryCreateNestedManyWithoutTenantInput
+  salesLead?: Prisma.SalesLeadCreateNestedOneWithoutTenantInput
+  users?: Prisma.UserCreateNestedManyWithoutTenantInput
+  branches?: Prisma.BranchCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutCommercialHouseInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.TenantStatus
+  currency?: string
+  timezone?: string
+  legalName?: string | null
+  taxId?: string | null
+  country?: string
+  address?: string | null
+  phone?: string | null
+  contactEmail?: string | null
+  businessType?: $Enums.BusinessType
+  logoUrl?: string | null
+  brandColor?: string | null
+  customDomain?: string | null
+  deploymentMode?: $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantCreateenabledModulesInput | string[]
+  templateKey?: string | null
+  templateVersion?: number | null
+  settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  provisioningKey?: string | null
+  activatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
+  deliveries?: Prisma.DeliveryUncheckedCreateNestedManyWithoutTenantInput
+  salesLead?: Prisma.SalesLeadUncheckedCreateNestedOneWithoutTenantInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
+  branches?: Prisma.BranchUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutCommercialHouseInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutCommercialHouseInput, Prisma.TenantUncheckedCreateWithoutCommercialHouseInput>
+}
+
+export type TenantUpsertWithoutCommercialHouseInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutCommercialHouseInput, Prisma.TenantUncheckedUpdateWithoutCommercialHouseInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutCommercialHouseInput, Prisma.TenantUncheckedCreateWithoutCommercialHouseInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutCommercialHouseInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutCommercialHouseInput, Prisma.TenantUncheckedUpdateWithoutCommercialHouseInput>
+}
+
+export type TenantUpdateWithoutCommercialHouseInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessType?: Prisma.EnumBusinessTypeFieldUpdateOperationsInput | $Enums.BusinessType
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brandColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  templateVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  provisioningKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
+  deliveries?: Prisma.DeliveryUpdateManyWithoutTenantNestedInput
+  salesLead?: Prisma.SalesLeadUpdateOneWithoutTenantNestedInput
+  users?: Prisma.UserUpdateManyWithoutTenantNestedInput
+  branches?: Prisma.BranchUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutCommercialHouseInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessType?: Prisma.EnumBusinessTypeFieldUpdateOperationsInput | $Enums.BusinessType
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brandColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deploymentMode?: Prisma.EnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode
+  enabledModules?: Prisma.TenantUpdateenabledModulesInput | string[]
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  templateVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  provisioningKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
+  deliveries?: Prisma.DeliveryUncheckedUpdateManyWithoutTenantNestedInput
+  salesLead?: Prisma.SalesLeadUncheckedUpdateOneWithoutTenantNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
   branches?: Prisma.BranchUncheckedUpdateManyWithoutTenantNestedInput
 }
@@ -1858,6 +2057,7 @@ export type TenantUncheckedUpdateWithoutSalesLeadInput = {
 export type TenantCountOutputType = {
   payments: number
   deliveries: number
+  commercialHouse: number
   users: number
   branches: number
 }
@@ -1865,6 +2065,7 @@ export type TenantCountOutputType = {
 export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   payments?: boolean | TenantCountOutputTypeCountPaymentsArgs
   deliveries?: boolean | TenantCountOutputTypeCountDeliveriesArgs
+  commercialHouse?: boolean | TenantCountOutputTypeCountCommercialHouseArgs
   users?: boolean | TenantCountOutputTypeCountUsersArgs
   branches?: boolean | TenantCountOutputTypeCountBranchesArgs
 }
@@ -1891,6 +2092,13 @@ export type TenantCountOutputTypeCountPaymentsArgs<ExtArgs extends runtime.Types
  */
 export type TenantCountOutputTypeCountDeliveriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.DeliveryWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountCommercialHouseArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CommercialSettingsWhereInput
 }
 
 /**
@@ -1938,6 +2146,7 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   payments?: boolean | Prisma.Tenant$paymentsArgs<ExtArgs>
   deliveries?: boolean | Prisma.Tenant$deliveriesArgs<ExtArgs>
   salesLead?: boolean | Prisma.Tenant$salesLeadArgs<ExtArgs>
+  commercialHouse?: boolean | Prisma.Tenant$commercialHouseArgs<ExtArgs>
   users?: boolean | Prisma.Tenant$usersArgs<ExtArgs>
   branches?: boolean | Prisma.Tenant$branchesArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
@@ -2033,6 +2242,7 @@ export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   payments?: boolean | Prisma.Tenant$paymentsArgs<ExtArgs>
   deliveries?: boolean | Prisma.Tenant$deliveriesArgs<ExtArgs>
   salesLead?: boolean | Prisma.Tenant$salesLeadArgs<ExtArgs>
+  commercialHouse?: boolean | Prisma.Tenant$commercialHouseArgs<ExtArgs>
   users?: boolean | Prisma.Tenant$usersArgs<ExtArgs>
   branches?: boolean | Prisma.Tenant$branchesArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
@@ -2047,6 +2257,7 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     payments: Prisma.$PaymentPayload<ExtArgs>[]
     deliveries: Prisma.$DeliveryPayload<ExtArgs>[]
     salesLead: Prisma.$SalesLeadPayload<ExtArgs> | null
+    commercialHouse: Prisma.$CommercialSettingsPayload<ExtArgs>[]
     users: Prisma.$UserPayload<ExtArgs>[]
     branches: Prisma.$BranchPayload<ExtArgs>[]
   }
@@ -2489,6 +2700,7 @@ export interface Prisma__TenantClient<T, Null = never, ExtArgs extends runtime.T
   payments<T extends Prisma.Tenant$paymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   deliveries<T extends Prisma.Tenant$deliveriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$deliveriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   salesLead<T extends Prisma.Tenant$salesLeadArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$salesLeadArgs<ExtArgs>>): Prisma.Prisma__SalesLeadClient<runtime.Types.Result.GetResult<Prisma.$SalesLeadPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  commercialHouse<T extends Prisma.Tenant$commercialHouseArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$commercialHouseArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommercialSettingsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   users<T extends Prisma.Tenant$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   branches<T extends Prisma.Tenant$branchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$branchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -3021,6 +3233,30 @@ export type Tenant$salesLeadArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   include?: Prisma.SalesLeadInclude<ExtArgs> | null
   where?: Prisma.SalesLeadWhereInput
+}
+
+/**
+ * Tenant.commercialHouse
+ */
+export type Tenant$commercialHouseArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CommercialSettings
+   */
+  select?: Prisma.CommercialSettingsSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CommercialSettings
+   */
+  omit?: Prisma.CommercialSettingsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CommercialSettingsInclude<ExtArgs> | null
+  where?: Prisma.CommercialSettingsWhereInput
+  orderBy?: Prisma.CommercialSettingsOrderByWithRelationInput | Prisma.CommercialSettingsOrderByWithRelationInput[]
+  cursor?: Prisma.CommercialSettingsWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CommercialSettingsScalarFieldEnum | Prisma.CommercialSettingsScalarFieldEnum[]
 }
 
 /**

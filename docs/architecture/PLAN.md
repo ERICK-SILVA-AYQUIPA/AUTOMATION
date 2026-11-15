@@ -149,7 +149,13 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
   - [x] Validación administrativa del pago y conversión en cliente con el asistente de alta (empresa en preparación); «Cliente activo» al activar la empresa
   - [x] Pruebas: `sales.e2e-spec.ts` (9) y `sales.mjs` en navegador (8 pasos)
   - [ ] Conversaciones comerciales (fase B, agente comercial), cotizaciones (fase C), renovaciones y soporte (fase I)
-- [ ] Fase B: página pública y agente comercial
+- [x] Fase B: página pública y agente comercial (ADR 048)
+  - [x] Página pública en `/` con funciones, sectores, modalidades, planes (precio solo si se publica), cómo contratar, testimonios autorizados, preguntas y contacto
+  - [x] Formulario de demostración, propuesta o contacto con consentimiento separado; crea o completa el prospecto
+  - [x] Agente comercial en el chat web y en el WhatsApp de la empresa interna, con herramientas que solo leen datos reales y registran solicitudes
+  - [x] Editor en Plataforma › Página comercial con prueba del agente; conversación del chat en la ficha del prospecto
+  - [x] Pruebas: `commercial.e2e-spec.ts` (8) y `commercial.mjs` en navegador (8 pasos)
+  - [ ] Seguimiento automático saliente a prospectos (necesita plantillas aprobadas por Meta o SMTP real con baja); textos y testimonios reales los carga la plataforma
 - [ ] Fase C: cotizaciones, contratos y pagos
 - [ ] Fase D: gestor de infraestructura
 - [ ] Fase E: orquestador de aprovisionamiento

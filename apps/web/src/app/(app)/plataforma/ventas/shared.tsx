@@ -13,6 +13,7 @@ export interface Lead {
   source: string; sourceDetail: string | null; estimatedBudget: string | null; budgetCurrency: string; interestMode: string | null; interestPlan: string | null; interestModules: string[];
   status: LeadStatus; ownerId: string | null; owner: { id: string; name: string; email: string } | null; nextAction: string | null; nextActionAt: string | null;
   lostReason: string | null; tenantId: string | null; convertedAt: string | null; statusChangedAt: string; createdAt: string; updatedAt: string;
+  followUpConsent?: boolean; followUpConsentAt?: string | null; followUpConsentSource?: string | null;
 }
 export interface Owner { id: string; name: string; email: string }
 

@@ -376,3 +376,11 @@ export const SalesActivityType = {
 } as const
 
 export type SalesActivityType = (typeof SalesActivityType)[keyof typeof SalesActivityType]
+
+
+export const SalesChatRole = {
+  VISITOR: 'VISITOR',
+  AGENT: 'AGENT'
+} as const
+
+export type SalesChatRole = (typeof SalesChatRole)[keyof typeof SalesChatRole]

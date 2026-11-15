@@ -174,6 +174,7 @@ function LeadDetail() {
                   ['Solución de interés', [l.interestMode && DEPLOYMENT_MODE[l.interestMode], l.interestPlan && `Plan ${PLAN[l.interestPlan]}`].filter(Boolean).join(' · ') || '—'],
                   ['Módulos de interés', l.interestModules.length ? l.interestModules.map((m) => MODULE_LABEL[m] ?? m).join(', ') : '—'],
                   ['Registrado', dateTime(l.createdAt)],
+                  ['Acepta seguimiento', l.followUpConsent ? `Sí (${l.followUpConsentSource === 'web' ? 'página web' : l.followUpConsentSource === 'whatsapp' ? 'WhatsApp' : 'registro'}${l.followUpConsentAt ? `, ${dateTime(l.followUpConsentAt)}` : ''})` : 'No consta'],
                   ...(l.lostReason ? [['Motivo de la pérdida', l.lostReason]] : []),
                 ] as [string, string][]).map(([k, v]) => <div key={k} className="contents"><dt className="text-muted">{k}</dt><dd className="whitespace-pre-line">{v}</dd></div>)}
               </dl>
@@ -211,6 +212,7 @@ function LeadDetail() {
               })}
             </ol>
           </Card>
+          <WebChats leadId={l.id} />
         </div>
 
         <div className="flex flex-col gap-5">
@@ -298,6 +300,34 @@ function LeadDetail() {
       <LostDialog lead={lost ? l : null} onClose={() => setLost(false)} onDone={() => { toast.success('Marcado como perdido'); setTarget(''); refresh(); }} />
       {paying && <PaymentDialog lead={l} open onClose={() => setPaying(false)} onDone={() => { toast.success('Pago validado: ya puedes convertirlo en cliente'); refresh(); }} />}
     </>
+  );
+}
+
+interface Chat { id: string; createdAt: string; messageCount: number; handoffAt: string | null; handoffReason: string | null; messages: { role: 'VISITOR' | 'AGENT'; text: string; tools: string[]; createdAt: string }[] }
+
+/** Conversaciones del chat de la página comercial (agente comercial) */
+function WebChats({ leadId }: { leadId: string }) {
+  const q = useQuery({ queryKey: ['sales-lead-chats', leadId], queryFn: () => api<Chat[]>(`/platform/commercial/leads/${leadId}/chats`) });
+  if (!q.data?.length) return null;
+  return (
+    <Card className="p-5">
+      <h2 className="mb-3 font-medium">Chat de la página web</h2>
+      <div className="flex flex-col gap-3">
+        {q.data.map((c) => (
+          <details key={c.id} className="rounded-lg border border-border p-3" open={q.data.length === 1}>
+            <summary className="cursor-pointer text-sm">{dateTime(c.createdAt)} · {c.messageCount} mensajes{c.handoffAt ? ` · pidió un vendedor (${c.handoffReason ?? ''})` : ''}</summary>
+            <ol className="mt-3 flex flex-col gap-2" aria-label="Mensajes del chat web">
+              {c.messages.map((m, i) => (
+                <li key={i} className={cn('max-w-[85%] rounded-lg p-2 text-sm', m.role === 'VISITOR' ? 'bg-surface-2' : 'ml-auto bg-primary/10')}>
+                  <p className="text-xs text-muted">{m.role === 'VISITOR' ? 'Visitante' : 'Agente'} · {dateTime(m.createdAt)}{m.tools.length ? ` · ${m.tools.join(', ')}` : ''}</p>
+                  <p className="whitespace-pre-line">{m.text}</p>
+                </li>
+              ))}
+            </ol>
+          </details>
+        ))}
+      </div>
+    </Card>
   );
 }
 

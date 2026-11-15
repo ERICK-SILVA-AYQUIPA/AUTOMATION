@@ -53,6 +53,21 @@ export async function startFakeAiProviders(port = 0) {
         const last = msgs.at(-1)!;
         const usage = { input_tokens: 120, output_tokens: 30 };
         const base = { id: `msg_${calls.length}`, type: 'message', role: 'assistant', model: body!.model, stop_sequence: null, usage };
+        const tools = ((body!.tools as { name: string }[] | undefined) ?? []).map((t) => t.name);
+        // Agente comercial: pide la herramienta según palabras del visitante y repite lo que devuelve
+        if (tools.includes('registrar_prospecto')) {
+          if (Array.isArray(last.content) && last.content[0]?.type === 'tool_result') return send(200, { ...base, content: [{ type: 'text', text: `Agente: ${String(last.content[0].content).slice(0, 600)}` }], stop_reason: 'end_turn' });
+          const said = typeof last.content === 'string' ? last.content : '';
+          const call = (name: string, input: Record<string, unknown>) => send(200, { ...base, content: [{ type: 'tool_use', id: `toolu_${calls.length}`, name, input }], stop_reason: 'tool_use' });
+          if (/planes/i.test(said)) return call('ver_planes', {});
+          if (/funciones/i.test(said)) return call('ver_producto', {});
+          const who = /me llamo ([\p{L}]+(?: [\p{L}]+)?)/u.exec(said);
+          if (who) return call('registrar_prospecto', { nombre: who[1], correo: /[\w.+-]+@[\w-]+\.[\w.]+/.exec(said)?.[0], telefono: /\+?\d[\d ]{6,}/.exec(said)?.[0], empresa: /empresa ([\p{L} ]+?)(?:[,.]|$)/u.exec(said)?.[1], acepta_seguimiento: /acepto/i.test(said), sector: 'RETAIL', necesidad: 'Vender por WhatsApp' });
+          if (/demo/i.test(said)) return call('solicitar_demostracion', { preferencia_horaria: 'por las mañanas' });
+          if (/propuesta/i.test(said)) return call('solicitar_propuesta', { detalle: 'Plan profesional, 3 usuarios' });
+          if (/vendedor/i.test(said)) return call('derivar_a_vendedor', { motivo: 'quiere contratar' });
+          return send(200, { ...base, content: [{ type: 'text', text: 'Hola, soy el asesor virtual. ¿Qué vende tu negocio?' }], stop_reason: 'end_turn' });
+        }
         if (Array.isArray(last.content) && last.content[0]?.type === 'tool_result') return send(200, { ...base, content: [{ type: 'text', text: `Cuesta S/ ${priceIn(String(last.content[0].content))} (Claude)` }], stop_reason: 'end_turn' });
         if ((body!.tools as unknown[] | undefined)?.length && (typeof last.content === 'string' ? last.content : '').includes('precio')) return send(200, { ...base, content: [{ type: 'thinking', thinking: '', signature: 'firma-claude' }, { type: 'tool_use', id: 'toolu_01', name: 'buscar_productos', input: { consulta: 'gaseosa' } }], stop_reason: 'tool_use' });
         return send(200, { ...base, content: [{ type: 'text', text: 'OK' }], stop_reason: 'end_turn' });

@@ -276,3 +276,18 @@ export type SalesLead = Prisma.SalesLeadModel
  * Historial del prospecto: solo se anexa (un disparador impide cambiarlo o borrarlo)
  */
 export type SalesActivity = Prisma.SalesActivityModel
+/**
+ * Model CommercialSettings
+ * Configuración de la página comercial y del agente (una sola fila, id = 1)
+ */
+export type CommercialSettings = Prisma.CommercialSettingsModel
+/**
+ * Model SalesChatSession
+ * 
+ */
+export type SalesChatSession = Prisma.SalesChatSessionModel
+/**
+ * Model SalesChatMessage
+ * 
+ */
+export type SalesChatMessage = Prisma.SalesChatMessageModel

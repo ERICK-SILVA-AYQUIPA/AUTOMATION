@@ -57,6 +57,9 @@ export type SalesLeadMinAggregateOutputType = {
   nextAction: string | null
   nextActionAt: Date | null
   lostReason: string | null
+  followUpConsent: boolean | null
+  followUpConsentAt: Date | null
+  followUpConsentSource: string | null
   tenantId: string | null
   convertedAt: Date | null
   statusChangedAt: Date | null
@@ -85,6 +88,9 @@ export type SalesLeadMaxAggregateOutputType = {
   nextAction: string | null
   nextActionAt: Date | null
   lostReason: string | null
+  followUpConsent: boolean | null
+  followUpConsentAt: Date | null
+  followUpConsentSource: string | null
   tenantId: string | null
   convertedAt: Date | null
   statusChangedAt: Date | null
@@ -114,6 +120,9 @@ export type SalesLeadCountAggregateOutputType = {
   nextAction: number
   nextActionAt: number
   lostReason: number
+  followUpConsent: number
+  followUpConsentAt: number
+  followUpConsentSource: number
   tenantId: number
   convertedAt: number
   statusChangedAt: number
@@ -154,6 +163,9 @@ export type SalesLeadMinAggregateInputType = {
   nextAction?: true
   nextActionAt?: true
   lostReason?: true
+  followUpConsent?: true
+  followUpConsentAt?: true
+  followUpConsentSource?: true
   tenantId?: true
   convertedAt?: true
   statusChangedAt?: true
@@ -182,6 +194,9 @@ export type SalesLeadMaxAggregateInputType = {
   nextAction?: true
   nextActionAt?: true
   lostReason?: true
+  followUpConsent?: true
+  followUpConsentAt?: true
+  followUpConsentSource?: true
   tenantId?: true
   convertedAt?: true
   statusChangedAt?: true
@@ -211,6 +226,9 @@ export type SalesLeadCountAggregateInputType = {
   nextAction?: true
   nextActionAt?: true
   lostReason?: true
+  followUpConsent?: true
+  followUpConsentAt?: true
+  followUpConsentSource?: true
   tenantId?: true
   convertedAt?: true
   statusChangedAt?: true
@@ -327,6 +345,9 @@ export type SalesLeadGroupByOutputType = {
   nextAction: string | null
   nextActionAt: Date | null
   lostReason: string | null
+  followUpConsent: boolean
+  followUpConsentAt: Date | null
+  followUpConsentSource: string | null
   tenantId: string | null
   convertedAt: Date | null
   statusChangedAt: Date
@@ -379,6 +400,9 @@ export type SalesLeadWhereInput = {
   nextAction?: Prisma.StringNullableFilter<"SalesLead"> | string | null
   nextActionAt?: Prisma.DateTimeNullableFilter<"SalesLead"> | Date | string | null
   lostReason?: Prisma.StringNullableFilter<"SalesLead"> | string | null
+  followUpConsent?: Prisma.BoolFilter<"SalesLead"> | boolean
+  followUpConsentAt?: Prisma.DateTimeNullableFilter<"SalesLead"> | Date | string | null
+  followUpConsentSource?: Prisma.StringNullableFilter<"SalesLead"> | string | null
   tenantId?: Prisma.UuidNullableFilter<"SalesLead"> | string | null
   convertedAt?: Prisma.DateTimeNullableFilter<"SalesLead"> | Date | string | null
   statusChangedAt?: Prisma.DateTimeFilter<"SalesLead"> | Date | string
@@ -388,6 +412,7 @@ export type SalesLeadWhereInput = {
   owner?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   tenant?: Prisma.XOR<Prisma.TenantNullableScalarRelationFilter, Prisma.TenantWhereInput> | null
   activities?: Prisma.SalesActivityListRelationFilter
+  chats?: Prisma.SalesChatSessionListRelationFilter
 }
 
 export type SalesLeadOrderByWithRelationInput = {
@@ -411,6 +436,9 @@ export type SalesLeadOrderByWithRelationInput = {
   nextAction?: Prisma.SortOrderInput | Prisma.SortOrder
   nextActionAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lostReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  followUpConsent?: Prisma.SortOrder
+  followUpConsentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  followUpConsentSource?: Prisma.SortOrderInput | Prisma.SortOrder
   tenantId?: Prisma.SortOrderInput | Prisma.SortOrder
   convertedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   statusChangedAt?: Prisma.SortOrder
@@ -420,6 +448,7 @@ export type SalesLeadOrderByWithRelationInput = {
   owner?: Prisma.UserOrderByWithRelationInput
   tenant?: Prisma.TenantOrderByWithRelationInput
   activities?: Prisma.SalesActivityOrderByRelationAggregateInput
+  chats?: Prisma.SalesChatSessionOrderByRelationAggregateInput
 }
 
 export type SalesLeadWhereUniqueInput = Prisma.AtLeast<{
@@ -447,6 +476,9 @@ export type SalesLeadWhereUniqueInput = Prisma.AtLeast<{
   nextAction?: Prisma.StringNullableFilter<"SalesLead"> | string | null
   nextActionAt?: Prisma.DateTimeNullableFilter<"SalesLead"> | Date | string | null
   lostReason?: Prisma.StringNullableFilter<"SalesLead"> | string | null
+  followUpConsent?: Prisma.BoolFilter<"SalesLead"> | boolean
+  followUpConsentAt?: Prisma.DateTimeNullableFilter<"SalesLead"> | Date | string | null
+  followUpConsentSource?: Prisma.StringNullableFilter<"SalesLead"> | string | null
   convertedAt?: Prisma.DateTimeNullableFilter<"SalesLead"> | Date | string | null
   statusChangedAt?: Prisma.DateTimeFilter<"SalesLead"> | Date | string
   createdById?: Prisma.UuidNullableFilter<"SalesLead"> | string | null
@@ -455,6 +487,7 @@ export type SalesLeadWhereUniqueInput = Prisma.AtLeast<{
   owner?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   tenant?: Prisma.XOR<Prisma.TenantNullableScalarRelationFilter, Prisma.TenantWhereInput> | null
   activities?: Prisma.SalesActivityListRelationFilter
+  chats?: Prisma.SalesChatSessionListRelationFilter
 }, "id" | "number" | "tenantId">
 
 export type SalesLeadOrderByWithAggregationInput = {
@@ -478,6 +511,9 @@ export type SalesLeadOrderByWithAggregationInput = {
   nextAction?: Prisma.SortOrderInput | Prisma.SortOrder
   nextActionAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lostReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  followUpConsent?: Prisma.SortOrder
+  followUpConsentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  followUpConsentSource?: Prisma.SortOrderInput | Prisma.SortOrder
   tenantId?: Prisma.SortOrderInput | Prisma.SortOrder
   convertedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   statusChangedAt?: Prisma.SortOrder
@@ -515,6 +551,9 @@ export type SalesLeadScalarWhereWithAggregatesInput = {
   nextAction?: Prisma.StringNullableWithAggregatesFilter<"SalesLead"> | string | null
   nextActionAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SalesLead"> | Date | string | null
   lostReason?: Prisma.StringNullableWithAggregatesFilter<"SalesLead"> | string | null
+  followUpConsent?: Prisma.BoolWithAggregatesFilter<"SalesLead"> | boolean
+  followUpConsentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SalesLead"> | Date | string | null
+  followUpConsentSource?: Prisma.StringNullableWithAggregatesFilter<"SalesLead"> | string | null
   tenantId?: Prisma.UuidNullableWithAggregatesFilter<"SalesLead"> | string | null
   convertedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SalesLead"> | Date | string | null
   statusChangedAt?: Prisma.DateTimeWithAggregatesFilter<"SalesLead"> | Date | string
@@ -543,6 +582,9 @@ export type SalesLeadCreateInput = {
   nextAction?: string | null
   nextActionAt?: Date | string | null
   lostReason?: string | null
+  followUpConsent?: boolean
+  followUpConsentAt?: Date | string | null
+  followUpConsentSource?: string | null
   convertedAt?: Date | string | null
   statusChangedAt?: Date | string
   createdById?: string | null
@@ -551,6 +593,7 @@ export type SalesLeadCreateInput = {
   owner?: Prisma.UserCreateNestedOneWithoutOwnedLeadsInput
   tenant?: Prisma.TenantCreateNestedOneWithoutSalesLeadInput
   activities?: Prisma.SalesActivityCreateNestedManyWithoutLeadInput
+  chats?: Prisma.SalesChatSessionCreateNestedManyWithoutLeadInput
 }
 
 export type SalesLeadUncheckedCreateInput = {
@@ -574,6 +617,9 @@ export type SalesLeadUncheckedCreateInput = {
   nextAction?: string | null
   nextActionAt?: Date | string | null
   lostReason?: string | null
+  followUpConsent?: boolean
+  followUpConsentAt?: Date | string | null
+  followUpConsentSource?: string | null
   tenantId?: string | null
   convertedAt?: Date | string | null
   statusChangedAt?: Date | string
@@ -581,6 +627,7 @@ export type SalesLeadUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   activities?: Prisma.SalesActivityUncheckedCreateNestedManyWithoutLeadInput
+  chats?: Prisma.SalesChatSessionUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type SalesLeadUpdateInput = {
@@ -602,6 +649,9 @@ export type SalesLeadUpdateInput = {
   nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lostReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpConsent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  followUpConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  followUpConsentSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -610,6 +660,7 @@ export type SalesLeadUpdateInput = {
   owner?: Prisma.UserUpdateOneWithoutOwnedLeadsNestedInput
   tenant?: Prisma.TenantUpdateOneWithoutSalesLeadNestedInput
   activities?: Prisma.SalesActivityUpdateManyWithoutLeadNestedInput
+  chats?: Prisma.SalesChatSessionUpdateManyWithoutLeadNestedInput
 }
 
 export type SalesLeadUncheckedUpdateInput = {
@@ -633,6 +684,9 @@ export type SalesLeadUncheckedUpdateInput = {
   nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lostReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpConsent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  followUpConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  followUpConsentSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -640,6 +694,7 @@ export type SalesLeadUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activities?: Prisma.SalesActivityUncheckedUpdateManyWithoutLeadNestedInput
+  chats?: Prisma.SalesChatSessionUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type SalesLeadCreateManyInput = {
@@ -663,6 +718,9 @@ export type SalesLeadCreateManyInput = {
   nextAction?: string | null
   nextActionAt?: Date | string | null
   lostReason?: string | null
+  followUpConsent?: boolean
+  followUpConsentAt?: Date | string | null
+  followUpConsentSource?: string | null
   tenantId?: string | null
   convertedAt?: Date | string | null
   statusChangedAt?: Date | string
@@ -690,6 +748,9 @@ export type SalesLeadUpdateManyMutationInput = {
   nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lostReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpConsent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  followUpConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  followUpConsentSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -718,6 +779,9 @@ export type SalesLeadUncheckedUpdateManyInput = {
   nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lostReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpConsent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  followUpConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  followUpConsentSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -762,6 +826,9 @@ export type SalesLeadCountOrderByAggregateInput = {
   nextAction?: Prisma.SortOrder
   nextActionAt?: Prisma.SortOrder
   lostReason?: Prisma.SortOrder
+  followUpConsent?: Prisma.SortOrder
+  followUpConsentAt?: Prisma.SortOrder
+  followUpConsentSource?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   convertedAt?: Prisma.SortOrder
   statusChangedAt?: Prisma.SortOrder
@@ -795,6 +862,9 @@ export type SalesLeadMaxOrderByAggregateInput = {
   nextAction?: Prisma.SortOrder
   nextActionAt?: Prisma.SortOrder
   lostReason?: Prisma.SortOrder
+  followUpConsent?: Prisma.SortOrder
+  followUpConsentAt?: Prisma.SortOrder
+  followUpConsentSource?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   convertedAt?: Prisma.SortOrder
   statusChangedAt?: Prisma.SortOrder
@@ -823,6 +893,9 @@ export type SalesLeadMinOrderByAggregateInput = {
   nextAction?: Prisma.SortOrder
   nextActionAt?: Prisma.SortOrder
   lostReason?: Prisma.SortOrder
+  followUpConsent?: Prisma.SortOrder
+  followUpConsentAt?: Prisma.SortOrder
+  followUpConsentSource?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   convertedAt?: Prisma.SortOrder
   statusChangedAt?: Prisma.SortOrder
@@ -950,6 +1023,22 @@ export type SalesLeadUpdateOneRequiredWithoutActivitiesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SalesLeadUpdateToOneWithWhereWithoutActivitiesInput, Prisma.SalesLeadUpdateWithoutActivitiesInput>, Prisma.SalesLeadUncheckedUpdateWithoutActivitiesInput>
 }
 
+export type SalesLeadCreateNestedOneWithoutChatsInput = {
+  create?: Prisma.XOR<Prisma.SalesLeadCreateWithoutChatsInput, Prisma.SalesLeadUncheckedCreateWithoutChatsInput>
+  connectOrCreate?: Prisma.SalesLeadCreateOrConnectWithoutChatsInput
+  connect?: Prisma.SalesLeadWhereUniqueInput
+}
+
+export type SalesLeadUpdateOneWithoutChatsNestedInput = {
+  create?: Prisma.XOR<Prisma.SalesLeadCreateWithoutChatsInput, Prisma.SalesLeadUncheckedCreateWithoutChatsInput>
+  connectOrCreate?: Prisma.SalesLeadCreateOrConnectWithoutChatsInput
+  upsert?: Prisma.SalesLeadUpsertWithoutChatsInput
+  disconnect?: Prisma.SalesLeadWhereInput | boolean
+  delete?: Prisma.SalesLeadWhereInput | boolean
+  connect?: Prisma.SalesLeadWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SalesLeadUpdateToOneWithWhereWithoutChatsInput, Prisma.SalesLeadUpdateWithoutChatsInput>, Prisma.SalesLeadUncheckedUpdateWithoutChatsInput>
+}
+
 export type SalesLeadCreateWithoutTenantInput = {
   id?: string
   number?: number
@@ -970,6 +1059,9 @@ export type SalesLeadCreateWithoutTenantInput = {
   nextAction?: string | null
   nextActionAt?: Date | string | null
   lostReason?: string | null
+  followUpConsent?: boolean
+  followUpConsentAt?: Date | string | null
+  followUpConsentSource?: string | null
   convertedAt?: Date | string | null
   statusChangedAt?: Date | string
   createdById?: string | null
@@ -977,6 +1069,7 @@ export type SalesLeadCreateWithoutTenantInput = {
   updatedAt?: Date | string
   owner?: Prisma.UserCreateNestedOneWithoutOwnedLeadsInput
   activities?: Prisma.SalesActivityCreateNestedManyWithoutLeadInput
+  chats?: Prisma.SalesChatSessionCreateNestedManyWithoutLeadInput
 }
 
 export type SalesLeadUncheckedCreateWithoutTenantInput = {
@@ -1000,12 +1093,16 @@ export type SalesLeadUncheckedCreateWithoutTenantInput = {
   nextAction?: string | null
   nextActionAt?: Date | string | null
   lostReason?: string | null
+  followUpConsent?: boolean
+  followUpConsentAt?: Date | string | null
+  followUpConsentSource?: string | null
   convertedAt?: Date | string | null
   statusChangedAt?: Date | string
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   activities?: Prisma.SalesActivityUncheckedCreateNestedManyWithoutLeadInput
+  chats?: Prisma.SalesChatSessionUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type SalesLeadCreateOrConnectWithoutTenantInput = {
@@ -1043,6 +1140,9 @@ export type SalesLeadUpdateWithoutTenantInput = {
   nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lostReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpConsent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  followUpConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  followUpConsentSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1050,6 +1150,7 @@ export type SalesLeadUpdateWithoutTenantInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneWithoutOwnedLeadsNestedInput
   activities?: Prisma.SalesActivityUpdateManyWithoutLeadNestedInput
+  chats?: Prisma.SalesChatSessionUpdateManyWithoutLeadNestedInput
 }
 
 export type SalesLeadUncheckedUpdateWithoutTenantInput = {
@@ -1073,12 +1174,16 @@ export type SalesLeadUncheckedUpdateWithoutTenantInput = {
   nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lostReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpConsent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  followUpConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  followUpConsentSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activities?: Prisma.SalesActivityUncheckedUpdateManyWithoutLeadNestedInput
+  chats?: Prisma.SalesChatSessionUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type SalesLeadCreateWithoutOwnerInput = {
@@ -1101,6 +1206,9 @@ export type SalesLeadCreateWithoutOwnerInput = {
   nextAction?: string | null
   nextActionAt?: Date | string | null
   lostReason?: string | null
+  followUpConsent?: boolean
+  followUpConsentAt?: Date | string | null
+  followUpConsentSource?: string | null
   convertedAt?: Date | string | null
   statusChangedAt?: Date | string
   createdById?: string | null
@@ -1108,6 +1216,7 @@ export type SalesLeadCreateWithoutOwnerInput = {
   updatedAt?: Date | string
   tenant?: Prisma.TenantCreateNestedOneWithoutSalesLeadInput
   activities?: Prisma.SalesActivityCreateNestedManyWithoutLeadInput
+  chats?: Prisma.SalesChatSessionCreateNestedManyWithoutLeadInput
 }
 
 export type SalesLeadUncheckedCreateWithoutOwnerInput = {
@@ -1130,6 +1239,9 @@ export type SalesLeadUncheckedCreateWithoutOwnerInput = {
   nextAction?: string | null
   nextActionAt?: Date | string | null
   lostReason?: string | null
+  followUpConsent?: boolean
+  followUpConsentAt?: Date | string | null
+  followUpConsentSource?: string | null
   tenantId?: string | null
   convertedAt?: Date | string | null
   statusChangedAt?: Date | string
@@ -1137,6 +1249,7 @@ export type SalesLeadUncheckedCreateWithoutOwnerInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   activities?: Prisma.SalesActivityUncheckedCreateNestedManyWithoutLeadInput
+  chats?: Prisma.SalesChatSessionUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type SalesLeadCreateOrConnectWithoutOwnerInput = {
@@ -1189,6 +1302,9 @@ export type SalesLeadScalarWhereInput = {
   nextAction?: Prisma.StringNullableFilter<"SalesLead"> | string | null
   nextActionAt?: Prisma.DateTimeNullableFilter<"SalesLead"> | Date | string | null
   lostReason?: Prisma.StringNullableFilter<"SalesLead"> | string | null
+  followUpConsent?: Prisma.BoolFilter<"SalesLead"> | boolean
+  followUpConsentAt?: Prisma.DateTimeNullableFilter<"SalesLead"> | Date | string | null
+  followUpConsentSource?: Prisma.StringNullableFilter<"SalesLead"> | string | null
   tenantId?: Prisma.UuidNullableFilter<"SalesLead"> | string | null
   convertedAt?: Prisma.DateTimeNullableFilter<"SalesLead"> | Date | string | null
   statusChangedAt?: Prisma.DateTimeFilter<"SalesLead"> | Date | string
@@ -1217,6 +1333,9 @@ export type SalesLeadCreateWithoutActivitiesInput = {
   nextAction?: string | null
   nextActionAt?: Date | string | null
   lostReason?: string | null
+  followUpConsent?: boolean
+  followUpConsentAt?: Date | string | null
+  followUpConsentSource?: string | null
   convertedAt?: Date | string | null
   statusChangedAt?: Date | string
   createdById?: string | null
@@ -1224,6 +1343,7 @@ export type SalesLeadCreateWithoutActivitiesInput = {
   updatedAt?: Date | string
   owner?: Prisma.UserCreateNestedOneWithoutOwnedLeadsInput
   tenant?: Prisma.TenantCreateNestedOneWithoutSalesLeadInput
+  chats?: Prisma.SalesChatSessionCreateNestedManyWithoutLeadInput
 }
 
 export type SalesLeadUncheckedCreateWithoutActivitiesInput = {
@@ -1247,12 +1367,16 @@ export type SalesLeadUncheckedCreateWithoutActivitiesInput = {
   nextAction?: string | null
   nextActionAt?: Date | string | null
   lostReason?: string | null
+  followUpConsent?: boolean
+  followUpConsentAt?: Date | string | null
+  followUpConsentSource?: string | null
   tenantId?: string | null
   convertedAt?: Date | string | null
   statusChangedAt?: Date | string
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  chats?: Prisma.SalesChatSessionUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type SalesLeadCreateOrConnectWithoutActivitiesInput = {
@@ -1290,6 +1414,9 @@ export type SalesLeadUpdateWithoutActivitiesInput = {
   nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lostReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpConsent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  followUpConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  followUpConsentSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1297,6 +1424,7 @@ export type SalesLeadUpdateWithoutActivitiesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneWithoutOwnedLeadsNestedInput
   tenant?: Prisma.TenantUpdateOneWithoutSalesLeadNestedInput
+  chats?: Prisma.SalesChatSessionUpdateManyWithoutLeadNestedInput
 }
 
 export type SalesLeadUncheckedUpdateWithoutActivitiesInput = {
@@ -1320,12 +1448,163 @@ export type SalesLeadUncheckedUpdateWithoutActivitiesInput = {
   nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lostReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpConsent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  followUpConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  followUpConsentSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chats?: Prisma.SalesChatSessionUncheckedUpdateManyWithoutLeadNestedInput
+}
+
+export type SalesLeadCreateWithoutChatsInput = {
+  id?: string
+  number?: number
+  name: string
+  company?: string | null
+  phone?: string | null
+  email?: string | null
+  sector?: string | null
+  need?: string | null
+  source: $Enums.SalesLeadSource
+  sourceDetail?: string | null
+  estimatedBudget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  budgetCurrency?: string
+  interestMode?: $Enums.DeploymentMode | null
+  interestPlan?: string | null
+  interestModules?: Prisma.SalesLeadCreateinterestModulesInput | string[]
+  status?: $Enums.SalesLeadStatus
+  nextAction?: string | null
+  nextActionAt?: Date | string | null
+  lostReason?: string | null
+  followUpConsent?: boolean
+  followUpConsentAt?: Date | string | null
+  followUpConsentSource?: string | null
+  convertedAt?: Date | string | null
+  statusChangedAt?: Date | string
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owner?: Prisma.UserCreateNestedOneWithoutOwnedLeadsInput
+  tenant?: Prisma.TenantCreateNestedOneWithoutSalesLeadInput
+  activities?: Prisma.SalesActivityCreateNestedManyWithoutLeadInput
+}
+
+export type SalesLeadUncheckedCreateWithoutChatsInput = {
+  id?: string
+  number?: number
+  name: string
+  company?: string | null
+  phone?: string | null
+  email?: string | null
+  sector?: string | null
+  need?: string | null
+  source: $Enums.SalesLeadSource
+  sourceDetail?: string | null
+  estimatedBudget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  budgetCurrency?: string
+  interestMode?: $Enums.DeploymentMode | null
+  interestPlan?: string | null
+  interestModules?: Prisma.SalesLeadCreateinterestModulesInput | string[]
+  status?: $Enums.SalesLeadStatus
+  ownerId?: string | null
+  nextAction?: string | null
+  nextActionAt?: Date | string | null
+  lostReason?: string | null
+  followUpConsent?: boolean
+  followUpConsentAt?: Date | string | null
+  followUpConsentSource?: string | null
+  tenantId?: string | null
+  convertedAt?: Date | string | null
+  statusChangedAt?: Date | string
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  activities?: Prisma.SalesActivityUncheckedCreateNestedManyWithoutLeadInput
+}
+
+export type SalesLeadCreateOrConnectWithoutChatsInput = {
+  where: Prisma.SalesLeadWhereUniqueInput
+  create: Prisma.XOR<Prisma.SalesLeadCreateWithoutChatsInput, Prisma.SalesLeadUncheckedCreateWithoutChatsInput>
+}
+
+export type SalesLeadUpsertWithoutChatsInput = {
+  update: Prisma.XOR<Prisma.SalesLeadUpdateWithoutChatsInput, Prisma.SalesLeadUncheckedUpdateWithoutChatsInput>
+  create: Prisma.XOR<Prisma.SalesLeadCreateWithoutChatsInput, Prisma.SalesLeadUncheckedCreateWithoutChatsInput>
+  where?: Prisma.SalesLeadWhereInput
+}
+
+export type SalesLeadUpdateToOneWithWhereWithoutChatsInput = {
+  where?: Prisma.SalesLeadWhereInput
+  data: Prisma.XOR<Prisma.SalesLeadUpdateWithoutChatsInput, Prisma.SalesLeadUncheckedUpdateWithoutChatsInput>
+}
+
+export type SalesLeadUpdateWithoutChatsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sector?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  need?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumSalesLeadSourceFieldUpdateOperationsInput | $Enums.SalesLeadSource
+  sourceDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimatedBudget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  budgetCurrency?: Prisma.StringFieldUpdateOperationsInput | string
+  interestMode?: Prisma.NullableEnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode | null
+  interestPlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  interestModules?: Prisma.SalesLeadUpdateinterestModulesInput | string[]
+  status?: Prisma.EnumSalesLeadStatusFieldUpdateOperationsInput | $Enums.SalesLeadStatus
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lostReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpConsent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  followUpConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  followUpConsentSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneWithoutOwnedLeadsNestedInput
+  tenant?: Prisma.TenantUpdateOneWithoutSalesLeadNestedInput
+  activities?: Prisma.SalesActivityUpdateManyWithoutLeadNestedInput
+}
+
+export type SalesLeadUncheckedUpdateWithoutChatsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sector?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  need?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumSalesLeadSourceFieldUpdateOperationsInput | $Enums.SalesLeadSource
+  sourceDetail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimatedBudget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  budgetCurrency?: Prisma.StringFieldUpdateOperationsInput | string
+  interestMode?: Prisma.NullableEnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode | null
+  interestPlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  interestModules?: Prisma.SalesLeadUpdateinterestModulesInput | string[]
+  status?: Prisma.EnumSalesLeadStatusFieldUpdateOperationsInput | $Enums.SalesLeadStatus
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lostReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpConsent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  followUpConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  followUpConsentSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activities?: Prisma.SalesActivityUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type SalesLeadCreateManyOwnerInput = {
@@ -1348,6 +1627,9 @@ export type SalesLeadCreateManyOwnerInput = {
   nextAction?: string | null
   nextActionAt?: Date | string | null
   lostReason?: string | null
+  followUpConsent?: boolean
+  followUpConsentAt?: Date | string | null
+  followUpConsentSource?: string | null
   tenantId?: string | null
   convertedAt?: Date | string | null
   statusChangedAt?: Date | string
@@ -1375,6 +1657,9 @@ export type SalesLeadUpdateWithoutOwnerInput = {
   nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lostReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpConsent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  followUpConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  followUpConsentSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1382,6 +1667,7 @@ export type SalesLeadUpdateWithoutOwnerInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneWithoutSalesLeadNestedInput
   activities?: Prisma.SalesActivityUpdateManyWithoutLeadNestedInput
+  chats?: Prisma.SalesChatSessionUpdateManyWithoutLeadNestedInput
 }
 
 export type SalesLeadUncheckedUpdateWithoutOwnerInput = {
@@ -1404,6 +1690,9 @@ export type SalesLeadUncheckedUpdateWithoutOwnerInput = {
   nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lostReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpConsent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  followUpConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  followUpConsentSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1411,6 +1700,7 @@ export type SalesLeadUncheckedUpdateWithoutOwnerInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activities?: Prisma.SalesActivityUncheckedUpdateManyWithoutLeadNestedInput
+  chats?: Prisma.SalesChatSessionUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type SalesLeadUncheckedUpdateManyWithoutOwnerInput = {
@@ -1433,6 +1723,9 @@ export type SalesLeadUncheckedUpdateManyWithoutOwnerInput = {
   nextAction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lostReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpConsent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  followUpConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  followUpConsentSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1448,10 +1741,12 @@ export type SalesLeadUncheckedUpdateManyWithoutOwnerInput = {
 
 export type SalesLeadCountOutputType = {
   activities: number
+  chats: number
 }
 
 export type SalesLeadCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   activities?: boolean | SalesLeadCountOutputTypeCountActivitiesArgs
+  chats?: boolean | SalesLeadCountOutputTypeCountChatsArgs
 }
 
 /**
@@ -1469,6 +1764,13 @@ export type SalesLeadCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ex
  */
 export type SalesLeadCountOutputTypeCountActivitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.SalesActivityWhereInput
+}
+
+/**
+ * SalesLeadCountOutputType without action
+ */
+export type SalesLeadCountOutputTypeCountChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SalesChatSessionWhereInput
 }
 
 
@@ -1493,6 +1795,9 @@ export type SalesLeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   nextAction?: boolean
   nextActionAt?: boolean
   lostReason?: boolean
+  followUpConsent?: boolean
+  followUpConsentAt?: boolean
+  followUpConsentSource?: boolean
   tenantId?: boolean
   convertedAt?: boolean
   statusChangedAt?: boolean
@@ -1502,6 +1807,7 @@ export type SalesLeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   owner?: boolean | Prisma.SalesLead$ownerArgs<ExtArgs>
   tenant?: boolean | Prisma.SalesLead$tenantArgs<ExtArgs>
   activities?: boolean | Prisma.SalesLead$activitiesArgs<ExtArgs>
+  chats?: boolean | Prisma.SalesLead$chatsArgs<ExtArgs>
   _count?: boolean | Prisma.SalesLeadCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["salesLead"]>
 
@@ -1526,6 +1832,9 @@ export type SalesLeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   nextAction?: boolean
   nextActionAt?: boolean
   lostReason?: boolean
+  followUpConsent?: boolean
+  followUpConsentAt?: boolean
+  followUpConsentSource?: boolean
   tenantId?: boolean
   convertedAt?: boolean
   statusChangedAt?: boolean
@@ -1557,6 +1866,9 @@ export type SalesLeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   nextAction?: boolean
   nextActionAt?: boolean
   lostReason?: boolean
+  followUpConsent?: boolean
+  followUpConsentAt?: boolean
+  followUpConsentSource?: boolean
   tenantId?: boolean
   convertedAt?: boolean
   statusChangedAt?: boolean
@@ -1588,6 +1900,9 @@ export type SalesLeadSelectScalar = {
   nextAction?: boolean
   nextActionAt?: boolean
   lostReason?: boolean
+  followUpConsent?: boolean
+  followUpConsentAt?: boolean
+  followUpConsentSource?: boolean
   tenantId?: boolean
   convertedAt?: boolean
   statusChangedAt?: boolean
@@ -1596,11 +1911,12 @@ export type SalesLeadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type SalesLeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "number" | "name" | "company" | "phone" | "email" | "sector" | "need" | "source" | "sourceDetail" | "estimatedBudget" | "budgetCurrency" | "interestMode" | "interestPlan" | "interestModules" | "status" | "ownerId" | "nextAction" | "nextActionAt" | "lostReason" | "tenantId" | "convertedAt" | "statusChangedAt" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["salesLead"]>
+export type SalesLeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "number" | "name" | "company" | "phone" | "email" | "sector" | "need" | "source" | "sourceDetail" | "estimatedBudget" | "budgetCurrency" | "interestMode" | "interestPlan" | "interestModules" | "status" | "ownerId" | "nextAction" | "nextActionAt" | "lostReason" | "followUpConsent" | "followUpConsentAt" | "followUpConsentSource" | "tenantId" | "convertedAt" | "statusChangedAt" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["salesLead"]>
 export type SalesLeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.SalesLead$ownerArgs<ExtArgs>
   tenant?: boolean | Prisma.SalesLead$tenantArgs<ExtArgs>
   activities?: boolean | Prisma.SalesLead$activitiesArgs<ExtArgs>
+  chats?: boolean | Prisma.SalesLead$chatsArgs<ExtArgs>
   _count?: boolean | Prisma.SalesLeadCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type SalesLeadIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1618,6 +1934,7 @@ export type $SalesLeadPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     owner: Prisma.$UserPayload<ExtArgs> | null
     tenant: Prisma.$TenantPayload<ExtArgs> | null
     activities: Prisma.$SalesActivityPayload<ExtArgs>[]
+    chats: Prisma.$SalesChatSessionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1643,6 +1960,12 @@ export type $SalesLeadPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     nextAction: string | null
     nextActionAt: Date | null
     lostReason: string | null
+    /**
+     * Aceptó que lo contactemos después (formulario o chat), con cuándo y dónde
+     */
+    followUpConsent: boolean
+    followUpConsentAt: Date | null
+    followUpConsentSource: string | null
     /**
      * Empresa creada al convertir el prospecto en cliente
      */
@@ -2049,6 +2372,7 @@ export interface Prisma__SalesLeadClient<T, Null = never, ExtArgs extends runtim
   owner<T extends Prisma.SalesLead$ownerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SalesLead$ownerArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   tenant<T extends Prisma.SalesLead$tenantArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SalesLead$tenantArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   activities<T extends Prisma.SalesLead$activitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SalesLead$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SalesActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  chats<T extends Prisma.SalesLead$chatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SalesLead$chatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SalesChatSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2098,6 +2422,9 @@ export interface SalesLeadFieldRefs {
   readonly nextAction: Prisma.FieldRef<"SalesLead", 'String'>
   readonly nextActionAt: Prisma.FieldRef<"SalesLead", 'DateTime'>
   readonly lostReason: Prisma.FieldRef<"SalesLead", 'String'>
+  readonly followUpConsent: Prisma.FieldRef<"SalesLead", 'Boolean'>
+  readonly followUpConsentAt: Prisma.FieldRef<"SalesLead", 'DateTime'>
+  readonly followUpConsentSource: Prisma.FieldRef<"SalesLead", 'String'>
   readonly tenantId: Prisma.FieldRef<"SalesLead", 'String'>
   readonly convertedAt: Prisma.FieldRef<"SalesLead", 'DateTime'>
   readonly statusChangedAt: Prisma.FieldRef<"SalesLead", 'DateTime'>
@@ -2564,6 +2891,30 @@ export type SalesLead$activitiesArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.SalesActivityScalarFieldEnum | Prisma.SalesActivityScalarFieldEnum[]
+}
+
+/**
+ * SalesLead.chats
+ */
+export type SalesLead$chatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SalesChatSession
+   */
+  select?: Prisma.SalesChatSessionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SalesChatSession
+   */
+  omit?: Prisma.SalesChatSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SalesChatSessionInclude<ExtArgs> | null
+  where?: Prisma.SalesChatSessionWhereInput
+  orderBy?: Prisma.SalesChatSessionOrderByWithRelationInput | Prisma.SalesChatSessionOrderByWithRelationInput[]
+  cursor?: Prisma.SalesChatSessionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SalesChatSessionScalarFieldEnum | Prisma.SalesChatSessionScalarFieldEnum[]
 }
 
 /**
