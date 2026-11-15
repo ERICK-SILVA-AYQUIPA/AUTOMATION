@@ -84,7 +84,7 @@ describe('Centro de APIs: credenciales, modelos, asignación por empresa y consu
     expect(t.body).toMatchObject({ status: 'CONNECTED' });
     const overview = await ctx.http().get('/api/v1/platform/api-center').set(R()).expect(200);
     expect(JSON.stringify(overview.body)).not.toContain(KEYS.claudeManaged);
-    expect(overview.body.catalog.find((c: { key: string }) => c.key === 'hetzner')).toMatchObject({ managedIn: 'planned' });
+    expect(overview.body.catalog.find((c: { key: string }) => c.key === 'hetzner')).toMatchObject({ managedIn: 'infra' });
   });
 
   it('3. lee los modelos del proveedor y no acepta uno que el proveedor no ofrece', async () => {

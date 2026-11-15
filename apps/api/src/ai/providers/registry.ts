@@ -30,7 +30,7 @@ export type CenterCategory = 'ai' | 'messaging' | 'automation' | 'support' | 'in
  * como no disponibles, sin botones). Integrar una API nueva exige escribir su
  * adaptador: no basta con pegar una clave.
  */
-export const CENTER_CATALOG: { key: string; name: string; category: CenterCategory; managedIn: 'center' | 'whatsapp' | 'server' | 'webhooks' | 'planned'; note?: string }[] = [
+export const CENTER_CATALOG: { key: string; name: string; category: CenterCategory; managedIn: 'center' | 'whatsapp' | 'server' | 'webhooks' | 'infra' | 'planned'; note?: string }[] = [
   { key: 'anthropic', name: 'Anthropic Claude', category: 'ai', managedIn: 'center' },
   { key: 'gemini', name: 'Google Gemini', category: 'ai', managedIn: 'center' },
   { key: 'openai', name: 'OpenAI', category: 'ai', managedIn: 'center' },
@@ -40,7 +40,7 @@ export const CENTER_CATALOG: { key: string; name: string; category: CenterCatego
   { key: 'webhooks', name: 'Webhooks firmados', category: 'automation', managedIn: 'webhooks', note: 'Cada empresa registra sus URL en Integraciones' },
   { key: 'chatwoot', name: 'Chatwoot', category: 'support', managedIn: 'server', note: 'Variables CHATWOOT_* del servidor' },
   { key: 'smtp', name: 'Correo SMTP', category: 'email', managedIn: 'server', note: 'Variables SMTP_* del servidor' },
-  { key: 'hetzner', name: 'Hetzner Cloud', category: 'infrastructure', managedIn: 'planned', note: 'Fase D' },
+  { key: 'hetzner', name: 'Hetzner Cloud', category: 'infrastructure', managedIn: 'infra', note: 'Plataforma › Infraestructura' },
   { key: 'digitalocean', name: 'DigitalOcean', category: 'infrastructure', managedIn: 'planned', note: 'Evaluado en la fase D' },
   { key: 'aws', name: 'Amazon Web Services', category: 'infrastructure', managedIn: 'planned', note: 'Evaluado en la fase D' },
   { key: 'payments', name: 'Pasarela de pagos', category: 'payments', managedIn: 'planned', note: 'Fase C; depende del proveedor que elija Rick' },

@@ -226,6 +226,27 @@ Públicas (enlace del cliente, `t` = token; límite por IP; enlace inválido →
 
 No hay ruta de pasarela de pago: se agregará con el adaptador del proveedor que se elija y pruebe.
 
+### Infraestructura (ADR 050)
+
+Plataforma (`platform:manage`, prefijo `/platform/infra`). Ningún asistente de IA usa estas rutas.
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/kinds` | Proveedores con adaptador (`HETZNER`) y lo que ofrecen por API |
+| GET / POST | `/providers` | Lista con costos; agregar `{kind, token, label, monthlyBudget, maxServers, allowedLocations[], allowedServerTypes[], defaultImage, sshSourceCidrs[]}`: el token se prueba antes de guardarse y nunca se devuelve (`secretHint`) |
+| GET / PUT | `/providers/:id` | Detalle con historial; cambiar límites |
+| POST | `/providers/:id/rotate`, `/providers/:id/test`, `/providers/:id/disabled` | `{token}`; probar conexión; `{disabled}` |
+| GET | `/providers/:id/catalog`, `/providers/:id/remote-servers` | Regiones y tamaños con precio; servidores de la cuenta |
+| POST | `/providers/:id/import` | `{externalId}`: registra un servidor creado fuera |
+| GET / POST | `/ssh-keys`, `/ssh-keys/:id/active` | Claves **públicas** `{name, publicKey}` (409 `DUPLICATE_KEY`); `{isActive}` |
+| GET | `/installation-options` | Órdenes de instalación sin servidor |
+| GET / POST | `/requests` | Solicitudes; crear `{providerId, installationOrderId?, purpose, name, serverType, location, image?}`. 409 `NO_BUDGET`, `OVER_BUDGET`, `MAX_SERVERS`, `INSTALLATION_HAS_SERVER`, `NOT_AVAILABLE`, `TYPE_DEPRECATED`; 400 `LOCATION_NOT_ALLOWED`, `TYPE_NOT_ALLOWED` |
+| POST | `/requests/:id/approve` | `{confirmName, acceptCost: true, note?}`: crea el servidor. 400 `CONFIRM_NAME`; 409 `NO_SSH_KEY` y los de la solicitud; un error del proveedor deja la solicitud `FAILED` (`PROVIDER_AUTH`, `PROVIDER_FORBIDDEN`, `PROVIDER_RATE_LIMIT`, `PROVIDER_ERROR`) |
+| POST | `/requests/:id/reject`, `/requests/:id/cancel` | `{note}` |
+| GET | `/servers` (`?deleted=true`), `/servers/:id`, `/servers/:id/metrics` | Servidores; detalle con historial; CPU y red de 24 h |
+| POST | `/servers/:id/refresh`, `/servers/:id/power` | Estado del proveedor; `{action: poweron|shutdown|poweroff|reboot}` |
+| POST | `/servers/:id/delete` | `{confirmName, reason}`: elimina en el proveedor; la fila queda marcada |
+
 Panel general (permiso `platform:manage`): `GET /platform/integrations` (servicios del servidor con `configured`, variables de entorno y última prueba; números de WhatsApp por estado y con error; fallos de 7 días) y `POST /platform/integrations/:service/test` (`database, redis, gemini, smtp, n8n, chatwoot`; auditado).
 
 ### Recibir webhooks

@@ -448,3 +448,22 @@ export const InstallationOrderStatus = {
 } as const
 
 export type InstallationOrderStatus = (typeof InstallationOrderStatus)[keyof typeof InstallationOrderStatus]
+
+
+export const InfraKind = {
+  HETZNER: 'HETZNER'
+} as const
+
+export type InfraKind = (typeof InfraKind)[keyof typeof InfraKind]
+
+
+export const ServerRequestStatus = {
+  PENDING_APPROVAL: 'PENDING_APPROVAL',
+  REJECTED: 'REJECTED',
+  CANCELLED: 'CANCELLED',
+  CREATING: 'CREATING',
+  CREATED: 'CREATED',
+  FAILED: 'FAILED'
+} as const
+
+export type ServerRequestStatus = (typeof ServerRequestStatus)[keyof typeof ServerRequestStatus]

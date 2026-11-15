@@ -91,6 +91,22 @@ Pruebas: `api-center.e2e-spec.ts` (API y PostgreSQL) y `api-center.mjs` (navegad
 | Pasarela oficial | Confirmación idempotente lista, **sin ruta pública: no hay proveedor elegido ni probado** | Pendiente de Rick |
 | Datos reales (Yape, cuentas, precios, impuesto, contrato) | Se cargan en Cotizaciones y pagos › Catálogo y Configuración | **Pendiente de Rick** |
 
+## Fase D: gestor de infraestructura (ADR 050)
+
+| Criterio | Cómo se demuestra | Estado |
+|---|---|---|
+| Adaptadores con una interfaz común, sin acoplarse a un proveedor | `InfraAdapter` y `HetznerAdapter`; el resto de la plataforma solo usa la interfaz | Hecho (un adaptador: Hetzner) |
+| Credenciales cifradas, probadas y nunca mostradas completas | Token rechazado no se guarda; respuestas sin el token (`infra.e2e-spec.ts`, `infra.mjs`) | Probado con servidor local |
+| Regiones, tamaños, precios y disponibilidad | Leídos del proveedor; tamaños retirados y no disponibles marcados | Probado con servidor local |
+| Proyectos y facturación | Hetzner no los ofrece por API: el token es de un proyecto; el costo es una estimación indicada como tal | Limitación del proveedor, documentada |
+| Límites y presupuesto | Sin presupuesto no se aprueba; máximo de servidores, regiones y tamaños permitidos; se recalcula al aprobar | Probado |
+| No crear infraestructura facturable sin aprobación | Solicitud y aprobación separadas, nombre escrito y gasto autorizado; ninguna llamada de escritura antes de aprobar | Probado (se cuentan las llamadas al proveedor) |
+| Sin contraseñas SSH ni claves privadas | Claves privadas rechazadas; contraseña de root descartada; firewall con SSH solo desde redes indicadas | Probado |
+| Iniciar, detener, reiniciar, consumo, eliminar con autorización | Acciones del panel; eliminar con nombre y motivo; historial que solo se agrega | Probado con servidor local |
+| Ninguna IA crea ni elimina servidores | El módulo no expone herramientas a los asistentes; solo `platform:manage` | Hecho |
+| Con Hetzner real | Requiere un token del proyecto y autorizar el primer servidor | **Pendiente de Rick** |
+| Servidor propio del cliente (§7B) | Instalador o agente con credenciales temporales | Pendiente (fases E/F) |
+
 ## Seguridad (fase 10)
 
 - Dependencias de producción: `pnpm audit --prod` sin vulnerabilidades conocidas (2026-11-13). No se añadieron dependencias en las fases 8 y 9: el ZIP y el actualizador usan solo Node y herramientas del sistema.

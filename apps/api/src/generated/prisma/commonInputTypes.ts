@@ -1211,6 +1211,40 @@ export type EnumInstallationOrderStatusWithAggregatesFilter<$PrismaModel = never
   _max?: Prisma.NestedEnumInstallationOrderStatusFilter<$PrismaModel>
 }
 
+export type EnumInfraKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.InfraKind | Prisma.EnumInfraKindFieldRefInput<$PrismaModel>
+  in?: $Enums.InfraKind[] | Prisma.ListEnumInfraKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.InfraKind[] | Prisma.ListEnumInfraKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumInfraKindFilter<$PrismaModel> | $Enums.InfraKind
+}
+
+export type EnumInfraKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.InfraKind | Prisma.EnumInfraKindFieldRefInput<$PrismaModel>
+  in?: $Enums.InfraKind[] | Prisma.ListEnumInfraKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.InfraKind[] | Prisma.ListEnumInfraKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumInfraKindWithAggregatesFilter<$PrismaModel> | $Enums.InfraKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumInfraKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumInfraKindFilter<$PrismaModel>
+}
+
+export type EnumServerRequestStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ServerRequestStatus | Prisma.EnumServerRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ServerRequestStatus[] | Prisma.ListEnumServerRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ServerRequestStatus[] | Prisma.ListEnumServerRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumServerRequestStatusFilter<$PrismaModel> | $Enums.ServerRequestStatus
+}
+
+export type EnumServerRequestStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ServerRequestStatus | Prisma.EnumServerRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ServerRequestStatus[] | Prisma.ListEnumServerRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ServerRequestStatus[] | Prisma.ListEnumServerRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumServerRequestStatusWithAggregatesFilter<$PrismaModel> | $Enums.ServerRequestStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumServerRequestStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumServerRequestStatusFilter<$PrismaModel>
+}
+
 export type NestedUuidFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -2361,6 +2395,40 @@ export type NestedEnumInstallationOrderStatusWithAggregatesFilter<$PrismaModel =
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumInstallationOrderStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumInstallationOrderStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumInfraKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.InfraKind | Prisma.EnumInfraKindFieldRefInput<$PrismaModel>
+  in?: $Enums.InfraKind[] | Prisma.ListEnumInfraKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.InfraKind[] | Prisma.ListEnumInfraKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumInfraKindFilter<$PrismaModel> | $Enums.InfraKind
+}
+
+export type NestedEnumInfraKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.InfraKind | Prisma.EnumInfraKindFieldRefInput<$PrismaModel>
+  in?: $Enums.InfraKind[] | Prisma.ListEnumInfraKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.InfraKind[] | Prisma.ListEnumInfraKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumInfraKindWithAggregatesFilter<$PrismaModel> | $Enums.InfraKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumInfraKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumInfraKindFilter<$PrismaModel>
+}
+
+export type NestedEnumServerRequestStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ServerRequestStatus | Prisma.EnumServerRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ServerRequestStatus[] | Prisma.ListEnumServerRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ServerRequestStatus[] | Prisma.ListEnumServerRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumServerRequestStatusFilter<$PrismaModel> | $Enums.ServerRequestStatus
+}
+
+export type NestedEnumServerRequestStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ServerRequestStatus | Prisma.EnumServerRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ServerRequestStatus[] | Prisma.ListEnumServerRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ServerRequestStatus[] | Prisma.ListEnumServerRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumServerRequestStatusWithAggregatesFilter<$PrismaModel> | $Enums.ServerRequestStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumServerRequestStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumServerRequestStatusFilter<$PrismaModel>
 }
 
 

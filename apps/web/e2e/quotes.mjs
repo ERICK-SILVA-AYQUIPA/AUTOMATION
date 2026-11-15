@@ -256,10 +256,10 @@ try {
     await page.getByRole('button', { name: 'Exportar CSV' }).click();
     if (!/^ingresos-\d{4}-\d{2}-\d{2}\.csv$/.test((await dl).suggestedFilename())) throw new Error('Nombre del CSV inesperado');
     await tab('Instalaciones');
-    const card = page.locator('div', { has: page.getByRole('link', { name: `Minimarket ${stamp}` }) }).filter({ has: page.getByRole('button', { name: 'Marcar en curso' }) }).last();
+    const card = page.locator('div.rounded-xl', { has: page.getByRole('link', { name: `Minimarket ${stamp}` }) }).filter({ has: page.getByRole('button', { name: 'Marcar en curso' }) }).last();
     await card.getByRole('button', { name: 'Marcar en curso' }).click();
     await page.getByText(/^OI-\d{5}: en curso$/).waitFor();
-    const running = page.locator('div', { has: page.getByRole('link', { name: `Minimarket ${stamp}` }) }).filter({ has: page.getByRole('button', { name: 'Marcar terminada' }) }).last();
+    const running = page.locator('div.rounded-xl', { has: page.getByRole('link', { name: `Minimarket ${stamp}` }) }).filter({ has: page.getByRole('button', { name: 'Marcar terminada' }) }).last();
     if (await running.getByRole('button', { name: 'Marcar terminada' }).isEnabled()) throw new Error('Se puede terminar la instalación sin empresa creada');
     await page.goto(`${WEB}/plataforma/ventas/${lead.id}`);
     await page.getByText('Pago confirmado', { exact: true }).first().waitFor();

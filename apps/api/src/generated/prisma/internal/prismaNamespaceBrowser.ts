@@ -109,7 +109,12 @@ export const ModelName = {
   SalesPaymentEvent: 'SalesPaymentEvent',
   PaymentGatewayEvent: 'PaymentGatewayEvent',
   AccountingEntry: 'AccountingEntry',
-  InstallationOrder: 'InstallationOrder'
+  InstallationOrder: 'InstallationOrder',
+  InfraProvider: 'InfraProvider',
+  InfraSshKey: 'InfraSshKey',
+  InfraServerRequest: 'InfraServerRequest',
+  InfraServer: 'InfraServer',
+  InfraOperation: 'InfraOperation'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1237,6 +1242,118 @@ export const InstallationOrderScalarFieldEnum = {
 } as const
 
 export type InstallationOrderScalarFieldEnum = (typeof InstallationOrderScalarFieldEnum)[keyof typeof InstallationOrderScalarFieldEnum]
+
+
+export const InfraProviderScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  label: 'label',
+  secretsEnc: 'secretsEnc',
+  secretHint: 'secretHint',
+  status: 'status',
+  lastError: 'lastError',
+  lastCheckedAt: 'lastCheckedAt',
+  connectedAt: 'connectedAt',
+  rotatedAt: 'rotatedAt',
+  disabledAt: 'disabledAt',
+  currency: 'currency',
+  monthlyBudget: 'monthlyBudget',
+  maxServers: 'maxServers',
+  allowedLocations: 'allowedLocations',
+  allowedServerTypes: 'allowedServerTypes',
+  defaultImage: 'defaultImage',
+  sshSourceCidrs: 'sshSourceCidrs',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InfraProviderScalarFieldEnum = (typeof InfraProviderScalarFieldEnum)[keyof typeof InfraProviderScalarFieldEnum]
+
+
+export const InfraSshKeyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  publicKey: 'publicKey',
+  fingerprint: 'fingerprint',
+  isActive: 'isActive',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type InfraSshKeyScalarFieldEnum = (typeof InfraSshKeyScalarFieldEnum)[keyof typeof InfraSshKeyScalarFieldEnum]
+
+
+export const InfraServerRequestScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  providerId: 'providerId',
+  installationOrderId: 'installationOrderId',
+  purpose: 'purpose',
+  name: 'name',
+  serverType: 'serverType',
+  location: 'location',
+  image: 'image',
+  priceHourly: 'priceHourly',
+  priceMonthly: 'priceMonthly',
+  currency: 'currency',
+  status: 'status',
+  requestedById: 'requestedById',
+  decidedById: 'decidedById',
+  decidedAt: 'decidedAt',
+  decisionNote: 'decisionNote',
+  error: 'error',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InfraServerRequestScalarFieldEnum = (typeof InfraServerRequestScalarFieldEnum)[keyof typeof InfraServerRequestScalarFieldEnum]
+
+
+export const InfraServerScalarFieldEnum = {
+  id: 'id',
+  providerId: 'providerId',
+  requestId: 'requestId',
+  externalId: 'externalId',
+  name: 'name',
+  status: 'status',
+  serverType: 'serverType',
+  location: 'location',
+  image: 'image',
+  ipv4: 'ipv4',
+  ipv6: 'ipv6',
+  firewallExternalId: 'firewallExternalId',
+  priceHourly: 'priceHourly',
+  priceMonthly: 'priceMonthly',
+  currency: 'currency',
+  installationOrderId: 'installationOrderId',
+  tenantId: 'tenantId',
+  imported: 'imported',
+  providerCreatedAt: 'providerCreatedAt',
+  lastSyncedAt: 'lastSyncedAt',
+  deletedAt: 'deletedAt',
+  deletedById: 'deletedById',
+  deleteReason: 'deleteReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InfraServerScalarFieldEnum = (typeof InfraServerScalarFieldEnum)[keyof typeof InfraServerScalarFieldEnum]
+
+
+export const InfraOperationScalarFieldEnum = {
+  id: 'id',
+  providerId: 'providerId',
+  serverId: 'serverId',
+  requestId: 'requestId',
+  kind: 'kind',
+  ok: 'ok',
+  detail: 'detail',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type InfraOperationScalarFieldEnum = (typeof InfraOperationScalarFieldEnum)[keyof typeof InfraOperationScalarFieldEnum]
 
 
 export const SortOrder = {

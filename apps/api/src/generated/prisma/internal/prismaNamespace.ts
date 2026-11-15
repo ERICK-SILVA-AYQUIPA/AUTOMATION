@@ -455,7 +455,12 @@ export const ModelName = {
   SalesPaymentEvent: 'SalesPaymentEvent',
   PaymentGatewayEvent: 'PaymentGatewayEvent',
   AccountingEntry: 'AccountingEntry',
-  InstallationOrder: 'InstallationOrder'
+  InstallationOrder: 'InstallationOrder',
+  InfraProvider: 'InfraProvider',
+  InfraSshKey: 'InfraSshKey',
+  InfraServerRequest: 'InfraServerRequest',
+  InfraServer: 'InfraServer',
+  InfraOperation: 'InfraOperation'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -471,7 +476,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "plan" | "tenant" | "subscription" | "payment" | "delivery" | "systemUpdate" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "conversationNote" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "aiKnowledgeDoc" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog" | "integrationCheck" | "webhookEndpoint" | "webhookDelivery" | "reservation" | "providerCredential" | "aiModel" | "aiAssignment" | "aiUsageEvent" | "salesLead" | "salesActivity" | "commercialSettings" | "salesChatSession" | "salesChatMessage" | "commercialItem" | "contractVersion" | "salesQuote" | "salesQuoteLine" | "paymentMethodConfig" | "salesPaymentOrder" | "salesPaymentEvent" | "paymentGatewayEvent" | "accountingEntry" | "installationOrder"
+    modelProps: "plan" | "tenant" | "subscription" | "payment" | "delivery" | "systemUpdate" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "conversationNote" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "aiKnowledgeDoc" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog" | "integrationCheck" | "webhookEndpoint" | "webhookDelivery" | "reservation" | "providerCredential" | "aiModel" | "aiAssignment" | "aiUsageEvent" | "salesLead" | "salesActivity" | "commercialSettings" | "salesChatSession" | "salesChatMessage" | "commercialItem" | "contractVersion" | "salesQuote" | "salesQuoteLine" | "paymentMethodConfig" | "salesPaymentOrder" | "salesPaymentEvent" | "paymentGatewayEvent" | "accountingEntry" | "installationOrder" | "infraProvider" | "infraSshKey" | "infraServerRequest" | "infraServer" | "infraOperation"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4841,6 +4846,376 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    InfraProvider: {
+      payload: Prisma.$InfraProviderPayload<ExtArgs>
+      fields: Prisma.InfraProviderFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InfraProviderFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraProviderPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InfraProviderFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraProviderPayload>
+        }
+        findFirst: {
+          args: Prisma.InfraProviderFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraProviderPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InfraProviderFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraProviderPayload>
+        }
+        findMany: {
+          args: Prisma.InfraProviderFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraProviderPayload>[]
+        }
+        create: {
+          args: Prisma.InfraProviderCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraProviderPayload>
+        }
+        createMany: {
+          args: Prisma.InfraProviderCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.InfraProviderCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraProviderPayload>[]
+        }
+        delete: {
+          args: Prisma.InfraProviderDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraProviderPayload>
+        }
+        update: {
+          args: Prisma.InfraProviderUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraProviderPayload>
+        }
+        deleteMany: {
+          args: Prisma.InfraProviderDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InfraProviderUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.InfraProviderUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraProviderPayload>[]
+        }
+        upsert: {
+          args: Prisma.InfraProviderUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraProviderPayload>
+        }
+        aggregate: {
+          args: Prisma.InfraProviderAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInfraProvider>
+        }
+        groupBy: {
+          args: Prisma.InfraProviderGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InfraProviderGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InfraProviderCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InfraProviderCountAggregateOutputType> | number
+        }
+      }
+    }
+    InfraSshKey: {
+      payload: Prisma.$InfraSshKeyPayload<ExtArgs>
+      fields: Prisma.InfraSshKeyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InfraSshKeyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraSshKeyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InfraSshKeyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraSshKeyPayload>
+        }
+        findFirst: {
+          args: Prisma.InfraSshKeyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraSshKeyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InfraSshKeyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraSshKeyPayload>
+        }
+        findMany: {
+          args: Prisma.InfraSshKeyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraSshKeyPayload>[]
+        }
+        create: {
+          args: Prisma.InfraSshKeyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraSshKeyPayload>
+        }
+        createMany: {
+          args: Prisma.InfraSshKeyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.InfraSshKeyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraSshKeyPayload>[]
+        }
+        delete: {
+          args: Prisma.InfraSshKeyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraSshKeyPayload>
+        }
+        update: {
+          args: Prisma.InfraSshKeyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraSshKeyPayload>
+        }
+        deleteMany: {
+          args: Prisma.InfraSshKeyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InfraSshKeyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.InfraSshKeyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraSshKeyPayload>[]
+        }
+        upsert: {
+          args: Prisma.InfraSshKeyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraSshKeyPayload>
+        }
+        aggregate: {
+          args: Prisma.InfraSshKeyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInfraSshKey>
+        }
+        groupBy: {
+          args: Prisma.InfraSshKeyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InfraSshKeyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InfraSshKeyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InfraSshKeyCountAggregateOutputType> | number
+        }
+      }
+    }
+    InfraServerRequest: {
+      payload: Prisma.$InfraServerRequestPayload<ExtArgs>
+      fields: Prisma.InfraServerRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InfraServerRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InfraServerRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.InfraServerRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InfraServerRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerRequestPayload>
+        }
+        findMany: {
+          args: Prisma.InfraServerRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerRequestPayload>[]
+        }
+        create: {
+          args: Prisma.InfraServerRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerRequestPayload>
+        }
+        createMany: {
+          args: Prisma.InfraServerRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.InfraServerRequestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerRequestPayload>[]
+        }
+        delete: {
+          args: Prisma.InfraServerRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerRequestPayload>
+        }
+        update: {
+          args: Prisma.InfraServerRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.InfraServerRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InfraServerRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.InfraServerRequestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerRequestPayload>[]
+        }
+        upsert: {
+          args: Prisma.InfraServerRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.InfraServerRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInfraServerRequest>
+        }
+        groupBy: {
+          args: Prisma.InfraServerRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InfraServerRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InfraServerRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InfraServerRequestCountAggregateOutputType> | number
+        }
+      }
+    }
+    InfraServer: {
+      payload: Prisma.$InfraServerPayload<ExtArgs>
+      fields: Prisma.InfraServerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InfraServerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InfraServerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerPayload>
+        }
+        findFirst: {
+          args: Prisma.InfraServerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InfraServerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerPayload>
+        }
+        findMany: {
+          args: Prisma.InfraServerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerPayload>[]
+        }
+        create: {
+          args: Prisma.InfraServerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerPayload>
+        }
+        createMany: {
+          args: Prisma.InfraServerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.InfraServerCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerPayload>[]
+        }
+        delete: {
+          args: Prisma.InfraServerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerPayload>
+        }
+        update: {
+          args: Prisma.InfraServerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerPayload>
+        }
+        deleteMany: {
+          args: Prisma.InfraServerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InfraServerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.InfraServerUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerPayload>[]
+        }
+        upsert: {
+          args: Prisma.InfraServerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraServerPayload>
+        }
+        aggregate: {
+          args: Prisma.InfraServerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInfraServer>
+        }
+        groupBy: {
+          args: Prisma.InfraServerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InfraServerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InfraServerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InfraServerCountAggregateOutputType> | number
+        }
+      }
+    }
+    InfraOperation: {
+      payload: Prisma.$InfraOperationPayload<ExtArgs>
+      fields: Prisma.InfraOperationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InfraOperationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraOperationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InfraOperationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraOperationPayload>
+        }
+        findFirst: {
+          args: Prisma.InfraOperationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraOperationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InfraOperationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraOperationPayload>
+        }
+        findMany: {
+          args: Prisma.InfraOperationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraOperationPayload>[]
+        }
+        create: {
+          args: Prisma.InfraOperationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraOperationPayload>
+        }
+        createMany: {
+          args: Prisma.InfraOperationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.InfraOperationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraOperationPayload>[]
+        }
+        delete: {
+          args: Prisma.InfraOperationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraOperationPayload>
+        }
+        update: {
+          args: Prisma.InfraOperationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraOperationPayload>
+        }
+        deleteMany: {
+          args: Prisma.InfraOperationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InfraOperationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.InfraOperationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraOperationPayload>[]
+        }
+        upsert: {
+          args: Prisma.InfraOperationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InfraOperationPayload>
+        }
+        aggregate: {
+          args: Prisma.InfraOperationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInfraOperation>
+        }
+        groupBy: {
+          args: Prisma.InfraOperationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InfraOperationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InfraOperationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InfraOperationCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -5991,6 +6366,118 @@ export const InstallationOrderScalarFieldEnum = {
 export type InstallationOrderScalarFieldEnum = (typeof InstallationOrderScalarFieldEnum)[keyof typeof InstallationOrderScalarFieldEnum]
 
 
+export const InfraProviderScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  label: 'label',
+  secretsEnc: 'secretsEnc',
+  secretHint: 'secretHint',
+  status: 'status',
+  lastError: 'lastError',
+  lastCheckedAt: 'lastCheckedAt',
+  connectedAt: 'connectedAt',
+  rotatedAt: 'rotatedAt',
+  disabledAt: 'disabledAt',
+  currency: 'currency',
+  monthlyBudget: 'monthlyBudget',
+  maxServers: 'maxServers',
+  allowedLocations: 'allowedLocations',
+  allowedServerTypes: 'allowedServerTypes',
+  defaultImage: 'defaultImage',
+  sshSourceCidrs: 'sshSourceCidrs',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InfraProviderScalarFieldEnum = (typeof InfraProviderScalarFieldEnum)[keyof typeof InfraProviderScalarFieldEnum]
+
+
+export const InfraSshKeyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  publicKey: 'publicKey',
+  fingerprint: 'fingerprint',
+  isActive: 'isActive',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type InfraSshKeyScalarFieldEnum = (typeof InfraSshKeyScalarFieldEnum)[keyof typeof InfraSshKeyScalarFieldEnum]
+
+
+export const InfraServerRequestScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  providerId: 'providerId',
+  installationOrderId: 'installationOrderId',
+  purpose: 'purpose',
+  name: 'name',
+  serverType: 'serverType',
+  location: 'location',
+  image: 'image',
+  priceHourly: 'priceHourly',
+  priceMonthly: 'priceMonthly',
+  currency: 'currency',
+  status: 'status',
+  requestedById: 'requestedById',
+  decidedById: 'decidedById',
+  decidedAt: 'decidedAt',
+  decisionNote: 'decisionNote',
+  error: 'error',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InfraServerRequestScalarFieldEnum = (typeof InfraServerRequestScalarFieldEnum)[keyof typeof InfraServerRequestScalarFieldEnum]
+
+
+export const InfraServerScalarFieldEnum = {
+  id: 'id',
+  providerId: 'providerId',
+  requestId: 'requestId',
+  externalId: 'externalId',
+  name: 'name',
+  status: 'status',
+  serverType: 'serverType',
+  location: 'location',
+  image: 'image',
+  ipv4: 'ipv4',
+  ipv6: 'ipv6',
+  firewallExternalId: 'firewallExternalId',
+  priceHourly: 'priceHourly',
+  priceMonthly: 'priceMonthly',
+  currency: 'currency',
+  installationOrderId: 'installationOrderId',
+  tenantId: 'tenantId',
+  imported: 'imported',
+  providerCreatedAt: 'providerCreatedAt',
+  lastSyncedAt: 'lastSyncedAt',
+  deletedAt: 'deletedAt',
+  deletedById: 'deletedById',
+  deleteReason: 'deleteReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InfraServerScalarFieldEnum = (typeof InfraServerScalarFieldEnum)[keyof typeof InfraServerScalarFieldEnum]
+
+
+export const InfraOperationScalarFieldEnum = {
+  id: 'id',
+  providerId: 'providerId',
+  serverId: 'serverId',
+  requestId: 'requestId',
+  kind: 'kind',
+  ok: 'ok',
+  detail: 'detail',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type InfraOperationScalarFieldEnum = (typeof InfraOperationScalarFieldEnum)[keyof typeof InfraOperationScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -6725,6 +7212,34 @@ export type ListEnumInstallationOrderStatusFieldRefInput<$PrismaModel> = FieldRe
 
 
 /**
+ * Reference to a field of type 'InfraKind'
+ */
+export type EnumInfraKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InfraKind'>
+    
+
+
+/**
+ * Reference to a field of type 'InfraKind[]'
+ */
+export type ListEnumInfraKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InfraKind[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ServerRequestStatus'
+ */
+export type EnumServerRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerRequestStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ServerRequestStatus[]'
+ */
+export type ListEnumServerRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerRequestStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -6947,6 +7462,11 @@ export type GlobalOmitConfig = {
   paymentGatewayEvent?: Prisma.PaymentGatewayEventOmit
   accountingEntry?: Prisma.AccountingEntryOmit
   installationOrder?: Prisma.InstallationOrderOmit
+  infraProvider?: Prisma.InfraProviderOmit
+  infraSshKey?: Prisma.InfraSshKeyOmit
+  infraServerRequest?: Prisma.InfraServerRequestOmit
+  infraServer?: Prisma.InfraServerOmit
+  infraOperation?: Prisma.InfraOperationOmit
 }
 
 /* Types for Logging */

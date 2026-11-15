@@ -73,45 +73,46 @@ enum DeploymentMode {
 }
 
 model Tenant {
-  id           String       @id @default(uuid(7)) @db.Uuid
-  name         String
-  slug         String       @unique
-  status       TenantStatus @default(ACTIVE)
-  currency     String       @default("PEN") @db.Char(3)
-  timezone     String       @default("America/Lima")
+  id              String         @id @default(uuid(7)) @db.Uuid
+  name            String
+  slug            String         @unique
+  status          TenantStatus   @default(ACTIVE)
+  currency        String         @default("PEN") @db.Char(3)
+  timezone        String         @default("America/Lima")
   /// Perfil de la empresa (lo edita la propia empresa)
-  legalName    String?      @map("legal_name")
-  taxId        String?      @map("tax_id")
-  country      String       @default("PE") @db.Char(2)
-  address      String?
-  phone        String?
-  contactEmail String?      @map("contact_email")
-  businessType BusinessType @default(RETAIL) @map("business_type")
-  logoUrl      String?      @map("logo_url")
-  brandColor   String?      @map("brand_color")
+  legalName       String?        @map("legal_name")
+  taxId           String?        @map("tax_id")
+  country         String         @default("PE") @db.Char(2)
+  address         String?
+  phone           String?
+  contactEmail    String?        @map("contact_email")
+  businessType    BusinessType   @default(RETAIL) @map("business_type")
+  logoUrl         String?        @map("logo_url")
+  brandColor      String?        @map("brand_color")
   /// Solo la plataforma: dominio, modalidad, módulos y plantilla
-  customDomain String?      @unique @map("custom_domain")
-  deploymentMode DeploymentMode @default(SAAS) @map("deployment_mode")
-  enabledModules String[]   @default(["conversations", "ai", "catalog", "inventory", "orders", "customers", "reports", "automations"]) @map("enabled_modules")
-  templateKey  String?      @map("template_key")
+  customDomain    String?        @unique @map("custom_domain")
+  deploymentMode  DeploymentMode @default(SAAS) @map("deployment_mode")
+  enabledModules  String[]       @default(["conversations", "ai", "catalog", "inventory", "orders", "customers", "reports", "automations"]) @map("enabled_modules")
+  templateKey     String?        @map("template_key")
   /// Versión de la plantilla aplicada (ADR 043)
-  templateVersion Int?      @map("template_version")
+  templateVersion Int?           @map("template_version")
   /// Reglas de operación de la empresa: catálogo, pedidos, clientes y reservas (tenants/tenant-settings.ts)
-  settings     Json         @default("{}")
+  settings        Json           @default("{}")
   /// Clave del asistente de alta: repetir la misma alta devuelve la empresa ya creada
-  provisioningKey String?   @unique @map("provisioning_key") @db.Uuid
-  activatedAt     DateTime? @map("activated_at") @db.Timestamptz(3)
-  createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt    DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  provisioningKey String?        @unique @map("provisioning_key") @db.Uuid
+  activatedAt     DateTime?      @map("activated_at") @db.Timestamptz(3)
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  subscription Subscription?
-  payments     Payment[]
-  deliveries   Delivery[]
-  salesLead    SalesLead?
-  commercialHouse CommercialSettings[]
+  subscription       Subscription?
+  payments           Payment[]
+  deliveries         Delivery[]
+  salesLead          SalesLead?
+  commercialHouse    CommercialSettings[]
   installationOrders InstallationOrder[]
-  users        User[]
-  branches     Branch[]
+  infraServers       InfraServer[]
+  users              User[]
+  branches           Branch[]
 
   @@map("tenants")
 }
@@ -370,15 +371,15 @@ model Branch {
 }
 
 model Category {
-  id          String     @id @default(uuid(7)) @db.Uuid
-  tenantId    String     @map("tenant_id") @db.Uuid
+  id          String   @id @default(uuid(7)) @db.Uuid
+  tenantId    String   @map("tenant_id") @db.Uuid
   name        String
   slug        String
   description String?
-  parentId    String?    @map("parent_id") @db.Uuid
-  isActive    Boolean    @default(true) @map("is_active")
-  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+  parentId    String?  @map("parent_id") @db.Uuid
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
   children Category[] @relation("CategoryTree")
@@ -389,23 +390,23 @@ model Category {
 }
 
 model Product {
-  id          String        @id @default(uuid(7)) @db.Uuid
-  tenantId    String        @map("tenant_id") @db.Uuid
-  categoryId  String?       @map("category_id") @db.Uuid
-  sku         String
-  barcode     String?
-  name        String
-  description String?
-  salePrice   Decimal       @map("sale_price") @db.Decimal(12, 2)
-  costPrice   Decimal?      @map("cost_price") @db.Decimal(12, 2)
-  minStock    Int           @default(0) @map("min_stock")
+  id              String        @id @default(uuid(7)) @db.Uuid
+  tenantId        String        @map("tenant_id") @db.Uuid
+  categoryId      String?       @map("category_id") @db.Uuid
+  sku             String
+  barcode         String?
+  name            String
+  description     String?
+  salePrice       Decimal       @map("sale_price") @db.Decimal(12, 2)
+  costPrice       Decimal?      @map("cost_price") @db.Decimal(12, 2)
+  minStock        Int           @default(0) @map("min_stock")
   /// false: servicios y platos preparados; no llevan existencias ni descuentan stock
-  trackStock  Boolean       @default(true) @map("track_stock")
+  trackStock      Boolean       @default(true) @map("track_stock")
   /// Duración de un servicio reservable (minutos)
-  durationMinutes Int?      @map("duration_minutes")
-  status      ProductStatus @default(ACTIVE)
-  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt   DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  durationMinutes Int?          @map("duration_minutes")
+  status          ProductStatus @default(ACTIVE)
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   category Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   variants ProductVariant[]
@@ -543,31 +544,31 @@ model InventoryMovement {
 // ----------------------------------------------------------------- Clientes / pedidos
 
 model Customer {
-  id            String    @id @default(uuid(7)) @db.Uuid
-  tenantId      String    @map("tenant_id") @db.Uuid
-  name          String?
+  id                String       @id @default(uuid(7)) @db.Uuid
+  tenantId          String       @map("tenant_id") @db.Uuid
+  name              String?
   /// E.164 sin "+", tal como lo entrega WhatsApp (p. ej. 51987654321).
   /// Puede faltar: WhatsApp omite el teléfono si el usuario usa nombre de usuario.
-  phone         String?
+  phone             String?
   /// WhatsApp business-scoped user ID (BSUID), p. ej. "US.1349…". Estable por portafolio de negocio.
-  waUserId      String?   @map("wa_user_id")
+  waUserId          String?      @map("wa_user_id")
   /// Nombre de perfil de WhatsApp (no confiable: lo escribe el usuario)
-  waProfileName String?   @map("wa_profile_name")
+  waProfileName     String?      @map("wa_profile_name")
   /// Contacto espejo en Chatwoot y su source_id en el buzón API (FASE 5)
-  chatwootContactId Int?  @map("chatwoot_contact_id")
-  chatwootSourceId  String? @map("chatwoot_source_id")
-  email         String?
+  chatwootContactId Int?         @map("chatwoot_contact_id")
+  chatwootSourceId  String?      @map("chatwoot_source_id")
+  email             String?
   /// Persona o empresa (cliente comercial de una distribuidora)
-  customerType  CustomerType @default(PERSON) @map("customer_type")
-  businessName  String?   @map("business_name")
-  documentId    String?   @map("document_id")
-  address       String?
-  notes         String?
-  tags          String[]  @default([])
-  source        String    @default("whatsapp")
-  lastContactAt DateTime? @map("last_contact_at") @db.Timestamptz(3)
-  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  customerType      CustomerType @default(PERSON) @map("customer_type")
+  businessName      String?      @map("business_name")
+  documentId        String?      @map("document_id")
+  address           String?
+  notes             String?
+  tags              String[]     @default([])
+  source            String       @default("whatsapp")
+  lastContactAt     DateTime?    @map("last_contact_at") @db.Timestamptz(3)
+  createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   orders        Order[]
   conversations Conversation[]
@@ -682,33 +683,33 @@ enum ConnectionStatus {
 }
 
 model WhatsappNumber {
-  id                String           @id @default(uuid(7)) @db.Uuid
-  tenantId          String           @map("tenant_id") @db.Uuid
-  provider          WhatsappProvider
-  displayPhone      String           @map("display_phone")
+  id                 String           @id @default(uuid(7)) @db.Uuid
+  tenantId           String           @map("tenant_id") @db.Uuid
+  provider           WhatsappProvider
+  displayPhone       String           @map("display_phone")
   /// Cloud API: phone_number_id (enruta webhooks a la empresa). Único global.
-  phoneNumberId     String?          @unique @map("phone_number_id")
-  wabaId            String?          @map("waba_id")
+  phoneNumberId      String?          @unique @map("phone_number_id")
+  wabaId             String?          @map("waba_id")
   /// Nombre interno (p. ej. "Ventas Lima")
-  label             String?
+  label              String?
   /// Identificador aleatorio de la URL de webhook propia del número: /webhooks/whatsapp/<webhookKey>
-  webhookKey        String           @unique @map("webhook_key")
+  webhookKey         String           @unique @map("webhook_key")
   /// Verify token del webhook, cifrado
-  verifyTokenEnc    String?          @map("verify_token_enc")
+  verifyTokenEnc     String?          @map("verify_token_enc")
   /// App Secret de la app de Meta de la empresa (firma X-Hub-Signature-256), cifrado
-  appSecretEnc      String?          @map("app_secret_enc")
+  appSecretEnc       String?          @map("app_secret_enc")
   /// Evolution: API key de la instancia, cifrada
-  evolutionApiKeyEnc String?         @map("evolution_api_key_enc")
-  lastWebhookAt     DateTime?        @map("last_webhook_at") @db.Timestamptz(3)
-  isActive          Boolean          @default(true) @map("is_active")
+  evolutionApiKeyEnc String?          @map("evolution_api_key_enc")
+  lastWebhookAt      DateTime?        @map("last_webhook_at") @db.Timestamptz(3)
+  isActive           Boolean          @default(true) @map("is_active")
   /// Evolution: nombre de instancia. Único global.
-  evolutionInstance String?          @unique @map("evolution_instance")
+  evolutionInstance  String?          @unique @map("evolution_instance")
   /// Token de acceso cifrado (AES-256-GCM) con la clave maestra del servidor
-  accessTokenEnc    String?          @map("access_token_enc")
-  status            ConnectionStatus @default(PENDING)
-  lastError         String?          @map("last_error")
-  createdAt         DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt         DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+  accessTokenEnc     String?          @map("access_token_enc")
+  status             ConnectionStatus @default(PENDING)
+  lastError          String?          @map("last_error")
+  createdAt          DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   conversations Conversation[]
 
@@ -746,8 +747,8 @@ model Conversation {
   createdAt              DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt              DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  customer       Customer       @relation(fields: [customerId], references: [id])
-  whatsappNumber WhatsappNumber @relation(fields: [whatsappNumberId], references: [id])
+  customer       Customer           @relation(fields: [customerId], references: [id])
+  whatsappNumber WhatsappNumber     @relation(fields: [whatsappNumberId], references: [id])
   messages       Message[]
   orders         Order[]
   notes          ConversationNote[]
@@ -869,38 +870,38 @@ model OutboundMessage {
 // ----------------------------------------------------------------- Configuración
 
 model AiSettings {
-  tenantId         String    @id @map("tenant_id") @db.Uuid
+  tenantId        String    @id @map("tenant_id") @db.Uuid
   /// Interruptor operativo (inmediato, no pasa por borrador)
-  isEnabled        Boolean   @default(true) @map("is_enabled")
+  isEnabled       Boolean   @default(true) @map("is_enabled")
   /// Configuración publicada (la que usa el asistente con los clientes). Esquema: apps/api/src/ai/ai-profile.ts
-  profile          Json      @default("{}")
+  profile         Json      @default("{}")
   /// Cambios sin publicar; null = sin borrador
-  draft            Json?
-  draftUpdatedAt   DateTime? @map("draft_updated_at") @db.Timestamptz(3)
+  draft           Json?
+  draftUpdatedAt  DateTime? @map("draft_updated_at") @db.Timestamptz(3)
   /// Última prueba del borrador vigente (publicar exige probarlo si hay proveedor de IA)
-  draftTestedAt    DateTime? @map("draft_tested_at") @db.Timestamptz(3)
-  publishedAt      DateTime? @map("published_at") @db.Timestamptz(3)
-  publishedById    String?   @map("published_by_id") @db.Uuid
+  draftTestedAt   DateTime? @map("draft_tested_at") @db.Timestamptz(3)
+  publishedAt     DateTime? @map("published_at") @db.Timestamptz(3)
+  publishedById   String?   @map("published_by_id") @db.Uuid
   /// Tope mensual de tokens que fija la empresa (null = solo el del plan)
-  monthlyTokenCap  Int?      @map("monthly_token_cap")
-  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  monthlyTokenCap Int?      @map("monthly_token_cap")
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   @@map("ai_settings")
 }
 
 /// Documentos de conocimiento del asistente (texto). Lo publicado lo usa con clientes; lo editado, solo en pruebas hasta publicar.
 model AiKnowledgeDoc {
-  id               String    @id @default(uuid(7)) @db.Uuid
-  tenantId         String    @map("tenant_id") @db.Uuid
+  id               String   @id @default(uuid(7)) @db.Uuid
+  tenantId         String   @map("tenant_id") @db.Uuid
   title            String
   content          String
-  publishedTitle   String?   @map("published_title")
-  publishedContent String?   @map("published_content")
+  publishedTitle   String?  @map("published_title")
+  publishedContent String?  @map("published_content")
   /// Se quitará al publicar (hasta entonces sigue vigente con clientes)
-  pendingDelete    Boolean   @default(false) @map("pending_delete")
-  updatedById      String?   @map("updated_by_id") @db.Uuid
-  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  pendingDelete    Boolean  @default(false) @map("pending_delete")
+  updatedById      String?  @map("updated_by_id") @db.Uuid
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   @@index([tenantId])
   @@map("ai_knowledge_docs")
@@ -918,15 +919,15 @@ enum AutomationKey {
 
 /// Flujos predefinidos que la empresa activa/configura (nunca edita: licencia n8n)
 model Automation {
-  id        String        @id @default(uuid(7)) @db.Uuid
-  tenantId  String        @map("tenant_id") @db.Uuid
-  key       AutomationKey
-  isEnabled Boolean       @default(true) @map("is_enabled")
-  config    Json          @default("{}")
+  id          String        @id @default(uuid(7)) @db.Uuid
+  tenantId    String        @map("tenant_id") @db.Uuid
+  key         AutomationKey
+  isEnabled   Boolean       @default(true) @map("is_enabled")
+  config      Json          @default("{}")
   /// Versión del catálogo con la que se guardó la configuración (no se sobrescribe sola)
-  version     Int       @default(1)
-  updatedById String?   @map("updated_by_id") @db.Uuid
-  updatedAt DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  version     Int           @default(1)
+  updatedById String?       @map("updated_by_id") @db.Uuid
+  updatedAt   DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   @@unique([tenantId, key])
   @@map("automations")
@@ -976,19 +977,19 @@ enum IntegrationType {
 }
 
 model TenantIntegration {
-  id         String           @id @default(uuid(7)) @db.Uuid
-  tenantId   String           @map("tenant_id") @db.Uuid
-  type       IntegrationType
+  id            String           @id @default(uuid(7)) @db.Uuid
+  tenantId      String           @map("tenant_id") @db.Uuid
+  type          IntegrationType
   /// Configuración no secreta (ids de cuenta/inbox, etc.)
-  config     Json             @default("{}")
+  config        Json             @default("{}")
   /// Secretos cifrados (AES-256-GCM)
-  secretsEnc String?          @map("secrets_enc")
-  status     ConnectionStatus @default(PENDING)
+  secretsEnc    String?          @map("secrets_enc")
+  status        ConnectionStatus @default(PENDING)
   /// Clave de la URL de webhook (Chatwoot): /webhooks/chatwoot/<clave>
-  webhookKey String?          @unique @map("webhook_key")
-  lastError  String?          @map("last_error")
-  lastCheckedAt DateTime?     @map("last_checked_at") @db.Timestamptz(3)
-  updatedAt  DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+  webhookKey    String?          @unique @map("webhook_key")
+  lastError     String?          @map("last_error")
+  lastCheckedAt DateTime?        @map("last_checked_at") @db.Timestamptz(3)
+  updatedAt     DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   @@unique([tenantId, type])
   @@map("tenant_integrations")
@@ -1334,43 +1335,43 @@ enum SalesActivityType {
 /// Prospecto de AI Sales Assistant (nuestro negocio, no el de las empresas).
 /// Solo el rol de sistema accede (RLS sin políticas y sin permisos de ejecución).
 model SalesLead {
-  id              String          @id @default(uuid(7)) @db.Uuid
-  number          Int             @unique @default(autoincrement())
-  name            String
-  company         String?
-  phone           String?
-  email           String?
+  id                    String          @id @default(uuid(7)) @db.Uuid
+  number                Int             @unique @default(autoincrement())
+  name                  String
+  company               String?
+  phone                 String?
+  email                 String?
   /// Plantilla del sector (templates/catalog.ts) u «other»
-  sector          String?
-  need            String?
-  source          SalesLeadSource
-  sourceDetail    String?         @map("source_detail")
-  estimatedBudget Decimal?        @map("estimated_budget") @db.Decimal(12, 2)
-  budgetCurrency  String          @default("PEN") @map("budget_currency") @db.Char(3)
-  interestMode    DeploymentMode? @map("interest_mode")
-  interestPlan    String?         @map("interest_plan")
-  interestModules String[]        @default([]) @map("interest_modules")
-  status          SalesLeadStatus @default(NEW)
-  ownerId         String?         @map("owner_id") @db.Uuid
-  nextAction      String?         @map("next_action")
-  nextActionAt    DateTime?       @map("next_action_at") @db.Timestamptz(3)
-  lostReason      String?         @map("lost_reason")
+  sector                String?
+  need                  String?
+  source                SalesLeadSource
+  sourceDetail          String?         @map("source_detail")
+  estimatedBudget       Decimal?        @map("estimated_budget") @db.Decimal(12, 2)
+  budgetCurrency        String          @default("PEN") @map("budget_currency") @db.Char(3)
+  interestMode          DeploymentMode? @map("interest_mode")
+  interestPlan          String?         @map("interest_plan")
+  interestModules       String[]        @default([]) @map("interest_modules")
+  status                SalesLeadStatus @default(NEW)
+  ownerId               String?         @map("owner_id") @db.Uuid
+  nextAction            String?         @map("next_action")
+  nextActionAt          DateTime?       @map("next_action_at") @db.Timestamptz(3)
+  lostReason            String?         @map("lost_reason")
   /// Aceptó que lo contactemos después (formulario o chat), con cuándo y dónde
-  followUpConsent       Boolean   @default(false) @map("follow_up_consent")
-  followUpConsentAt     DateTime? @map("follow_up_consent_at") @db.Timestamptz(3)
-  followUpConsentSource String?   @map("follow_up_consent_source")
+  followUpConsent       Boolean         @default(false) @map("follow_up_consent")
+  followUpConsentAt     DateTime?       @map("follow_up_consent_at") @db.Timestamptz(3)
+  followUpConsentSource String?         @map("follow_up_consent_source")
   /// Empresa creada al convertir el prospecto en cliente
-  tenantId        String?         @unique @map("tenant_id") @db.Uuid
-  convertedAt     DateTime?       @map("converted_at") @db.Timestamptz(3)
-  statusChangedAt DateTime        @default(now()) @map("status_changed_at") @db.Timestamptz(3)
-  createdById     String?         @map("created_by_id") @db.Uuid
-  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt       DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+  tenantId              String?         @unique @map("tenant_id") @db.Uuid
+  convertedAt           DateTime?       @map("converted_at") @db.Timestamptz(3)
+  statusChangedAt       DateTime        @default(now()) @map("status_changed_at") @db.Timestamptz(3)
+  createdById           String?         @map("created_by_id") @db.Uuid
+  createdAt             DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  owner      User?           @relation("leadOwner", fields: [ownerId], references: [id], onDelete: SetNull)
-  tenant     Tenant?         @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  activities SalesActivity[]
-  chats      SalesChatSession[]
+  owner         User?               @relation("leadOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  tenant        Tenant?             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  activities    SalesActivity[]
+  chats         SalesChatSession[]
   quotes        SalesQuote[]
   paymentOrders SalesPaymentOrder[]
   accounting    AccountingEntry[]
@@ -1764,11 +1765,162 @@ model InstallationOrder {
   createdAt       DateTime                @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt       DateTime                @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  lead         SalesLead         @relation(fields: [leadId], references: [id], onDelete: Restrict)
-  quote        SalesQuote?       @relation(fields: [quoteId], references: [id], onDelete: Restrict)
-  paymentOrder SalesPaymentOrder @relation(fields: [paymentOrderId], references: [id], onDelete: Restrict)
-  tenant       Tenant?           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  lead           SalesLead            @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  quote          SalesQuote?          @relation(fields: [quoteId], references: [id], onDelete: Restrict)
+  paymentOrder   SalesPaymentOrder    @relation(fields: [paymentOrderId], references: [id], onDelete: Restrict)
+  tenant         Tenant?              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  serverRequests InfraServerRequest[]
+  servers        InfraServer[]
 
   @@index([leadId])
   @@map("installation_orders")
+}
+
+// ---------------------------------------------------------------- Infraestructura (ADR 050)
+
+enum InfraKind {
+  HETZNER
+}
+
+enum ServerRequestStatus {
+  PENDING_APPROVAL
+  REJECTED
+  CANCELLED
+  CREATING
+  CREATED
+  FAILED
+}
+
+/// Proveedor de servidores con token cifrado, límites y presupuesto
+model InfraProvider {
+  id                 String           @id @default(uuid(7)) @db.Uuid
+  kind               InfraKind
+  label              String
+  secretsEnc         String           @map("secrets_enc")
+  secretHint         String           @map("secret_hint")
+  status             CredentialStatus @default(INCOMPLETE)
+  lastError          String?          @map("last_error")
+  lastCheckedAt      DateTime?        @map("last_checked_at") @db.Timestamptz(3)
+  connectedAt        DateTime?        @map("connected_at") @db.Timestamptz(3)
+  rotatedAt          DateTime?        @map("rotated_at") @db.Timestamptz(3)
+  disabledAt         DateTime?        @map("disabled_at") @db.Timestamptz(3)
+  currency           String?          @db.Char(3)
+  monthlyBudget      Decimal?         @map("monthly_budget") @db.Decimal(12, 2)
+  maxServers         Int?             @map("max_servers")
+  allowedLocations   String[]         @default([]) @map("allowed_locations")
+  allowedServerTypes String[]         @default([]) @map("allowed_server_types")
+  defaultImage       String           @default("ubuntu-24.04") @map("default_image")
+  sshSourceCidrs     String[]         @default([]) @map("ssh_source_cidrs")
+  createdById        String?          @map("created_by_id") @db.Uuid
+  createdAt          DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  requests   InfraServerRequest[]
+  servers    InfraServer[]
+  operations InfraOperation[]
+
+  @@map("infra_providers")
+}
+
+/// Claves SSH públicas que se instalan en los servidores creados
+model InfraSshKey {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  name        String
+  publicKey   String   @map("public_key")
+  fingerprint String   @unique
+  isActive    Boolean  @default(true) @map("is_active")
+  createdById String?  @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@map("infra_ssh_keys")
+}
+
+/// Solicitud de servidor: nada se crea sin aprobación dentro del presupuesto
+model InfraServerRequest {
+  id                  String              @id @default(uuid(7)) @db.Uuid
+  number              Int                 @unique @default(autoincrement())
+  providerId          String              @map("provider_id") @db.Uuid
+  installationOrderId String?             @map("installation_order_id") @db.Uuid
+  purpose             String
+  name                String
+  serverType          String              @map("server_type")
+  location            String
+  image               String
+  priceHourly         Decimal             @map("price_hourly") @db.Decimal(12, 4)
+  priceMonthly        Decimal             @map("price_monthly") @db.Decimal(12, 4)
+  currency            String              @db.Char(3)
+  status              ServerRequestStatus @default(PENDING_APPROVAL)
+  requestedById       String?             @map("requested_by_id") @db.Uuid
+  decidedById         String?             @map("decided_by_id") @db.Uuid
+  decidedAt           DateTime?           @map("decided_at") @db.Timestamptz(3)
+  decisionNote        String?             @map("decision_note")
+  error               String?
+  createdAt           DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime            @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  provider          InfraProvider      @relation(fields: [providerId], references: [id], onDelete: Restrict)
+  installationOrder InstallationOrder? @relation(fields: [installationOrderId], references: [id], onDelete: Restrict)
+  server            InfraServer?
+  operations        InfraOperation[]
+
+  @@index([status])
+  @@map("infra_server_requests")
+}
+
+model InfraServer {
+  id                  String    @id @default(uuid(7)) @db.Uuid
+  providerId          String    @map("provider_id") @db.Uuid
+  requestId           String?   @unique @map("request_id") @db.Uuid
+  externalId          String    @map("external_id")
+  name                String
+  status              String
+  serverType          String    @map("server_type")
+  location            String
+  image               String?
+  ipv4                String?
+  ipv6                String?
+  firewallExternalId  String?   @map("firewall_external_id")
+  priceHourly         Decimal?  @map("price_hourly") @db.Decimal(12, 4)
+  priceMonthly        Decimal?  @map("price_monthly") @db.Decimal(12, 4)
+  currency            String?   @db.Char(3)
+  installationOrderId String?   @map("installation_order_id") @db.Uuid
+  tenantId            String?   @map("tenant_id") @db.Uuid
+  imported            Boolean   @default(false)
+  providerCreatedAt   DateTime  @map("provider_created_at") @db.Timestamptz(3)
+  lastSyncedAt        DateTime? @map("last_synced_at") @db.Timestamptz(3)
+  deletedAt           DateTime? @map("deleted_at") @db.Timestamptz(3)
+  deletedById         String?   @map("deleted_by_id") @db.Uuid
+  deleteReason        String?   @map("delete_reason")
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  provider          InfraProvider       @relation(fields: [providerId], references: [id], onDelete: Restrict)
+  request           InfraServerRequest? @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  installationOrder InstallationOrder?  @relation(fields: [installationOrderId], references: [id], onDelete: Restrict)
+  tenant            Tenant?             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  operations        InfraOperation[]
+
+  @@unique([providerId, externalId])
+  @@map("infra_servers")
+}
+
+/// Registro de operaciones contra el proveedor: solo se agrega
+model InfraOperation {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  providerId String   @map("provider_id") @db.Uuid
+  serverId   String?  @map("server_id") @db.Uuid
+  requestId  String?  @map("request_id") @db.Uuid
+  kind       String
+  ok         Boolean
+  detail     Json     @default("{}")
+  userId     String?  @map("user_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  provider InfraProvider       @relation(fields: [providerId], references: [id], onDelete: Restrict)
+  server   InfraServer?        @relation(fields: [serverId], references: [id], onDelete: Restrict)
+  request  InfraServerRequest? @relation(fields: [requestId], references: [id], onDelete: Restrict)
+
+  @@index([providerId, createdAt])
+  @@index([serverId])
+  @@map("infra_operations")
 }

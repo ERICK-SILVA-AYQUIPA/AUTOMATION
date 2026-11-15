@@ -54,6 +54,8 @@ const schema = z.object({
   ANTHROPIC_BASE_URL: z.url().default('https://api.anthropic.com'),
   OPENAI_BASE_URL: z.url().default('https://api.openai.com/v1'),
   DEEPSEEK_BASE_URL: z.url().default('https://api.deepseek.com'),
+  /** API de Hetzner Cloud (ADR 050); solo se cambia en desarrollo y pruebas */
+  HETZNER_API_BASE_URL: z.url().default('https://api.hetzner.cloud/v1'),
   /** Espera antes de responder, para juntar varios mensajes seguidos del cliente */
   AI_REPLY_DELAY_MS: z.coerce.number().int().min(0).max(60_000).default(2_500),
   WHATSAPP_GRAPH_API_VERSION: z.string().regex(/^v\d+\.\d+$/, 'formato vNN.N, p. ej. v26.0').default('v26.0'),
@@ -145,6 +147,7 @@ export function productionProblems(e: z.infer<typeof schema>): string[] {
   if (e.ANTHROPIC_BASE_URL !== 'https://api.anthropic.com') out.push('ANTHROPIC_BASE_URL solo puede cambiarse en desarrollo y pruebas');
   if (e.OPENAI_BASE_URL !== 'https://api.openai.com/v1') out.push('OPENAI_BASE_URL solo puede cambiarse en desarrollo y pruebas');
   if (e.DEEPSEEK_BASE_URL !== 'https://api.deepseek.com') out.push('DEEPSEEK_BASE_URL solo puede cambiarse en desarrollo y pruebas');
+  if (e.HETZNER_API_BASE_URL !== 'https://api.hetzner.cloud/v1') out.push('HETZNER_API_BASE_URL solo puede cambiarse en desarrollo y pruebas');
   return out;
 }
 

@@ -9,7 +9,7 @@ import { Badge, Button, Card, Dialog, ErrorBox, Field, Input, Loading, Select, T
 import { useToast } from '@/components/ui/toast';
 import { CRED_STATUS, CredentialDialog, CredentialsTable, MODE_LABEL, PROFILE_LABEL, UsageTable, type Credential, type CredentialStatus, type ProviderCard, type Usage } from '@/components/api-center';
 
-interface CatalogItem { key: string; name: string; category: string; managedIn: 'center' | 'whatsapp' | 'server' | 'webhooks' | 'planned'; note?: string }
+interface CatalogItem { key: string; name: string; category: string; managedIn: 'center' | 'whatsapp' | 'server' | 'webhooks' | 'infra' | 'planned'; note?: string }
 interface Model { id: string; provider: string; modelId: string; displayName: string | null; source: 'PROVIDER' | 'MANUAL'; contextWindow: number | null; isEnabled: boolean; inputPricePerMTok: string | null; outputPricePerMTok: string | null; priceCurrency: string; lastSeenAt: string | null }
 interface Assignment {
   id: string; tenantId: string; service: 'ASSISTANT' | 'COMMERCIAL'; provider: string; mode: 'MANAGED' | 'OWN'; model: string | null; profile: string;
@@ -23,7 +23,7 @@ interface Overview {
 
 const CATEGORY: Record<string, string> = { ai: 'Inteligencia artificial', messaging: 'Mensajería', automation: 'Automatización', support: 'Atención', infrastructure: 'Infraestructura', payments: 'Pagos', email: 'Correo', storage: 'Almacenamiento', dns: 'DNS' };
 const SERVICE: Record<string, string> = { ASSISTANT: 'Asistente de clientes', COMMERCIAL: 'Agente comercial' };
-const WHERE: Record<CatalogItem['managedIn'], string> = { center: 'Aquí', whatsapp: 'Cada empresa, en Integraciones', server: 'Variables del servidor (pestaña Integraciones)', webhooks: 'Cada empresa, en Integraciones', planned: 'Sin adaptador todavía' };
+const WHERE: Record<CatalogItem['managedIn'], string> = { center: 'Aquí', whatsapp: 'Cada empresa, en Integraciones', server: 'Variables del servidor (pestaña Integraciones)', webhooks: 'Cada empresa, en Integraciones', infra: 'Plataforma › Infraestructura', planned: 'Sin adaptador todavía' };
 
 /** Centro de APIs de la plataforma (ADR 046) */
 export function ApiCenter() {

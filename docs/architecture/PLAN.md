@@ -165,7 +165,16 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
   - [x] Asiento de ingreso (CSV) y orden de instalación en la misma transacción; vencimiento automático
   - [x] Pruebas: `quotes.e2e-spec.ts` (9), `money.spec.ts` (3) y `quotes.mjs` en navegador (8 pasos)
   - [ ] Pasarela de pago oficial (sin proveedor elegido: la confirmación idempotente existe, sin ruta pública); subir imagen del comprobante; datos reales de Yape/banco, precios, impuesto y contrato: **los carga Rick**
-- [ ] Fase D: gestor de infraestructura
+- [x] Fase D: gestor de infraestructura (ADR 050)
+  - [x] Interfaz común de adaptadores y adaptador de Hetzner Cloud (API v1, formatos del SDK oficial)
+  - [x] Plataforma › Infraestructura: agregar proveedor (token probado, cifrado, nunca devuelto), probar conexión, cambiar token, desactivar
+  - [x] Regiones y tamaños con precio y disponibilidad; límites: presupuesto mensual, máximo de servidores, regiones, tamaños, imagen y redes con acceso SSH
+  - [x] Claves SSH públicas (las privadas se rechazan); servidores sin contraseña de root y con firewall propio
+  - [x] Solicitud → aprobación con nombre escrito y gasto autorizado → creación; un fallo queda con el paso y el error
+  - [x] Encender, apagar, forzar apagado, reiniciar, actualizar estado, consumo de CPU y red, eliminar con nombre y motivo
+  - [x] Costos estimados del mes y comprometidos; registrar servidores creados fuera; historial que solo se agrega
+  - [x] Pruebas: `infra.e2e-spec.ts` (12), `infra.spec.ts` (2) y `infra.mjs` en navegador (7 pasos) contra un servidor local con los formatos de Hetzner
+  - [ ] Token real de Hetzner y primer servidor real (**lo autoriza Rick**); adaptadores de DigitalOcean o AWS (no elegidos); servidor propio del cliente (fases E/F)
 - [ ] Fase E: orquestador de aprovisionamiento
 - [ ] Fase F: instalación automatizada
 - [ ] Fase G: WhatsApp, IA y automatizaciones en instalaciones nuevas

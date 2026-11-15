@@ -341,3 +341,28 @@ export type AccountingEntry = Prisma.AccountingEntryModel
  * Orden de instalación: nace solo de un pago validado
  */
 export type InstallationOrder = Prisma.InstallationOrderModel
+/**
+ * Model InfraProvider
+ * Proveedor de servidores con token cifrado, límites y presupuesto
+ */
+export type InfraProvider = Prisma.InfraProviderModel
+/**
+ * Model InfraSshKey
+ * Claves SSH públicas que se instalan en los servidores creados
+ */
+export type InfraSshKey = Prisma.InfraSshKeyModel
+/**
+ * Model InfraServerRequest
+ * Solicitud de servidor: nada se crea sin aprobación dentro del presupuesto
+ */
+export type InfraServerRequest = Prisma.InfraServerRequestModel
+/**
+ * Model InfraServer
+ * 
+ */
+export type InfraServer = Prisma.InfraServerModel
+/**
+ * Model InfraOperation
+ * Registro de operaciones contra el proveedor: solo se agrega
+ */
+export type InfraOperation = Prisma.InfraOperationModel

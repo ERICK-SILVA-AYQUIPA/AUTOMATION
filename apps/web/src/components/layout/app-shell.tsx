@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   LayoutDashboard, MessagesSquare, Bot, Package, Tags, Boxes, ShoppingCart, Users, Workflow, Plug, BarChart3, UserCog, Settings,
-  Menu, X, Search, Sun, Moon, Monitor, LogOut, MessageSquareText, Building2, Bell, CalendarDays, Target, Globe, FileText,
+  Menu, X, Search, Sun, Moon, Monitor, LogOut, MessageSquareText, Building2, Bell, CalendarDays, Target, Globe, FileText, Server,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/lib/theme';
@@ -42,6 +42,7 @@ const PLATFORM_NAV: NavItem[] = [
   { href: '/plataforma/ventas', label: 'Ventas', icon: Target, permission: 'platform:manage' },
   { href: '/plataforma/cotizaciones', label: 'Cotizaciones y pagos', icon: FileText, permission: 'platform:manage' },
   { href: '/plataforma/comercial', label: 'Página comercial', icon: Globe, permission: 'platform:manage' },
+  { href: '/plataforma/infraestructura', label: 'Infraestructura', icon: Server, permission: 'platform:manage' },
 ];
 
 function Sidebar({ onNavigate }: { onNavigate?: () => void }) {

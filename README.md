@@ -4,10 +4,11 @@ Plataforma SaaS multiempresa de ventas y atención al cliente por WhatsApp con
 inteligencia artificial: catálogo, inventario, pedidos, clientes, bandeja humana
 y automatizaciones.
 
-> **Estado (0.13.0, 2026-11-15):** las 10 fases de la evolución, el Centro universal de
+> **Estado (0.14.0, 2026-11-15):** las 10 fases de la evolución, el Centro universal de
 > APIs (Claude, Gemini, OpenAI y DeepSeek configurables desde los paneles, ADR 046), el
 > Centro comercial (prospectos, embudo e historial, ADR 047), la página y el agente
-> comerciales (ADR 048) y las cotizaciones con contrato, órdenes de pago e ingresos (ADR 049) están
+> comerciales (ADR 048), las cotizaciones con contrato, órdenes de pago e ingresos (ADR 049) y el gestor de
+> infraestructura con Hetzner (solicitud y aprobación antes de crear, ADR 050) están
 > implementados y probados en local (ver [`docs/architecture/PLAN.md`](docs/architecture/PLAN.md) y la
 > [lista de aceptación](docs/architecture/ACEPTACION.md)). Lo que depende de servicios
 > o datos reales (servidor y dominio, SMTP, claves de los proveedores de IA, número de WhatsApp de Meta,
@@ -117,10 +118,11 @@ pnpm --filter @aisa/api lint && pnpm --filter @aisa/web lint
 # Leen los correos de Mailpit. La API y el worker deben arrancar con
 # WHATSAPP_GRAPH_BASE_URL=http://127.0.0.1:4999, GEMINI_BASE_URL=http://127.0.0.1:4998,
 # ANTHROPIC_BASE_URL=http://127.0.0.1:4997/anthropic, OPENAI_BASE_URL=http://127.0.0.1:4997/openai/v1
-# y DEEPSEEK_BASE_URL=http://127.0.0.1:4997/deepseek: los scripts levantan ahí servidores
-# locales que responden como Meta y los proveedores de IA (no se conectan a los servicios reales).
+# DEEPSEEK_BASE_URL=http://127.0.0.1:4997/deepseek y HETZNER_API_BASE_URL=http://127.0.0.1:4996/v1:
+# los scripts levantan ahí servidores locales que responden como Meta, los proveedores de IA y
+# Hetzner (no se conectan a los servicios reales ni crean servidores).
 set -a; . ./.env; set +a
-for t in smoke provisioning automations assistant whatsapp chatwoot billing integrations api-center sales quotes commercial templates deliveries; do
+for t in smoke provisioning automations assistant whatsapp chatwoot billing integrations api-center sales quotes infra commercial templates deliveries; do
   MAILPIT_URL=http://localhost:8025 WEB_URL=http://localhost:3000 node apps/web/e2e/$t.mjs
 done
 ```
