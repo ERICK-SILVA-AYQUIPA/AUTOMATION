@@ -1765,12 +1765,13 @@ model InstallationOrder {
   createdAt       DateTime                @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt       DateTime                @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  lead           SalesLead            @relation(fields: [leadId], references: [id], onDelete: Restrict)
-  quote          SalesQuote?          @relation(fields: [quoteId], references: [id], onDelete: Restrict)
-  paymentOrder   SalesPaymentOrder    @relation(fields: [paymentOrderId], references: [id], onDelete: Restrict)
-  tenant         Tenant?              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  serverRequests InfraServerRequest[]
-  servers        InfraServer[]
+  lead             SalesLead            @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  quote            SalesQuote?          @relation(fields: [quoteId], references: [id], onDelete: Restrict)
+  paymentOrder     SalesPaymentOrder    @relation(fields: [paymentOrderId], references: [id], onDelete: Restrict)
+  tenant           Tenant?              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  serverRequests   InfraServerRequest[]
+  servers          InfraServer[]
+  provisioningRuns ProvisioningRun[]
 
   @@index([leadId])
   @@map("installation_orders")
@@ -1819,6 +1820,8 @@ model InfraProvider {
   servers    InfraServer[]
   operations InfraOperation[]
 
+  provisioningRuns ProvisioningRun[]
+
   @@map("infra_providers")
 }
 
@@ -1863,6 +1866,8 @@ model InfraServerRequest {
   server            InfraServer?
   operations        InfraOperation[]
 
+  provisioningRuns ProvisioningRun[]
+
   @@index([status])
   @@map("infra_server_requests")
 }
@@ -1900,6 +1905,8 @@ model InfraServer {
   tenant            Tenant?             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   operations        InfraOperation[]
 
+  provisioningRuns ProvisioningRun[]
+
   @@unique([providerId, externalId])
   @@map("infra_servers")
 }
@@ -1923,4 +1930,88 @@ model InfraOperation {
   @@index([providerId, createdAt])
   @@index([serverId])
   @@map("infra_operations")
+}
+
+// ---------------------------------------------------------------- Orquestador de aprovisionamiento (ADR 051)
+
+enum ProvisioningStatus {
+  REQUESTED
+  PAYMENT_PENDING
+  PAYMENT_CONFIRMED
+  PREPARING
+  CREATING_INFRA
+  SERVER_READY
+  CONFIGURING_SERVER
+  INSTALLING
+  MIGRATING
+  CONFIGURING_INTEGRATIONS
+  TESTING
+  PUBLISHING
+  DELIVERING
+  DELIVERED
+  ERROR
+  CANCELLED
+  NEEDS_INTERVENTION
+}
+
+/// Una instalación administrada de principio a fin (solo rol de sistema)
+model ProvisioningRun {
+  id                  String              @id @default(uuid(7)) @db.Uuid
+  number              Int                 @unique @default(autoincrement())
+  installationOrderId String              @map("installation_order_id") @db.Uuid
+  providerId          String              @map("provider_id") @db.Uuid
+  serverType          String              @map("server_type")
+  location            String
+  domain              String
+  adminEmail          String              @map("admin_email")
+  settings            Json                @default("{}")
+  secretsEnc          String?             @map("secrets_enc")
+  status              ProvisioningStatus  @default(REQUESTED)
+  stoppedAt           ProvisioningStatus? @map("stopped_at")
+  attempts            Int                 @default(0)
+  nextRunAt           DateTime?           @map("next_run_at") @db.Timestamptz(3)
+  stepStartedAt       DateTime            @default(now()) @map("step_started_at") @db.Timestamptz(3)
+  stepDeadlineAt      DateTime?           @map("step_deadline_at") @db.Timestamptz(3)
+  leaseUntil          DateTime?           @map("lease_until") @db.Timestamptz(3)
+  lastError           String?             @map("last_error")
+  needs               String?
+  serverRequestId     String?             @map("server_request_id") @db.Uuid
+  serverId            String?             @map("server_id") @db.Uuid
+  bootstrapHash       String?             @map("bootstrap_hash")
+  bootstrapExpiresAt  DateTime?           @map("bootstrap_expires_at") @db.Timestamptz(3)
+  bootstrapUsedAt     DateTime?           @map("bootstrap_used_at") @db.Timestamptz(3)
+  agentHash           String?             @map("agent_hash")
+  agentSeenAt         DateTime?           @map("agent_seen_at") @db.Timestamptz(3)
+  alertedAt           DateTime?           @map("alerted_at") @db.Timestamptz(3)
+  cancelReason        String?             @map("cancel_reason")
+  createdById         String              @map("created_by_id") @db.Uuid
+  createdAt           DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime            @updatedAt @map("updated_at") @db.Timestamptz(3)
+  finishedAt          DateTime?           @map("finished_at") @db.Timestamptz(3)
+
+  installationOrder InstallationOrder   @relation(fields: [installationOrderId], references: [id], onDelete: Restrict)
+  provider          InfraProvider       @relation(fields: [providerId], references: [id], onDelete: Restrict)
+  serverRequest     InfraServerRequest? @relation(fields: [serverRequestId], references: [id], onDelete: Restrict)
+  server            InfraServer?        @relation(fields: [serverId], references: [id], onDelete: Restrict)
+  events            ProvisioningEvent[]
+
+  @@map("provisioning_runs")
+}
+
+/// Historial de una instalación: solo se agrega
+model ProvisioningEvent {
+  id        String             @id @default(uuid(7)) @db.Uuid
+  runId     String             @map("run_id") @db.Uuid
+  status    ProvisioningStatus
+  level     String
+  message   String
+  data      Json               @default("{}")
+  source    String
+  userId    String?            @map("user_id") @db.Uuid
+  createdAt DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  run ProvisioningRun @relation(fields: [runId], references: [id], onDelete: Restrict)
+
+  @@index([runId, createdAt])
+  @@map("provisioning_events")
 }

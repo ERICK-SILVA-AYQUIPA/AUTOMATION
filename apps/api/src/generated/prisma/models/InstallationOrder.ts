@@ -302,6 +302,7 @@ export type InstallationOrderWhereInput = {
   tenant?: Prisma.XOR<Prisma.TenantNullableScalarRelationFilter, Prisma.TenantWhereInput> | null
   serverRequests?: Prisma.InfraServerRequestListRelationFilter
   servers?: Prisma.InfraServerListRelationFilter
+  provisioningRuns?: Prisma.ProvisioningRunListRelationFilter
 }
 
 export type InstallationOrderOrderByWithRelationInput = {
@@ -326,6 +327,7 @@ export type InstallationOrderOrderByWithRelationInput = {
   tenant?: Prisma.TenantOrderByWithRelationInput
   serverRequests?: Prisma.InfraServerRequestOrderByRelationAggregateInput
   servers?: Prisma.InfraServerOrderByRelationAggregateInput
+  provisioningRuns?: Prisma.ProvisioningRunOrderByRelationAggregateInput
 }
 
 export type InstallationOrderWhereUniqueInput = Prisma.AtLeast<{
@@ -353,6 +355,7 @@ export type InstallationOrderWhereUniqueInput = Prisma.AtLeast<{
   tenant?: Prisma.XOR<Prisma.TenantNullableScalarRelationFilter, Prisma.TenantWhereInput> | null
   serverRequests?: Prisma.InfraServerRequestListRelationFilter
   servers?: Prisma.InfraServerListRelationFilter
+  provisioningRuns?: Prisma.ProvisioningRunListRelationFilter
 }, "id" | "number" | "paymentOrderId">
 
 export type InstallationOrderOrderByWithAggregationInput = {
@@ -417,6 +420,7 @@ export type InstallationOrderCreateInput = {
   tenant?: Prisma.TenantCreateNestedOneWithoutInstallationOrdersInput
   serverRequests?: Prisma.InfraServerRequestCreateNestedManyWithoutInstallationOrderInput
   servers?: Prisma.InfraServerCreateNestedManyWithoutInstallationOrderInput
+  provisioningRuns?: Prisma.ProvisioningRunCreateNestedManyWithoutInstallationOrderInput
 }
 
 export type InstallationOrderUncheckedCreateInput = {
@@ -437,6 +441,7 @@ export type InstallationOrderUncheckedCreateInput = {
   updatedAt?: Date | string
   serverRequests?: Prisma.InfraServerRequestUncheckedCreateNestedManyWithoutInstallationOrderInput
   servers?: Prisma.InfraServerUncheckedCreateNestedManyWithoutInstallationOrderInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedCreateNestedManyWithoutInstallationOrderInput
 }
 
 export type InstallationOrderUpdateInput = {
@@ -456,6 +461,7 @@ export type InstallationOrderUpdateInput = {
   tenant?: Prisma.TenantUpdateOneWithoutInstallationOrdersNestedInput
   serverRequests?: Prisma.InfraServerRequestUpdateManyWithoutInstallationOrderNestedInput
   servers?: Prisma.InfraServerUpdateManyWithoutInstallationOrderNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUpdateManyWithoutInstallationOrderNestedInput
 }
 
 export type InstallationOrderUncheckedUpdateInput = {
@@ -476,6 +482,7 @@ export type InstallationOrderUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serverRequests?: Prisma.InfraServerRequestUncheckedUpdateManyWithoutInstallationOrderNestedInput
   servers?: Prisma.InfraServerUncheckedUpdateManyWithoutInstallationOrderNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedUpdateManyWithoutInstallationOrderNestedInput
 }
 
 export type InstallationOrderCreateManyInput = {
@@ -602,6 +609,11 @@ export type InstallationOrderMinOrderByAggregateInput = {
 export type InstallationOrderSumOrderByAggregateInput = {
   number?: Prisma.SortOrder
   users?: Prisma.SortOrder
+}
+
+export type InstallationOrderScalarRelationFilter = {
+  is?: Prisma.InstallationOrderWhereInput
+  isNot?: Prisma.InstallationOrderWhereInput
 }
 
 export type InstallationOrderCreateNestedManyWithoutTenantInput = {
@@ -807,6 +819,20 @@ export type InstallationOrderUpdateOneWithoutServersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.InstallationOrderUpdateToOneWithWhereWithoutServersInput, Prisma.InstallationOrderUpdateWithoutServersInput>, Prisma.InstallationOrderUncheckedUpdateWithoutServersInput>
 }
 
+export type InstallationOrderCreateNestedOneWithoutProvisioningRunsInput = {
+  create?: Prisma.XOR<Prisma.InstallationOrderCreateWithoutProvisioningRunsInput, Prisma.InstallationOrderUncheckedCreateWithoutProvisioningRunsInput>
+  connectOrCreate?: Prisma.InstallationOrderCreateOrConnectWithoutProvisioningRunsInput
+  connect?: Prisma.InstallationOrderWhereUniqueInput
+}
+
+export type InstallationOrderUpdateOneRequiredWithoutProvisioningRunsNestedInput = {
+  create?: Prisma.XOR<Prisma.InstallationOrderCreateWithoutProvisioningRunsInput, Prisma.InstallationOrderUncheckedCreateWithoutProvisioningRunsInput>
+  connectOrCreate?: Prisma.InstallationOrderCreateOrConnectWithoutProvisioningRunsInput
+  upsert?: Prisma.InstallationOrderUpsertWithoutProvisioningRunsInput
+  connect?: Prisma.InstallationOrderWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InstallationOrderUpdateToOneWithWhereWithoutProvisioningRunsInput, Prisma.InstallationOrderUpdateWithoutProvisioningRunsInput>, Prisma.InstallationOrderUncheckedUpdateWithoutProvisioningRunsInput>
+}
+
 export type InstallationOrderCreateWithoutTenantInput = {
   id?: string
   number?: number
@@ -824,6 +850,7 @@ export type InstallationOrderCreateWithoutTenantInput = {
   paymentOrder: Prisma.SalesPaymentOrderCreateNestedOneWithoutInstallationInput
   serverRequests?: Prisma.InfraServerRequestCreateNestedManyWithoutInstallationOrderInput
   servers?: Prisma.InfraServerCreateNestedManyWithoutInstallationOrderInput
+  provisioningRuns?: Prisma.ProvisioningRunCreateNestedManyWithoutInstallationOrderInput
 }
 
 export type InstallationOrderUncheckedCreateWithoutTenantInput = {
@@ -843,6 +870,7 @@ export type InstallationOrderUncheckedCreateWithoutTenantInput = {
   updatedAt?: Date | string
   serverRequests?: Prisma.InfraServerRequestUncheckedCreateNestedManyWithoutInstallationOrderInput
   servers?: Prisma.InfraServerUncheckedCreateNestedManyWithoutInstallationOrderInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedCreateNestedManyWithoutInstallationOrderInput
 }
 
 export type InstallationOrderCreateOrConnectWithoutTenantInput = {
@@ -909,6 +937,7 @@ export type InstallationOrderCreateWithoutLeadInput = {
   tenant?: Prisma.TenantCreateNestedOneWithoutInstallationOrdersInput
   serverRequests?: Prisma.InfraServerRequestCreateNestedManyWithoutInstallationOrderInput
   servers?: Prisma.InfraServerCreateNestedManyWithoutInstallationOrderInput
+  provisioningRuns?: Prisma.ProvisioningRunCreateNestedManyWithoutInstallationOrderInput
 }
 
 export type InstallationOrderUncheckedCreateWithoutLeadInput = {
@@ -928,6 +957,7 @@ export type InstallationOrderUncheckedCreateWithoutLeadInput = {
   updatedAt?: Date | string
   serverRequests?: Prisma.InfraServerRequestUncheckedCreateNestedManyWithoutInstallationOrderInput
   servers?: Prisma.InfraServerUncheckedCreateNestedManyWithoutInstallationOrderInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedCreateNestedManyWithoutInstallationOrderInput
 }
 
 export type InstallationOrderCreateOrConnectWithoutLeadInput = {
@@ -973,6 +1003,7 @@ export type InstallationOrderCreateWithoutQuoteInput = {
   tenant?: Prisma.TenantCreateNestedOneWithoutInstallationOrdersInput
   serverRequests?: Prisma.InfraServerRequestCreateNestedManyWithoutInstallationOrderInput
   servers?: Prisma.InfraServerCreateNestedManyWithoutInstallationOrderInput
+  provisioningRuns?: Prisma.ProvisioningRunCreateNestedManyWithoutInstallationOrderInput
 }
 
 export type InstallationOrderUncheckedCreateWithoutQuoteInput = {
@@ -992,6 +1023,7 @@ export type InstallationOrderUncheckedCreateWithoutQuoteInput = {
   updatedAt?: Date | string
   serverRequests?: Prisma.InfraServerRequestUncheckedCreateNestedManyWithoutInstallationOrderInput
   servers?: Prisma.InfraServerUncheckedCreateNestedManyWithoutInstallationOrderInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedCreateNestedManyWithoutInstallationOrderInput
 }
 
 export type InstallationOrderCreateOrConnectWithoutQuoteInput = {
@@ -1037,6 +1069,7 @@ export type InstallationOrderCreateWithoutPaymentOrderInput = {
   tenant?: Prisma.TenantCreateNestedOneWithoutInstallationOrdersInput
   serverRequests?: Prisma.InfraServerRequestCreateNestedManyWithoutInstallationOrderInput
   servers?: Prisma.InfraServerCreateNestedManyWithoutInstallationOrderInput
+  provisioningRuns?: Prisma.ProvisioningRunCreateNestedManyWithoutInstallationOrderInput
 }
 
 export type InstallationOrderUncheckedCreateWithoutPaymentOrderInput = {
@@ -1056,6 +1089,7 @@ export type InstallationOrderUncheckedCreateWithoutPaymentOrderInput = {
   updatedAt?: Date | string
   serverRequests?: Prisma.InfraServerRequestUncheckedCreateNestedManyWithoutInstallationOrderInput
   servers?: Prisma.InfraServerUncheckedCreateNestedManyWithoutInstallationOrderInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedCreateNestedManyWithoutInstallationOrderInput
 }
 
 export type InstallationOrderCreateOrConnectWithoutPaymentOrderInput = {
@@ -1090,6 +1124,7 @@ export type InstallationOrderUpdateWithoutPaymentOrderInput = {
   tenant?: Prisma.TenantUpdateOneWithoutInstallationOrdersNestedInput
   serverRequests?: Prisma.InfraServerRequestUpdateManyWithoutInstallationOrderNestedInput
   servers?: Prisma.InfraServerUpdateManyWithoutInstallationOrderNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUpdateManyWithoutInstallationOrderNestedInput
 }
 
 export type InstallationOrderUncheckedUpdateWithoutPaymentOrderInput = {
@@ -1109,6 +1144,7 @@ export type InstallationOrderUncheckedUpdateWithoutPaymentOrderInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serverRequests?: Prisma.InfraServerRequestUncheckedUpdateManyWithoutInstallationOrderNestedInput
   servers?: Prisma.InfraServerUncheckedUpdateManyWithoutInstallationOrderNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedUpdateManyWithoutInstallationOrderNestedInput
 }
 
 export type InstallationOrderCreateWithoutServerRequestsInput = {
@@ -1128,6 +1164,7 @@ export type InstallationOrderCreateWithoutServerRequestsInput = {
   paymentOrder: Prisma.SalesPaymentOrderCreateNestedOneWithoutInstallationInput
   tenant?: Prisma.TenantCreateNestedOneWithoutInstallationOrdersInput
   servers?: Prisma.InfraServerCreateNestedManyWithoutInstallationOrderInput
+  provisioningRuns?: Prisma.ProvisioningRunCreateNestedManyWithoutInstallationOrderInput
 }
 
 export type InstallationOrderUncheckedCreateWithoutServerRequestsInput = {
@@ -1147,6 +1184,7 @@ export type InstallationOrderUncheckedCreateWithoutServerRequestsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   servers?: Prisma.InfraServerUncheckedCreateNestedManyWithoutInstallationOrderInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedCreateNestedManyWithoutInstallationOrderInput
 }
 
 export type InstallationOrderCreateOrConnectWithoutServerRequestsInput = {
@@ -1181,6 +1219,7 @@ export type InstallationOrderUpdateWithoutServerRequestsInput = {
   paymentOrder?: Prisma.SalesPaymentOrderUpdateOneRequiredWithoutInstallationNestedInput
   tenant?: Prisma.TenantUpdateOneWithoutInstallationOrdersNestedInput
   servers?: Prisma.InfraServerUpdateManyWithoutInstallationOrderNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUpdateManyWithoutInstallationOrderNestedInput
 }
 
 export type InstallationOrderUncheckedUpdateWithoutServerRequestsInput = {
@@ -1200,6 +1239,7 @@ export type InstallationOrderUncheckedUpdateWithoutServerRequestsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   servers?: Prisma.InfraServerUncheckedUpdateManyWithoutInstallationOrderNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedUpdateManyWithoutInstallationOrderNestedInput
 }
 
 export type InstallationOrderCreateWithoutServersInput = {
@@ -1219,6 +1259,7 @@ export type InstallationOrderCreateWithoutServersInput = {
   paymentOrder: Prisma.SalesPaymentOrderCreateNestedOneWithoutInstallationInput
   tenant?: Prisma.TenantCreateNestedOneWithoutInstallationOrdersInput
   serverRequests?: Prisma.InfraServerRequestCreateNestedManyWithoutInstallationOrderInput
+  provisioningRuns?: Prisma.ProvisioningRunCreateNestedManyWithoutInstallationOrderInput
 }
 
 export type InstallationOrderUncheckedCreateWithoutServersInput = {
@@ -1238,6 +1279,7 @@ export type InstallationOrderUncheckedCreateWithoutServersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   serverRequests?: Prisma.InfraServerRequestUncheckedCreateNestedManyWithoutInstallationOrderInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedCreateNestedManyWithoutInstallationOrderInput
 }
 
 export type InstallationOrderCreateOrConnectWithoutServersInput = {
@@ -1272,6 +1314,7 @@ export type InstallationOrderUpdateWithoutServersInput = {
   paymentOrder?: Prisma.SalesPaymentOrderUpdateOneRequiredWithoutInstallationNestedInput
   tenant?: Prisma.TenantUpdateOneWithoutInstallationOrdersNestedInput
   serverRequests?: Prisma.InfraServerRequestUpdateManyWithoutInstallationOrderNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUpdateManyWithoutInstallationOrderNestedInput
 }
 
 export type InstallationOrderUncheckedUpdateWithoutServersInput = {
@@ -1291,6 +1334,102 @@ export type InstallationOrderUncheckedUpdateWithoutServersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serverRequests?: Prisma.InfraServerRequestUncheckedUpdateManyWithoutInstallationOrderNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedUpdateManyWithoutInstallationOrderNestedInput
+}
+
+export type InstallationOrderCreateWithoutProvisioningRunsInput = {
+  id?: string
+  number?: number
+  status?: $Enums.InstallationOrderStatus
+  deploymentMode?: $Enums.DeploymentMode | null
+  planCode?: $Enums.PlanCode | null
+  users?: number | null
+  modules?: Prisma.InstallationOrderCreatemodulesInput | string[]
+  serverResources?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lead: Prisma.SalesLeadCreateNestedOneWithoutInstallationsInput
+  quote?: Prisma.SalesQuoteCreateNestedOneWithoutInstallationsInput
+  paymentOrder: Prisma.SalesPaymentOrderCreateNestedOneWithoutInstallationInput
+  tenant?: Prisma.TenantCreateNestedOneWithoutInstallationOrdersInput
+  serverRequests?: Prisma.InfraServerRequestCreateNestedManyWithoutInstallationOrderInput
+  servers?: Prisma.InfraServerCreateNestedManyWithoutInstallationOrderInput
+}
+
+export type InstallationOrderUncheckedCreateWithoutProvisioningRunsInput = {
+  id?: string
+  number?: number
+  leadId: string
+  quoteId?: string | null
+  paymentOrderId: string
+  status?: $Enums.InstallationOrderStatus
+  deploymentMode?: $Enums.DeploymentMode | null
+  planCode?: $Enums.PlanCode | null
+  users?: number | null
+  modules?: Prisma.InstallationOrderCreatemodulesInput | string[]
+  serverResources?: string | null
+  notes?: string | null
+  tenantId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  serverRequests?: Prisma.InfraServerRequestUncheckedCreateNestedManyWithoutInstallationOrderInput
+  servers?: Prisma.InfraServerUncheckedCreateNestedManyWithoutInstallationOrderInput
+}
+
+export type InstallationOrderCreateOrConnectWithoutProvisioningRunsInput = {
+  where: Prisma.InstallationOrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.InstallationOrderCreateWithoutProvisioningRunsInput, Prisma.InstallationOrderUncheckedCreateWithoutProvisioningRunsInput>
+}
+
+export type InstallationOrderUpsertWithoutProvisioningRunsInput = {
+  update: Prisma.XOR<Prisma.InstallationOrderUpdateWithoutProvisioningRunsInput, Prisma.InstallationOrderUncheckedUpdateWithoutProvisioningRunsInput>
+  create: Prisma.XOR<Prisma.InstallationOrderCreateWithoutProvisioningRunsInput, Prisma.InstallationOrderUncheckedCreateWithoutProvisioningRunsInput>
+  where?: Prisma.InstallationOrderWhereInput
+}
+
+export type InstallationOrderUpdateToOneWithWhereWithoutProvisioningRunsInput = {
+  where?: Prisma.InstallationOrderWhereInput
+  data: Prisma.XOR<Prisma.InstallationOrderUpdateWithoutProvisioningRunsInput, Prisma.InstallationOrderUncheckedUpdateWithoutProvisioningRunsInput>
+}
+
+export type InstallationOrderUpdateWithoutProvisioningRunsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumInstallationOrderStatusFieldUpdateOperationsInput | $Enums.InstallationOrderStatus
+  deploymentMode?: Prisma.NullableEnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode | null
+  planCode?: Prisma.NullableEnumPlanCodeFieldUpdateOperationsInput | $Enums.PlanCode | null
+  users?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  modules?: Prisma.InstallationOrderUpdatemodulesInput | string[]
+  serverResources?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lead?: Prisma.SalesLeadUpdateOneRequiredWithoutInstallationsNestedInput
+  quote?: Prisma.SalesQuoteUpdateOneWithoutInstallationsNestedInput
+  paymentOrder?: Prisma.SalesPaymentOrderUpdateOneRequiredWithoutInstallationNestedInput
+  tenant?: Prisma.TenantUpdateOneWithoutInstallationOrdersNestedInput
+  serverRequests?: Prisma.InfraServerRequestUpdateManyWithoutInstallationOrderNestedInput
+  servers?: Prisma.InfraServerUpdateManyWithoutInstallationOrderNestedInput
+}
+
+export type InstallationOrderUncheckedUpdateWithoutProvisioningRunsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.IntFieldUpdateOperationsInput | number
+  leadId?: Prisma.StringFieldUpdateOperationsInput | string
+  quoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumInstallationOrderStatusFieldUpdateOperationsInput | $Enums.InstallationOrderStatus
+  deploymentMode?: Prisma.NullableEnumDeploymentModeFieldUpdateOperationsInput | $Enums.DeploymentMode | null
+  planCode?: Prisma.NullableEnumPlanCodeFieldUpdateOperationsInput | $Enums.PlanCode | null
+  users?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  modules?: Prisma.InstallationOrderUpdatemodulesInput | string[]
+  serverResources?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  serverRequests?: Prisma.InfraServerRequestUncheckedUpdateManyWithoutInstallationOrderNestedInput
+  servers?: Prisma.InfraServerUncheckedUpdateManyWithoutInstallationOrderNestedInput
 }
 
 export type InstallationOrderCreateManyTenantInput = {
@@ -1326,6 +1465,7 @@ export type InstallationOrderUpdateWithoutTenantInput = {
   paymentOrder?: Prisma.SalesPaymentOrderUpdateOneRequiredWithoutInstallationNestedInput
   serverRequests?: Prisma.InfraServerRequestUpdateManyWithoutInstallationOrderNestedInput
   servers?: Prisma.InfraServerUpdateManyWithoutInstallationOrderNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUpdateManyWithoutInstallationOrderNestedInput
 }
 
 export type InstallationOrderUncheckedUpdateWithoutTenantInput = {
@@ -1345,6 +1485,7 @@ export type InstallationOrderUncheckedUpdateWithoutTenantInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serverRequests?: Prisma.InfraServerRequestUncheckedUpdateManyWithoutInstallationOrderNestedInput
   servers?: Prisma.InfraServerUncheckedUpdateManyWithoutInstallationOrderNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedUpdateManyWithoutInstallationOrderNestedInput
 }
 
 export type InstallationOrderUncheckedUpdateManyWithoutTenantInput = {
@@ -1397,6 +1538,7 @@ export type InstallationOrderUpdateWithoutLeadInput = {
   tenant?: Prisma.TenantUpdateOneWithoutInstallationOrdersNestedInput
   serverRequests?: Prisma.InfraServerRequestUpdateManyWithoutInstallationOrderNestedInput
   servers?: Prisma.InfraServerUpdateManyWithoutInstallationOrderNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUpdateManyWithoutInstallationOrderNestedInput
 }
 
 export type InstallationOrderUncheckedUpdateWithoutLeadInput = {
@@ -1416,6 +1558,7 @@ export type InstallationOrderUncheckedUpdateWithoutLeadInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serverRequests?: Prisma.InfraServerRequestUncheckedUpdateManyWithoutInstallationOrderNestedInput
   servers?: Prisma.InfraServerUncheckedUpdateManyWithoutInstallationOrderNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedUpdateManyWithoutInstallationOrderNestedInput
 }
 
 export type InstallationOrderUncheckedUpdateManyWithoutLeadInput = {
@@ -1468,6 +1611,7 @@ export type InstallationOrderUpdateWithoutQuoteInput = {
   tenant?: Prisma.TenantUpdateOneWithoutInstallationOrdersNestedInput
   serverRequests?: Prisma.InfraServerRequestUpdateManyWithoutInstallationOrderNestedInput
   servers?: Prisma.InfraServerUpdateManyWithoutInstallationOrderNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUpdateManyWithoutInstallationOrderNestedInput
 }
 
 export type InstallationOrderUncheckedUpdateWithoutQuoteInput = {
@@ -1487,6 +1631,7 @@ export type InstallationOrderUncheckedUpdateWithoutQuoteInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serverRequests?: Prisma.InfraServerRequestUncheckedUpdateManyWithoutInstallationOrderNestedInput
   servers?: Prisma.InfraServerUncheckedUpdateManyWithoutInstallationOrderNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedUpdateManyWithoutInstallationOrderNestedInput
 }
 
 export type InstallationOrderUncheckedUpdateManyWithoutQuoteInput = {
@@ -1514,11 +1659,13 @@ export type InstallationOrderUncheckedUpdateManyWithoutQuoteInput = {
 export type InstallationOrderCountOutputType = {
   serverRequests: number
   servers: number
+  provisioningRuns: number
 }
 
 export type InstallationOrderCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   serverRequests?: boolean | InstallationOrderCountOutputTypeCountServerRequestsArgs
   servers?: boolean | InstallationOrderCountOutputTypeCountServersArgs
+  provisioningRuns?: boolean | InstallationOrderCountOutputTypeCountProvisioningRunsArgs
 }
 
 /**
@@ -1545,6 +1692,13 @@ export type InstallationOrderCountOutputTypeCountServersArgs<ExtArgs extends run
   where?: Prisma.InfraServerWhereInput
 }
 
+/**
+ * InstallationOrderCountOutputType without action
+ */
+export type InstallationOrderCountOutputTypeCountProvisioningRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProvisioningRunWhereInput
+}
+
 
 export type InstallationOrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1568,6 +1722,7 @@ export type InstallationOrderSelect<ExtArgs extends runtime.Types.Extensions.Int
   tenant?: boolean | Prisma.InstallationOrder$tenantArgs<ExtArgs>
   serverRequests?: boolean | Prisma.InstallationOrder$serverRequestsArgs<ExtArgs>
   servers?: boolean | Prisma.InstallationOrder$serversArgs<ExtArgs>
+  provisioningRuns?: boolean | Prisma.InstallationOrder$provisioningRunsArgs<ExtArgs>
   _count?: boolean | Prisma.InstallationOrderCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["installationOrder"]>
 
@@ -1641,6 +1796,7 @@ export type InstallationOrderInclude<ExtArgs extends runtime.Types.Extensions.In
   tenant?: boolean | Prisma.InstallationOrder$tenantArgs<ExtArgs>
   serverRequests?: boolean | Prisma.InstallationOrder$serverRequestsArgs<ExtArgs>
   servers?: boolean | Prisma.InstallationOrder$serversArgs<ExtArgs>
+  provisioningRuns?: boolean | Prisma.InstallationOrder$provisioningRunsArgs<ExtArgs>
   _count?: boolean | Prisma.InstallationOrderCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type InstallationOrderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1665,6 +1821,7 @@ export type $InstallationOrderPayload<ExtArgs extends runtime.Types.Extensions.I
     tenant: Prisma.$TenantPayload<ExtArgs> | null
     serverRequests: Prisma.$InfraServerRequestPayload<ExtArgs>[]
     servers: Prisma.$InfraServerPayload<ExtArgs>[]
+    provisioningRuns: Prisma.$ProvisioningRunPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2082,6 +2239,7 @@ export interface Prisma__InstallationOrderClient<T, Null = never, ExtArgs extend
   tenant<T extends Prisma.InstallationOrder$tenantArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstallationOrder$tenantArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   serverRequests<T extends Prisma.InstallationOrder$serverRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstallationOrder$serverRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InfraServerRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   servers<T extends Prisma.InstallationOrder$serversArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstallationOrder$serversArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InfraServerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  provisioningRuns<T extends Prisma.InstallationOrder$provisioningRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstallationOrder$provisioningRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProvisioningRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2610,6 +2768,30 @@ export type InstallationOrder$serversArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.InfraServerScalarFieldEnum | Prisma.InfraServerScalarFieldEnum[]
+}
+
+/**
+ * InstallationOrder.provisioningRuns
+ */
+export type InstallationOrder$provisioningRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProvisioningRun
+   */
+  select?: Prisma.ProvisioningRunSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProvisioningRun
+   */
+  omit?: Prisma.ProvisioningRunOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProvisioningRunInclude<ExtArgs> | null
+  where?: Prisma.ProvisioningRunWhereInput
+  orderBy?: Prisma.ProvisioningRunOrderByWithRelationInput | Prisma.ProvisioningRunOrderByWithRelationInput[]
+  cursor?: Prisma.ProvisioningRunWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProvisioningRunScalarFieldEnum | Prisma.ProvisioningRunScalarFieldEnum[]
 }
 
 /**

@@ -460,7 +460,9 @@ export const ModelName = {
   InfraSshKey: 'InfraSshKey',
   InfraServerRequest: 'InfraServerRequest',
   InfraServer: 'InfraServer',
-  InfraOperation: 'InfraOperation'
+  InfraOperation: 'InfraOperation',
+  ProvisioningRun: 'ProvisioningRun',
+  ProvisioningEvent: 'ProvisioningEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -476,7 +478,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "plan" | "tenant" | "subscription" | "payment" | "delivery" | "systemUpdate" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "conversationNote" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "aiKnowledgeDoc" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog" | "integrationCheck" | "webhookEndpoint" | "webhookDelivery" | "reservation" | "providerCredential" | "aiModel" | "aiAssignment" | "aiUsageEvent" | "salesLead" | "salesActivity" | "commercialSettings" | "salesChatSession" | "salesChatMessage" | "commercialItem" | "contractVersion" | "salesQuote" | "salesQuoteLine" | "paymentMethodConfig" | "salesPaymentOrder" | "salesPaymentEvent" | "paymentGatewayEvent" | "accountingEntry" | "installationOrder" | "infraProvider" | "infraSshKey" | "infraServerRequest" | "infraServer" | "infraOperation"
+    modelProps: "plan" | "tenant" | "subscription" | "payment" | "delivery" | "systemUpdate" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "conversationNote" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "aiKnowledgeDoc" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog" | "integrationCheck" | "webhookEndpoint" | "webhookDelivery" | "reservation" | "providerCredential" | "aiModel" | "aiAssignment" | "aiUsageEvent" | "salesLead" | "salesActivity" | "commercialSettings" | "salesChatSession" | "salesChatMessage" | "commercialItem" | "contractVersion" | "salesQuote" | "salesQuoteLine" | "paymentMethodConfig" | "salesPaymentOrder" | "salesPaymentEvent" | "paymentGatewayEvent" | "accountingEntry" | "installationOrder" | "infraProvider" | "infraSshKey" | "infraServerRequest" | "infraServer" | "infraOperation" | "provisioningRun" | "provisioningEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -5216,6 +5218,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProvisioningRun: {
+      payload: Prisma.$ProvisioningRunPayload<ExtArgs>
+      fields: Prisma.ProvisioningRunFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProvisioningRunFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningRunPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProvisioningRunFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningRunPayload>
+        }
+        findFirst: {
+          args: Prisma.ProvisioningRunFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningRunPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProvisioningRunFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningRunPayload>
+        }
+        findMany: {
+          args: Prisma.ProvisioningRunFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningRunPayload>[]
+        }
+        create: {
+          args: Prisma.ProvisioningRunCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningRunPayload>
+        }
+        createMany: {
+          args: Prisma.ProvisioningRunCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProvisioningRunCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningRunPayload>[]
+        }
+        delete: {
+          args: Prisma.ProvisioningRunDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningRunPayload>
+        }
+        update: {
+          args: Prisma.ProvisioningRunUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningRunPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProvisioningRunDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProvisioningRunUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProvisioningRunUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningRunPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProvisioningRunUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningRunPayload>
+        }
+        aggregate: {
+          args: Prisma.ProvisioningRunAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProvisioningRun>
+        }
+        groupBy: {
+          args: Prisma.ProvisioningRunGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProvisioningRunGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProvisioningRunCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProvisioningRunCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProvisioningEvent: {
+      payload: Prisma.$ProvisioningEventPayload<ExtArgs>
+      fields: Prisma.ProvisioningEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProvisioningEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProvisioningEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningEventPayload>
+        }
+        findFirst: {
+          args: Prisma.ProvisioningEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProvisioningEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningEventPayload>
+        }
+        findMany: {
+          args: Prisma.ProvisioningEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningEventPayload>[]
+        }
+        create: {
+          args: Prisma.ProvisioningEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningEventPayload>
+        }
+        createMany: {
+          args: Prisma.ProvisioningEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProvisioningEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningEventPayload>[]
+        }
+        delete: {
+          args: Prisma.ProvisioningEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningEventPayload>
+        }
+        update: {
+          args: Prisma.ProvisioningEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProvisioningEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProvisioningEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProvisioningEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProvisioningEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProvisioningEventPayload>
+        }
+        aggregate: {
+          args: Prisma.ProvisioningEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProvisioningEvent>
+        }
+        groupBy: {
+          args: Prisma.ProvisioningEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProvisioningEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProvisioningEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProvisioningEventCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -6478,6 +6628,59 @@ export const InfraOperationScalarFieldEnum = {
 export type InfraOperationScalarFieldEnum = (typeof InfraOperationScalarFieldEnum)[keyof typeof InfraOperationScalarFieldEnum]
 
 
+export const ProvisioningRunScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  installationOrderId: 'installationOrderId',
+  providerId: 'providerId',
+  serverType: 'serverType',
+  location: 'location',
+  domain: 'domain',
+  adminEmail: 'adminEmail',
+  settings: 'settings',
+  secretsEnc: 'secretsEnc',
+  status: 'status',
+  stoppedAt: 'stoppedAt',
+  attempts: 'attempts',
+  nextRunAt: 'nextRunAt',
+  stepStartedAt: 'stepStartedAt',
+  stepDeadlineAt: 'stepDeadlineAt',
+  leaseUntil: 'leaseUntil',
+  lastError: 'lastError',
+  needs: 'needs',
+  serverRequestId: 'serverRequestId',
+  serverId: 'serverId',
+  bootstrapHash: 'bootstrapHash',
+  bootstrapExpiresAt: 'bootstrapExpiresAt',
+  bootstrapUsedAt: 'bootstrapUsedAt',
+  agentHash: 'agentHash',
+  agentSeenAt: 'agentSeenAt',
+  alertedAt: 'alertedAt',
+  cancelReason: 'cancelReason',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  finishedAt: 'finishedAt'
+} as const
+
+export type ProvisioningRunScalarFieldEnum = (typeof ProvisioningRunScalarFieldEnum)[keyof typeof ProvisioningRunScalarFieldEnum]
+
+
+export const ProvisioningEventScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  status: 'status',
+  level: 'level',
+  message: 'message',
+  data: 'data',
+  source: 'source',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type ProvisioningEventScalarFieldEnum = (typeof ProvisioningEventScalarFieldEnum)[keyof typeof ProvisioningEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -7240,6 +7443,20 @@ export type ListEnumServerRequestStatusFieldRefInput<$PrismaModel> = FieldRefInp
 
 
 /**
+ * Reference to a field of type 'ProvisioningStatus'
+ */
+export type EnumProvisioningStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProvisioningStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ProvisioningStatus[]'
+ */
+export type ListEnumProvisioningStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProvisioningStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -7467,6 +7684,8 @@ export type GlobalOmitConfig = {
   infraServerRequest?: Prisma.InfraServerRequestOmit
   infraServer?: Prisma.InfraServerOmit
   infraOperation?: Prisma.InfraOperationOmit
+  provisioningRun?: Prisma.ProvisioningRunOmit
+  provisioningEvent?: Prisma.ProvisioningEventOmit
 }
 
 /* Types for Logging */

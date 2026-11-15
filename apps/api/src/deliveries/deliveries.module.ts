@@ -3,5 +3,5 @@ import { IntegrationsModule } from '../integrations/integrations.module.js';
 import { DeliveriesController } from './deliveries.controller.js';
 import { DeliveriesService } from './deliveries.service.js';
 
-@Module({ imports: [IntegrationsModule], controllers: [DeliveriesController], providers: [DeliveriesService] })
+@Module({ imports: [IntegrationsModule], controllers: [DeliveriesController], providers: [DeliveriesService], exports: [DeliveriesService] })
 export class DeliveriesModule {}

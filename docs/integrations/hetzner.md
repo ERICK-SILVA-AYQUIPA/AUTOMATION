@@ -57,3 +57,38 @@ Eliminar un servidor exige escribir su nombre y un motivo; queda en el historial
 En desarrollo, `HETZNER_API_BASE_URL=http://127.0.0.1:4996/v1` apunta a un servidor
 local (`apps/api/test/fake-hetzner.ts`) con los formatos del SDK oficial
 `hetznercloud/hcloud-go`. En producción esa variable no se puede cambiar.
+
+## 5. Instalaciones automáticas (ADR 051)
+
+Plataforma › **Instalaciones automáticas** instala un cliente con servidor propio
+(modalidad dedicada o personalizada) a partir de su orden de instalación pagada.
+
+Antes de la primera, en el servidor de la plataforma:
+
+1. Genera las imágenes de la versión: `./infrastructure/scripts/export-images.sh`
+   (quedan en `./dist-entregas` con su `.sha256`).
+2. En `.env.production` define `PROVISIONING_IMAGES_DIR=/srv/imagenes` (Docker
+   monta `./dist-entregas` ahí, solo lectura) y reinicia la API.
+
+Para cada cliente:
+
+1. **Nueva instalación**: orden pagada, proveedor, región y tamaño (mínimo 4 GB),
+   dominio del cliente, correo del administrador y el SMTP del cliente. La
+   contraseña SMTP se guarda cifrada, viaja una sola vez al servidor y se borra al
+   terminar.
+2. La plataforma confirma el pago, prepara la entrega de la empresa (debe estar
+   convertida en cliente) y **pide el servidor**: apruébalo en Infraestructura ›
+   Solicitudes, como cualquier otro.
+3. Con el servidor encendido, la pantalla muestra la IP: **crea el registro DNS A**
+   del dominio hacia esa IP. El servidor espera hasta 3 horas.
+4. El servidor se instala solo (Docker, aplicación, migraciones, HTTPS, empresa,
+   respaldo diario y salud cada 5 minutos) e informa cada paso. Después la
+   plataforma comprueba desde afuera el DNS, el HTTPS y el panel, y envía el
+   correo de entrega al administrador (crea su contraseña con «¿Olvidaste tu
+   contraseña?»).
+
+Si algo falla, la instalación queda en «Requiere intervención» o «Error» con lo
+que pasó y qué hacer, y llega un correo a los administradores. El registro del
+servidor está en `/var/log/aisa-instalacion.log`; tras corregir, ejecuta
+`sudo /opt/aisa/agente.sh` y pulsa **Reintentar**. Cancelar pide un motivo y, si
+ya hay servidor, decide si eliminarlo (escribiendo su nombre) o dejarlo.

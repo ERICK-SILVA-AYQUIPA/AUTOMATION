@@ -56,6 +56,8 @@ const schema = z.object({
   DEEPSEEK_BASE_URL: z.url().default('https://api.deepseek.com'),
   /** API de Hetzner Cloud (ADR 050); solo se cambia en desarrollo y pruebas */
   HETZNER_API_BASE_URL: z.url().default('https://api.hetzner.cloud/v1'),
+  /** Carpeta con aisa-imagenes-<versión>.tar.gz y su .sha256 (export-images.sh) que descargan los servidores nuevos (ADR 051) */
+  PROVISIONING_IMAGES_DIR: z.string().default(''),
   /** Espera antes de responder, para juntar varios mensajes seguidos del cliente */
   AI_REPLY_DELAY_MS: z.coerce.number().int().min(0).max(60_000).default(2_500),
   WHATSAPP_GRAPH_API_VERSION: z.string().regex(/^v\d+\.\d+$/, 'formato vNN.N, p. ej. v26.0').default('v26.0'),

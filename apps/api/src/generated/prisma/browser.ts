@@ -342,3 +342,13 @@ export type InfraServer = Prisma.InfraServerModel
  * Registro de operaciones contra el proveedor: solo se agrega
  */
 export type InfraOperation = Prisma.InfraOperationModel
+/**
+ * Model ProvisioningRun
+ * Una instalación administrada de principio a fin (solo rol de sistema)
+ */
+export type ProvisioningRun = Prisma.ProvisioningRunModel
+/**
+ * Model ProvisioningEvent
+ * Historial de una instalación: solo se agrega
+ */
+export type ProvisioningEvent = Prisma.ProvisioningEventModel

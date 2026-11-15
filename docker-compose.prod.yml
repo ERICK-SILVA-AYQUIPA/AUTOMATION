@@ -44,6 +44,8 @@ x-app-env: &app-env
   SMTP_USER: ${SMTP_USER:-}
   SMTP_PASSWORD: ${SMTP_PASSWORD:-}
   WHATSAPP_GRAPH_API_VERSION: ${WHATSAPP_GRAPH_API_VERSION:-v26.0}
+  # Instalaciones automáticas (ADR 051): /srv/imagenes = ./dist-entregas (export-images.sh)
+  PROVISIONING_IMAGES_DIR: ${PROVISIONING_IMAGES_DIR:-}
   WHATSAPP_APP_SECRET: ${WHATSAPP_APP_SECRET:-}
   N8N_WEBHOOK_BASE_URL: ${N8N_WEBHOOK_BASE_URL:-}
   N8N_INTERNAL_TOKEN: ${N8N_INTERNAL_TOKEN:-}
@@ -168,6 +170,8 @@ services:
     environment: *app-env
     volumes:
       - app_storage:/data/storage
+      # Imágenes que descargan los servidores de las instalaciones automáticas (solo lectura)
+      - ./dist-entregas:/srv/imagenes:ro
     logging: *logging
 
   worker:

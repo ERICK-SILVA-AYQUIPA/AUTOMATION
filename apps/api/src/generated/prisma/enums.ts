@@ -467,3 +467,26 @@ export const ServerRequestStatus = {
 } as const
 
 export type ServerRequestStatus = (typeof ServerRequestStatus)[keyof typeof ServerRequestStatus]
+
+
+export const ProvisioningStatus = {
+  REQUESTED: 'REQUESTED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  PAYMENT_CONFIRMED: 'PAYMENT_CONFIRMED',
+  PREPARING: 'PREPARING',
+  CREATING_INFRA: 'CREATING_INFRA',
+  SERVER_READY: 'SERVER_READY',
+  CONFIGURING_SERVER: 'CONFIGURING_SERVER',
+  INSTALLING: 'INSTALLING',
+  MIGRATING: 'MIGRATING',
+  CONFIGURING_INTEGRATIONS: 'CONFIGURING_INTEGRATIONS',
+  TESTING: 'TESTING',
+  PUBLISHING: 'PUBLISHING',
+  DELIVERING: 'DELIVERING',
+  DELIVERED: 'DELIVERED',
+  ERROR: 'ERROR',
+  CANCELLED: 'CANCELLED',
+  NEEDS_INTERVENTION: 'NEEDS_INTERVENTION'
+} as const
+
+export type ProvisioningStatus = (typeof ProvisioningStatus)[keyof typeof ProvisioningStatus]

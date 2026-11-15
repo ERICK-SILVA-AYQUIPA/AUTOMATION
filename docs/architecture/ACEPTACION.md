@@ -107,6 +107,22 @@ Pruebas: `api-center.e2e-spec.ts` (API y PostgreSQL) y `api-center.mjs` (navegad
 | Con Hetzner real | Requiere un token del proyecto y autorizar el primer servidor | **Pendiente de Rick** |
 | Servidor propio del cliente (§7B) | Instalador o agente con credenciales temporales | Pendiente (fases E/F) |
 
+## Fases E y F: orquestador e instalación automática (ADR 051)
+
+| Criterio | Cómo se demuestra | Estado |
+|---|---|---|
+| Estados de punta a punta (solicitud → entrega, error, cancelada, intervención) | Pasos en la pantalla y en `orchestrator.e2e-spec.ts` | Probado |
+| Asíncrono, recuperable y con cola y worker | Cola `provisioning`, barrido cada 20 s, arriendo por ejecución | Probado (worker en marcha en `orchestrator.mjs`) |
+| Idempotente, sin cobrar ni instalar dos veces | Una ejecución viva por orden (índice único); informes repetidos se ignoran; una solicitud de servidor por orden | Probado |
+| Plazos, reintentos limitados y alertas | Plazo vencido → requiere intervención; 40 intentos de prueba → error; correo a los administradores | Probado |
+| Auditable | Historial que solo se agrega con origen (plataforma, persona, servidor) y auditoría de acciones | Probado |
+| Ninguna creación facturable sin aprobación | El orquestador solo pide el servidor; lo aprueba una persona en Infraestructura | Probado (se cuentan las llamadas al proveedor) |
+| Compensación y sin recursos abandonados | Cancelar anula la solicitud pendiente; con servidor creado avisa o lo elimina escribiendo su nombre | Probado |
+| Instalación completa (Docker, Compose, base, Redis, API, web, worker, proxy, HTTPS, dominio, variables, migraciones, administrador, respaldos, salud) | Agente real (`agente.sh`) + `instalar.sh` del paquete, con Docker y DNS sustituidos en las pruebas | **Probado sin servidor real**; en servidor real: pendiente de autorización |
+| Versiones controladas y secretos fuera de imágenes y repositorios | Imágenes de la versión verificadas por SHA-256; secretos generados en el servidor; SMTP cifrado y borrado al entregar; cloud-init sin secretos duraderos | Probado |
+| Pruebas desde afuera antes de entregar | DNS hacia la IP del servidor, API sana por HTTPS con certificado válido, panel publicado | Probado con respuestas sustituidas; en Internet real: pendiente |
+| Servidor propio del cliente (§7B) | Paquete de entrega (ADR 044) con su instalador; sin agente automático | Pendiente |
+
 ## Seguridad (fase 10)
 
 - Dependencias de producción: `pnpm audit --prod` sin vulnerabilidades conocidas (2026-11-13). No se añadieron dependencias en las fases 8 y 9: el ZIP y el actualizador usan solo Node y herramientas del sistema.

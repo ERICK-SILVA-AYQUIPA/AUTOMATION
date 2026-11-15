@@ -114,7 +114,9 @@ export const ModelName = {
   InfraSshKey: 'InfraSshKey',
   InfraServerRequest: 'InfraServerRequest',
   InfraServer: 'InfraServer',
-  InfraOperation: 'InfraOperation'
+  InfraOperation: 'InfraOperation',
+  ProvisioningRun: 'ProvisioningRun',
+  ProvisioningEvent: 'ProvisioningEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1354,6 +1356,59 @@ export const InfraOperationScalarFieldEnum = {
 } as const
 
 export type InfraOperationScalarFieldEnum = (typeof InfraOperationScalarFieldEnum)[keyof typeof InfraOperationScalarFieldEnum]
+
+
+export const ProvisioningRunScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  installationOrderId: 'installationOrderId',
+  providerId: 'providerId',
+  serverType: 'serverType',
+  location: 'location',
+  domain: 'domain',
+  adminEmail: 'adminEmail',
+  settings: 'settings',
+  secretsEnc: 'secretsEnc',
+  status: 'status',
+  stoppedAt: 'stoppedAt',
+  attempts: 'attempts',
+  nextRunAt: 'nextRunAt',
+  stepStartedAt: 'stepStartedAt',
+  stepDeadlineAt: 'stepDeadlineAt',
+  leaseUntil: 'leaseUntil',
+  lastError: 'lastError',
+  needs: 'needs',
+  serverRequestId: 'serverRequestId',
+  serverId: 'serverId',
+  bootstrapHash: 'bootstrapHash',
+  bootstrapExpiresAt: 'bootstrapExpiresAt',
+  bootstrapUsedAt: 'bootstrapUsedAt',
+  agentHash: 'agentHash',
+  agentSeenAt: 'agentSeenAt',
+  alertedAt: 'alertedAt',
+  cancelReason: 'cancelReason',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  finishedAt: 'finishedAt'
+} as const
+
+export type ProvisioningRunScalarFieldEnum = (typeof ProvisioningRunScalarFieldEnum)[keyof typeof ProvisioningRunScalarFieldEnum]
+
+
+export const ProvisioningEventScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  status: 'status',
+  level: 'level',
+  message: 'message',
+  data: 'data',
+  source: 'source',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type ProvisioningEventScalarFieldEnum = (typeof ProvisioningEventScalarFieldEnum)[keyof typeof ProvisioningEventScalarFieldEnum]
 
 
 export const SortOrder = {

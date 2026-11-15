@@ -175,8 +175,21 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
   - [x] Costos estimados del mes y comprometidos; registrar servidores creados fuera; historial que solo se agrega
   - [x] Pruebas: `infra.e2e-spec.ts` (12), `infra.spec.ts` (2) y `infra.mjs` en navegador (7 pasos) contra un servidor local con los formatos de Hetzner
   - [ ] Token real de Hetzner y primer servidor real (**lo autoriza Rick**); adaptadores de DigitalOcean o AWS (no elegidos); servidor propio del cliente (fases E/F)
-- [ ] Fase E: orquestador de aprovisionamiento
-- [ ] Fase F: instalación automatizada
+- [x] Fase E: orquestador de aprovisionamiento (ADR 051)
+  - [x] Estados de la especificación, de «Solicitud creada» a «Entregada», más error, cancelada y requiere intervención
+  - [x] Cola `provisioning` y worker con barrido periódico (recuperable); arriendo por ejecución; actualizaciones condicionadas
+  - [x] Plazos por paso, reintentos limitados con espera exponencial, alertas por correo, historial que solo se agrega
+  - [x] El servidor se pide como solicitud de la fase D y lo aprueba una persona; una sola ejecución viva por orden
+  - [x] Reintentar desde el paso detenido; cancelar con compensación (anular la solicitud o eliminar el servidor escribiendo su nombre)
+  - [x] Plataforma › Instalaciones automáticas: registrar, pasos, qué hacer, DNS a crear, historial, reintentar y cancelar
+  - [x] Pruebas: `orchestrator.e2e-spec.ts` (7), `orchestrator.spec.ts` (5) y `orchestrator.mjs` en navegador (5 pasos)
+- [x] Fase F: instalación automatizada (ADR 051)
+  - [x] cloud-init con token de arranque de un solo uso; agente con token propio (solo se guarda su hash)
+  - [x] Docker oficial firmado, actualizaciones de seguridad, espera del DNS, paquete e imágenes verificados por SHA-256
+  - [x] `.env.production` con secretos generados en el servidor; `instalar.sh`: migraciones, servicios, salud, HTTPS (Caddy) y empresa
+  - [x] Respaldo diario y salud cada 5 minutos programados; comprobación desde afuera (DNS, HTTPS, panel) y entrega por correo
+  - [x] El agente real se ejecuta en las pruebas automáticas con Docker y DNS sustituidos
+  - [ ] Primera instalación en un servidor real (requiere token de Hetzner, dominio y SMTP del cliente, y las imágenes generadas con `export-images.sh`: **lo autoriza Rick**); servidor propio del cliente con agente (§7B)
 - [ ] Fase G: WhatsApp, IA y automatizaciones en instalaciones nuevas
 - [ ] Fase H: pruebas y entrega
 - [ ] Fase I: posventa

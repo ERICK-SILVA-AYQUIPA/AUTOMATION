@@ -12,7 +12,11 @@ export const QUEUE = {
   CHATWOOT_SYNC: 'chatwoot-sync',
   /** Respuestas del asistente de IA a mensajes entrantes (FASE 6) */
   AI_REPLY: 'ai-reply',
+  /** Instalaciones administradas: avanzar una ejecución del orquestador (ADR 051) */
+  PROVISIONING: 'provisioning',
 } as const;
+
+export type ProvisioningJob = { runId: string };
 
 export type AiReplyJob = { tenantId: string; conversationId: string; messageId: string };
 
@@ -32,6 +36,7 @@ export class Queues implements OnModuleDestroy {
   readonly outbound: Queue;
   readonly chatwoot: Queue<ChatwootJob>;
   readonly ai: Queue<AiReplyJob>;
+  readonly provisioning: Queue<ProvisioningJob>;
 
   constructor(@Inject(ENV) env: Env) {
     const connection = queueConnection(env);
@@ -46,6 +51,8 @@ export class Queues implements OnModuleDestroy {
     this.chatwoot = new Queue<ChatwootJob>(QUEUE.CHATWOOT_SYNC, { connection, prefix: env.QUEUE_PREFIX, defaultJobOptions: { ...defaults, attempts: 10, backoff: { type: 'exponential', delay: 3_000 } } });
     // Cuota o caída de Gemini: 4 intentos (10, 20, 40 s); después se pasa la conversación a una persona
     this.ai = new Queue<AiReplyJob>(QUEUE.AI_REPLY, { connection, prefix: env.QUEUE_PREFIX, defaultJobOptions: { ...defaults, attempts: 4, backoff: { type: 'exponential', delay: 10_000 } } });
+    // Cada trabajo avanza un paso; los reintentos de negocio los cuenta el orquestador
+    this.provisioning = new Queue<ProvisioningJob>(QUEUE.PROVISIONING, { connection, prefix: env.QUEUE_PREFIX, defaultJobOptions: { ...defaults, attempts: 3, backoff: { type: 'exponential', delay: 5_000 } } });
     this.aiDelay = env.AI_REPLY_DELAY_MS;
   }
 
@@ -62,8 +69,13 @@ export class Queues implements OnModuleDestroy {
     await this.chatwoot.add(kind, { kind, tenantId, messageId }, { jobId }).catch(() => undefined);
   }
 
+  /** Pide al worker que avance una instalación ahora (el barrido periódico la retoma si Redis falla) */
+  async kickProvisioning(runId: string) {
+    await this.provisioning.add('advance', { runId }, { jobId: `prov-${runId}-${Date.now()}` }).catch(() => undefined);
+  }
+
   async onModuleDestroy() {
-    await Promise.all([this.inbound.close(), this.outbound.close(), this.chatwoot.close(), this.ai.close()]);
+    await Promise.all([this.inbound.close(), this.outbound.close(), this.chatwoot.close(), this.ai.close(), this.provisioning.close()]);
   }
 }
 

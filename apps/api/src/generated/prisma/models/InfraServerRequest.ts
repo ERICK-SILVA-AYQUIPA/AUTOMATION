@@ -348,6 +348,7 @@ export type InfraServerRequestWhereInput = {
   installationOrder?: Prisma.XOR<Prisma.InstallationOrderNullableScalarRelationFilter, Prisma.InstallationOrderWhereInput> | null
   server?: Prisma.XOR<Prisma.InfraServerNullableScalarRelationFilter, Prisma.InfraServerWhereInput> | null
   operations?: Prisma.InfraOperationListRelationFilter
+  provisioningRuns?: Prisma.ProvisioningRunListRelationFilter
 }
 
 export type InfraServerRequestOrderByWithRelationInput = {
@@ -375,6 +376,7 @@ export type InfraServerRequestOrderByWithRelationInput = {
   installationOrder?: Prisma.InstallationOrderOrderByWithRelationInput
   server?: Prisma.InfraServerOrderByWithRelationInput
   operations?: Prisma.InfraOperationOrderByRelationAggregateInput
+  provisioningRuns?: Prisma.ProvisioningRunOrderByRelationAggregateInput
 }
 
 export type InfraServerRequestWhereUniqueInput = Prisma.AtLeast<{
@@ -405,6 +407,7 @@ export type InfraServerRequestWhereUniqueInput = Prisma.AtLeast<{
   installationOrder?: Prisma.XOR<Prisma.InstallationOrderNullableScalarRelationFilter, Prisma.InstallationOrderWhereInput> | null
   server?: Prisma.XOR<Prisma.InfraServerNullableScalarRelationFilter, Prisma.InfraServerWhereInput> | null
   operations?: Prisma.InfraOperationListRelationFilter
+  provisioningRuns?: Prisma.ProvisioningRunListRelationFilter
 }, "id" | "number">
 
 export type InfraServerRequestOrderByWithAggregationInput = {
@@ -484,6 +487,7 @@ export type InfraServerRequestCreateInput = {
   installationOrder?: Prisma.InstallationOrderCreateNestedOneWithoutServerRequestsInput
   server?: Prisma.InfraServerCreateNestedOneWithoutRequestInput
   operations?: Prisma.InfraOperationCreateNestedManyWithoutRequestInput
+  provisioningRuns?: Prisma.ProvisioningRunCreateNestedManyWithoutServerRequestInput
 }
 
 export type InfraServerRequestUncheckedCreateInput = {
@@ -509,6 +513,7 @@ export type InfraServerRequestUncheckedCreateInput = {
   updatedAt?: Date | string
   server?: Prisma.InfraServerUncheckedCreateNestedOneWithoutRequestInput
   operations?: Prisma.InfraOperationUncheckedCreateNestedManyWithoutRequestInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedCreateNestedManyWithoutServerRequestInput
 }
 
 export type InfraServerRequestUpdateInput = {
@@ -533,6 +538,7 @@ export type InfraServerRequestUpdateInput = {
   installationOrder?: Prisma.InstallationOrderUpdateOneWithoutServerRequestsNestedInput
   server?: Prisma.InfraServerUpdateOneWithoutRequestNestedInput
   operations?: Prisma.InfraOperationUpdateManyWithoutRequestNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUpdateManyWithoutServerRequestNestedInput
 }
 
 export type InfraServerRequestUncheckedUpdateInput = {
@@ -558,6 +564,7 @@ export type InfraServerRequestUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   server?: Prisma.InfraServerUncheckedUpdateOneWithoutRequestNestedInput
   operations?: Prisma.InfraOperationUncheckedUpdateManyWithoutRequestNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedUpdateManyWithoutServerRequestNestedInput
 }
 
 export type InfraServerRequestCreateManyInput = {
@@ -842,6 +849,22 @@ export type InfraServerRequestUpdateOneWithoutOperationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.InfraServerRequestUpdateToOneWithWhereWithoutOperationsInput, Prisma.InfraServerRequestUpdateWithoutOperationsInput>, Prisma.InfraServerRequestUncheckedUpdateWithoutOperationsInput>
 }
 
+export type InfraServerRequestCreateNestedOneWithoutProvisioningRunsInput = {
+  create?: Prisma.XOR<Prisma.InfraServerRequestCreateWithoutProvisioningRunsInput, Prisma.InfraServerRequestUncheckedCreateWithoutProvisioningRunsInput>
+  connectOrCreate?: Prisma.InfraServerRequestCreateOrConnectWithoutProvisioningRunsInput
+  connect?: Prisma.InfraServerRequestWhereUniqueInput
+}
+
+export type InfraServerRequestUpdateOneWithoutProvisioningRunsNestedInput = {
+  create?: Prisma.XOR<Prisma.InfraServerRequestCreateWithoutProvisioningRunsInput, Prisma.InfraServerRequestUncheckedCreateWithoutProvisioningRunsInput>
+  connectOrCreate?: Prisma.InfraServerRequestCreateOrConnectWithoutProvisioningRunsInput
+  upsert?: Prisma.InfraServerRequestUpsertWithoutProvisioningRunsInput
+  disconnect?: Prisma.InfraServerRequestWhereInput | boolean
+  delete?: Prisma.InfraServerRequestWhereInput | boolean
+  connect?: Prisma.InfraServerRequestWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InfraServerRequestUpdateToOneWithWhereWithoutProvisioningRunsInput, Prisma.InfraServerRequestUpdateWithoutProvisioningRunsInput>, Prisma.InfraServerRequestUncheckedUpdateWithoutProvisioningRunsInput>
+}
+
 export type InfraServerRequestCreateWithoutInstallationOrderInput = {
   id?: string
   number?: number
@@ -864,6 +887,7 @@ export type InfraServerRequestCreateWithoutInstallationOrderInput = {
   provider: Prisma.InfraProviderCreateNestedOneWithoutRequestsInput
   server?: Prisma.InfraServerCreateNestedOneWithoutRequestInput
   operations?: Prisma.InfraOperationCreateNestedManyWithoutRequestInput
+  provisioningRuns?: Prisma.ProvisioningRunCreateNestedManyWithoutServerRequestInput
 }
 
 export type InfraServerRequestUncheckedCreateWithoutInstallationOrderInput = {
@@ -888,6 +912,7 @@ export type InfraServerRequestUncheckedCreateWithoutInstallationOrderInput = {
   updatedAt?: Date | string
   server?: Prisma.InfraServerUncheckedCreateNestedOneWithoutRequestInput
   operations?: Prisma.InfraOperationUncheckedCreateNestedManyWithoutRequestInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedCreateNestedManyWithoutServerRequestInput
 }
 
 export type InfraServerRequestCreateOrConnectWithoutInstallationOrderInput = {
@@ -964,6 +989,7 @@ export type InfraServerRequestCreateWithoutProviderInput = {
   installationOrder?: Prisma.InstallationOrderCreateNestedOneWithoutServerRequestsInput
   server?: Prisma.InfraServerCreateNestedOneWithoutRequestInput
   operations?: Prisma.InfraOperationCreateNestedManyWithoutRequestInput
+  provisioningRuns?: Prisma.ProvisioningRunCreateNestedManyWithoutServerRequestInput
 }
 
 export type InfraServerRequestUncheckedCreateWithoutProviderInput = {
@@ -988,6 +1014,7 @@ export type InfraServerRequestUncheckedCreateWithoutProviderInput = {
   updatedAt?: Date | string
   server?: Prisma.InfraServerUncheckedCreateNestedOneWithoutRequestInput
   operations?: Prisma.InfraOperationUncheckedCreateNestedManyWithoutRequestInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedCreateNestedManyWithoutServerRequestInput
 }
 
 export type InfraServerRequestCreateOrConnectWithoutProviderInput = {
@@ -1038,6 +1065,7 @@ export type InfraServerRequestCreateWithoutServerInput = {
   provider: Prisma.InfraProviderCreateNestedOneWithoutRequestsInput
   installationOrder?: Prisma.InstallationOrderCreateNestedOneWithoutServerRequestsInput
   operations?: Prisma.InfraOperationCreateNestedManyWithoutRequestInput
+  provisioningRuns?: Prisma.ProvisioningRunCreateNestedManyWithoutServerRequestInput
 }
 
 export type InfraServerRequestUncheckedCreateWithoutServerInput = {
@@ -1062,6 +1090,7 @@ export type InfraServerRequestUncheckedCreateWithoutServerInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   operations?: Prisma.InfraOperationUncheckedCreateNestedManyWithoutRequestInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedCreateNestedManyWithoutServerRequestInput
 }
 
 export type InfraServerRequestCreateOrConnectWithoutServerInput = {
@@ -1101,6 +1130,7 @@ export type InfraServerRequestUpdateWithoutServerInput = {
   provider?: Prisma.InfraProviderUpdateOneRequiredWithoutRequestsNestedInput
   installationOrder?: Prisma.InstallationOrderUpdateOneWithoutServerRequestsNestedInput
   operations?: Prisma.InfraOperationUpdateManyWithoutRequestNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUpdateManyWithoutServerRequestNestedInput
 }
 
 export type InfraServerRequestUncheckedUpdateWithoutServerInput = {
@@ -1125,6 +1155,7 @@ export type InfraServerRequestUncheckedUpdateWithoutServerInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   operations?: Prisma.InfraOperationUncheckedUpdateManyWithoutRequestNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedUpdateManyWithoutServerRequestNestedInput
 }
 
 export type InfraServerRequestCreateWithoutOperationsInput = {
@@ -1149,6 +1180,7 @@ export type InfraServerRequestCreateWithoutOperationsInput = {
   provider: Prisma.InfraProviderCreateNestedOneWithoutRequestsInput
   installationOrder?: Prisma.InstallationOrderCreateNestedOneWithoutServerRequestsInput
   server?: Prisma.InfraServerCreateNestedOneWithoutRequestInput
+  provisioningRuns?: Prisma.ProvisioningRunCreateNestedManyWithoutServerRequestInput
 }
 
 export type InfraServerRequestUncheckedCreateWithoutOperationsInput = {
@@ -1173,6 +1205,7 @@ export type InfraServerRequestUncheckedCreateWithoutOperationsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   server?: Prisma.InfraServerUncheckedCreateNestedOneWithoutRequestInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedCreateNestedManyWithoutServerRequestInput
 }
 
 export type InfraServerRequestCreateOrConnectWithoutOperationsInput = {
@@ -1212,6 +1245,7 @@ export type InfraServerRequestUpdateWithoutOperationsInput = {
   provider?: Prisma.InfraProviderUpdateOneRequiredWithoutRequestsNestedInput
   installationOrder?: Prisma.InstallationOrderUpdateOneWithoutServerRequestsNestedInput
   server?: Prisma.InfraServerUpdateOneWithoutRequestNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUpdateManyWithoutServerRequestNestedInput
 }
 
 export type InfraServerRequestUncheckedUpdateWithoutOperationsInput = {
@@ -1236,6 +1270,122 @@ export type InfraServerRequestUncheckedUpdateWithoutOperationsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   server?: Prisma.InfraServerUncheckedUpdateOneWithoutRequestNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedUpdateManyWithoutServerRequestNestedInput
+}
+
+export type InfraServerRequestCreateWithoutProvisioningRunsInput = {
+  id?: string
+  number?: number
+  purpose: string
+  name: string
+  serverType: string
+  location: string
+  image: string
+  priceHourly: runtime.Decimal | runtime.DecimalJsLike | number | string
+  priceMonthly: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency: string
+  status?: $Enums.ServerRequestStatus
+  requestedById?: string | null
+  decidedById?: string | null
+  decidedAt?: Date | string | null
+  decisionNote?: string | null
+  error?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  provider: Prisma.InfraProviderCreateNestedOneWithoutRequestsInput
+  installationOrder?: Prisma.InstallationOrderCreateNestedOneWithoutServerRequestsInput
+  server?: Prisma.InfraServerCreateNestedOneWithoutRequestInput
+  operations?: Prisma.InfraOperationCreateNestedManyWithoutRequestInput
+}
+
+export type InfraServerRequestUncheckedCreateWithoutProvisioningRunsInput = {
+  id?: string
+  number?: number
+  providerId: string
+  installationOrderId?: string | null
+  purpose: string
+  name: string
+  serverType: string
+  location: string
+  image: string
+  priceHourly: runtime.Decimal | runtime.DecimalJsLike | number | string
+  priceMonthly: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency: string
+  status?: $Enums.ServerRequestStatus
+  requestedById?: string | null
+  decidedById?: string | null
+  decidedAt?: Date | string | null
+  decisionNote?: string | null
+  error?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  server?: Prisma.InfraServerUncheckedCreateNestedOneWithoutRequestInput
+  operations?: Prisma.InfraOperationUncheckedCreateNestedManyWithoutRequestInput
+}
+
+export type InfraServerRequestCreateOrConnectWithoutProvisioningRunsInput = {
+  where: Prisma.InfraServerRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.InfraServerRequestCreateWithoutProvisioningRunsInput, Prisma.InfraServerRequestUncheckedCreateWithoutProvisioningRunsInput>
+}
+
+export type InfraServerRequestUpsertWithoutProvisioningRunsInput = {
+  update: Prisma.XOR<Prisma.InfraServerRequestUpdateWithoutProvisioningRunsInput, Prisma.InfraServerRequestUncheckedUpdateWithoutProvisioningRunsInput>
+  create: Prisma.XOR<Prisma.InfraServerRequestCreateWithoutProvisioningRunsInput, Prisma.InfraServerRequestUncheckedCreateWithoutProvisioningRunsInput>
+  where?: Prisma.InfraServerRequestWhereInput
+}
+
+export type InfraServerRequestUpdateToOneWithWhereWithoutProvisioningRunsInput = {
+  where?: Prisma.InfraServerRequestWhereInput
+  data: Prisma.XOR<Prisma.InfraServerRequestUpdateWithoutProvisioningRunsInput, Prisma.InfraServerRequestUncheckedUpdateWithoutProvisioningRunsInput>
+}
+
+export type InfraServerRequestUpdateWithoutProvisioningRunsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  purpose?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.StringFieldUpdateOperationsInput | string
+  priceHourly?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  priceMonthly?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumServerRequestStatusFieldUpdateOperationsInput | $Enums.ServerRequestStatus
+  requestedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  provider?: Prisma.InfraProviderUpdateOneRequiredWithoutRequestsNestedInput
+  installationOrder?: Prisma.InstallationOrderUpdateOneWithoutServerRequestsNestedInput
+  server?: Prisma.InfraServerUpdateOneWithoutRequestNestedInput
+  operations?: Prisma.InfraOperationUpdateManyWithoutRequestNestedInput
+}
+
+export type InfraServerRequestUncheckedUpdateWithoutProvisioningRunsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.IntFieldUpdateOperationsInput | number
+  providerId?: Prisma.StringFieldUpdateOperationsInput | string
+  installationOrderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  purpose?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.StringFieldUpdateOperationsInput | string
+  priceHourly?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  priceMonthly?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumServerRequestStatusFieldUpdateOperationsInput | $Enums.ServerRequestStatus
+  requestedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  decisionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  server?: Prisma.InfraServerUncheckedUpdateOneWithoutRequestNestedInput
+  operations?: Prisma.InfraOperationUncheckedUpdateManyWithoutRequestNestedInput
 }
 
 export type InfraServerRequestCreateManyInstallationOrderInput = {
@@ -1281,6 +1431,7 @@ export type InfraServerRequestUpdateWithoutInstallationOrderInput = {
   provider?: Prisma.InfraProviderUpdateOneRequiredWithoutRequestsNestedInput
   server?: Prisma.InfraServerUpdateOneWithoutRequestNestedInput
   operations?: Prisma.InfraOperationUpdateManyWithoutRequestNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUpdateManyWithoutServerRequestNestedInput
 }
 
 export type InfraServerRequestUncheckedUpdateWithoutInstallationOrderInput = {
@@ -1305,6 +1456,7 @@ export type InfraServerRequestUncheckedUpdateWithoutInstallationOrderInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   server?: Prisma.InfraServerUncheckedUpdateOneWithoutRequestNestedInput
   operations?: Prisma.InfraOperationUncheckedUpdateManyWithoutRequestNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedUpdateManyWithoutServerRequestNestedInput
 }
 
 export type InfraServerRequestUncheckedUpdateManyWithoutInstallationOrderInput = {
@@ -1372,6 +1524,7 @@ export type InfraServerRequestUpdateWithoutProviderInput = {
   installationOrder?: Prisma.InstallationOrderUpdateOneWithoutServerRequestsNestedInput
   server?: Prisma.InfraServerUpdateOneWithoutRequestNestedInput
   operations?: Prisma.InfraOperationUpdateManyWithoutRequestNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUpdateManyWithoutServerRequestNestedInput
 }
 
 export type InfraServerRequestUncheckedUpdateWithoutProviderInput = {
@@ -1396,6 +1549,7 @@ export type InfraServerRequestUncheckedUpdateWithoutProviderInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   server?: Prisma.InfraServerUncheckedUpdateOneWithoutRequestNestedInput
   operations?: Prisma.InfraOperationUncheckedUpdateManyWithoutRequestNestedInput
+  provisioningRuns?: Prisma.ProvisioningRunUncheckedUpdateManyWithoutServerRequestNestedInput
 }
 
 export type InfraServerRequestUncheckedUpdateManyWithoutProviderInput = {
@@ -1427,10 +1581,12 @@ export type InfraServerRequestUncheckedUpdateManyWithoutProviderInput = {
 
 export type InfraServerRequestCountOutputType = {
   operations: number
+  provisioningRuns: number
 }
 
 export type InfraServerRequestCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   operations?: boolean | InfraServerRequestCountOutputTypeCountOperationsArgs
+  provisioningRuns?: boolean | InfraServerRequestCountOutputTypeCountProvisioningRunsArgs
 }
 
 /**
@@ -1448,6 +1604,13 @@ export type InfraServerRequestCountOutputTypeDefaultArgs<ExtArgs extends runtime
  */
 export type InfraServerRequestCountOutputTypeCountOperationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.InfraOperationWhereInput
+}
+
+/**
+ * InfraServerRequestCountOutputType without action
+ */
+export type InfraServerRequestCountOutputTypeCountProvisioningRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProvisioningRunWhereInput
 }
 
 
@@ -1476,6 +1639,7 @@ export type InfraServerRequestSelect<ExtArgs extends runtime.Types.Extensions.In
   installationOrder?: boolean | Prisma.InfraServerRequest$installationOrderArgs<ExtArgs>
   server?: boolean | Prisma.InfraServerRequest$serverArgs<ExtArgs>
   operations?: boolean | Prisma.InfraServerRequest$operationsArgs<ExtArgs>
+  provisioningRuns?: boolean | Prisma.InfraServerRequest$provisioningRunsArgs<ExtArgs>
   _count?: boolean | Prisma.InfraServerRequestCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["infraServerRequest"]>
 
@@ -1558,6 +1722,7 @@ export type InfraServerRequestInclude<ExtArgs extends runtime.Types.Extensions.I
   installationOrder?: boolean | Prisma.InfraServerRequest$installationOrderArgs<ExtArgs>
   server?: boolean | Prisma.InfraServerRequest$serverArgs<ExtArgs>
   operations?: boolean | Prisma.InfraServerRequest$operationsArgs<ExtArgs>
+  provisioningRuns?: boolean | Prisma.InfraServerRequest$provisioningRunsArgs<ExtArgs>
   _count?: boolean | Prisma.InfraServerRequestCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type InfraServerRequestIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1576,6 +1741,7 @@ export type $InfraServerRequestPayload<ExtArgs extends runtime.Types.Extensions.
     installationOrder: Prisma.$InstallationOrderPayload<ExtArgs> | null
     server: Prisma.$InfraServerPayload<ExtArgs> | null
     operations: Prisma.$InfraOperationPayload<ExtArgs>[]
+    provisioningRuns: Prisma.$ProvisioningRunPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1996,6 +2162,7 @@ export interface Prisma__InfraServerRequestClient<T, Null = never, ExtArgs exten
   installationOrder<T extends Prisma.InfraServerRequest$installationOrderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InfraServerRequest$installationOrderArgs<ExtArgs>>): Prisma.Prisma__InstallationOrderClient<runtime.Types.Result.GetResult<Prisma.$InstallationOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   server<T extends Prisma.InfraServerRequest$serverArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InfraServerRequest$serverArgs<ExtArgs>>): Prisma.Prisma__InfraServerClient<runtime.Types.Result.GetResult<Prisma.$InfraServerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   operations<T extends Prisma.InfraServerRequest$operationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InfraServerRequest$operationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InfraOperationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  provisioningRuns<T extends Prisma.InfraServerRequest$provisioningRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InfraServerRequest$provisioningRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProvisioningRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2505,6 +2672,30 @@ export type InfraServerRequest$operationsArgs<ExtArgs extends runtime.Types.Exte
   take?: number
   skip?: number
   distinct?: Prisma.InfraOperationScalarFieldEnum | Prisma.InfraOperationScalarFieldEnum[]
+}
+
+/**
+ * InfraServerRequest.provisioningRuns
+ */
+export type InfraServerRequest$provisioningRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProvisioningRun
+   */
+  select?: Prisma.ProvisioningRunSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProvisioningRun
+   */
+  omit?: Prisma.ProvisioningRunOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProvisioningRunInclude<ExtArgs> | null
+  where?: Prisma.ProvisioningRunWhereInput
+  orderBy?: Prisma.ProvisioningRunOrderByWithRelationInput | Prisma.ProvisioningRunOrderByWithRelationInput[]
+  cursor?: Prisma.ProvisioningRunWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProvisioningRunScalarFieldEnum | Prisma.ProvisioningRunScalarFieldEnum[]
 }
 
 /**

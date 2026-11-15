@@ -13,8 +13,11 @@ import { AiModule } from './ai/ai.module.js';
 import { AutomationDispatcher } from './automations/automation-dispatcher.js';
 import { WebhookDispatcher } from './webhooks/webhook-dispatcher.js';
 import { WebhooksModule } from './webhooks/webhooks.module.js';
+import { MailModule } from './mail/mail.module.js';
+import { ProvisioningEngineModule } from './orchestrator/orchestrator.module.js';
+import { ProvisioningWorker } from './orchestrator/provisioning.worker.js';
 
-/** Proceso worker: consume las colas de WhatsApp y del asistente de IA y entrega eventos a n8n. No expone HTTP. */
+/** Proceso worker: consume las colas de WhatsApp, del asistente de IA y de instalaciones, y entrega eventos a n8n. No expone HTTP. */
 @Module({
   imports: [
     ConfigModule,
@@ -36,7 +39,9 @@ import { WebhooksModule } from './webhooks/webhooks.module.js';
     WebhooksModule,
     ChatwootModule,
     AiModule,
+    MailModule,
+    ProvisioningEngineModule,
   ],
-  providers: [QueueWorkers, AutomationDispatcher, WebhookDispatcher],
+  providers: [QueueWorkers, AutomationDispatcher, WebhookDispatcher, ProvisioningWorker],
 })
 export class WorkerModule {}
