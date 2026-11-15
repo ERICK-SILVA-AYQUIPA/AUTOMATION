@@ -10,7 +10,7 @@ import { useToast } from '@/components/ui/toast';
 import { api } from '@/lib/api';
 import { dateTime } from '@/lib/format';
 import { eur } from '../../infraestructura/shared';
-import { ACTIVE, RUN_STATUS, installNo, type RunDetail } from '../shared';
+import { ACTIVE, INTEGRATION_LABEL, INTEGRATION_STATE, RUN_STATUS, installNo, monitorState, type RunDetail } from '../shared';
 
 const SOURCE: Record<string, string> = { engine: 'Plataforma', user: 'Persona', agent: 'Servidor' };
 
@@ -36,6 +36,54 @@ function Steps({ r }: { r: RunDetail }) {
         {r.status === 'DELIVERED' ? <Check className="size-4 text-success" /> : <Circle className="size-4" />}<span>Entregada</span>
       </li>
     </ol>
+  );
+}
+
+/** Lo que la instalación entregada reporta cada 10 minutos (ADR 052) */
+function Monitoring({ r }: { r: RunDetail }) {
+  const mon = monitorState(r);
+  const rep = r.lastReport;
+  return (
+    <Card className="flex flex-col gap-3 p-5 text-sm">
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="font-semibold">Puesta en marcha y monitoreo</h2>
+        {mon && <Badge tone={mon.tone}>{mon.label}</Badge>}
+        {!r.monitoring && <Badge tone="neutral">Monitoreo revocado</Badge>}
+      </div>
+      {!rep ? (
+        <p className="text-muted">La instalación aún no envió su primer reporte. Lo envía al terminar de instalar y después cada 10 minutos.</p>
+      ) : (
+        <>
+          <p className="text-muted">Último reporte {dateTime(r.lastReportAt!)} · versión {rep.version} · {rep.healthy ? 'servicios sanos' : 'hay servicios con problemas'}</p>
+          {!rep.tenants.length && <p>La instalación no tiene empresas cargadas.</p>}
+          {rep.tenants.map((t) => (
+            <div key={t.name} className="flex flex-col gap-2 rounded-lg border border-border p-3">
+              <p className="font-medium">{t.name} <span className="font-normal text-muted">· {t.activeProducts} producto(s) activo(s) · {t.enabledAutomations} automatización(es) activa(s)</span></p>
+              <ul className="grid gap-1.5 sm:grid-cols-2" aria-label={`Integraciones de ${t.name}`}>
+                {t.integrations.map((i) => {
+                  const s = INTEGRATION_STATE[i.status] ?? { label: i.status, tone: 'neutral' as const };
+                  return (
+                    <li key={i.key} className="flex flex-col">
+                      <span className="flex items-center gap-2">{INTEGRATION_LABEL[i.key]} <Badge tone={s.tone}>{s.label}</Badge></span>
+                      <span className="text-xs text-muted">{i.detail}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+              <ul className="flex flex-col gap-1" aria-label={`Puesta en marcha de ${t.name}`}>
+                {t.tasks.map((k) => (
+                  <li key={k.key} className={cn('flex items-center gap-2', k.done && 'text-muted')}>
+                    {k.done ? <Check className="size-4 text-success" aria-label="Hecho" /> : <Circle className={cn('size-4', k.required ? 'text-warning' : 'text-muted')} aria-label="Pendiente" />}
+                    {k.label}{!k.required && <span className="text-xs text-muted">(recomendado)</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </>
+      )}
+      <p className="text-xs text-muted">WhatsApp y la IA los conecta el administrador de la empresa en su propio panel (Integraciones), con las credenciales de su cuenta: la plataforma solo recibe estados y conteos, nunca mensajes, datos de clientes ni claves.</p>
+    </Card>
   );
 }
 
@@ -145,6 +193,7 @@ function Detail({ id }: { id: string }) {
               <p>Entregada el {dateTime(r.finishedAt!)}: <a className="text-primary underline" href={`https://${r.domain}`} target="_blank" rel="noreferrer">https://{r.domain}</a>. El administrador ({r.adminEmail}) crea su contraseña con «¿Olvidaste tu contraseña?».</p>
             </Card>
           )}
+          {(r.status === 'DELIVERED' || r.lastReport) && <Monitoring r={r} />}
           {r.status === 'CANCELLED' && <Card className="p-5 text-sm">Cancelada: {r.cancelReason}</Card>}
           <Card className="grid gap-2 p-5 text-sm sm:grid-cols-2">
             <p><span className="text-muted">Proveedor:</span> {r.provider.label} · {r.serverType} en {r.location}</p>

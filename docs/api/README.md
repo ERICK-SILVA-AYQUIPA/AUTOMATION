@@ -247,7 +247,7 @@ Plataforma (`platform:manage`, prefijo `/platform/infra`). Ningún asistente de 
 | POST | `/servers/:id/refresh`, `/servers/:id/power` | Estado del proveedor; `{action: poweron|shutdown|poweroff|reboot}` |
 | POST | `/servers/:id/delete` | `{confirmName, reason}`: elimina en el proveedor; la fila queda marcada |
 
-### Instalaciones automáticas (ADR 051)
+### Instalaciones automáticas (ADR 051 y 052)
 
 Plataforma (`platform:manage`, prefijo `/platform/provisioning`):
 
@@ -255,7 +255,7 @@ Plataforma (`platform:manage`, prefijo `/platform/provisioning`):
 |---|---|---|
 | GET | `/options` | Órdenes pagadas sin instalación, proveedores conectados, versión e imágenes disponibles |
 | GET / POST | `/runs` (`?status=`) | Lista; registrar `{installationOrderId, providerId, serverType, location, domain, adminEmail, systemName, supportContact, smtp: {host, port, secure, user, password?, from}}`. 409 `RUN_EXISTS`, `SAAS_NO_SERVER`, `INSTALLATION_CLOSED`, `PROVIDER_NOT_CONNECTED`, `NO_IMAGES` |
-| GET | `/runs/:id` | Detalle con pasos, solicitud, servidor e historial (sin secretos) |
+| GET | `/runs/:id` | Detalle con pasos, solicitud, servidor, historial y último reporte de la instalación (`lastReport`, `lastReportAt`, `monitoring`); sin secretos |
 | POST | `/runs/:id/retry` | Vuelve al paso detenido. 409 `NOT_STOPPED` |
 | POST | `/runs/:id/cancel` | `{reason, releaseServer?: {confirmName}}`. 400 `CONFIRM_NAME`; 409 `RUN_CLOSED` |
 
@@ -266,6 +266,7 @@ Servidor nuevo (públicas, con límite por IP; credencial inválida → 404 `PRO
 | POST | `/public/provisioning/:id/bootstrap` | `{token}` de un solo uso (cloud-init) → `{script, env}` con el token del agente. 409 `BOOTSTRAP_USED` |
 | POST | `/public/provisioning/:id/report` | `Authorization: Bearer <agente>`; `{step, state: started|progress|done|failed, message}` → `{status, proceed}` |
 | GET | `/public/provisioning/:id/package`, `/public/provisioning/:id/images` | Paquete de entrega (cabecera `X-Package-Sha256`) e imágenes de la versión |
+| POST | `/public/provisioning/:id/heartbeat` | `Authorization: Bearer <monitoreo>` (ADR 052); `{version, at, healthy, tenants: [{name, status, integrations: [{key, status, detail}], tasks: [{key, label, done, required}], activeProducts, enabledAutomations}]}` (estricto: campos de más → 400) → `{ok}`. Sigue vigente tras la entrega; se revoca al cancelar |
 
 Panel general (permiso `platform:manage`): `GET /platform/integrations` (servicios del servidor con `configured`, variables de entorno y última prueba; números de WhatsApp por estado y con error; fallos de 7 días) y `POST /platform/integrations/:service/test` (`database, redis, gemini, smtp, n8n, chatwoot`; auditado).
 

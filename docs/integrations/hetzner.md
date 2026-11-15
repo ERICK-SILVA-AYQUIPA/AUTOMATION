@@ -86,6 +86,14 @@ Para cada cliente:
    plataforma comprueba desde afuera el DNS, el HTTPS y el panel, y envía el
    correo de entrega al administrador (crea su contraseña con «¿Olvidaste tu
    contraseña?»).
+5. El administrador de la empresa conecta **WhatsApp** (credenciales de su
+   cuenta de Meta y webhook) y la **IA** en su panel, en Integraciones. La
+   instalación reporta cada 10 minutos su salud y esa puesta en marcha a la
+   tarjeta «Puesta en marcha y monitoreo» (solo estados y conteos, nunca datos de
+   clientes ni claves). Si deja de reportar 30 minutos o reporta servicios con
+   problemas, llega un correo a los administradores de la plataforma. El
+   registro está en `/var/log/aisa-reporte.log`; para que deje de reportar,
+   borra `/opt/aisa/monitor.env` en el servidor.
 
 Si algo falla, la instalación queda en «Requiere intervención» o «Error» con lo
 que pasó y qué hacer, y llega un correo a los administradores. El registro del

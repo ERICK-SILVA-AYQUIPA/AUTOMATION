@@ -4,6 +4,7 @@ import type { Response } from 'express';
 import { z } from 'zod';
 import type { Principal } from '../common/context/principal.js';
 import { CurrentUser, Public, RequirePermission } from '../common/decorators/auth.decorators.js';
+import { type InstanceReport, instanceReportSchema } from './instance-status.js';
 import { OrchestratorService, cancelSchema, reportSchema, runSchema } from './orchestrator.service.js';
 import { FLOW, STOPPED } from './steps.js';
 
@@ -62,6 +63,12 @@ export class ProvisioningAgentController {
   @Throttle({ default: { limit: 60, ttl: 60_000 } })
   report(@Param('id', id) rid: string, @Headers('authorization') auth: string | undefined, @Body({ schema: reportSchema }) b: z.infer<typeof reportSchema>) {
     return this.o.report(rid, auth, b);
+  }
+  @Post(':id/heartbeat')
+  @HttpCode(200)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  heartbeat(@Param('id', id) rid: string, @Headers('authorization') auth: string | undefined, @Body({ schema: instanceReportSchema }) b: InstanceReport) {
+    return this.o.heartbeat(rid, auth, b);
   }
   @Get(':id/package')
   @Throttle({ default: { limit: 10, ttl: 60_000 } })

@@ -59,6 +59,9 @@ export const MAX_ATTEMPTS: Partial<Record<ProvisioningStatus, number>> = {
   TESTING: 40, PUBLISHING: 15, DELIVERING: 5,
 };
 /** Espera entre consultas mientras un paso espera algo externo */
+/** Una instalación entregada reporta cada 10 min; sin reporte en 30 min, se avisa (ADR 052) */
+export const MONITOR_STALE_MS = 30 * 60_000;
+
 export const POLL: Partial<Record<ProvisioningStatus, number>> = {
   PAYMENT_PENDING: 5 * MIN, CREATING_INFRA: 30_000, SERVER_READY: 15_000,
   CONFIGURING_SERVER: MIN, INSTALLING: MIN, MIGRATING: MIN, CONFIGURING_INTEGRATIONS: MIN,

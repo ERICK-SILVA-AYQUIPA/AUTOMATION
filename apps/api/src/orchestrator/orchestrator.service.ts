@@ -15,6 +15,7 @@ import { Queues } from '../queues/queues.module.js';
 import { installNo } from '../quotes/quote-pdf.js';
 import { agentEnv, agentScript, cloudInit } from './agent.js';
 import { ProvisioningEngine } from './engine.js';
+import { type InstanceReport, reportSignature, reportSummary } from './instance-status.js';
 import { AGENT_STEPS, FINAL, FLOW, LABEL, STOPPED, agentReport, cleanText, nextOf } from './steps.js';
 
 const hostname = z.string().trim().toLowerCase().max(253).regex(/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/, 'Dominio no válido (p. ej. ventas.miempresa.pe)');
@@ -55,7 +56,7 @@ const SAFE = {
   id: true, number: true, installationOrderId: true, providerId: true, serverType: true, location: true, domain: true, adminEmail: true, settings: true,
   status: true, stoppedAt: true, attempts: true, nextRunAt: true, stepStartedAt: true, stepDeadlineAt: true, lastError: true, needs: true,
   serverRequestId: true, serverId: true, bootstrapExpiresAt: true, bootstrapUsedAt: true, agentSeenAt: true, alertedAt: true, cancelReason: true,
-  createdById: true, createdAt: true, updatedAt: true, finishedAt: true,
+  createdById: true, createdAt: true, updatedAt: true, finishedAt: true, lastReportAt: true, lastReport: true, reportAlertedAt: true,
 } as const;
 const sha = (v: string) => createHash('sha256').update(v).digest('hex');
 const sameHash = (hash: string | null, token: string) => !!hash && token.length >= 20 && timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(sha(token), 'hex'));
@@ -133,7 +134,8 @@ export class OrchestratorService implements OnModuleInit {
       },
     });
     if (!r) throw new NotFoundException('Instalación no encontrada');
-    return { ...r, flow: FLOW, labels: LABEL };
+    const m = await this.db.system.provisioningRun.findUniqueOrThrow({ where: { id }, select: { monitorHash: true } });
+    return { ...r, monitoring: !!m.monitorHash, flow: FLOW, labels: LABEL };
   }
 
   /** Lo que se necesita antes de empezar o reintentar; deja la entrega preparada */
@@ -203,7 +205,7 @@ export class OrchestratorService implements OnModuleInit {
     if (input.releaseServer && input.releaseServer.confirmName !== server!.name) throw new BadRequestException({ code: 'CONFIRM_NAME', message: `Escribe el nombre exacto del servidor (${server!.name}) para eliminarlo` });
     const r = await this.db.system.provisioningRun.updateMany({
       where: { id, status: run.status },
-      data: { status: 'CANCELLED', stoppedAt: null, cancelReason: input.reason, nextRunAt: null, finishedAt: new Date(), agentHash: null, secretsEnc: null },
+      data: { status: 'CANCELLED', stoppedAt: null, cancelReason: input.reason, nextRunAt: null, finishedAt: new Date(), agentHash: null, monitorHash: null, secretsEnc: null },
     });
     if (r.count !== 1) throw new ConflictException({ code: 'RUN_CHANGED', message: 'La instalación cambió: recarga' });
     await this.engine.event(id, 'CANCELLED', 'info', `Cancelada: ${input.reason}`, 'user', {}, userId);
@@ -242,7 +244,9 @@ export class OrchestratorService implements OnModuleInit {
       throw new ConflictException({ code: 'BOOTSTRAP_USED', message: 'El arranque ya se usó o venció' });
     }
     const agentToken = randomBytes(32).toString('base64url');
-    const u = await this.db.system.provisioningRun.updateMany({ where: { id, bootstrapUsedAt: null }, data: { bootstrapUsedAt: new Date(), agentHash: sha(agentToken), agentSeenAt: new Date() } });
+    // Token aparte, de solo reporte, que sobrevive a la entrega (monitoreo, ADR 052)
+    const monitorToken = randomBytes(32).toString('base64url');
+    const u = await this.db.system.provisioningRun.updateMany({ where: { id, bootstrapUsedAt: null }, data: { bootstrapUsedAt: new Date(), agentHash: sha(agentToken), monitorHash: sha(monitorToken), agentSeenAt: new Date() } });
     if (u.count !== 1) throw new ConflictException({ code: 'BOOTSTRAP_USED', message: 'El arranque ya se usó o venció' });
     await this.engine.event(id, run.status, 'info', 'El servidor nuevo se comunicó (arranque de un solo uso)', 'agent');
     await this.kick(id);
@@ -251,7 +255,7 @@ export class OrchestratorService implements OnModuleInit {
     return {
       script: agentScript(),
       env: agentEnv({
-        API_URL: this.env.API_PUBLIC_URL, RUN_ID: id, AGENT_TOKEN: agentToken, APP_VERSION, APP_DOMAIN: run.domain, ACME_EMAIL: run.adminEmail, PLATFORM_ADMIN_EMAIL: run.adminEmail,
+        API_URL: this.env.API_PUBLIC_URL, RUN_ID: id, AGENT_TOKEN: agentToken, MONITOR_TOKEN: monitorToken, APP_VERSION, APP_DOMAIN: run.domain, ACME_EMAIL: run.adminEmail, PLATFORM_ADMIN_EMAIL: run.adminEmail,
         SMTP_HOST: settings.smtp.host, SMTP_PORT: String(settings.smtp.port), SMTP_SECURE: String(settings.smtp.secure), SMTP_USER: settings.smtp.user,
         SMTP_PASSWORD: this.engine.secrets(run).smtpPassword ?? '', MAIL_FROM: settings.smtp.from, IMAGES_SHA256: img?.sha256 ?? '',
       }),
@@ -288,6 +292,26 @@ export class OrchestratorService implements OnModuleInit {
     await this.engine.apply(run, { kind: 'next', to, message: `${LABEL[input.step]}: listo${message ? ` (${message})` : ''}` });
     await this.kick(id);
     return { status: to, proceed: true };
+  }
+
+  /**
+   * Reporte periódico de la instalación (cada 10 min, reporte.sh): salud y
+   * puesta en marcha, sin datos de clientes. Usa el token de monitoreo, que
+   * sigue vigente después de la entrega y se revoca al cancelar.
+   */
+  async heartbeat(id: string, authorization: string | undefined, input: InstanceReport) {
+    const token = /^Bearer (\S+)$/.exec(authorization ?? '')?.[1] ?? '';
+    const run = await this.db.system.provisioningRun.findUnique({ where: { id }, select: { id: true, status: true, monitorHash: true, lastReport: true, reportAlertedAt: true } });
+    if (!run || !sameHash(run.monitorHash, token)) throw LINK_ERROR();
+    const before = run.lastReport ? reportSignature(run.lastReport as InstanceReport) : null;
+    const recovered = !!run.reportAlertedAt && input.healthy;
+    await this.db.system.provisioningRun.update({
+      where: { id },
+      data: { lastReport: input as Prisma.InputJsonValue, lastReportAt: new Date(), ...(input.healthy ? { reportAlertedAt: null } : {}) },
+    });
+    if (before !== reportSignature(input)) await this.engine.event(id, run.status, input.healthy ? 'info' : 'warn', `${before ? 'Cambió el estado de la instalación' : 'Primer reporte de la instalación'}: ${reportSummary(input)}`, 'agent');
+    else if (recovered) await this.engine.event(id, run.status, 'info', 'La instalación volvió a reportar con servicios sanos', 'agent');
+    return { ok: true };
   }
 
   /** Paquete de entrega (ZIP reproducible, sin secretos) para el agente */

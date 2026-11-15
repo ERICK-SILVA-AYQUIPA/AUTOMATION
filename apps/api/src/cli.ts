@@ -3,6 +3,7 @@ loadRootEnv();
 
 const USAGE = `Uso (dentro del contenedor de la API):
   node dist/cli.js version
+  node dist/cli.js estado [--sano true|false]   reporte para la plataforma central (sin datos de clientes)
   node dist/cli.js importar-entrega <configuracion-cliente.json> [--hasta AAAA-MM-DD]
   node dist/cli.js registrar-actualizacion --desde X.Y.Z --hasta X.Y.Z --estado SUCCEEDED|FAILED|ROLLED_BACK --inicio <fecha ISO> [--respaldo <ruta>] [--detalle <texto>]`;
 
@@ -27,7 +28,7 @@ async function main() {
     console.log(APP_VERSION);
     return;
   }
-  if (cmd !== 'importar-entrega' && cmd !== 'registrar-actualizacion') {
+  if (cmd !== 'importar-entrega' && cmd !== 'registrar-actualizacion' && cmd !== 'estado') {
     console.error(USAGE);
     process.exit(2);
   }
@@ -35,7 +36,11 @@ async function main() {
   const { AppModule } = await import('./app.module.js');
   const app = await NestFactory.createApplicationContext(AppModule, { logger: ['error', 'warn'] });
   try {
-    if (cmd === 'importar-entrega') {
+    if (cmd === 'estado') {
+      const { instanceStatus } = await import('./orchestrator/instance-status.js');
+      const f = flags(rest);
+      console.log(JSON.stringify(await instanceStatus(app, f.sano !== 'false')));
+    } else if (cmd === 'importar-entrega') {
       const { importDelivery } = await import('./deliveries/import.js');
       const [file, ...more] = rest;
       if (!file) throw new Error(USAGE);

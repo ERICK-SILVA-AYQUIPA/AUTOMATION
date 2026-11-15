@@ -123,6 +123,16 @@ Pruebas: `api-center.e2e-spec.ts` (API y PostgreSQL) y `api-center.mjs` (navegad
 | Pruebas desde afuera antes de entregar | DNS hacia la IP del servidor, API sana por HTTPS con certificado válido, panel publicado | Probado con respuestas sustituidas; en Internet real: pendiente |
 | Servidor propio del cliente (§7B) | Paquete de entrega (ADR 044) con su instalador; sin agente automático | Pendiente |
 
+## Fase G: WhatsApp, IA y automatizaciones en instalaciones nuevas (ADR 052)
+
+| Criterio | Cómo se demuestra | Estado |
+|---|---|---|
+| WhatsApp e IA se configuran en cada instalación con credenciales propias de la empresa | El administrador lo hace en su panel (Integraciones); la lista de puesta en marcha se calcula con pruebas reales (credenciales de Meta verificadas, primer webhook) | Probado (fases anteriores); en una instalación real: pendiente |
+| Nuestro panel sigue monitoreando la instalación (§16, paso 20) | `reporte.sh` cada 10 minutos con token de solo reporte; tarjeta «Puesta en marcha y monitoreo» | Probado con el agente real y `node dist/cli.js estado` de verdad (`orchestrator.mjs`) |
+| Sin datos de clientes ni credenciales fuera del servidor | Esquema estricto: estados y conteos; campos de más → 400 | Probado |
+| Alertas sin repetir | Sin reporte en 30 minutos o servicios con problemas → un correo; se rearma al volver a reportar sana | Probado |
+| Revocable | Cancelar revoca el token; en el servidor basta borrar `monitor.env` | Probado |
+
 ## Seguridad (fase 10)
 
 - Dependencias de producción: `pnpm audit --prod` sin vulnerabilidades conocidas (2026-11-13). No se añadieron dependencias en las fases 8 y 9: el ZIP y el actualizador usan solo Node y herramientas del sistema.

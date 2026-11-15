@@ -10,11 +10,13 @@ import { join, resolve } from 'node:path';
  * curl, unzip, sha256sum, python3 y el instalar.sh del paquete son los reales.
  * `failCompose` simula que «docker compose up» falla (migraciones).
  */
-export async function runAgent(o: { env: string; ip: string; domain: string; version: string; failCompose?: boolean; dir?: string }) {
+export async function runAgent(o: { env: string; ip: string; domain: string; version: string; failCompose?: boolean; dir?: string; estado?: string }) {
   const dir = o.dir ?? mkdtempSync(join(tmpdir(), 'aisa-agente-'));
   const bin = join(dir, 'bin');
   mkdirSync(bin, { recursive: true });
   writeFileSync(join(dir, 'agente.env'), o.env, { mode: 0o600 });
+  // Salida de «node dist/cli.js estado» dentro del contenedor (la calcula la prueba con el código real)
+  writeFileSync(join(dir, 'estado.json'), o.estado ?? '');
   const stub = (name: string, body: string) => {
     writeFileSync(join(bin, name), `#!/usr/bin/env bash\n${body}\n`);
     chmodSync(join(bin, name), 0o755);
@@ -35,6 +37,7 @@ case "$*" in
   *" ps --format"*) printf 'api\\trunning\\thealthy\\nweb\\trunning\\thealthy\\n';;
   *" ps"*) echo "NAME STATUS";;
   *" exec -T api node dist/cli.js version"*) echo "${o.version}";;
+  *" exec -T api node dist/cli.js estado"*) echo "docker $*" >> "${dir}/estado.log"; cat "${dir}/estado.json";;
   *" run --rm"*"importar-entrega"*) echo "Configuración de la empresa importada";;
   *) exit 0;;
 esac`);
@@ -53,5 +56,5 @@ esac`);
     p.on('exit', (c) => done(c ?? 1));
   });
   const read = (f: string) => { try { return readFileSync(join(dir, f), 'utf8'); } catch { return ''; } };
-  return { code, dir, log: read('instalacion.log'), docker: read('docker.log'), cron: read('cron'), envProduction: read('instalacion/.env.production'), agentEnv: read('agente.env') };
+  return { code, dir, log: read('instalacion.log'), docker: read('docker.log'), cron: read('cron'), envProduction: read('instalacion/.env.production'), agentEnv: read('agente.env'), monitorEnv: read('monitor.env') };
 }

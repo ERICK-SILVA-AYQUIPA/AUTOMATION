@@ -32,6 +32,7 @@ const FILES: [string, string, boolean][] = [
   ['infrastructure/kit/actualizar.sh', 'actualizar.sh', true],
   ['infrastructure/kit/salud.sh', 'salud.sh', true],
   ['infrastructure/kit/respaldo.sh', 'respaldo.sh', true],
+  ['infrastructure/kit/reporte.sh', 'reporte.sh', true],
   ['infrastructure/kit/restaurar.sh', 'restaurar.sh', true],
   ['infrastructure/kit/registros.sh', 'registros.sh', true],
   ['services/n8n/setup.sh', 'services/n8n/setup.sh', true],

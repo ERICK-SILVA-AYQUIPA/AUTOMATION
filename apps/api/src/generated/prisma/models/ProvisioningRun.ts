@@ -64,6 +64,9 @@ export type ProvisioningRunMinAggregateOutputType = {
   agentSeenAt: Date | null
   alertedAt: Date | null
   cancelReason: string | null
+  monitorHash: string | null
+  lastReportAt: Date | null
+  reportAlertedAt: Date | null
   createdById: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -98,6 +101,9 @@ export type ProvisioningRunMaxAggregateOutputType = {
   agentSeenAt: Date | null
   alertedAt: Date | null
   cancelReason: string | null
+  monitorHash: string | null
+  lastReportAt: Date | null
+  reportAlertedAt: Date | null
   createdById: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -133,6 +139,10 @@ export type ProvisioningRunCountAggregateOutputType = {
   agentSeenAt: number
   alertedAt: number
   cancelReason: number
+  monitorHash: number
+  lastReportAt: number
+  lastReport: number
+  reportAlertedAt: number
   createdById: number
   createdAt: number
   updatedAt: number
@@ -179,6 +189,9 @@ export type ProvisioningRunMinAggregateInputType = {
   agentSeenAt?: true
   alertedAt?: true
   cancelReason?: true
+  monitorHash?: true
+  lastReportAt?: true
+  reportAlertedAt?: true
   createdById?: true
   createdAt?: true
   updatedAt?: true
@@ -213,6 +226,9 @@ export type ProvisioningRunMaxAggregateInputType = {
   agentSeenAt?: true
   alertedAt?: true
   cancelReason?: true
+  monitorHash?: true
+  lastReportAt?: true
+  reportAlertedAt?: true
   createdById?: true
   createdAt?: true
   updatedAt?: true
@@ -248,6 +264,10 @@ export type ProvisioningRunCountAggregateInputType = {
   agentSeenAt?: true
   alertedAt?: true
   cancelReason?: true
+  monitorHash?: true
+  lastReportAt?: true
+  lastReport?: true
+  reportAlertedAt?: true
   createdById?: true
   createdAt?: true
   updatedAt?: true
@@ -370,6 +390,10 @@ export type ProvisioningRunGroupByOutputType = {
   agentSeenAt: Date | null
   alertedAt: Date | null
   cancelReason: string | null
+  monitorHash: string | null
+  lastReportAt: Date | null
+  lastReport: runtime.JsonValue | null
+  reportAlertedAt: Date | null
   createdById: string
   createdAt: Date
   updatedAt: Date
@@ -428,6 +452,10 @@ export type ProvisioningRunWhereInput = {
   agentSeenAt?: Prisma.DateTimeNullableFilter<"ProvisioningRun"> | Date | string | null
   alertedAt?: Prisma.DateTimeNullableFilter<"ProvisioningRun"> | Date | string | null
   cancelReason?: Prisma.StringNullableFilter<"ProvisioningRun"> | string | null
+  monitorHash?: Prisma.StringNullableFilter<"ProvisioningRun"> | string | null
+  lastReportAt?: Prisma.DateTimeNullableFilter<"ProvisioningRun"> | Date | string | null
+  lastReport?: Prisma.JsonNullableFilter<"ProvisioningRun">
+  reportAlertedAt?: Prisma.DateTimeNullableFilter<"ProvisioningRun"> | Date | string | null
   createdById?: Prisma.UuidFilter<"ProvisioningRun"> | string
   createdAt?: Prisma.DateTimeFilter<"ProvisioningRun"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProvisioningRun"> | Date | string
@@ -468,6 +496,10 @@ export type ProvisioningRunOrderByWithRelationInput = {
   agentSeenAt?: Prisma.SortOrderInput | Prisma.SortOrder
   alertedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   cancelReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  monitorHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastReportAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastReport?: Prisma.SortOrderInput | Prisma.SortOrder
+  reportAlertedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -511,6 +543,10 @@ export type ProvisioningRunWhereUniqueInput = Prisma.AtLeast<{
   agentSeenAt?: Prisma.DateTimeNullableFilter<"ProvisioningRun"> | Date | string | null
   alertedAt?: Prisma.DateTimeNullableFilter<"ProvisioningRun"> | Date | string | null
   cancelReason?: Prisma.StringNullableFilter<"ProvisioningRun"> | string | null
+  monitorHash?: Prisma.StringNullableFilter<"ProvisioningRun"> | string | null
+  lastReportAt?: Prisma.DateTimeNullableFilter<"ProvisioningRun"> | Date | string | null
+  lastReport?: Prisma.JsonNullableFilter<"ProvisioningRun">
+  reportAlertedAt?: Prisma.DateTimeNullableFilter<"ProvisioningRun"> | Date | string | null
   createdById?: Prisma.UuidFilter<"ProvisioningRun"> | string
   createdAt?: Prisma.DateTimeFilter<"ProvisioningRun"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProvisioningRun"> | Date | string
@@ -551,6 +587,10 @@ export type ProvisioningRunOrderByWithAggregationInput = {
   agentSeenAt?: Prisma.SortOrderInput | Prisma.SortOrder
   alertedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   cancelReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  monitorHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastReportAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastReport?: Prisma.SortOrderInput | Prisma.SortOrder
+  reportAlertedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -594,6 +634,10 @@ export type ProvisioningRunScalarWhereWithAggregatesInput = {
   agentSeenAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ProvisioningRun"> | Date | string | null
   alertedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ProvisioningRun"> | Date | string | null
   cancelReason?: Prisma.StringNullableWithAggregatesFilter<"ProvisioningRun"> | string | null
+  monitorHash?: Prisma.StringNullableWithAggregatesFilter<"ProvisioningRun"> | string | null
+  lastReportAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ProvisioningRun"> | Date | string | null
+  lastReport?: Prisma.JsonNullableWithAggregatesFilter<"ProvisioningRun">
+  reportAlertedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ProvisioningRun"> | Date | string | null
   createdById?: Prisma.UuidWithAggregatesFilter<"ProvisioningRun"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProvisioningRun"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProvisioningRun"> | Date | string
@@ -625,6 +669,10 @@ export type ProvisioningRunCreateInput = {
   agentSeenAt?: Date | string | null
   alertedAt?: Date | string | null
   cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -665,6 +713,10 @@ export type ProvisioningRunUncheckedCreateInput = {
   agentSeenAt?: Date | string | null
   alertedAt?: Date | string | null
   cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -696,6 +748,10 @@ export type ProvisioningRunUpdateInput = {
   agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -736,6 +792,10 @@ export type ProvisioningRunUncheckedUpdateInput = {
   agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -772,6 +832,10 @@ export type ProvisioningRunCreateManyInput = {
   agentSeenAt?: Date | string | null
   alertedAt?: Date | string | null
   cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -802,6 +866,10 @@ export type ProvisioningRunUpdateManyMutationInput = {
   agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -837,6 +905,10 @@ export type ProvisioningRunUncheckedUpdateManyInput = {
   agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -882,6 +954,10 @@ export type ProvisioningRunCountOrderByAggregateInput = {
   agentSeenAt?: Prisma.SortOrder
   alertedAt?: Prisma.SortOrder
   cancelReason?: Prisma.SortOrder
+  monitorHash?: Prisma.SortOrder
+  lastReportAt?: Prisma.SortOrder
+  lastReport?: Prisma.SortOrder
+  reportAlertedAt?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -921,6 +997,9 @@ export type ProvisioningRunMaxOrderByAggregateInput = {
   agentSeenAt?: Prisma.SortOrder
   alertedAt?: Prisma.SortOrder
   cancelReason?: Prisma.SortOrder
+  monitorHash?: Prisma.SortOrder
+  lastReportAt?: Prisma.SortOrder
+  reportAlertedAt?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -955,6 +1034,9 @@ export type ProvisioningRunMinOrderByAggregateInput = {
   agentSeenAt?: Prisma.SortOrder
   alertedAt?: Prisma.SortOrder
   cancelReason?: Prisma.SortOrder
+  monitorHash?: Prisma.SortOrder
+  lastReportAt?: Prisma.SortOrder
+  reportAlertedAt?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -1186,6 +1268,10 @@ export type ProvisioningRunCreateWithoutInstallationOrderInput = {
   agentSeenAt?: Date | string | null
   alertedAt?: Date | string | null
   cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1224,6 +1310,10 @@ export type ProvisioningRunUncheckedCreateWithoutInstallationOrderInput = {
   agentSeenAt?: Date | string | null
   alertedAt?: Date | string | null
   cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1289,6 +1379,10 @@ export type ProvisioningRunScalarWhereInput = {
   agentSeenAt?: Prisma.DateTimeNullableFilter<"ProvisioningRun"> | Date | string | null
   alertedAt?: Prisma.DateTimeNullableFilter<"ProvisioningRun"> | Date | string | null
   cancelReason?: Prisma.StringNullableFilter<"ProvisioningRun"> | string | null
+  monitorHash?: Prisma.StringNullableFilter<"ProvisioningRun"> | string | null
+  lastReportAt?: Prisma.DateTimeNullableFilter<"ProvisioningRun"> | Date | string | null
+  lastReport?: Prisma.JsonNullableFilter<"ProvisioningRun">
+  reportAlertedAt?: Prisma.DateTimeNullableFilter<"ProvisioningRun"> | Date | string | null
   createdById?: Prisma.UuidFilter<"ProvisioningRun"> | string
   createdAt?: Prisma.DateTimeFilter<"ProvisioningRun"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProvisioningRun"> | Date | string
@@ -1320,6 +1414,10 @@ export type ProvisioningRunCreateWithoutProviderInput = {
   agentSeenAt?: Date | string | null
   alertedAt?: Date | string | null
   cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1358,6 +1456,10 @@ export type ProvisioningRunUncheckedCreateWithoutProviderInput = {
   agentSeenAt?: Date | string | null
   alertedAt?: Date | string | null
   cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1416,6 +1518,10 @@ export type ProvisioningRunCreateWithoutServerRequestInput = {
   agentSeenAt?: Date | string | null
   alertedAt?: Date | string | null
   cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1454,6 +1560,10 @@ export type ProvisioningRunUncheckedCreateWithoutServerRequestInput = {
   agentSeenAt?: Date | string | null
   alertedAt?: Date | string | null
   cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1512,6 +1622,10 @@ export type ProvisioningRunCreateWithoutServerInput = {
   agentSeenAt?: Date | string | null
   alertedAt?: Date | string | null
   cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1550,6 +1664,10 @@ export type ProvisioningRunUncheckedCreateWithoutServerInput = {
   agentSeenAt?: Date | string | null
   alertedAt?: Date | string | null
   cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1608,6 +1726,10 @@ export type ProvisioningRunCreateWithoutEventsInput = {
   agentSeenAt?: Date | string | null
   alertedAt?: Date | string | null
   cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1647,6 +1769,10 @@ export type ProvisioningRunUncheckedCreateWithoutEventsInput = {
   agentSeenAt?: Date | string | null
   alertedAt?: Date | string | null
   cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1693,6 +1819,10 @@ export type ProvisioningRunUpdateWithoutEventsInput = {
   agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1732,6 +1862,10 @@ export type ProvisioningRunUncheckedUpdateWithoutEventsInput = {
   agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1766,6 +1900,10 @@ export type ProvisioningRunCreateManyInstallationOrderInput = {
   agentSeenAt?: Date | string | null
   alertedAt?: Date | string | null
   cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1796,6 +1934,10 @@ export type ProvisioningRunUpdateWithoutInstallationOrderInput = {
   agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1834,6 +1976,10 @@ export type ProvisioningRunUncheckedUpdateWithoutInstallationOrderInput = {
   agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1869,6 +2015,10 @@ export type ProvisioningRunUncheckedUpdateManyWithoutInstallationOrderInput = {
   agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1903,6 +2053,10 @@ export type ProvisioningRunCreateManyProviderInput = {
   agentSeenAt?: Date | string | null
   alertedAt?: Date | string | null
   cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1933,6 +2087,10 @@ export type ProvisioningRunUpdateWithoutProviderInput = {
   agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1971,6 +2129,10 @@ export type ProvisioningRunUncheckedUpdateWithoutProviderInput = {
   agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2006,6 +2168,10 @@ export type ProvisioningRunUncheckedUpdateManyWithoutProviderInput = {
   agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2040,6 +2206,10 @@ export type ProvisioningRunCreateManyServerRequestInput = {
   agentSeenAt?: Date | string | null
   alertedAt?: Date | string | null
   cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2070,6 +2240,10 @@ export type ProvisioningRunUpdateWithoutServerRequestInput = {
   agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2108,6 +2282,10 @@ export type ProvisioningRunUncheckedUpdateWithoutServerRequestInput = {
   agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2143,6 +2321,10 @@ export type ProvisioningRunUncheckedUpdateManyWithoutServerRequestInput = {
   agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2177,6 +2359,10 @@ export type ProvisioningRunCreateManyServerInput = {
   agentSeenAt?: Date | string | null
   alertedAt?: Date | string | null
   cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2207,6 +2393,10 @@ export type ProvisioningRunUpdateWithoutServerInput = {
   agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2245,6 +2435,10 @@ export type ProvisioningRunUncheckedUpdateWithoutServerInput = {
   agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2280,6 +2474,10 @@ export type ProvisioningRunUncheckedUpdateManyWithoutServerInput = {
   agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2346,6 +2544,10 @@ export type ProvisioningRunSelect<ExtArgs extends runtime.Types.Extensions.Inter
   agentSeenAt?: boolean
   alertedAt?: boolean
   cancelReason?: boolean
+  monitorHash?: boolean
+  lastReportAt?: boolean
+  lastReport?: boolean
+  reportAlertedAt?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -2387,6 +2589,10 @@ export type ProvisioningRunSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   agentSeenAt?: boolean
   alertedAt?: boolean
   cancelReason?: boolean
+  monitorHash?: boolean
+  lastReportAt?: boolean
+  lastReport?: boolean
+  reportAlertedAt?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -2426,6 +2632,10 @@ export type ProvisioningRunSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   agentSeenAt?: boolean
   alertedAt?: boolean
   cancelReason?: boolean
+  monitorHash?: boolean
+  lastReportAt?: boolean
+  lastReport?: boolean
+  reportAlertedAt?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -2465,13 +2675,17 @@ export type ProvisioningRunSelectScalar = {
   agentSeenAt?: boolean
   alertedAt?: boolean
   cancelReason?: boolean
+  monitorHash?: boolean
+  lastReportAt?: boolean
+  lastReport?: boolean
+  reportAlertedAt?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   finishedAt?: boolean
 }
 
-export type ProvisioningRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "number" | "installationOrderId" | "providerId" | "serverType" | "location" | "domain" | "adminEmail" | "settings" | "secretsEnc" | "status" | "stoppedAt" | "attempts" | "nextRunAt" | "stepStartedAt" | "stepDeadlineAt" | "leaseUntil" | "lastError" | "needs" | "serverRequestId" | "serverId" | "bootstrapHash" | "bootstrapExpiresAt" | "bootstrapUsedAt" | "agentHash" | "agentSeenAt" | "alertedAt" | "cancelReason" | "createdById" | "createdAt" | "updatedAt" | "finishedAt", ExtArgs["result"]["provisioningRun"]>
+export type ProvisioningRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "number" | "installationOrderId" | "providerId" | "serverType" | "location" | "domain" | "adminEmail" | "settings" | "secretsEnc" | "status" | "stoppedAt" | "attempts" | "nextRunAt" | "stepStartedAt" | "stepDeadlineAt" | "leaseUntil" | "lastError" | "needs" | "serverRequestId" | "serverId" | "bootstrapHash" | "bootstrapExpiresAt" | "bootstrapUsedAt" | "agentHash" | "agentSeenAt" | "alertedAt" | "cancelReason" | "monitorHash" | "lastReportAt" | "lastReport" | "reportAlertedAt" | "createdById" | "createdAt" | "updatedAt" | "finishedAt", ExtArgs["result"]["provisioningRun"]>
 export type ProvisioningRunInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   installationOrder?: boolean | Prisma.InstallationOrderDefaultArgs<ExtArgs>
   provider?: boolean | Prisma.InfraProviderDefaultArgs<ExtArgs>
@@ -2531,6 +2745,13 @@ export type $ProvisioningRunPayload<ExtArgs extends runtime.Types.Extensions.Int
     agentSeenAt: Date | null
     alertedAt: Date | null
     cancelReason: string | null
+    /**
+     * Monitoreo después de la entrega (ADR 052): SHA-256 del token de solo reporte
+     */
+    monitorHash: string | null
+    lastReportAt: Date | null
+    lastReport: runtime.JsonValue | null
+    reportAlertedAt: Date | null
     createdById: string
     createdAt: Date
     updatedAt: Date
@@ -2991,6 +3212,10 @@ export interface ProvisioningRunFieldRefs {
   readonly agentSeenAt: Prisma.FieldRef<"ProvisioningRun", 'DateTime'>
   readonly alertedAt: Prisma.FieldRef<"ProvisioningRun", 'DateTime'>
   readonly cancelReason: Prisma.FieldRef<"ProvisioningRun", 'String'>
+  readonly monitorHash: Prisma.FieldRef<"ProvisioningRun", 'String'>
+  readonly lastReportAt: Prisma.FieldRef<"ProvisioningRun", 'DateTime'>
+  readonly lastReport: Prisma.FieldRef<"ProvisioningRun", 'Json'>
+  readonly reportAlertedAt: Prisma.FieldRef<"ProvisioningRun", 'DateTime'>
   readonly createdById: Prisma.FieldRef<"ProvisioningRun", 'String'>
   readonly createdAt: Prisma.FieldRef<"ProvisioningRun", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ProvisioningRun", 'DateTime'>

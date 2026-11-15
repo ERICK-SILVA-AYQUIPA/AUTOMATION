@@ -190,7 +190,14 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
   - [x] Respaldo diario y salud cada 5 minutos programados; comprobación desde afuera (DNS, HTTPS, panel) y entrega por correo
   - [x] El agente real se ejecuta en las pruebas automáticas con Docker y DNS sustituidos
   - [ ] Primera instalación en un servidor real (requiere token de Hetzner, dominio y SMTP del cliente, y las imágenes generadas con `export-images.sh`: **lo autoriza Rick**); servidor propio del cliente con agente (§7B)
-- [ ] Fase G: WhatsApp, IA y automatizaciones en instalaciones nuevas
+- [x] Fase G: WhatsApp, IA y automatizaciones en instalaciones nuevas (ADR 052)
+  - [x] El administrador de la empresa conecta WhatsApp e IA en su panel con sus credenciales (lista de puesta en marcha existente, calculada con pruebas reales)
+  - [x] `node dist/cli.js estado`: salud, versión, WhatsApp, IA, correo, automatizaciones, puesta en marcha y conteos, sin datos de clientes
+  - [x] `reporte.sh` cada 10 minutos con un token de solo reporte (se revoca al cancelar); primer reporte al terminar la instalación
+  - [x] Historial con cada cambio; aviso por correo una sola vez si deja de reportar 30 minutos o enferma
+  - [x] Instalaciones automáticas: tarjeta «Puesta en marcha y monitoreo» y estado en la lista
+  - [x] Pruebas: `orchestrator.e2e-spec.ts` (8), `orchestrator.spec.ts` (7) y `orchestrator.mjs` en navegador (6 pasos)
+  - [ ] Ver el reporte de una instalación real (depende de la primera instalación real)
 - [ ] Fase H: pruebas y entrega
 - [ ] Fase I: posventa
 - [ ] Fase J: seguridad, monitoreo y rentabilidad

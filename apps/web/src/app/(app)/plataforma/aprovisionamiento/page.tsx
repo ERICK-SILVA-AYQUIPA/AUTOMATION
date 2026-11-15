@@ -11,7 +11,7 @@ import { useToast } from '@/components/ui/toast';
 import { ApiError, api } from '@/lib/api';
 import { dateTime } from '@/lib/format';
 import { eur, type Catalog } from '../infraestructura/shared';
-import { ACTIVE, RUN_STATUS, installNo, type RunDetail, type RunRow } from './shared';
+import { ACTIVE, RUN_STATUS, installNo, monitorState, type RunDetail, type RunRow } from './shared';
 
 interface Options {
   orders: { id: string; number: number; deploymentMode: string | null; planCode: string | null; serverResources: string | null; lead: { name: string; company: string | null; email: string | null }; tenant: { id: string; name: string; deploymentMode: string } | null }[];
@@ -133,11 +133,13 @@ function Runs() {
         <div className="flex flex-col gap-3">
           {q.data!.map((r) => {
             const st = RUN_STATUS[r.status] ?? { label: r.status, tone: 'neutral' as const };
+            const mon = monitorState(r);
             return (
               <Card key={r.id} className="flex flex-col gap-1 p-4 text-sm">
                 <div className="flex flex-wrap items-center gap-2">
                   <Link href={`/plataforma/aprovisionamiento/${r.id}`} className="font-medium text-primary underline">#{r.number} · {r.domain}</Link>
                   <Badge tone={st.tone}>{st.label}</Badge>
+                  {mon && <Badge tone={mon.tone}>{mon.label}</Badge>}
                   {r.stoppedAt && <span className="text-muted">en «{RUN_STATUS[r.stoppedAt]?.label}»</span>}
                   <span className="ml-auto text-xs text-muted">{dateTime(r.createdAt)}</span>
                 </div>

@@ -1984,6 +1984,11 @@ model ProvisioningRun {
   agentSeenAt         DateTime?           @map("agent_seen_at") @db.Timestamptz(3)
   alertedAt           DateTime?           @map("alerted_at") @db.Timestamptz(3)
   cancelReason        String?             @map("cancel_reason")
+  /// Monitoreo después de la entrega (ADR 052): SHA-256 del token de solo reporte
+  monitorHash         String?             @map("monitor_hash")
+  lastReportAt        DateTime?           @map("last_report_at") @db.Timestamptz(3)
+  lastReport          Json?               @map("last_report")
+  reportAlertedAt     DateTime?           @map("report_alerted_at") @db.Timestamptz(3)
   createdById         String              @map("created_by_id") @db.Uuid
   createdAt           DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt           DateTime            @updatedAt @map("updated_at") @db.Timestamptz(3)

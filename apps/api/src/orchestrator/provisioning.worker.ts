@@ -16,6 +16,7 @@ export class ProvisioningWorker implements OnApplicationBootstrap, OnApplication
   private readonly log = new Logger('Instalaciones');
   private worker?: Worker<ProvisioningJob>;
   private sweeper?: NodeJS.Timeout;
+  private monitor?: NodeJS.Timeout;
 
   constructor(
     @Inject(ENV) private readonly env: Env,
@@ -28,6 +29,8 @@ export class ProvisioningWorker implements OnApplicationBootstrap, OnApplication
     this.worker = new Worker<ProvisioningJob>(QUEUE.PROVISIONING, (job) => this.engine.advance(job.data.runId), { connection: queueConnection(this.env), prefix: this.env.QUEUE_PREFIX, concurrency: 3 });
     this.worker.on('error', (e) => this.log.error(`Cola: ${e.message}`));
     this.sweeper = setInterval(() => void this.sweep().catch((e) => this.log.warn(`Barrido: ${(e as Error).message}`)), 20_000);
+    // Monitoreo de las instalaciones entregadas: cada 5 minutos
+    this.monitor = setInterval(() => void this.engine.monitorCheck().catch((e) => this.log.warn(`Monitoreo: ${(e as Error).message}`)), 5 * 60_000);
     this.log.log('Cola provisioning lista');
   }
 
@@ -45,6 +48,7 @@ export class ProvisioningWorker implements OnApplicationBootstrap, OnApplication
 
   async onApplicationShutdown() {
     if (this.sweeper) clearInterval(this.sweeper);
+    if (this.monitor) clearInterval(this.monitor);
     await this.worker?.close();
   }
 }

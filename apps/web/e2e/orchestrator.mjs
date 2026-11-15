@@ -10,6 +10,7 @@
  *
  *   WEB_URL=http://localhost:3000 PLATFORM_ADMIN_EMAIL=... PLATFORM_ADMIN_PASSWORD=... node e2e/orchestrator.mjs
  */
+import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -142,7 +143,10 @@ try {
     const boot = await (await fetch(`${API}/api/v1/public/provisioning/${runId}/bootstrap`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: bootToken }) })).json();
     if (!boot.env) throw new Error(`Arranque rechazado: ${JSON.stringify(boot)}`);
     const version = /APP_VERSION='([^']+)'/.exec(boot.env)[1];
-    const a = await runAgent({ env: boot.env, ip: serverIp, domain, version });
+    // «node dist/cli.js estado» de verdad (lo que el contenedor de la API calcula en el servidor)
+    const estado = execFileSync('node', ['../api/dist/cli.js', 'estado', '--sano', 'true'], { encoding: 'utf8' }).trim().split('\n').at(-1);
+    if (!estado.startsWith('{"version"')) throw new Error(`estado inesperado: ${estado.slice(0, 200)}`);
+    const a = await runAgent({ env: boot.env, ip: serverIp, domain, version, estado });
     if (a.code !== 0) throw new Error(`El agente terminó con ${a.code}:\n${a.log.split('\n').slice(-15).join('\n')}`);
     await page.reload();
     const steps = page.getByRole('list', { name: 'Pasos de la instalación' });
@@ -151,6 +155,16 @@ try {
     // El dominio de prueba no existe: la comprobación falla y se reintenta con espera
     await page.getByText(/Intento \d+ de 40: .*no resuelve en DNS/).first().waitFor({ timeout: 90_000 });
     await page.screenshot({ path: `${SHOTS}/instalaciones-pruebas.png`, fullPage: true });
+  });
+
+  await step('La instalación reporta su salud y la puesta en marcha (WhatsApp, IA, correo, automatizaciones) al panel', async () => {
+    const card = page.locator('div.rounded-xl', { has: page.getByRole('heading', { name: 'Puesta en marcha y monitoreo' }) });
+    await card.getByText(/Último reporte .* · versión \d+\.\d+\.\d+ · servicios sanos/).waitFor();
+    const ints = card.getByRole('list', { name: /^Integraciones de / }).first();
+    for (const t of ['WhatsApp', 'IA (asistente)', 'Correo', 'Automatizaciones']) await ints.getByText(t, { exact: false }).first().waitFor();
+    await card.getByRole('list', { name: /^Puesta en marcha de / }).first().waitFor();
+    await page.getByText(/Primer reporte de la instalación: Versión/).first().waitFor();
+    await card.screenshot({ path: `${SHOTS}/instalaciones-monitoreo.png` });
   });
 
   await step('Cancelar exige motivo y, para eliminar el servidor, escribir su nombre', async () => {
@@ -167,6 +181,7 @@ try {
     await toast('Instalación cancelada');
     await page.getByText('Cancelada: Fin de la prueba automática').first().waitFor();
     await page.getByText(`${server} · ${serverIp} (eliminado)`, { exact: false }).waitFor();
+    await page.getByText('Monitoreo revocado', { exact: true }).waitFor();
     await page.screenshot({ path: `${SHOTS}/instalaciones-cancelada.png`, fullPage: true });
   });
 } finally {

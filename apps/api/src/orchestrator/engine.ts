@@ -9,7 +9,7 @@ import { InfraService } from '../infra/infra.service.js';
 import { MailService } from '../mail/mail.service.js';
 import { installNo, orderNo } from '../quotes/quote-pdf.js';
 import { probeInstallation, type ProbeDeps } from './probe.js';
-import { AGENT_STEPS, DEADLINE, FLOW, LABEL, MAX_ATTEMPTS, POLL, backoff, isActive, serverNameFor } from './steps.js';
+import { AGENT_STEPS, DEADLINE, FLOW, LABEL, MAX_ATTEMPTS, MONITOR_STALE_MS, POLL, backoff, isActive, serverNameFor } from './steps.js';
 
 /** Resultado de ejecutar un paso */
 export type Outcome =
@@ -159,16 +159,45 @@ export class ProvisioningEngine {
   async alert(runId: string) {
     const run = await this.db.system.provisioningRun.findUniqueOrThrow({ where: { id: runId } });
     await this.db.system.provisioningRun.update({ where: { id: runId }, data: { alertedAt: new Date() } });
-    const admins = await this.db.system.user.findMany({ where: { role: 'PLATFORM_ADMIN', status: 'ACTIVE' }, select: { email: true } });
-    const url = `${this.env.APP_PUBLIC_URL}/plataforma/aprovisionamiento/${run.id}`;
-    for (const a of admins) {
-      await this.mail.send({
-        to: a.email,
-        subject: `Instalación #${run.number} (${run.domain}): ${LABEL[run.status]}`,
-        text: `La instalación #${run.number} de ${run.domain} se detuvo en «${LABEL[run.stoppedAt ?? run.status]}».\n\n${run.lastError ?? ''}\n${run.needs ?? ''}\n\nVer: ${url}\n`,
-      }).catch(() => false);
-    }
+    await this.notifyAdmins(run.id, `Instalación #${run.number} (${run.domain}): ${LABEL[run.status]}`,
+      `La instalación #${run.number} de ${run.domain} se detuvo en «${LABEL[run.stoppedAt ?? run.status]}».\n\n${run.lastError ?? ''}\n${run.needs ?? ''}`);
   }
+
+  private async notifyAdmins(runId: string, subject: string, body: string) {
+    const admins = await this.db.system.user.findMany({ where: { role: 'PLATFORM_ADMIN', status: 'ACTIVE' }, select: { email: true } });
+    const url = `${this.env.APP_PUBLIC_URL}/plataforma/aprovisionamiento/${runId}`;
+    for (const a of admins) await this.mail.send({ to: a.email, subject, text: `${body}\n\nVer: ${url}\n` }).catch(() => false);
+  }
+
+  /**
+   * Monitoreo de las instalaciones entregadas (ADR 052): avisa una sola vez si
+   * una deja de reportar o reporta servicios con problemas. El aviso se rearma
+   * cuando vuelve a reportar sana.
+   */
+  async monitorCheck(now = new Date()) {
+    const stale = new Date(now.getTime() - MONITOR_STALE_MS);
+    const runs = await this.db.system.provisioningRun.findMany({
+      where: {
+        status: 'DELIVERED', monitorHash: { not: null }, reportAlertedAt: null,
+        OR: [{ lastReportAt: { lt: stale } }, { lastReportAt: null, finishedAt: { lt: stale } }, { lastReport: { path: ['healthy'], equals: false } }],
+      },
+      select: { id: true, number: true, domain: true, lastReportAt: true },
+      take: 100,
+    });
+    for (const r of runs) {
+      const u = await this.db.system.provisioningRun.updateMany({ where: { id: r.id, reportAlertedAt: null }, data: { reportAlertedAt: now } });
+      if (u.count !== 1) continue;
+      const silent = !r.lastReportAt || r.lastReportAt < stale;
+      const what = silent
+        ? `no reporta desde ${r.lastReportAt ? r.lastReportAt.toISOString() : 'la entrega'} (cada 10 minutos debería)`
+        : 'reporta servicios con problemas';
+      await this.event(r.id, 'DELIVERED', 'warn', `Monitoreo: la instalación ${what}`, 'engine');
+      await this.notifyAdmins(r.id, `Instalación #${r.number} (${r.domain}): ${silent ? 'sin reportar' : 'servicios con problemas'}`,
+        `La instalación #${r.number} de ${r.domain} ${what}.\n\nEntra por SSH y revisa ./salud.sh en /opt/aisa/instalacion y el registro /var/log/aisa-reporte.log.`);
+    }
+    return runs.length;
+  }
+
 
   private step(run: ProvisioningRun): Promise<Outcome> {
     switch (run.status) {

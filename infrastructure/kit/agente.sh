@@ -14,6 +14,7 @@ umask 077
 DIR="${AISA_DIR:-/opt/aisa}"
 LOG="${AISA_LOG:-/var/log/aisa-instalacion.log}"
 CRON_FILE="${AISA_CRON_FILE:-/etc/cron.d/aisa}"
+MONITOR_ENV="${AISA_MONITOR_ENV:-$DIR/monitor.env}"
 cd "$DIR" || exit 1
 # shellcheck disable=SC1091
 source "$DIR/agente.env"
@@ -133,15 +134,23 @@ report $STEP done "Migraciones aplicadas, servicios en marcha y salud correcta"
 STEP=CONFIGURING_INTEGRATIONS
 report $STEP started "Configuración de la empresa"
 
-# Respaldo diario (03:15) y comprobación de salud cada 5 minutos, con registro
+# Token de solo reporte para el monitoreo después de la entrega (ADR 052)
+if [[ -n "${MONITOR_TOKEN:-}" ]]; then
+  printf "API_URL='%s'\nRUN_ID='%s'\nMONITOR_TOKEN='%s'\n" "$API_URL" "$RUN_ID" "$MONITOR_TOKEN" > "$MONITOR_ENV"
+  chmod 600 "$MONITOR_ENV"
+fi
+# Respaldo diario (03:15), salud cada 5 minutos y reporte a la plataforma cada 10, con registro
 cat > "$CRON_FILE" <<CRON
 SHELL=/bin/bash
 15 3 * * * root cd $KIT && ./respaldo.sh >> /var/log/aisa-respaldo.log 2>&1
 */5 * * * * root cd $KIT && ./salud.sh > /var/log/aisa-salud.log 2>&1 || logger -t aisa "salud: hay servicios con problemas"
+*/10 * * * * root cd $KIT && AISA_MONITOR_ENV=$MONITOR_ENV ./reporte.sh >> /var/log/aisa-reporte.log 2>&1
 CRON
 chmod 644 "$CRON_FILE"
 # El paquete descargado ya no hace falta; la contraseña SMTP queda solo en .env.production
 rm -rf "$DIR/paquete" "$DIR/paquete.zip" "$DIR/cabeceras.txt"
-sed -i "s/^SMTP_PASSWORD=.*/SMTP_PASSWORD=''/" "$DIR/agente.env"
-report $STEP done "Empresa cargada, respaldo diario y salud cada 5 minutos programados"
+# Primer reporte ahora mismo (después, cada 10 minutos)
+[[ -f "$MONITOR_ENV" ]] && (cd "$KIT" && AISA_MONITOR_ENV="$MONITOR_ENV" ./reporte.sh) || true
+sed -i -e "s/^SMTP_PASSWORD=.*/SMTP_PASSWORD=''/" -e "s/^MONITOR_TOKEN=.*/MONITOR_TOKEN=''/" "$DIR/agente.env"
+report $STEP done "Empresa cargada, respaldo diario, salud cada 5 minutos y reporte a la plataforma cada 10 programados"
 echo "== $(date -Is) agente terminado: la plataforma comprueba ahora https://$APP_DOMAIN desde afuera"

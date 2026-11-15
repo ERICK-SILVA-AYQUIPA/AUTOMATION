@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import argon2 from 'argon2';
 import { ProvisioningEngine } from '../src/orchestrator/engine.js';
+import { instanceStatus } from '../src/orchestrator/instance-status.js';
 import { APP_VERSION } from '../src/deliveries/version.js';
 import { unzip } from '../src/deliveries/zip.js';
 import { setTestEnv, createTestApp, ownerClient, resetDatabase, registerAndLogin, roleClient } from './helpers.js';
@@ -24,7 +25,7 @@ const IMAGES = Buffer.from('imagenes de prueba '.repeat(100));
 const IMAGES_SHA = createHash('sha256').update(IMAGES).digest('hex');
 writeFileSync(join(imagesDir, `aisa-imagenes-${APP_VERSION}.tar.gz`), IMAGES);
 writeFileSync(join(imagesDir, `aisa-imagenes-${APP_VERSION}.tar.gz.sha256`), `${IMAGES_SHA}  aisa-imagenes-${APP_VERSION}.tar.gz\n`);
-const binary = (res: NodeJS.ReadableStream & { setEncoding?: unknown }, cb: (e: Error | null, b: Buffer) => void) => {
+const binary = (res: { on: (ev: string, fn: (c: Buffer) => void) => void }, cb: (e: Error | null, b: Buffer) => void) => {
   const chunks: Buffer[] = [];
   res.on('data', (c: Buffer) => chunks.push(c));
   res.on('end', () => cb(null, Buffer.concat(chunks)));
@@ -47,6 +48,7 @@ describe('Orquestador de instalaciones', () => {
   let runId: string;
   let agentToken: string;
   let bootEnv: string;
+  let monitorToken: string;
   const R = () => ({ Authorization: `Bearer ${root}` });
   const A = () => ({ Authorization: `Bearer ${agentToken}` });
   const base = '/api/v1/platform/provisioning';
@@ -166,6 +168,8 @@ describe('Orquestador de instalaciones', () => {
     expect(boot.body.env).toContain(`SMTP_PASSWORD='${SMTP_PASSWORD}'`);
     expect(boot.body.env).toContain(`IMAGES_SHA256='${IMAGES_SHA}'`);
     agentToken = /AGENT_TOKEN='([^']+)'/.exec(boot.body.env)![1]!;
+    monitorToken = /MONITOR_TOKEN='([^']+)'/.exec(boot.body.env)![1]!;
+    expect(monitorToken).not.toBe(agentToken);
     bootEnv = boot.body.env;
     expect((await ctx.http().post(`${agent(runId)}/bootstrap`).send({ token }).expect(409)).body.code).toBe('BOOTSTRAP_USED');
     expect((await tick()).status).toBe('CONFIGURING_SERVER');
@@ -181,17 +185,19 @@ describe('Orquestador de instalaciones', () => {
     r = await ctx.http().post(`${agent(runId)}/report`).set(A()).send({ step: 'CONFIGURING_SERVER', state: 'done' }).expect(200);
     expect(r.body.status).toBe('INSTALLING');
 
-    const pkg = await ctx.http().get(`${agent(runId)}/package`).set(A()).buffer(true).parse(binary).expect(200);
+    const pkg = await ctx.http().get(`${agent(runId)}/package`).set(A()).buffer(true).parse(binary as never).expect(200);
     expect(pkg.headers['x-package-sha256']).toBe(createHash('sha256').update(pkg.body as Buffer).digest('hex'));
     const files = unzip(pkg.body as Buffer).map((f) => f.path);
     expect(files).toEqual(expect.arrayContaining(['instalacion/instalar.sh', 'instalacion/configuracion-cliente.json', 'instalacion/.env.production.example', 'SHA256SUMS']));
     expect(unzip(pkg.body as Buffer).some((f) => f.data.toString('utf8').includes(SMTP_PASSWORD))).toBe(false);
-    const img = await ctx.http().get(`${agent(runId)}/images`).set(A()).buffer(true).parse(binary).expect(200);
+    const img = await ctx.http().get(`${agent(runId)}/images`).set(A()).buffer(true).parse(binary as never).expect(200);
     expect(Buffer.compare(img.body as Buffer, IMAGES)).toBe(0);
 
     // El agente de verdad (agente.sh) con Docker y el sistema sustituidos
     const server = await owner.infraServer.findUniqueOrThrow({ where: { id: (await run()).serverId! } });
-    const a = await runAgent({ env: bootEnv, ip: server.ipv4!, domain: 'ventas.distribuidora-ana.pe', version: APP_VERSION });
+    // «node dist/cli.js estado» dentro del contenedor: lo calcula el código real (sin datos de clientes)
+    const estado = JSON.stringify(await instanceStatus(ctx.app, true));
+    const a = await runAgent({ env: bootEnv, ip: server.ipv4!, domain: 'ventas.distribuidora-ana.pe', version: APP_VERSION, estado });
     expect(a.log).toContain('agente terminado');
     expect(a.code).toBe(0);
     expect((await run()).status).toBe('TESTING');
@@ -206,6 +212,15 @@ describe('Orquestador de instalaciones', () => {
     expect(a.agentEnv).toContain("SMTP_PASSWORD=''");
     expect(a.cron).toContain('respaldo.sh');
     expect(a.cron).toContain('salud.sh');
+    // Monitoreo (ADR 052): token propio en monitor.env, reporte cada 10 minutos y un primer reporte al terminar
+    expect(a.cron).toMatch(/^\*\/10 \* \* \* \* root .*reporte\.sh/m);
+    expect(a.monitorEnv).toContain(`MONITOR_TOKEN='${monitorToken}'`);
+    expect(a.agentEnv).toContain("MONITOR_TOKEN=''");
+    expect(a.log).toMatch(/salud=true envío=0 \{"ok":true\}/);
+    const first = await run();
+    expect(first.lastReportAt).not.toBeNull();
+    expect(first.lastReport).toMatchObject({ version: APP_VERSION, healthy: true, tenants: expect.arrayContaining([expect.objectContaining({ name: 'Distribuidora Ana', integrations: expect.any(Array), tasks: expect.any(Array) })]) });
+    expect(JSON.stringify(first.lastReport)).not.toMatch(/@|\+51|password|token/i);
     const msgs = (await owner.provisioningEvent.findMany({ where: { runId, source: { in: ['agent', 'engine'] } }, orderBy: { createdAt: 'asc' } })).map((e) => e.message);
     expect(msgs).toEqual(expect.arrayContaining([expect.stringContaining('Paquete verificado'), expect.stringContaining('Migraciones aplicadas'), expect.stringContaining('respaldo diario')]));
     const ev = await owner.provisioningEvent.findMany({ where: { runId }, orderBy: { createdAt: 'asc' } });
@@ -232,8 +247,40 @@ describe('Orquestador de instalaciones', () => {
     await ctx.http().post(`${agent(runId)}/report`).set(A()).send({ step: 'MIGRATING', state: 'done' }).expect(404);
     const detail = await ctx.http().get(`${base}/runs/${runId}`).set(R()).expect(200);
     expect(detail.body.events.map((e: { status: string }) => e.status)).toEqual(expect.arrayContaining(['REQUESTED', 'PAYMENT_CONFIRMED', 'PREPARING', 'CREATING_INFRA', 'SERVER_READY', 'CONFIGURING_SERVER', 'INSTALLING', 'TESTING', 'PUBLISHING', 'DELIVERING', 'DELIVERED']));
-    expect(JSON.stringify(detail.body)).not.toMatch(/secretsEnc|bootstrapHash|agentHash/);
+    expect(JSON.stringify(detail.body)).not.toMatch(/secretsEnc|bootstrapHash|agentHash|monitorHash/);
+    expect(detail.body).toMatchObject({ monitoring: true, lastReport: { healthy: true } });
+    expect(detail.body.events.some((e: { message: string }) => e.message.startsWith('Primer reporte de la instalación'))).toBe(true);
     await ctx.http().post(`${base}/runs/${runId}/cancel`).set(R()).send({ reason: 'ya no' }).expect(409);
+  });
+
+  it('entregada, la instalación sigue reportando; la plataforma avisa una vez si deja de reportar o enferma', async () => {
+    const M = { Authorization: `Bearer ${monitorToken}` };
+    const report = (over: Record<string, unknown> = {}) => ({ version: APP_VERSION, at: new Date().toISOString(), healthy: true, tenants: [{ name: 'Distribuidora Ana', status: 'ACTIVE', integrations: [{ key: 'whatsapp', status: 'connected', detail: '1 número(s)' }, { key: 'ai', status: 'pending', detail: 'Gemini' }], tasks: [{ key: 'whatsapp_verified', label: 'WhatsApp: credenciales verificadas con Meta', done: true, required: true }, { key: 'catalog', label: 'Productos', done: false, required: false }], activeProducts: 3, enabledAutomations: 2 }], ...over });
+    // Solo con el token de monitoreo y con un reporte bien formado (sin campos de más)
+    await ctx.http().post(`${agent(runId)}/heartbeat`).set(A()).send(report()).expect(404);
+    await ctx.http().post(`${agent(runId)}/heartbeat`).send(report()).expect(404);
+    await ctx.http().post(`${agent(runId)}/heartbeat`).set(M).send(report({ customers: [{ phone: '+51999' }] })).expect(400);
+    await ctx.http().post(`${agent(runId)}/heartbeat`).set(M).send(report()).expect(200);
+    const changed = await owner.provisioningEvent.findMany({ where: { runId, message: { startsWith: 'Cambió el estado' } } });
+    expect(changed.at(-1)!.message).toContain('WhatsApp conectado, IA pendiente; puesta en marcha 1/1; 3 producto(s) activo(s), 2 automatización(es)');
+    // El mismo estado no repite el historial
+    await ctx.http().post(`${agent(runId)}/heartbeat`).set(M).send(report()).expect(200);
+    expect(await owner.provisioningEvent.count({ where: { runId, message: { startsWith: 'Cambió el estado' } } })).toBe(changed.length);
+
+    // Servicios con problemas: un solo aviso por correo a la plataforma
+    await ctx.http().post(`${agent(runId)}/heartbeat`).set(M).send(report({ healthy: false })).expect(200);
+    expect(await engine.monitorCheck()).toBe(1);
+    expect((await run()).reportAlertedAt).not.toBeNull();
+    expect(await engine.monitorCheck()).toBe(0);
+    expect((await owner.provisioningEvent.findFirstOrThrow({ where: { runId, level: 'warn', message: { startsWith: 'Monitoreo:' } } })).message).toContain('reporta servicios con problemas');
+    // Sana otra vez: el aviso se rearma
+    await ctx.http().post(`${agent(runId)}/heartbeat`).set(M).send(report()).expect(200);
+    expect((await run()).reportAlertedAt).toBeNull();
+    // Deja de reportar (más de 30 minutos): aviso
+    await owner.provisioningRun.update({ where: { id: runId }, data: { lastReportAt: new Date(Date.now() - 31 * 60_000) } });
+    expect(await engine.monitorCheck()).toBe(1);
+    const silent = await owner.provisioningEvent.findMany({ where: { runId, message: { contains: 'no reporta desde' } } });
+    expect(silent).toHaveLength(1);
   });
 
   it('un fallo del agente o un plazo vencido piden intervención; cancelar exige decidir el servidor', async () => {
@@ -282,7 +329,10 @@ describe('Orquestador de instalaciones', () => {
     const server = await owner.infraServer.findUniqueOrThrow({ where: { id: failed.serverId! } });
     expect((await ctx.http().post(`${base}/runs/${id}/cancel`).set(R()).send({ reason: 'El cliente desistió', releaseServer: { confirmName: 'otro' } }).expect(400)).body.code).toBe('CONFIRM_NAME');
     const c = await ctx.http().post(`${base}/runs/${id}/cancel`).set(R()).send({ reason: 'El cliente desistió', releaseServer: { confirmName: server.name } }).expect(200);
-    expect(c.body).toMatchObject({ status: 'CANCELLED', cancelReason: 'El cliente desistió' });
+    expect(c.body).toMatchObject({ status: 'CANCELLED', cancelReason: 'El cliente desistió', monitoring: false });
+    // Cancelada: el token de monitoreo queda revocado
+    const m2 = /MONITOR_TOKEN='([^']+)'/.exec(env)![1]!;
+    await ctx.http().post(`${agent(id)}/heartbeat`).set({ Authorization: `Bearer ${m2}` }).send({ version: APP_VERSION, at: new Date().toISOString(), healthy: true, tenants: [] }).expect(404);
     expect((await owner.infraServer.findUniqueOrThrow({ where: { id: server.id } })).deletedAt).not.toBeNull();
     expect(fake.servers.has(Number(server.externalId))).toBe(false);
     // Cancelada: se puede registrar otra para la misma orden
