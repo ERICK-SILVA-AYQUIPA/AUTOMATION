@@ -20,6 +20,7 @@ import { CustomersModule } from './customers/customers.module.js';
 import { OrdersModule } from './orders/orders.module.js';
 import { ReservationsModule } from './reservations/reservations.module.js';
 import { DeliveriesModule } from './deliveries/deliveries.module.js';
+import { SalesModule } from './sales/sales.module.js';
 import { SystemModule } from './system/system.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
 import { REDIS, RedisModule } from './health/redis.provider.js';
@@ -90,6 +91,7 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
     OrdersModule,
     ReservationsModule,
     DeliveriesModule,
+    SalesModule,
     SystemModule,
     DashboardModule,
     QueuesModule,

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Check } from 'lucide-react';
 import { api } from '@/lib/api';
 import { BUSINESS_TYPE, DEPLOYMENT_MODE, MODULE_LABEL, money } from '@/lib/format';
@@ -21,7 +21,10 @@ interface Draft {
   /** '' = sin plantilla */
   templateKey: string; templateCategories: boolean;
   adminName: string; adminEmail: string;
+  /** Prospecto del centro comercial que se convierte en cliente ('' = alta directa) */
+  leadId: string; leadLabel: string;
 }
+interface Conversion { leadId: string; number: number; name: string; adminName: string; adminEmail: string | null; phone: string | null; contactEmail: string | null; templateKey: string | null; deploymentMode: string | null; planCode: string | null; enabledModules: string[] }
 
 const STORAGE = 'aisa:alta-empresa';
 const STEPS = ['Sector', 'Empresa', 'Marca y modalidad', 'Plan y periodo', 'Administrador', 'Revisar'];
@@ -37,7 +40,7 @@ function fresh(): Draft {
     name: '', legalName: '', taxId: '', country: 'PE', currency: 'PEN', timezone: 'America/Lima', address: '', phone: '', contactEmail: '', businessType: 'RETAIL',
     logoUrl: '', brandColor: '#2563eb', useColor: false, customDomain: '', deploymentMode: 'SAAS', enabledModules: GENERAL_MODULES,
     planCode: 'BASIC', startsAt: iso(today), endsAt: iso(new Date(today.getTime() + 14 * 86_400_000)),
-    adminName: '', adminEmail: '', templateKey: '', templateCategories: true,
+    adminName: '', adminEmail: '', templateKey: '', templateCategories: true, leadId: '', leadLabel: '',
   };
 }
 
@@ -71,6 +74,7 @@ function Summary({ d, plan, tpl }: { d: Draft; plan?: PlanRow; tpl?: SectorTempl
 
 function Wizard() {
   const router = useRouter();
+  const qc = useQueryClient();
   const toast = useToast();
   const [d, setD] = useState<Draft | null>(null);
   const [step, setStep] = useState(0);
@@ -80,9 +84,29 @@ function Wizard() {
   const [bounds] = useState(() => ({ today: iso(new Date()), tomorrow: iso(new Date(Date.now() + 86_400_000)) }));
   const plans = useQuery({ queryKey: ['platform-plans'], queryFn: () => api<PlanRow[]>('/platform/plans') });
   const templates = useQuery({ queryKey: ['platform-templates'], queryFn: () => api<SectorTemplate[]>('/platform/templates') });
-  // sessionStorage solo existe en el navegador: el borrador se lee al montar
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- lectura única del borrador guardado
-  useEffect(() => setD(load()), []);
+  const [leadError, setLeadError] = useState<unknown>(null);
+  // sessionStorage solo existe en el navegador: el borrador se lee al montar.
+  // Con ?lead=<id> el alta empieza con los datos del prospecto (conversión en cliente).
+  useEffect(() => {
+    const lead = new URLSearchParams(window.location.search).get('lead');
+    const stored = load();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- lectura única del borrador guardado
+    if (!lead || stored.leadId === lead) return setD(stored);
+    api<Conversion>(`/platform/sales/leads/${lead}/conversion`)
+      .then((c) => {
+        const f = fresh();
+        setD({
+          ...f, leadId: c.leadId, leadLabel: `P-${String(c.number).padStart(4, '0')} · ${c.adminName}`,
+          name: c.name, adminName: c.adminName, adminEmail: c.adminEmail ?? '', phone: c.phone ?? '', contactEmail: c.contactEmail ?? '',
+          templateKey: c.templateKey ?? '', businessType: c.templateKey ?? f.businessType, deploymentMode: c.deploymentMode ?? f.deploymentMode, planCode: c.planCode ?? f.planCode,
+          enabledModules: c.enabledModules.length ? c.enabledModules : f.enabledModules,
+        });
+      })
+      .catch((err) => {
+        setLeadError(err);
+        setD(fresh());
+      });
+  }, []);
   useEffect(() => {
     if (!d) return;
     try {
@@ -121,6 +145,7 @@ function Wizard() {
           planCode: d.planCode, startsAt: new Date(`${d.startsAt}T00:00:00`).toISOString(), endsAt: new Date(`${d.endsAt}T23:59:59`).toISOString(),
           admin: { name: d.adminName.trim(), email: d.adminEmail.trim() },
           templateKey: d.templateKey || null, templateCategories: d.templateCategories,
+          leadId: d.leadId || null,
         },
       });
       try {
@@ -131,7 +156,8 @@ function Wizard() {
       if (!r.created) toast.success(`${r.tenant.name} ya estaba creada: se abre su ficha`);
       else if (r.invitation.sent) toast.success(`${r.tenant.name} creada. Invitación enviada a ${d.adminEmail.trim()}`);
       else toast.error(r.invitation.error ?? 'La empresa se creó, pero no se pudo enviar la invitación');
-      router.push(`/plataforma?empresa=${r.tenant.id}`);
+      if (d.leadId) await qc.invalidateQueries({ queryKey: ['sales-lead', d.leadId] });
+      router.push(d.leadId ? `/plataforma/ventas/${d.leadId}` : `/plataforma?empresa=${r.tenant.id}`);
     } catch (err) {
       setError(err);
     } finally {
@@ -146,6 +172,8 @@ function Wizard() {
         description="Alta completa desde la plataforma. La empresa nace en preparación: su equipo puede configurarla, pero el asistente no responde a clientes hasta que la actives."
         actions={<Link href="/plataforma" className="inline-flex items-center gap-1 text-sm text-muted hover:text-text"><ArrowLeft className="size-4" />Empresas</Link>}
       />
+      <ErrorBox error={leadError} />
+      {d.leadId && <p className="mb-4 rounded-lg border border-primary/30 bg-primary/5 px-4 py-2 text-sm">Convirtiendo en cliente el prospecto <b>{d.leadLabel}</b> (pago confirmado). Al crear la empresa pasa a «Instalación pendiente».</p>}
       <ol className="mb-6 flex flex-wrap gap-2 text-sm" aria-label="Pasos">
         {STEPS.map((s, i) => (
           <li key={s} aria-current={i === step ? 'step' : undefined}>

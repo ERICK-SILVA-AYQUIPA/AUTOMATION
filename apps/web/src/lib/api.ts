@@ -8,6 +8,8 @@ export class ApiError extends Error {
     message: string,
     readonly code?: string,
     readonly errors?: { path: string; message: string }[],
+    /** Cuerpo completo de la respuesta de error (datos extra, p. ej. duplicados encontrados) */
+    readonly body?: Record<string, unknown>,
   ) {
     super(message);
   }
@@ -88,7 +90,7 @@ export async function api<T = unknown>(path: string, opts: Opts = {}, retry = tr
     }
     if (res.status === 402 || (res.status === 403 && body.code === 'MODULE_DISABLED')) onAccessChanged?.();
     const msg = Array.isArray(body.message) ? body.message.join('. ') : body.message;
-    throw new ApiError(res.status, msg ?? (res.status === 429 ? 'Demasiadas solicitudes. Espera un momento.' : 'Ocurrió un error inesperado'), body.code, body.errors);
+    throw new ApiError(res.status, msg ?? (res.status === 429 ? 'Demasiadas solicitudes. Espera un momento.' : 'Ocurrió un error inesperado'), body.code, body.errors, body);
   }
   if (res.status === 204) return undefined as T;
   const type = res.headers.get('content-type') ?? '';

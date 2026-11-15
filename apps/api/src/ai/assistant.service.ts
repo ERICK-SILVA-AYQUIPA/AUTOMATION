@@ -8,14 +8,14 @@ import { OrdersService } from '../orders/orders.service.js';
 import { currentPeriod, getPlanLimits, type PlanLimits } from '../plans/plan-limits.js';
 import { subscriptionAccess } from '../plans/subscription-access.js';
 import { AiRouter, type ResolvedAi } from './center/ai-router.service.js';
-import { LlmError, type ToolCall, type TranscriptEntry } from './chat-model.js';
+import { runConversation } from './center/conversation.js';
+import { LlmError, type TranscriptEntry } from './chat-model.js';
 import { runTool, toolsFor, type ToolContext, type ToolFeatures } from './ai-tools.js';
 import { ReservationsService } from '../reservations/reservations.service.js';
 import { readSettings } from '../tenants/tenant-settings.js';
 import { LANGUAGES, describeHours, hasBusinessInfo, isOpen, readProfile, type AiProfile } from './ai-profile.js';
 
 const HISTORY = 20;
-const MAX_TOOL_ROUNDS = 5;
 
 export type ReplyOutcome =
   | { outcome: 'sent'; text: string; tools: string[] }
@@ -283,31 +283,9 @@ export class AssistantService {
     return this.db.tenant(tenantId, async (tx) => !!(await tx.message.findFirst({ where: { conversationId, direction: 'OUTBOUND', content: text, createdAt: { gte: since } }, select: { id: true } })));
   }
 
-  /** Conversación con el modelo y sus herramientas; cada llamada queda registrada con proveedor, modelo y costo */
-  private async converse(tenantId: string, ai: ResolvedAi, system: string, transcript: TranscriptEntry[], ctx: ToolContext) {
-    const { session, state } = await this.router.open(ai, { system, transcript, tools: toolsFor(ctx.features) });
-    const used: string[] = [];
-    const usage = { input: 0, output: 0 };
-    const t0 = Date.now();
-    const done = (text: string, ok = true, error?: string) => this.router.record(tenantId, 'ASSISTANT', ai, state, { ...usage, ok, error, ms: Date.now() - t0 }).then(() => ({ text, tools: used, tokens: usage.input + usage.output }));
-    try {
-      for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
-        const turn = await session.next();
-        usage.input += turn.usage.input;
-        usage.output += turn.usage.output;
-        if (!turn.calls.length || round === MAX_TOOL_ROUNDS) return await done(turn.text.slice(0, 4000));
-        const results: { call: ToolCall; result: unknown }[] = [];
-        for (const call of turn.calls.slice(0, 5)) {
-          used.push(call.name);
-          results.push({ call, result: await runTool(ctx, call.name, call.args) });
-        }
-        session.addToolResults(results);
-      }
-      return await done('');
-    } catch (e) {
-      await done('', false, (e as Error).message);
-      throw e;
-    }
+  /** Conversación con el modelo y las herramientas del asistente de la empresa */
+  private converse(tenantId: string, ai: ResolvedAi, system: string, transcript: TranscriptEntry[], ctx: ToolContext) {
+    return runConversation(this.router, tenantId, 'ASSISTANT', ai, { system, transcript, tools: toolsFor(ctx.features), run: (name, args) => runTool(ctx, name, args) });
   }
 
   private send(tenantId: string, conversationId: string, messageId: string, text: string) {

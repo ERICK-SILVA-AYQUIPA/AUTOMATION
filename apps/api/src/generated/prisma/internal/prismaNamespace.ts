@@ -440,7 +440,9 @@ export const ModelName = {
   ProviderCredential: 'ProviderCredential',
   AiModel: 'AiModel',
   AiAssignment: 'AiAssignment',
-  AiUsageEvent: 'AiUsageEvent'
+  AiUsageEvent: 'AiUsageEvent',
+  SalesLead: 'SalesLead',
+  SalesActivity: 'SalesActivity'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -456,7 +458,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "plan" | "tenant" | "subscription" | "payment" | "delivery" | "systemUpdate" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "conversationNote" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "aiKnowledgeDoc" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog" | "integrationCheck" | "webhookEndpoint" | "webhookDelivery" | "reservation" | "providerCredential" | "aiModel" | "aiAssignment" | "aiUsageEvent"
+    modelProps: "plan" | "tenant" | "subscription" | "payment" | "delivery" | "systemUpdate" | "usageCounter" | "tenantCounter" | "user" | "session" | "authToken" | "branch" | "category" | "product" | "productVariant" | "productImage" | "productHistory" | "stockLevel" | "inventoryMovement" | "customer" | "order" | "orderItem" | "orderStatusHistory" | "whatsappNumber" | "conversation" | "conversationNote" | "message" | "inboundEvent" | "outboundMessage" | "aiSettings" | "aiKnowledgeDoc" | "automation" | "automationEvent" | "tenantIntegration" | "notification" | "auditLog" | "integrationCheck" | "webhookEndpoint" | "webhookDelivery" | "reservation" | "providerCredential" | "aiModel" | "aiAssignment" | "aiUsageEvent" | "salesLead" | "salesActivity"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3716,6 +3718,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SalesLead: {
+      payload: Prisma.$SalesLeadPayload<ExtArgs>
+      fields: Prisma.SalesLeadFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SalesLeadFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesLeadPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SalesLeadFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesLeadPayload>
+        }
+        findFirst: {
+          args: Prisma.SalesLeadFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesLeadPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SalesLeadFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesLeadPayload>
+        }
+        findMany: {
+          args: Prisma.SalesLeadFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesLeadPayload>[]
+        }
+        create: {
+          args: Prisma.SalesLeadCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesLeadPayload>
+        }
+        createMany: {
+          args: Prisma.SalesLeadCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SalesLeadCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesLeadPayload>[]
+        }
+        delete: {
+          args: Prisma.SalesLeadDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesLeadPayload>
+        }
+        update: {
+          args: Prisma.SalesLeadUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesLeadPayload>
+        }
+        deleteMany: {
+          args: Prisma.SalesLeadDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SalesLeadUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SalesLeadUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesLeadPayload>[]
+        }
+        upsert: {
+          args: Prisma.SalesLeadUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesLeadPayload>
+        }
+        aggregate: {
+          args: Prisma.SalesLeadAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSalesLead>
+        }
+        groupBy: {
+          args: Prisma.SalesLeadGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SalesLeadGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SalesLeadCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SalesLeadCountAggregateOutputType> | number
+        }
+      }
+    }
+    SalesActivity: {
+      payload: Prisma.$SalesActivityPayload<ExtArgs>
+      fields: Prisma.SalesActivityFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SalesActivityFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesActivityPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SalesActivityFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesActivityPayload>
+        }
+        findFirst: {
+          args: Prisma.SalesActivityFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesActivityPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SalesActivityFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesActivityPayload>
+        }
+        findMany: {
+          args: Prisma.SalesActivityFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesActivityPayload>[]
+        }
+        create: {
+          args: Prisma.SalesActivityCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesActivityPayload>
+        }
+        createMany: {
+          args: Prisma.SalesActivityCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SalesActivityCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesActivityPayload>[]
+        }
+        delete: {
+          args: Prisma.SalesActivityDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesActivityPayload>
+        }
+        update: {
+          args: Prisma.SalesActivityUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesActivityPayload>
+        }
+        deleteMany: {
+          args: Prisma.SalesActivityDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SalesActivityUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SalesActivityUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesActivityPayload>[]
+        }
+        upsert: {
+          args: Prisma.SalesActivityUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalesActivityPayload>
+        }
+        aggregate: {
+          args: Prisma.SalesActivityAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSalesActivity>
+        }
+        groupBy: {
+          args: Prisma.SalesActivityGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SalesActivityGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SalesActivityCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SalesActivityCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -4547,6 +4697,51 @@ export const AiUsageEventScalarFieldEnum = {
 export type AiUsageEventScalarFieldEnum = (typeof AiUsageEventScalarFieldEnum)[keyof typeof AiUsageEventScalarFieldEnum]
 
 
+export const SalesLeadScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  name: 'name',
+  company: 'company',
+  phone: 'phone',
+  email: 'email',
+  sector: 'sector',
+  need: 'need',
+  source: 'source',
+  sourceDetail: 'sourceDetail',
+  estimatedBudget: 'estimatedBudget',
+  budgetCurrency: 'budgetCurrency',
+  interestMode: 'interestMode',
+  interestPlan: 'interestPlan',
+  interestModules: 'interestModules',
+  status: 'status',
+  ownerId: 'ownerId',
+  nextAction: 'nextAction',
+  nextActionAt: 'nextActionAt',
+  lostReason: 'lostReason',
+  tenantId: 'tenantId',
+  convertedAt: 'convertedAt',
+  statusChangedAt: 'statusChangedAt',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SalesLeadScalarFieldEnum = (typeof SalesLeadScalarFieldEnum)[keyof typeof SalesLeadScalarFieldEnum]
+
+
+export const SalesActivityScalarFieldEnum = {
+  id: 'id',
+  leadId: 'leadId',
+  type: 'type',
+  body: 'body',
+  metadata: 'metadata',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type SalesActivityScalarFieldEnum = (typeof SalesActivityScalarFieldEnum)[keyof typeof SalesActivityScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -5141,6 +5336,48 @@ export type ListEnumAiProfileFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
 
 
 /**
+ * Reference to a field of type 'SalesLeadSource'
+ */
+export type EnumSalesLeadSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SalesLeadSource'>
+    
+
+
+/**
+ * Reference to a field of type 'SalesLeadSource[]'
+ */
+export type ListEnumSalesLeadSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SalesLeadSource[]'>
+    
+
+
+/**
+ * Reference to a field of type 'SalesLeadStatus'
+ */
+export type EnumSalesLeadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SalesLeadStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'SalesLeadStatus[]'
+ */
+export type ListEnumSalesLeadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SalesLeadStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'SalesActivityType'
+ */
+export type EnumSalesActivityTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SalesActivityType'>
+    
+
+
+/**
+ * Reference to a field of type 'SalesActivityType[]'
+ */
+export type ListEnumSalesActivityTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SalesActivityType[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -5348,6 +5585,8 @@ export type GlobalOmitConfig = {
   aiModel?: Prisma.AiModelOmit
   aiAssignment?: Prisma.AiAssignmentOmit
   aiUsageEvent?: Prisma.AiUsageEventOmit
+  salesLead?: Prisma.SalesLeadOmit
+  salesActivity?: Prisma.SalesActivityOmit
 }
 
 /* Types for Logging */

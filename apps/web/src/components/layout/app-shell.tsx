@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   LayoutDashboard, MessagesSquare, Bot, Package, Tags, Boxes, ShoppingCart, Users, Workflow, Plug, BarChart3, UserCog, Settings,
-  Menu, X, Search, Sun, Moon, Monitor, LogOut, MessageSquareText, Building2, Bell, CalendarDays,
+  Menu, X, Search, Sun, Moon, Monitor, LogOut, MessageSquareText, Building2, Bell, CalendarDays, Target,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/lib/theme';
@@ -37,7 +37,10 @@ const NAV: NavItem[] = [
   { href: '/configuracion', label: 'Configuración', icon: Settings, permission: 'tenant:read' },
 ];
 
-const PLATFORM_NAV: NavItem[] = [{ href: '/plataforma', label: 'Empresas', icon: Building2, permission: 'platform:manage' }];
+const PLATFORM_NAV: NavItem[] = [
+  { href: '/plataforma', label: 'Empresas', icon: Building2, permission: 'platform:manage' },
+  { href: '/plataforma/ventas', label: 'Ventas', icon: Target, permission: 'platform:manage' },
+];
 
 function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { me, can } = useAuth();
@@ -60,7 +63,9 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         </div>
       </div>
       {items.map((i) => {
-        const active = path === i.href || path.startsWith(`${i.href}/`);
+        // La ruta más específica gana (/plataforma/ventas no marca también «Empresas»)
+        const matches = (h: string) => path === h || path.startsWith(`${h}/`);
+        const active = matches(i.href) && !items.some((o) => o.href.length > i.href.length && matches(o.href));
         const Icon = i.icon;
         if (i.soon)
           return (

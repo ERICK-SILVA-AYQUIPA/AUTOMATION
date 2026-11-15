@@ -990,6 +990,74 @@ export type EnumAiProfileWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumAiProfileFilter<$PrismaModel>
 }
 
+export type EnumSalesLeadSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalesLeadSource | Prisma.EnumSalesLeadSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.SalesLeadSource[] | Prisma.ListEnumSalesLeadSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalesLeadSource[] | Prisma.ListEnumSalesLeadSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalesLeadSourceFilter<$PrismaModel> | $Enums.SalesLeadSource
+}
+
+export type EnumDeploymentModeNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.DeploymentMode | Prisma.EnumDeploymentModeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.DeploymentMode[] | Prisma.ListEnumDeploymentModeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.DeploymentMode[] | Prisma.ListEnumDeploymentModeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumDeploymentModeNullableFilter<$PrismaModel> | $Enums.DeploymentMode | null
+}
+
+export type EnumSalesLeadStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalesLeadStatus | Prisma.EnumSalesLeadStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SalesLeadStatus[] | Prisma.ListEnumSalesLeadStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalesLeadStatus[] | Prisma.ListEnumSalesLeadStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalesLeadStatusFilter<$PrismaModel> | $Enums.SalesLeadStatus
+}
+
+export type EnumSalesLeadSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalesLeadSource | Prisma.EnumSalesLeadSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.SalesLeadSource[] | Prisma.ListEnumSalesLeadSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalesLeadSource[] | Prisma.ListEnumSalesLeadSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalesLeadSourceWithAggregatesFilter<$PrismaModel> | $Enums.SalesLeadSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSalesLeadSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSalesLeadSourceFilter<$PrismaModel>
+}
+
+export type EnumDeploymentModeNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DeploymentMode | Prisma.EnumDeploymentModeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.DeploymentMode[] | Prisma.ListEnumDeploymentModeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.DeploymentMode[] | Prisma.ListEnumDeploymentModeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumDeploymentModeNullableWithAggregatesFilter<$PrismaModel> | $Enums.DeploymentMode | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDeploymentModeNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDeploymentModeNullableFilter<$PrismaModel>
+}
+
+export type EnumSalesLeadStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalesLeadStatus | Prisma.EnumSalesLeadStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SalesLeadStatus[] | Prisma.ListEnumSalesLeadStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalesLeadStatus[] | Prisma.ListEnumSalesLeadStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalesLeadStatusWithAggregatesFilter<$PrismaModel> | $Enums.SalesLeadStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSalesLeadStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSalesLeadStatusFilter<$PrismaModel>
+}
+
+export type EnumSalesActivityTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalesActivityType | Prisma.EnumSalesActivityTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.SalesActivityType[] | Prisma.ListEnumSalesActivityTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalesActivityType[] | Prisma.ListEnumSalesActivityTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalesActivityTypeFilter<$PrismaModel> | $Enums.SalesActivityType
+}
+
+export type EnumSalesActivityTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalesActivityType | Prisma.EnumSalesActivityTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.SalesActivityType[] | Prisma.ListEnumSalesActivityTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalesActivityType[] | Prisma.ListEnumSalesActivityTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalesActivityTypeWithAggregatesFilter<$PrismaModel> | $Enums.SalesActivityType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSalesActivityTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSalesActivityTypeFilter<$PrismaModel>
+}
+
 export type NestedUuidFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -1919,6 +1987,74 @@ export type NestedEnumAiProfileWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumAiProfileFilter<$PrismaModel>
   _max?: Prisma.NestedEnumAiProfileFilter<$PrismaModel>
+}
+
+export type NestedEnumSalesLeadSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalesLeadSource | Prisma.EnumSalesLeadSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.SalesLeadSource[] | Prisma.ListEnumSalesLeadSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalesLeadSource[] | Prisma.ListEnumSalesLeadSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalesLeadSourceFilter<$PrismaModel> | $Enums.SalesLeadSource
+}
+
+export type NestedEnumDeploymentModeNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.DeploymentMode | Prisma.EnumDeploymentModeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.DeploymentMode[] | Prisma.ListEnumDeploymentModeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.DeploymentMode[] | Prisma.ListEnumDeploymentModeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumDeploymentModeNullableFilter<$PrismaModel> | $Enums.DeploymentMode | null
+}
+
+export type NestedEnumSalesLeadStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalesLeadStatus | Prisma.EnumSalesLeadStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SalesLeadStatus[] | Prisma.ListEnumSalesLeadStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalesLeadStatus[] | Prisma.ListEnumSalesLeadStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalesLeadStatusFilter<$PrismaModel> | $Enums.SalesLeadStatus
+}
+
+export type NestedEnumSalesLeadSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalesLeadSource | Prisma.EnumSalesLeadSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.SalesLeadSource[] | Prisma.ListEnumSalesLeadSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalesLeadSource[] | Prisma.ListEnumSalesLeadSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalesLeadSourceWithAggregatesFilter<$PrismaModel> | $Enums.SalesLeadSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSalesLeadSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSalesLeadSourceFilter<$PrismaModel>
+}
+
+export type NestedEnumDeploymentModeNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DeploymentMode | Prisma.EnumDeploymentModeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.DeploymentMode[] | Prisma.ListEnumDeploymentModeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.DeploymentMode[] | Prisma.ListEnumDeploymentModeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumDeploymentModeNullableWithAggregatesFilter<$PrismaModel> | $Enums.DeploymentMode | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDeploymentModeNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDeploymentModeNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumSalesLeadStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalesLeadStatus | Prisma.EnumSalesLeadStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SalesLeadStatus[] | Prisma.ListEnumSalesLeadStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalesLeadStatus[] | Prisma.ListEnumSalesLeadStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalesLeadStatusWithAggregatesFilter<$PrismaModel> | $Enums.SalesLeadStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSalesLeadStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSalesLeadStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumSalesActivityTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalesActivityType | Prisma.EnumSalesActivityTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.SalesActivityType[] | Prisma.ListEnumSalesActivityTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalesActivityType[] | Prisma.ListEnumSalesActivityTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalesActivityTypeFilter<$PrismaModel> | $Enums.SalesActivityType
+}
+
+export type NestedEnumSalesActivityTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalesActivityType | Prisma.EnumSalesActivityTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.SalesActivityType[] | Prisma.ListEnumSalesActivityTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalesActivityType[] | Prisma.ListEnumSalesActivityTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalesActivityTypeWithAggregatesFilter<$PrismaModel> | $Enums.SalesActivityType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSalesActivityTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSalesActivityTypeFilter<$PrismaModel>
 }
 
 

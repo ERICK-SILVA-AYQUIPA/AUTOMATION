@@ -94,7 +94,9 @@ export const ModelName = {
   ProviderCredential: 'ProviderCredential',
   AiModel: 'AiModel',
   AiAssignment: 'AiAssignment',
-  AiUsageEvent: 'AiUsageEvent'
+  AiUsageEvent: 'AiUsageEvent',
+  SalesLead: 'SalesLead',
+  SalesActivity: 'SalesActivity'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -903,6 +905,51 @@ export const AiUsageEventScalarFieldEnum = {
 } as const
 
 export type AiUsageEventScalarFieldEnum = (typeof AiUsageEventScalarFieldEnum)[keyof typeof AiUsageEventScalarFieldEnum]
+
+
+export const SalesLeadScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  name: 'name',
+  company: 'company',
+  phone: 'phone',
+  email: 'email',
+  sector: 'sector',
+  need: 'need',
+  source: 'source',
+  sourceDetail: 'sourceDetail',
+  estimatedBudget: 'estimatedBudget',
+  budgetCurrency: 'budgetCurrency',
+  interestMode: 'interestMode',
+  interestPlan: 'interestPlan',
+  interestModules: 'interestModules',
+  status: 'status',
+  ownerId: 'ownerId',
+  nextAction: 'nextAction',
+  nextActionAt: 'nextActionAt',
+  lostReason: 'lostReason',
+  tenantId: 'tenantId',
+  convertedAt: 'convertedAt',
+  statusChangedAt: 'statusChangedAt',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SalesLeadScalarFieldEnum = (typeof SalesLeadScalarFieldEnum)[keyof typeof SalesLeadScalarFieldEnum]
+
+
+export const SalesActivityScalarFieldEnum = {
+  id: 'id',
+  leadId: 'leadId',
+  type: 'type',
+  body: 'body',
+  metadata: 'metadata',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type SalesActivityScalarFieldEnum = (typeof SalesActivityScalarFieldEnum)[keyof typeof SalesActivityScalarFieldEnum]
 
 
 export const SortOrder = {

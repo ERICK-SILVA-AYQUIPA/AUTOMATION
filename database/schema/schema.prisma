@@ -107,6 +107,7 @@ model Tenant {
   subscription Subscription?
   payments     Payment[]
   deliveries   Delivery[]
+  salesLead    SalesLead?
   users        User[]
   branches     Branch[]
 
@@ -298,6 +299,7 @@ model User {
   tenant     Tenant?     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   sessions   Session[]
   authTokens AuthToken[]
+  ownedLeads SalesLead[] @relation("leadOwner")
 
   @@index([tenantId])
   @@map("users")
@@ -1279,4 +1281,108 @@ model AiUsageEvent {
   @@index([tenantId, createdAt])
   @@index([credentialId, createdAt])
   @@map("ai_usage_events")
+}
+
+// ----------------------------------------------------------------- Centro comercial (ADR 047)
+
+/// Etapas del embudo. PAYMENT_CONFIRMED solo con validación administrativa del
+/// pago; INSTALLATION_PENDING y ACTIVE_CLIENT solo por la conversión y la
+/// activación de la empresa (no se mueven a mano).
+enum SalesLeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  DEMO_REQUESTED
+  QUOTE_SENT
+  NEGOTIATION
+  PAYMENT_PENDING
+  PAYMENT_CONFIRMED
+  INSTALLATION_PENDING
+  ACTIVE_CLIENT
+  LOST
+}
+
+enum SalesLeadSource {
+  WEBSITE
+  WHATSAPP
+  REFERRAL
+  SOCIAL
+  EVENT
+  OUTBOUND
+  OTHER
+}
+
+enum SalesActivityType {
+  CREATED
+  NOTE
+  CALL
+  WHATSAPP
+  EMAIL
+  MEETING
+  UPDATED
+  STATUS_CHANGED
+  OWNER_CHANGED
+  NEXT_ACTION_SET
+  NEXT_ACTION_DONE
+  PAYMENT_VALIDATED
+  CONVERTED
+  ACTIVATED
+}
+
+/// Prospecto de AI Sales Assistant (nuestro negocio, no el de las empresas).
+/// Solo el rol de sistema accede (RLS sin políticas y sin permisos de ejecución).
+model SalesLead {
+  id              String          @id @default(uuid(7)) @db.Uuid
+  number          Int             @unique @default(autoincrement())
+  name            String
+  company         String?
+  phone           String?
+  email           String?
+  /// Plantilla del sector (templates/catalog.ts) u «other»
+  sector          String?
+  need            String?
+  source          SalesLeadSource
+  sourceDetail    String?         @map("source_detail")
+  estimatedBudget Decimal?        @map("estimated_budget") @db.Decimal(12, 2)
+  budgetCurrency  String          @default("PEN") @map("budget_currency") @db.Char(3)
+  interestMode    DeploymentMode? @map("interest_mode")
+  interestPlan    String?         @map("interest_plan")
+  interestModules String[]        @default([]) @map("interest_modules")
+  status          SalesLeadStatus @default(NEW)
+  ownerId         String?         @map("owner_id") @db.Uuid
+  nextAction      String?         @map("next_action")
+  nextActionAt    DateTime?       @map("next_action_at") @db.Timestamptz(3)
+  lostReason      String?         @map("lost_reason")
+  /// Empresa creada al convertir el prospecto en cliente
+  tenantId        String?         @unique @map("tenant_id") @db.Uuid
+  convertedAt     DateTime?       @map("converted_at") @db.Timestamptz(3)
+  statusChangedAt DateTime        @default(now()) @map("status_changed_at") @db.Timestamptz(3)
+  createdById     String?         @map("created_by_id") @db.Uuid
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  owner      User?           @relation("leadOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  tenant     Tenant?         @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  activities SalesActivity[]
+
+  @@index([status, updatedAt])
+  @@index([ownerId])
+  @@index([nextActionAt])
+  @@map("sales_leads")
+}
+
+/// Historial del prospecto: solo se anexa (un disparador impide cambiarlo o borrarlo)
+model SalesActivity {
+  id        String            @id @default(uuid(7)) @db.Uuid
+  leadId    String            @map("lead_id") @db.Uuid
+  type      SalesActivityType
+  body      String?
+  metadata  Json              @default("{}")
+  userId    String?           @map("user_id") @db.Uuid
+  createdAt DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  lead SalesLead @relation(fields: [leadId], references: [id], onDelete: Restrict)
+
+  @@index([leadId, createdAt])
+  @@map("sales_activities")
 }

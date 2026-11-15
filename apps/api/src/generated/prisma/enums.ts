@@ -326,3 +326,53 @@ export const AiProfile = {
 } as const
 
 export type AiProfile = (typeof AiProfile)[keyof typeof AiProfile]
+
+
+export const SalesLeadStatus = {
+  NEW: 'NEW',
+  CONTACTED: 'CONTACTED',
+  QUALIFIED: 'QUALIFIED',
+  DEMO_REQUESTED: 'DEMO_REQUESTED',
+  QUOTE_SENT: 'QUOTE_SENT',
+  NEGOTIATION: 'NEGOTIATION',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  PAYMENT_CONFIRMED: 'PAYMENT_CONFIRMED',
+  INSTALLATION_PENDING: 'INSTALLATION_PENDING',
+  ACTIVE_CLIENT: 'ACTIVE_CLIENT',
+  LOST: 'LOST'
+} as const
+
+export type SalesLeadStatus = (typeof SalesLeadStatus)[keyof typeof SalesLeadStatus]
+
+
+export const SalesLeadSource = {
+  WEBSITE: 'WEBSITE',
+  WHATSAPP: 'WHATSAPP',
+  REFERRAL: 'REFERRAL',
+  SOCIAL: 'SOCIAL',
+  EVENT: 'EVENT',
+  OUTBOUND: 'OUTBOUND',
+  OTHER: 'OTHER'
+} as const
+
+export type SalesLeadSource = (typeof SalesLeadSource)[keyof typeof SalesLeadSource]
+
+
+export const SalesActivityType = {
+  CREATED: 'CREATED',
+  NOTE: 'NOTE',
+  CALL: 'CALL',
+  WHATSAPP: 'WHATSAPP',
+  EMAIL: 'EMAIL',
+  MEETING: 'MEETING',
+  UPDATED: 'UPDATED',
+  STATUS_CHANGED: 'STATUS_CHANGED',
+  OWNER_CHANGED: 'OWNER_CHANGED',
+  NEXT_ACTION_SET: 'NEXT_ACTION_SET',
+  NEXT_ACTION_DONE: 'NEXT_ACTION_DONE',
+  PAYMENT_VALIDATED: 'PAYMENT_VALIDATED',
+  CONVERTED: 'CONVERTED',
+  ACTIVATED: 'ACTIVATED'
+} as const
+
+export type SalesActivityType = (typeof SalesActivityType)[keyof typeof SalesActivityType]

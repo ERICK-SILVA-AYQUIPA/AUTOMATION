@@ -157,6 +157,22 @@ El aforo (`TABLE`: personas; `APPOINTMENT`: citas simultáneas) se controla con 
 
 Centro de APIs de la plataforma (permiso `platform:manage`, `/platform/api-center`): `GET /` (catálogo de integraciones, proveedores, credenciales administradas, modelos, asignaciones, empresas, consumo); `POST credentials`, `POST credentials/:id/{rotate,test,disable}`, `PATCH credentials/:id` (`label`, `monthlyTokenLimit`), `DELETE credentials/:id`, `POST credentials/:id/models/refresh`; `POST models` (alta manual), `PATCH models/:id` (`isEnabled`, precios, moneda); `GET tenants/:tenantId/credentials`; `PUT tenants/:tenantId/ai/:service` (`ASSISTANT` o `COMMERCIAL`; con `fallbackCredentialId`, `fallbackModel`, `allowCrossProviderFallback`); `POST tenants/:tenantId/ai/:service/{enable,disable,test}`; `DELETE tenants/:tenantId/ai/:service`. Todo cambio queda en la auditoría.
 
+### Centro comercial (`/platform/sales`), permiso `platform:manage`, ADR 047
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/platform/sales/owners` | Personal de la plataforma que puede ser responsable |
+| GET | `/platform/sales/summary` | Abiertos, vencidos, sin responsable, presupuesto abierto por moneda, ganados y perdidos en 90 días, por fuente |
+| GET | `/platform/sales/board?ownerId=&source=&sector=&q=` | Las 11 etapas con cantidad, presupuesto por moneda, si se mueve a mano y hasta 100 prospectos cada una |
+| GET / POST | `/platform/sales/leads` | Lista (`status, ownerId` o `none`, `source, sector, q` incluido `P-0001`, `view=open|overdue`, paginada) / alta. 409 `DUPLICATE_LEAD` con `matches` salvo `allowDuplicate: true` |
+| GET / PATCH | `/platform/sales/leads/:id` | Ficha con historial / cambiar datos (queda el antes y después) |
+| POST | `/platform/sales/leads/:id/status` | `{status, note?, lostReason?}`. 400 `STATUS_NOT_MANUAL`, `LOST_REASON_REQUIRED`; 409 `PAYMENT_CONFIRMED_LOCKED`, `LEAD_CONVERTED`, `STALE_STATUS` |
+| POST | `/platform/sales/leads/:id/owner` | `{ownerId}` o `null`. 400 `INVALID_OWNER` |
+| PUT / POST | `/platform/sales/leads/:id/next-action` · `/next-action/done` | Fijar `{text, dueAt}` / marcar hecha `{note?}` |
+| POST | `/platform/sales/leads/:id/activities` | `{type: NOTE|CALL|WHATSAPP|EMAIL|MEETING, body}` |
+| POST | `/platform/sales/leads/:id/payment` | Validación administrativa: `{amount, currency, method, reference, paidAt, verifiedInAccount: true, note?}`. Solo desde `PAYMENT_PENDING` (409 `NOT_PAYMENT_PENDING`) |
+| GET | `/platform/sales/leads/:id/conversion` | Datos para el asistente de alta; 409 `LEAD_NOT_READY` sin pago confirmado. El alta (`POST /platform/tenants`) acepta `leadId` |
+
 Panel general (permiso `platform:manage`): `GET /platform/integrations` (servicios del servidor con `configured`, variables de entorno y última prueba; números de WhatsApp por estado y con error; fallos de 7 días) y `POST /platform/integrations/:service/test` (`database, redis, gemini, smtp, n8n, chatwoot`; auditado).
 
 ### Recibir webhooks

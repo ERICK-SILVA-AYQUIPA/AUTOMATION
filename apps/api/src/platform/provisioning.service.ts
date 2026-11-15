@@ -11,6 +11,7 @@ import { bootstrapTenant, slugify, uniqueSlug } from '../tenants/tenant-bootstra
 import { computeOnboarding } from '../tenants/onboarding.js';
 import { TEMPLATE_KEYS, type TemplateKey } from '../templates/catalog.js';
 import { applyTemplate } from '../templates/apply.js';
+import { logSalesActivity } from '../sales/sales.service.js';
 
 const DAY = 86_400_000;
 const domain = z.string().trim().toLowerCase().regex(/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/, 'Dominio no válido').max(253);
@@ -33,6 +34,8 @@ export const provisionSchema = tenantProfileSchema
     startsAt: z.coerce.date().optional(),
     endsAt: z.coerce.date(),
     admin: z.object({ name: z.string().trim().min(2).max(120), email: z.email().max(200).transform((e) => e.toLowerCase()) }),
+    /** Prospecto del centro comercial que se convierte en cliente (debe tener el pago confirmado) */
+    leadId: z.uuid().nullable().optional(),
   })
   .refine((v) => !(v.country === 'PE' && v.taxId && !/^(10|15|17|20)\d{9}$/.test(v.taxId)), { message: 'El RUC debe tener 11 dígitos y empezar por 10, 15, 17 o 20', path: ['taxId'] });
 export type ProvisionInput = z.infer<typeof provisionSchema>;
@@ -68,8 +71,13 @@ export class ProvisioningService {
     if (!plan?.isActive) throw new BadRequestException('Ese plan no está disponible');
     const taken = await this.db.system.user.findUnique({ where: { email: input.admin.email }, select: { id: true } });
     if (taken) throw new ConflictException('Ese correo ya está registrado en la plataforma');
+    if (input.leadId) {
+      const lead = await this.db.system.salesLead.findUnique({ where: { id: input.leadId }, select: { status: true, tenantId: true } });
+      if (!lead) throw new NotFoundException('Prospecto no encontrado');
+      if (lead.status !== 'PAYMENT_CONFIRMED' || lead.tenantId) throw new ConflictException({ code: 'LEAD_NOT_READY', message: 'Solo se convierte en cliente un prospecto con el pago confirmado y sin empresa creada' });
+    }
 
-    const { idempotencyKey, admin, planCode: _plan, startsAt: _s, endsAt, enabledModules, templateKey, templateCategories, ...profile } = input;
+    const { idempotencyKey, admin, planCode: _plan, startsAt: _s, endsAt, enabledModules, templateKey, templateCategories, leadId, ...profile } = input;
     let result: { tenant: ProvisionResult['tenant']; adminId: string };
     try {
       result = await this.db.system.$transaction(async (tx) => {
@@ -85,10 +93,17 @@ export class ProvisioningService {
         // Empresa recién creada: no hay nada personalizado que pisar, el asistente va directo a lo publicado
         if (templateKey) await applyTemplate(tx, tenant.id, templateKey, ['settings', 'automations', 'ai', ...(templateCategories ? (['categories'] as const) : [])], { aiTarget: 'published' });
         const user = await tx.user.create({ data: { tenantId: tenant.id, email: admin.email, name: admin.name, role: 'TENANT_ADMIN', status: 'INVITED' }, select: { id: true } });
+        if (leadId) {
+          // En la misma transacción: si el prospecto cambió entre tanto, no se crea la empresa
+          const r = await tx.salesLead.updateMany({ where: { id: leadId, status: 'PAYMENT_CONFIRMED', tenantId: null }, data: { tenantId: tenant.id, status: 'INSTALLATION_PENDING', convertedAt: new Date(), statusChangedAt: new Date() } });
+          if (r.count !== 1) throw new ConflictException({ code: 'LEAD_NOT_READY', message: 'Solo se convierte en cliente un prospecto con el pago confirmado y sin empresa creada' });
+          await logSalesActivity(tx, leadId, actorId, 'CONVERTED', null, { tenantId: tenant.id, tenantName: tenant.name, planCode: input.planCode, deploymentMode: profile.deploymentMode });
+          await logSalesActivity(tx, leadId, actorId, 'STATUS_CHANGED', null, { from: 'PAYMENT_CONFIRMED', to: 'INSTALLATION_PENDING' });
+        }
         await tx.auditLog.create({
           data: {
             tenantId: tenant.id, userId: actorId, action: 'platform.tenant_provisioned', entityType: 'tenant', entityId: tenant.id,
-            metadata: { planCode: input.planCode, deploymentMode: profile.deploymentMode, enabledModules, templateKey: templateKey ?? null, startsAt, endsAt, adminEmail: admin.email },
+            metadata: { planCode: input.planCode, deploymentMode: profile.deploymentMode, enabledModules, templateKey: templateKey ?? null, startsAt, endsAt, adminEmail: admin.email, leadId: leadId ?? null },
           },
         });
         return { tenant, adminId: user.id };
@@ -140,6 +155,14 @@ export class ProvisioningService {
     if (r.count === 1) {
       await this.db.system.notification.create({ data: { tenantId, type: 'tenant.activated', title: 'Tu cuenta está activa', body: 'La plataforma activó tu empresa: el asistente ya puede responder a tus clientes por WhatsApp.', data: {} } });
       await this.audit.system({ tenantId, userId: actorId, action: 'platform.tenant_activated', entityType: 'tenant', entityId: tenantId, metadata: {} });
+      // El prospecto que originó la empresa pasa a «Cliente activo»
+      await this.db.system.$transaction(async (tx) => {
+        const lead = await tx.salesLead.findUnique({ where: { tenantId }, select: { id: true, status: true } });
+        if (lead?.status !== 'INSTALLATION_PENDING') return;
+        await tx.salesLead.update({ where: { id: lead.id }, data: { status: 'ACTIVE_CLIENT', statusChangedAt: new Date() } });
+        await logSalesActivity(tx, lead.id, actorId, 'ACTIVATED', null, { tenantId });
+        await logSalesActivity(tx, lead.id, actorId, 'STATUS_CHANGED', null, { from: 'INSTALLATION_PENDING', to: 'ACTIVE_CLIENT' });
+      });
     }
     return this.onboarding(tenantId);
   }

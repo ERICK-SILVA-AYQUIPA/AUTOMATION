@@ -265,3 +265,14 @@ export type AiAssignment = Prisma.AiAssignmentModel
  * Consumo por llamada al modelo (sin contenido de la conversación)
  */
 export type AiUsageEvent = Prisma.AiUsageEventModel
+/**
+ * Model SalesLead
+ * Prospecto de AI Sales Assistant (nuestro negocio, no el de las empresas).
+ * Solo el rol de sistema accede (RLS sin políticas y sin permisos de ejecución).
+ */
+export type SalesLead = Prisma.SalesLeadModel
+/**
+ * Model SalesActivity
+ * Historial del prospecto: solo se anexa (un disparador impide cambiarlo o borrarlo)
+ */
+export type SalesActivity = Prisma.SalesActivityModel

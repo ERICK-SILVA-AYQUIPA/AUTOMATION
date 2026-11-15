@@ -49,6 +49,18 @@ Pruebas: `api-center.e2e-spec.ts` (API y PostgreSQL) y `api-center.mjs` (navegad
 | 11 | Desconectar | Desactiva las asignaciones, avisa a la empresa y no cambia de proveedor por su cuenta | Probado |
 | 12 | Errores claros | Clave rechazada, sin permisos, servicio caído, tope alcanzado | Probado con servidor local |
 
+## Fase A: centro comercial (ADR 047)
+
+| Criterio | Cómo se demuestra | Estado |
+|---|---|---|
+| Registrar prospectos con nombre, empresa, teléfono, correo, sector, necesidad, fuente, presupuesto, solución de interés, responsable y próxima acción | `sales.mjs` (formulario completo) y `sales.e2e-spec.ts` | Probado en local |
+| Duplicados por correo o teléfono | Aviso con enlace al existente; se registra solo con confirmación | Probado |
+| 11 etapas y embudo visual | Columnas con cantidad y presupuesto; arrastrar entre etapas comerciales | Probado |
+| Etapas protegidas | Pago confirmado solo validando el pago; instalación pendiente solo al convertir; cliente activo solo al activar la empresa; perder exige motivo | Probado (API y navegador) |
+| Historial completo e inalterable | Disparador en la base; ni el rol de sistema lo cambia o borra | Probado |
+| Convertir en cliente | El asistente de alta llega con los datos del prospecto, crea la empresa en preparación e invita al administrador | Probado en local (correo en Mailpit) |
+| Separación de nuestro negocio y el de las empresas | Las tablas no son accesibles para el rol de ejecución; una empresa recibe 403 | Probado |
+
 ## Seguridad (fase 10)
 
 - Dependencias de producción: `pnpm audit --prod` sin vulnerabilidades conocidas (2026-11-13). No se añadieron dependencias en las fases 8 y 9: el ZIP y el actualizador usan solo Node y herramientas del sistema.

@@ -142,7 +142,13 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
   - [x] Consumo por llamada con costo cuando hay precio
   - [x] Pruebas: `api-center.e2e-spec.ts` (los 12 puntos de aceptación) y `api-center.mjs` en navegador, con un servidor local que responde como los 4 proveedores
   - [ ] Prueba con claves reales de Claude, OpenAI, DeepSeek y Gemini: **pendiente de Rick** (se hace desde «Centro de APIs → Agregar proveedor» y «Probar»)
-- [ ] Fase A: centro de ventas / CRM
+- [x] Fase A: centro de ventas / CRM (ADR 047)
+  - [x] Prospectos con todos sus datos, duplicados por correo o teléfono, responsable, próxima acción y vencidas
+  - [x] Embudo visual de 11 etapas (arrastrar entre etapas comerciales), lista con filtros y resumen
+  - [x] Historial que solo se anexa (disparador en la base)
+  - [x] Validación administrativa del pago y conversión en cliente con el asistente de alta (empresa en preparación); «Cliente activo» al activar la empresa
+  - [x] Pruebas: `sales.e2e-spec.ts` (9) y `sales.mjs` en navegador (8 pasos)
+  - [ ] Conversaciones comerciales (fase B, agente comercial), cotizaciones (fase C), renovaciones y soporte (fase I)
 - [ ] Fase B: página pública y agente comercial
 - [ ] Fase C: cotizaciones, contratos y pagos
 - [ ] Fase D: gestor de infraestructura
