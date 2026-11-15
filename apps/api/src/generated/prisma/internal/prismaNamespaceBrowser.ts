@@ -99,7 +99,17 @@ export const ModelName = {
   SalesActivity: 'SalesActivity',
   CommercialSettings: 'CommercialSettings',
   SalesChatSession: 'SalesChatSession',
-  SalesChatMessage: 'SalesChatMessage'
+  SalesChatMessage: 'SalesChatMessage',
+  CommercialItem: 'CommercialItem',
+  ContractVersion: 'ContractVersion',
+  SalesQuote: 'SalesQuote',
+  SalesQuoteLine: 'SalesQuoteLine',
+  PaymentMethodConfig: 'PaymentMethodConfig',
+  SalesPaymentOrder: 'SalesPaymentOrder',
+  SalesPaymentEvent: 'SalesPaymentEvent',
+  PaymentGatewayEvent: 'PaymentGatewayEvent',
+  AccountingEntry: 'AccountingEntry',
+  InstallationOrder: 'InstallationOrder'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -975,6 +985,14 @@ export const CommercialSettingsScalarFieldEnum = {
   agentInstructions: 'agentInstructions',
   houseTenantId: 'houseTenantId',
   publishedAt: 'publishedAt',
+  legalName: 'legalName',
+  taxId: 'taxId',
+  address: 'address',
+  taxName: 'taxName',
+  taxRate: 'taxRate',
+  pricesIncludeTax: 'pricesIncludeTax',
+  quoteValidityDays: 'quoteValidityDays',
+  quoteTerms: 'quoteTerms',
   updatedById: 'updatedById',
   updatedAt: 'updatedAt'
 } as const
@@ -1006,6 +1024,219 @@ export const SalesChatMessageScalarFieldEnum = {
 } as const
 
 export type SalesChatMessageScalarFieldEnum = (typeof SalesChatMessageScalarFieldEnum)[keyof typeof SalesChatMessageScalarFieldEnum]
+
+
+export const CommercialItemScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  description: 'description',
+  kind: 'kind',
+  billing: 'billing',
+  unitPrice: 'unitPrice',
+  currency: 'currency',
+  unit: 'unit',
+  planCode: 'planCode',
+  module: 'module',
+  isActive: 'isActive',
+  sort: 'sort',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CommercialItemScalarFieldEnum = (typeof CommercialItemScalarFieldEnum)[keyof typeof CommercialItemScalarFieldEnum]
+
+
+export const ContractVersionScalarFieldEnum = {
+  id: 'id',
+  version: 'version',
+  title: 'title',
+  body: 'body',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type ContractVersionScalarFieldEnum = (typeof ContractVersionScalarFieldEnum)[keyof typeof ContractVersionScalarFieldEnum]
+
+
+export const SalesQuoteScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  leadId: 'leadId',
+  status: 'status',
+  currency: 'currency',
+  country: 'country',
+  planCode: 'planCode',
+  users: 'users',
+  modules: 'modules',
+  deploymentMode: 'deploymentMode',
+  serverResources: 'serverResources',
+  initialSetup: 'initialSetup',
+  integrations: 'integrations',
+  support: 'support',
+  maintenance: 'maintenance',
+  notes: 'notes',
+  initialPayment: 'initialPayment',
+  subtotalOneTime: 'subtotalOneTime',
+  subtotalMonthly: 'subtotalMonthly',
+  taxName: 'taxName',
+  taxRate: 'taxRate',
+  pricesIncludeTax: 'pricesIncludeTax',
+  taxOneTime: 'taxOneTime',
+  taxMonthly: 'taxMonthly',
+  totalOneTime: 'totalOneTime',
+  totalMonthly: 'totalMonthly',
+  terms: 'terms',
+  validUntil: 'validUntil',
+  contractVersionId: 'contractVersionId',
+  issuer: 'issuer',
+  client: 'client',
+  accessTokenHash: 'accessTokenHash',
+  sentAt: 'sentAt',
+  sentById: 'sentById',
+  acceptedAt: 'acceptedAt',
+  acceptedName: 'acceptedName',
+  acceptedDocument: 'acceptedDocument',
+  acceptedEmail: 'acceptedEmail',
+  acceptedIp: 'acceptedIp',
+  acceptedUserAgent: 'acceptedUserAgent',
+  rejectedAt: 'rejectedAt',
+  rejectionReason: 'rejectionReason',
+  closedAt: 'closedAt',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SalesQuoteScalarFieldEnum = (typeof SalesQuoteScalarFieldEnum)[keyof typeof SalesQuoteScalarFieldEnum]
+
+
+export const SalesQuoteLineScalarFieldEnum = {
+  id: 'id',
+  quoteId: 'quoteId',
+  position: 'position',
+  itemId: 'itemId',
+  kind: 'kind',
+  billing: 'billing',
+  description: 'description',
+  quantity: 'quantity',
+  unitPrice: 'unitPrice',
+  total: 'total'
+} as const
+
+export type SalesQuoteLineScalarFieldEnum = (typeof SalesQuoteLineScalarFieldEnum)[keyof typeof SalesQuoteLineScalarFieldEnum]
+
+
+export const PaymentMethodConfigScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  name: 'name',
+  instructions: 'instructions',
+  countries: 'countries',
+  currencies: 'currencies',
+  isActive: 'isActive',
+  sort: 'sort',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PaymentMethodConfigScalarFieldEnum = (typeof PaymentMethodConfigScalarFieldEnum)[keyof typeof PaymentMethodConfigScalarFieldEnum]
+
+
+export const SalesPaymentOrderScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  leadId: 'leadId',
+  quoteId: 'quoteId',
+  concept: 'concept',
+  amount: 'amount',
+  currency: 'currency',
+  country: 'country',
+  status: 'status',
+  allowedMethodIds: 'allowedMethodIds',
+  accessTokenHash: 'accessTokenHash',
+  proof: 'proof',
+  proofSubmittedAt: 'proofSubmittedAt',
+  paidAt: 'paidAt',
+  method: 'method',
+  reference: 'reference',
+  validatedById: 'validatedById',
+  validatedAt: 'validatedAt',
+  gatewayProvider: 'gatewayProvider',
+  gatewayPaymentId: 'gatewayPaymentId',
+  cancelReason: 'cancelReason',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SalesPaymentOrderScalarFieldEnum = (typeof SalesPaymentOrderScalarFieldEnum)[keyof typeof SalesPaymentOrderScalarFieldEnum]
+
+
+export const SalesPaymentEventScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  type: 'type',
+  data: 'data',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type SalesPaymentEventScalarFieldEnum = (typeof SalesPaymentEventScalarFieldEnum)[keyof typeof SalesPaymentEventScalarFieldEnum]
+
+
+export const PaymentGatewayEventScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  eventId: 'eventId',
+  orderId: 'orderId',
+  outcome: 'outcome',
+  createdAt: 'createdAt'
+} as const
+
+export type PaymentGatewayEventScalarFieldEnum = (typeof PaymentGatewayEventScalarFieldEnum)[keyof typeof PaymentGatewayEventScalarFieldEnum]
+
+
+export const AccountingEntryScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  entryDate: 'entryDate',
+  kind: 'kind',
+  leadId: 'leadId',
+  paymentOrderId: 'paymentOrderId',
+  description: 'description',
+  currency: 'currency',
+  gross: 'gross',
+  tax: 'tax',
+  net: 'net',
+  method: 'method',
+  reference: 'reference',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type AccountingEntryScalarFieldEnum = (typeof AccountingEntryScalarFieldEnum)[keyof typeof AccountingEntryScalarFieldEnum]
+
+
+export const InstallationOrderScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  leadId: 'leadId',
+  quoteId: 'quoteId',
+  paymentOrderId: 'paymentOrderId',
+  status: 'status',
+  deploymentMode: 'deploymentMode',
+  planCode: 'planCode',
+  users: 'users',
+  modules: 'modules',
+  serverResources: 'serverResources',
+  notes: 'notes',
+  tenantId: 'tenantId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InstallationOrderScalarFieldEnum = (typeof InstallationOrderScalarFieldEnum)[keyof typeof InstallationOrderScalarFieldEnum]
 
 
 export const SortOrder = {

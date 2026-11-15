@@ -149,7 +149,13 @@ describe('Centro comercial: CRM de prospectos', () => {
     await pay({ paidAt: new Date(Date.now() + DAY).toISOString() }).expect(400);
     const ok = await pay().expect(200);
     expect(ok.body.status).toBe('PAYMENT_CONFIRMED');
-    expect(ok.body.activities.find((a: { type: string }) => a.type === 'PAYMENT_VALIDATED')).toMatchObject({ metadata: { amount: '2400', currency: 'PEN', method: 'YAPE', reference: 'OP-778899', verifiedInAccount: true }, userName: 'Rosa Ventas' });
+    expect(ok.body.activities.find((a: { type: string }) => a.type === 'PAYMENT_VALIDATED')).toMatchObject({ metadata: { amount: '2400.00', currency: 'PEN', method: 'YAPE', reference: 'OP-778899', verifiedInAccount: true }, userName: 'Rosa Ventas' });
+    // Desde la fase C queda como orden pagada con su asiento de ingreso y su orden de instalación (ADR 049)
+    const order = await owner.salesPaymentOrder.findFirstOrThrow({ where: { leadId }, include: { accounting: true, installation: true } });
+    expect(order).toMatchObject({ status: 'PAID', currency: 'PEN', reference: 'OP-778899', method: 'YAPE' });
+    expect(order.accounting).toMatchObject({ kind: 'INCOME', currency: 'PEN' });
+    expect(order.accounting!.gross.toFixed(2)).toBe('2400.00');
+    expect(order.installation).toMatchObject({ status: 'AUTHORIZED', tenantId: null });
     expect(await owner.auditLog.count({ where: { action: 'sales.payment_validated', entityId: leadId } })).toBe(1);
     // Ya confirmado: no vuelve atrás a mano
     expect((await ctx.http().post(`${base}/leads/${leadId}/status`).set(R()).send({ status: 'NEGOTIATION' }).expect(409)).body.code).toBe('PAYMENT_CONFIRMED_LOCKED');

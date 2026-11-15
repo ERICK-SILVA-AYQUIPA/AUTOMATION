@@ -384,3 +384,67 @@ export const SalesChatRole = {
 } as const
 
 export type SalesChatRole = (typeof SalesChatRole)[keyof typeof SalesChatRole]
+
+
+export const CatalogItemKind = {
+  PLAN: 'PLAN',
+  USERS: 'USERS',
+  MODULE: 'MODULE',
+  SETUP: 'SETUP',
+  SERVER: 'SERVER',
+  INTEGRATION: 'INTEGRATION',
+  SERVICE: 'SERVICE',
+  SUPPORT: 'SUPPORT',
+  MAINTENANCE: 'MAINTENANCE',
+  OTHER: 'OTHER'
+} as const
+
+export type CatalogItemKind = (typeof CatalogItemKind)[keyof typeof CatalogItemKind]
+
+
+export const BillingCycle = {
+  ONE_TIME: 'ONE_TIME',
+  MONTHLY: 'MONTHLY'
+} as const
+
+export type BillingCycle = (typeof BillingCycle)[keyof typeof BillingCycle]
+
+
+export const QuoteStatus = {
+  DRAFT: 'DRAFT',
+  SENT: 'SENT',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type QuoteStatus = (typeof QuoteStatus)[keyof typeof QuoteStatus]
+
+
+export const InitialPayment = {
+  ONE_TIME: 'ONE_TIME',
+  ONE_TIME_AND_FIRST_MONTH: 'ONE_TIME_AND_FIRST_MONTH'
+} as const
+
+export type InitialPayment = (typeof InitialPayment)[keyof typeof InitialPayment]
+
+
+export const PaymentOrderStatus = {
+  PENDING: 'PENDING',
+  PROOF_SUBMITTED: 'PROOF_SUBMITTED',
+  PAID: 'PAID',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type PaymentOrderStatus = (typeof PaymentOrderStatus)[keyof typeof PaymentOrderStatus]
+
+
+export const InstallationOrderStatus = {
+  AUTHORIZED: 'AUTHORIZED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  DONE: 'DONE',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type InstallationOrderStatus = (typeof InstallationOrderStatus)[keyof typeof InstallationOrderStatus]

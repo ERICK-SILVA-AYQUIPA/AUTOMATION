@@ -267,3 +267,53 @@ export type SalesChatSession = Prisma.SalesChatSessionModel
  * 
  */
 export type SalesChatMessage = Prisma.SalesChatMessageModel
+/**
+ * Model CommercialItem
+ * Catálogo comercial con precios: lo que se cotiza (lo edita la plataforma)
+ */
+export type CommercialItem = Prisma.CommercialItemModel
+/**
+ * Model ContractVersion
+ * Versiones del contrato: solo se agregan
+ */
+export type ContractVersion = Prisma.ContractVersionModel
+/**
+ * Model SalesQuote
+ * 
+ */
+export type SalesQuote = Prisma.SalesQuoteModel
+/**
+ * Model SalesQuoteLine
+ * 
+ */
+export type SalesQuoteLine = Prisma.SalesQuoteLineModel
+/**
+ * Model PaymentMethodConfig
+ * Métodos de pago por país y moneda (instrucciones escritas por la plataforma)
+ */
+export type PaymentMethodConfig = Prisma.PaymentMethodConfigModel
+/**
+ * Model SalesPaymentOrder
+ * 
+ */
+export type SalesPaymentOrder = Prisma.SalesPaymentOrderModel
+/**
+ * Model SalesPaymentEvent
+ * Historial de la orden de pago: solo se agrega
+ */
+export type SalesPaymentEvent = Prisma.SalesPaymentEventModel
+/**
+ * Model PaymentGatewayEvent
+ * Eventos de pasarela ya procesados (idempotencia)
+ */
+export type PaymentGatewayEvent = Prisma.PaymentGatewayEventModel
+/**
+ * Model AccountingEntry
+ * Libro de ingresos: solo se agregan asientos
+ */
+export type AccountingEntry = Prisma.AccountingEntryModel
+/**
+ * Model InstallationOrder
+ * Orden de instalación: nace solo de un pago validado
+ */
+export type InstallationOrder = Prisma.InstallationOrderModel

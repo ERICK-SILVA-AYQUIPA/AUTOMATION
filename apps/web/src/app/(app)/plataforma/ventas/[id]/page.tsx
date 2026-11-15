@@ -4,12 +4,13 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { AlarmClock, ArrowLeft, Building2, CheckCircle2, UserPlus, Wallet } from 'lucide-react';
+import { AlarmClock, ArrowLeft, Building2, CheckCircle2, FilePlus2, UserPlus, Wallet } from 'lucide-react';
 import { api } from '@/lib/api';
 import { DEPLOYMENT_MODE, MODULE_LABEL, PAYMENT_METHOD, dateTime, money } from '@/lib/format';
 import { Badge, Button, Card, Dialog, ErrorBox, Field, Input, Loading, PageHeader, Select, Textarea, cn } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
 import { RequirePermission } from '@/components/guard';
+import { ORDER_STATUS, QUOTE_STATUS, orderNo, quoteNo } from '../../cotizaciones/shared';
 import { ACTIVITY, LEAD_STATUS, LeadFields, LostDialog, MANUAL, PLAN, SECTOR, SOURCE, formOf, isOverdue, leadNo, payloadOf, toLocalInput, useOwners, type Lead, type LeadStatus } from '../shared';
 
 interface Activity { id: string; type: string; body: string | null; metadata: Record<string, unknown>; userName: string | null; createdAt: string }
@@ -99,6 +100,7 @@ function LeadDetail() {
   const toast = useToast();
   const owners = useOwners();
   const q = useQuery({ queryKey: ['sales-lead', id], queryFn: () => api<Detail>(`/platform/sales/leads/${id}`) });
+  const orders = useQuery({ queryKey: ['commerce-orders', { leadId: id }], queryFn: () => api<LeadOrder[]>('/platform/commerce/payments', { query: { leadId: id } }) });
   const [edit, setEdit] = useState<ReturnType<typeof formOf> | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [target, setTarget] = useState<LeadStatus | ''>('');
@@ -113,6 +115,7 @@ function LeadDetail() {
     void qc.invalidateQueries({ queryKey: ['sales-board'] });
     void qc.invalidateQueries({ queryKey: ['sales-list'] });
     void qc.invalidateQueries({ queryKey: ['sales-summary'] });
+    void qc.invalidateQueries({ queryKey: ['commerce-orders'] });
   };
   async function run(key: string, fn: () => Promise<unknown>, ok: string, after?: () => void) {
     setBusy(key);
@@ -133,6 +136,7 @@ function LeadDetail() {
   const ownerNames = new Map((owners.data ?? []).map((o) => [o.id, o.name]));
   const closed = l.status === 'INSTALLATION_PENDING' || l.status === 'ACTIVE_CLIENT';
   const targets = l.status === 'PAYMENT_CONFIRMED' ? (['LOST'] as LeadStatus[]) : closed ? [] : MANUAL.filter((s) => s !== l.status);
+  const openOrder = orders.data?.find((o) => o.status === 'PENDING' || o.status === 'PROOF_SUBMITTED');
   const nextForm = next ?? { text: l.nextAction ?? '', at: toLocalInput(l.nextActionAt) };
 
   return (
@@ -242,7 +246,11 @@ function LeadDetail() {
                 <Button type="submit" variant="secondary" loading={busy === 'status'} disabled={!target}>Cambiar etapa</Button>
               </form>
             )}
-            {l.status === 'PAYMENT_PENDING' && <Button icon={<Wallet className="size-4" />} onClick={() => setPaying(true)}>Validar pago</Button>}
+            {l.status === 'PAYMENT_PENDING' && (openOrder ? (
+              <Link href={`/plataforma/cotizaciones/pagos/${openOrder.id}`} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-fg hover:opacity-90">
+                <Wallet className="size-4" />Validar pago en {orderNo(openOrder.number)}
+              </Link>
+            ) : <Button icon={<Wallet className="size-4" />} onClick={() => setPaying(true)}>Validar pago</Button>)}
             {l.status === 'PAYMENT_CONFIRMED' && (
               <Link href={`/plataforma/nueva?lead=${l.id}`} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-fg hover:opacity-90">
                 <UserPlus className="size-4" />Convertir en cliente
@@ -257,6 +265,8 @@ function LeadDetail() {
               </div>
             )}
           </Card>
+
+          <QuotesCard leadId={l.id} canQuote={l.status !== 'LOST' && !l.tenant} orders={orders.data ?? []} />
 
           <Card className="flex flex-col gap-3 p-5">
             <h2 className="font-medium">Responsable</h2>
@@ -300,6 +310,37 @@ function LeadDetail() {
       <LostDialog lead={lost ? l : null} onClose={() => setLost(false)} onDone={() => { toast.success('Marcado como perdido'); setTarget(''); refresh(); }} />
       {paying && <PaymentDialog lead={l} open onClose={() => setPaying(false)} onDone={() => { toast.success('Pago validado: ya puedes convertirlo en cliente'); refresh(); }} />}
     </>
+  );
+}
+
+interface LeadOrder { id: string; number: number; status: string; amount: string; currency: string; concept: string }
+interface LeadQuote { id: string; number: number; status: string; currency: string; totalOneTime: string; totalMonthly: string }
+
+/** Cotizaciones y órdenes de pago del prospecto (ADR 049) */
+function QuotesCard({ leadId, canQuote, orders }: { leadId: string; canQuote: boolean; orders: LeadOrder[] }) {
+  const q = useQuery({ queryKey: ['commerce-quotes', { leadId }], queryFn: () => api<LeadQuote[]>('/platform/commerce/quotes', { query: { leadId } }) });
+  return (
+    <Card className="flex flex-col gap-3 p-5">
+      <h2 className="font-medium">Cotizaciones y pagos</h2>
+      {q.data?.map((x) => (
+        <Link key={x.id} href={`/plataforma/cotizaciones/${x.id}`} className="flex items-center justify-between gap-2 rounded-lg border border-border p-2 text-sm hover:bg-surface-2">
+          <span><span className="font-mono">{quoteNo(x.number)}</span> <span className="text-xs text-muted">{money(x.totalOneTime, x.currency)} + {money(x.totalMonthly, x.currency)}/mes</span></span>
+          <Badge tone={QUOTE_STATUS[x.status]?.tone}>{QUOTE_STATUS[x.status]?.label ?? x.status}</Badge>
+        </Link>
+      ))}
+      {orders.map((o) => (
+        <Link key={o.id} href={`/plataforma/cotizaciones/pagos/${o.id}`} className="flex items-center justify-between gap-2 rounded-lg border border-border p-2 text-sm hover:bg-surface-2">
+          <span><span className="font-mono">{orderNo(o.number)}</span> <span className="text-xs text-muted">{money(o.amount, o.currency)}</span></span>
+          <Badge tone={ORDER_STATUS[o.status]?.tone}>{ORDER_STATUS[o.status]?.label ?? o.status}</Badge>
+        </Link>
+      ))}
+      {!q.data?.length && !orders.length && <p className="text-sm text-muted">Sin cotizaciones todavía.</p>}
+      {canQuote && (
+        <Link href={`/plataforma/cotizaciones/nueva?lead=${leadId}`} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border px-4 py-2 text-sm hover:bg-surface-2">
+          <FilePlus2 className="size-4" />Nueva cotización
+        </Link>
+      )}
+    </Card>
   );
 }
 

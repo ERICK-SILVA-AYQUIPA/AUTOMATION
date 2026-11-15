@@ -28,10 +28,14 @@ export type AggregateCommercialSettings = {
 
 export type CommercialSettingsAvgAggregateOutputType = {
   id: number | null
+  taxRate: runtime.Decimal | null
+  quoteValidityDays: number | null
 }
 
 export type CommercialSettingsSumAggregateOutputType = {
   id: number | null
+  taxRate: runtime.Decimal | null
+  quoteValidityDays: number | null
 }
 
 export type CommercialSettingsMinAggregateOutputType = {
@@ -47,6 +51,14 @@ export type CommercialSettingsMinAggregateOutputType = {
   agentInstructions: string | null
   houseTenantId: string | null
   publishedAt: Date | null
+  legalName: string | null
+  taxId: string | null
+  address: string | null
+  taxName: string | null
+  taxRate: runtime.Decimal | null
+  pricesIncludeTax: boolean | null
+  quoteValidityDays: number | null
+  quoteTerms: string | null
   updatedById: string | null
   updatedAt: Date | null
 }
@@ -64,6 +76,14 @@ export type CommercialSettingsMaxAggregateOutputType = {
   agentInstructions: string | null
   houseTenantId: string | null
   publishedAt: Date | null
+  legalName: string | null
+  taxId: string | null
+  address: string | null
+  taxName: string | null
+  taxRate: runtime.Decimal | null
+  pricesIncludeTax: boolean | null
+  quoteValidityDays: number | null
+  quoteTerms: string | null
   updatedById: string | null
   updatedAt: Date | null
 }
@@ -85,6 +105,14 @@ export type CommercialSettingsCountAggregateOutputType = {
   agentInstructions: number
   houseTenantId: number
   publishedAt: number
+  legalName: number
+  taxId: number
+  address: number
+  taxName: number
+  taxRate: number
+  pricesIncludeTax: number
+  quoteValidityDays: number
+  quoteTerms: number
   updatedById: number
   updatedAt: number
   _all: number
@@ -93,10 +121,14 @@ export type CommercialSettingsCountAggregateOutputType = {
 
 export type CommercialSettingsAvgAggregateInputType = {
   id?: true
+  taxRate?: true
+  quoteValidityDays?: true
 }
 
 export type CommercialSettingsSumAggregateInputType = {
   id?: true
+  taxRate?: true
+  quoteValidityDays?: true
 }
 
 export type CommercialSettingsMinAggregateInputType = {
@@ -112,6 +144,14 @@ export type CommercialSettingsMinAggregateInputType = {
   agentInstructions?: true
   houseTenantId?: true
   publishedAt?: true
+  legalName?: true
+  taxId?: true
+  address?: true
+  taxName?: true
+  taxRate?: true
+  pricesIncludeTax?: true
+  quoteValidityDays?: true
+  quoteTerms?: true
   updatedById?: true
   updatedAt?: true
 }
@@ -129,6 +169,14 @@ export type CommercialSettingsMaxAggregateInputType = {
   agentInstructions?: true
   houseTenantId?: true
   publishedAt?: true
+  legalName?: true
+  taxId?: true
+  address?: true
+  taxName?: true
+  taxRate?: true
+  pricesIncludeTax?: true
+  quoteValidityDays?: true
+  quoteTerms?: true
   updatedById?: true
   updatedAt?: true
 }
@@ -150,6 +198,14 @@ export type CommercialSettingsCountAggregateInputType = {
   agentInstructions?: true
   houseTenantId?: true
   publishedAt?: true
+  legalName?: true
+  taxId?: true
+  address?: true
+  taxName?: true
+  taxRate?: true
+  pricesIncludeTax?: true
+  quoteValidityDays?: true
+  quoteTerms?: true
   updatedById?: true
   updatedAt?: true
   _all?: true
@@ -258,6 +314,14 @@ export type CommercialSettingsGroupByOutputType = {
   agentInstructions: string | null
   houseTenantId: string | null
   publishedAt: Date | null
+  legalName: string | null
+  taxId: string | null
+  address: string | null
+  taxName: string | null
+  taxRate: runtime.Decimal | null
+  pricesIncludeTax: boolean
+  quoteValidityDays: number
+  quoteTerms: string | null
   updatedById: string | null
   updatedAt: Date
   _count: CommercialSettingsCountAggregateOutputType | null
@@ -302,6 +366,14 @@ export type CommercialSettingsWhereInput = {
   agentInstructions?: Prisma.StringNullableFilter<"CommercialSettings"> | string | null
   houseTenantId?: Prisma.UuidNullableFilter<"CommercialSettings"> | string | null
   publishedAt?: Prisma.DateTimeNullableFilter<"CommercialSettings"> | Date | string | null
+  legalName?: Prisma.StringNullableFilter<"CommercialSettings"> | string | null
+  taxId?: Prisma.StringNullableFilter<"CommercialSettings"> | string | null
+  address?: Prisma.StringNullableFilter<"CommercialSettings"> | string | null
+  taxName?: Prisma.StringNullableFilter<"CommercialSettings"> | string | null
+  taxRate?: Prisma.DecimalNullableFilter<"CommercialSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pricesIncludeTax?: Prisma.BoolFilter<"CommercialSettings"> | boolean
+  quoteValidityDays?: Prisma.IntFilter<"CommercialSettings"> | number
+  quoteTerms?: Prisma.StringNullableFilter<"CommercialSettings"> | string | null
   updatedById?: Prisma.UuidNullableFilter<"CommercialSettings"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"CommercialSettings"> | Date | string
   houseTenant?: Prisma.XOR<Prisma.TenantNullableScalarRelationFilter, Prisma.TenantWhereInput> | null
@@ -324,6 +396,14 @@ export type CommercialSettingsOrderByWithRelationInput = {
   agentInstructions?: Prisma.SortOrderInput | Prisma.SortOrder
   houseTenantId?: Prisma.SortOrderInput | Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  legalName?: Prisma.SortOrderInput | Prisma.SortOrder
+  taxId?: Prisma.SortOrderInput | Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
+  taxName?: Prisma.SortOrderInput | Prisma.SortOrder
+  taxRate?: Prisma.SortOrderInput | Prisma.SortOrder
+  pricesIncludeTax?: Prisma.SortOrder
+  quoteValidityDays?: Prisma.SortOrder
+  quoteTerms?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   houseTenant?: Prisma.TenantOrderByWithRelationInput
@@ -349,6 +429,14 @@ export type CommercialSettingsWhereUniqueInput = Prisma.AtLeast<{
   agentInstructions?: Prisma.StringNullableFilter<"CommercialSettings"> | string | null
   houseTenantId?: Prisma.UuidNullableFilter<"CommercialSettings"> | string | null
   publishedAt?: Prisma.DateTimeNullableFilter<"CommercialSettings"> | Date | string | null
+  legalName?: Prisma.StringNullableFilter<"CommercialSettings"> | string | null
+  taxId?: Prisma.StringNullableFilter<"CommercialSettings"> | string | null
+  address?: Prisma.StringNullableFilter<"CommercialSettings"> | string | null
+  taxName?: Prisma.StringNullableFilter<"CommercialSettings"> | string | null
+  taxRate?: Prisma.DecimalNullableFilter<"CommercialSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pricesIncludeTax?: Prisma.BoolFilter<"CommercialSettings"> | boolean
+  quoteValidityDays?: Prisma.IntFilter<"CommercialSettings"> | number
+  quoteTerms?: Prisma.StringNullableFilter<"CommercialSettings"> | string | null
   updatedById?: Prisma.UuidNullableFilter<"CommercialSettings"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"CommercialSettings"> | Date | string
   houseTenant?: Prisma.XOR<Prisma.TenantNullableScalarRelationFilter, Prisma.TenantWhereInput> | null
@@ -371,6 +459,14 @@ export type CommercialSettingsOrderByWithAggregationInput = {
   agentInstructions?: Prisma.SortOrderInput | Prisma.SortOrder
   houseTenantId?: Prisma.SortOrderInput | Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  legalName?: Prisma.SortOrderInput | Prisma.SortOrder
+  taxId?: Prisma.SortOrderInput | Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
+  taxName?: Prisma.SortOrderInput | Prisma.SortOrder
+  taxRate?: Prisma.SortOrderInput | Prisma.SortOrder
+  pricesIncludeTax?: Prisma.SortOrder
+  quoteValidityDays?: Prisma.SortOrder
+  quoteTerms?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CommercialSettingsCountOrderByAggregateInput
@@ -400,6 +496,14 @@ export type CommercialSettingsScalarWhereWithAggregatesInput = {
   agentInstructions?: Prisma.StringNullableWithAggregatesFilter<"CommercialSettings"> | string | null
   houseTenantId?: Prisma.UuidNullableWithAggregatesFilter<"CommercialSettings"> | string | null
   publishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CommercialSettings"> | Date | string | null
+  legalName?: Prisma.StringNullableWithAggregatesFilter<"CommercialSettings"> | string | null
+  taxId?: Prisma.StringNullableWithAggregatesFilter<"CommercialSettings"> | string | null
+  address?: Prisma.StringNullableWithAggregatesFilter<"CommercialSettings"> | string | null
+  taxName?: Prisma.StringNullableWithAggregatesFilter<"CommercialSettings"> | string | null
+  taxRate?: Prisma.DecimalNullableWithAggregatesFilter<"CommercialSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pricesIncludeTax?: Prisma.BoolWithAggregatesFilter<"CommercialSettings"> | boolean
+  quoteValidityDays?: Prisma.IntWithAggregatesFilter<"CommercialSettings"> | number
+  quoteTerms?: Prisma.StringNullableWithAggregatesFilter<"CommercialSettings"> | string | null
   updatedById?: Prisma.UuidNullableWithAggregatesFilter<"CommercialSettings"> | string | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CommercialSettings"> | Date | string
 }
@@ -420,6 +524,14 @@ export type CommercialSettingsCreateInput = {
   agentName?: string | null
   agentInstructions?: string | null
   publishedAt?: Date | string | null
+  legalName?: string | null
+  taxId?: string | null
+  address?: string | null
+  taxName?: string | null
+  taxRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pricesIncludeTax?: boolean
+  quoteValidityDays?: number
+  quoteTerms?: string | null
   updatedById?: string | null
   updatedAt?: Date | string
   houseTenant?: Prisma.TenantCreateNestedOneWithoutCommercialHouseInput
@@ -442,6 +554,14 @@ export type CommercialSettingsUncheckedCreateInput = {
   agentInstructions?: string | null
   houseTenantId?: string | null
   publishedAt?: Date | string | null
+  legalName?: string | null
+  taxId?: string | null
+  address?: string | null
+  taxName?: string | null
+  taxRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pricesIncludeTax?: boolean
+  quoteValidityDays?: number
+  quoteTerms?: string | null
   updatedById?: string | null
   updatedAt?: Date | string
 }
@@ -462,6 +582,14 @@ export type CommercialSettingsUpdateInput = {
   agentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pricesIncludeTax?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  quoteValidityDays?: Prisma.IntFieldUpdateOperationsInput | number
+  quoteTerms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   houseTenant?: Prisma.TenantUpdateOneWithoutCommercialHouseNestedInput
@@ -484,6 +612,14 @@ export type CommercialSettingsUncheckedUpdateInput = {
   agentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   houseTenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pricesIncludeTax?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  quoteValidityDays?: Prisma.IntFieldUpdateOperationsInput | number
+  quoteTerms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -505,6 +641,14 @@ export type CommercialSettingsCreateManyInput = {
   agentInstructions?: string | null
   houseTenantId?: string | null
   publishedAt?: Date | string | null
+  legalName?: string | null
+  taxId?: string | null
+  address?: string | null
+  taxName?: string | null
+  taxRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pricesIncludeTax?: boolean
+  quoteValidityDays?: number
+  quoteTerms?: string | null
   updatedById?: string | null
   updatedAt?: Date | string
 }
@@ -525,6 +669,14 @@ export type CommercialSettingsUpdateManyMutationInput = {
   agentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pricesIncludeTax?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  quoteValidityDays?: Prisma.IntFieldUpdateOperationsInput | number
+  quoteTerms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -546,6 +698,14 @@ export type CommercialSettingsUncheckedUpdateManyInput = {
   agentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   houseTenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pricesIncludeTax?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  quoteValidityDays?: Prisma.IntFieldUpdateOperationsInput | number
+  quoteTerms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -577,12 +737,22 @@ export type CommercialSettingsCountOrderByAggregateInput = {
   agentInstructions?: Prisma.SortOrder
   houseTenantId?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
+  legalName?: Prisma.SortOrder
+  taxId?: Prisma.SortOrder
+  address?: Prisma.SortOrder
+  taxName?: Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
+  pricesIncludeTax?: Prisma.SortOrder
+  quoteValidityDays?: Prisma.SortOrder
+  quoteTerms?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type CommercialSettingsAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
+  quoteValidityDays?: Prisma.SortOrder
 }
 
 export type CommercialSettingsMaxOrderByAggregateInput = {
@@ -598,6 +768,14 @@ export type CommercialSettingsMaxOrderByAggregateInput = {
   agentInstructions?: Prisma.SortOrder
   houseTenantId?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
+  legalName?: Prisma.SortOrder
+  taxId?: Prisma.SortOrder
+  address?: Prisma.SortOrder
+  taxName?: Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
+  pricesIncludeTax?: Prisma.SortOrder
+  quoteValidityDays?: Prisma.SortOrder
+  quoteTerms?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -615,12 +793,22 @@ export type CommercialSettingsMinOrderByAggregateInput = {
   agentInstructions?: Prisma.SortOrder
   houseTenantId?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
+  legalName?: Prisma.SortOrder
+  taxId?: Prisma.SortOrder
+  address?: Prisma.SortOrder
+  taxName?: Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
+  pricesIncludeTax?: Prisma.SortOrder
+  quoteValidityDays?: Prisma.SortOrder
+  quoteTerms?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type CommercialSettingsSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  taxRate?: Prisma.SortOrder
+  quoteValidityDays?: Prisma.SortOrder
 }
 
 export type CommercialSettingsCreateNestedManyWithoutHouseTenantInput = {
@@ -681,6 +869,14 @@ export type CommercialSettingsCreateWithoutHouseTenantInput = {
   agentName?: string | null
   agentInstructions?: string | null
   publishedAt?: Date | string | null
+  legalName?: string | null
+  taxId?: string | null
+  address?: string | null
+  taxName?: string | null
+  taxRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pricesIncludeTax?: boolean
+  quoteValidityDays?: number
+  quoteTerms?: string | null
   updatedById?: string | null
   updatedAt?: Date | string
 }
@@ -701,6 +897,14 @@ export type CommercialSettingsUncheckedCreateWithoutHouseTenantInput = {
   agentName?: string | null
   agentInstructions?: string | null
   publishedAt?: Date | string | null
+  legalName?: string | null
+  taxId?: string | null
+  address?: string | null
+  taxName?: string | null
+  taxRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pricesIncludeTax?: boolean
+  quoteValidityDays?: number
+  quoteTerms?: string | null
   updatedById?: string | null
   updatedAt?: Date | string
 }
@@ -751,6 +955,14 @@ export type CommercialSettingsScalarWhereInput = {
   agentInstructions?: Prisma.StringNullableFilter<"CommercialSettings"> | string | null
   houseTenantId?: Prisma.UuidNullableFilter<"CommercialSettings"> | string | null
   publishedAt?: Prisma.DateTimeNullableFilter<"CommercialSettings"> | Date | string | null
+  legalName?: Prisma.StringNullableFilter<"CommercialSettings"> | string | null
+  taxId?: Prisma.StringNullableFilter<"CommercialSettings"> | string | null
+  address?: Prisma.StringNullableFilter<"CommercialSettings"> | string | null
+  taxName?: Prisma.StringNullableFilter<"CommercialSettings"> | string | null
+  taxRate?: Prisma.DecimalNullableFilter<"CommercialSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pricesIncludeTax?: Prisma.BoolFilter<"CommercialSettings"> | boolean
+  quoteValidityDays?: Prisma.IntFilter<"CommercialSettings"> | number
+  quoteTerms?: Prisma.StringNullableFilter<"CommercialSettings"> | string | null
   updatedById?: Prisma.UuidNullableFilter<"CommercialSettings"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"CommercialSettings"> | Date | string
 }
@@ -771,6 +983,14 @@ export type CommercialSettingsCreateManyHouseTenantInput = {
   agentName?: string | null
   agentInstructions?: string | null
   publishedAt?: Date | string | null
+  legalName?: string | null
+  taxId?: string | null
+  address?: string | null
+  taxName?: string | null
+  taxRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pricesIncludeTax?: boolean
+  quoteValidityDays?: number
+  quoteTerms?: string | null
   updatedById?: string | null
   updatedAt?: Date | string
 }
@@ -791,6 +1011,14 @@ export type CommercialSettingsUpdateWithoutHouseTenantInput = {
   agentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pricesIncludeTax?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  quoteValidityDays?: Prisma.IntFieldUpdateOperationsInput | number
+  quoteTerms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -811,6 +1039,14 @@ export type CommercialSettingsUncheckedUpdateWithoutHouseTenantInput = {
   agentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pricesIncludeTax?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  quoteValidityDays?: Prisma.IntFieldUpdateOperationsInput | number
+  quoteTerms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -831,6 +1067,14 @@ export type CommercialSettingsUncheckedUpdateManyWithoutHouseTenantInput = {
   agentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agentInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pricesIncludeTax?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  quoteValidityDays?: Prisma.IntFieldUpdateOperationsInput | number
+  quoteTerms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -854,6 +1098,14 @@ export type CommercialSettingsSelect<ExtArgs extends runtime.Types.Extensions.In
   agentInstructions?: boolean
   houseTenantId?: boolean
   publishedAt?: boolean
+  legalName?: boolean
+  taxId?: boolean
+  address?: boolean
+  taxName?: boolean
+  taxRate?: boolean
+  pricesIncludeTax?: boolean
+  quoteValidityDays?: boolean
+  quoteTerms?: boolean
   updatedById?: boolean
   updatedAt?: boolean
   houseTenant?: boolean | Prisma.CommercialSettings$houseTenantArgs<ExtArgs>
@@ -876,6 +1128,14 @@ export type CommercialSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.
   agentInstructions?: boolean
   houseTenantId?: boolean
   publishedAt?: boolean
+  legalName?: boolean
+  taxId?: boolean
+  address?: boolean
+  taxName?: boolean
+  taxRate?: boolean
+  pricesIncludeTax?: boolean
+  quoteValidityDays?: boolean
+  quoteTerms?: boolean
   updatedById?: boolean
   updatedAt?: boolean
   houseTenant?: boolean | Prisma.CommercialSettings$houseTenantArgs<ExtArgs>
@@ -898,6 +1158,14 @@ export type CommercialSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.
   agentInstructions?: boolean
   houseTenantId?: boolean
   publishedAt?: boolean
+  legalName?: boolean
+  taxId?: boolean
+  address?: boolean
+  taxName?: boolean
+  taxRate?: boolean
+  pricesIncludeTax?: boolean
+  quoteValidityDays?: boolean
+  quoteTerms?: boolean
   updatedById?: boolean
   updatedAt?: boolean
   houseTenant?: boolean | Prisma.CommercialSettings$houseTenantArgs<ExtArgs>
@@ -920,11 +1188,19 @@ export type CommercialSettingsSelectScalar = {
   agentInstructions?: boolean
   houseTenantId?: boolean
   publishedAt?: boolean
+  legalName?: boolean
+  taxId?: boolean
+  address?: boolean
+  taxName?: boolean
+  taxRate?: boolean
+  pricesIncludeTax?: boolean
+  quoteValidityDays?: boolean
+  quoteTerms?: boolean
   updatedById?: boolean
   updatedAt?: boolean
 }
 
-export type CommercialSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "published" | "headline" | "subheadline" | "problems" | "benefits" | "faqs" | "testimonials" | "contactEmail" | "contactWhatsapp" | "showPrices" | "chatEnabled" | "agentName" | "agentInstructions" | "houseTenantId" | "publishedAt" | "updatedById" | "updatedAt", ExtArgs["result"]["commercialSettings"]>
+export type CommercialSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "published" | "headline" | "subheadline" | "problems" | "benefits" | "faqs" | "testimonials" | "contactEmail" | "contactWhatsapp" | "showPrices" | "chatEnabled" | "agentName" | "agentInstructions" | "houseTenantId" | "publishedAt" | "legalName" | "taxId" | "address" | "taxName" | "taxRate" | "pricesIncludeTax" | "quoteValidityDays" | "quoteTerms" | "updatedById" | "updatedAt", ExtArgs["result"]["commercialSettings"]>
 export type CommercialSettingsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   houseTenant?: boolean | Prisma.CommercialSettings$houseTenantArgs<ExtArgs>
 }
@@ -969,6 +1245,17 @@ export type $CommercialSettingsPayload<ExtArgs extends runtime.Types.Extensions.
     agentInstructions: string | null
     houseTenantId: string | null
     publishedAt: Date | null
+    /**
+     * Emisor e impuestos de las cotizaciones (ADR 049)
+     */
+    legalName: string | null
+    taxId: string | null
+    address: string | null
+    taxName: string | null
+    taxRate: runtime.Decimal | null
+    pricesIncludeTax: boolean
+    quoteValidityDays: number
+    quoteTerms: string | null
     updatedById: string | null
     updatedAt: Date
   }, ExtArgs["result"]["commercialSettings"]>
@@ -1411,6 +1698,14 @@ export interface CommercialSettingsFieldRefs {
   readonly agentInstructions: Prisma.FieldRef<"CommercialSettings", 'String'>
   readonly houseTenantId: Prisma.FieldRef<"CommercialSettings", 'String'>
   readonly publishedAt: Prisma.FieldRef<"CommercialSettings", 'DateTime'>
+  readonly legalName: Prisma.FieldRef<"CommercialSettings", 'String'>
+  readonly taxId: Prisma.FieldRef<"CommercialSettings", 'String'>
+  readonly address: Prisma.FieldRef<"CommercialSettings", 'String'>
+  readonly taxName: Prisma.FieldRef<"CommercialSettings", 'String'>
+  readonly taxRate: Prisma.FieldRef<"CommercialSettings", 'Decimal'>
+  readonly pricesIncludeTax: Prisma.FieldRef<"CommercialSettings", 'Boolean'>
+  readonly quoteValidityDays: Prisma.FieldRef<"CommercialSettings", 'Int'>
+  readonly quoteTerms: Prisma.FieldRef<"CommercialSettings", 'String'>
   readonly updatedById: Prisma.FieldRef<"CommercialSettings", 'String'>
   readonly updatedAt: Prisma.FieldRef<"CommercialSettings", 'DateTime'>
 }

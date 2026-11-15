@@ -109,6 +109,7 @@ model Tenant {
   deliveries   Delivery[]
   salesLead    SalesLead?
   commercialHouse CommercialSettings[]
+  installationOrders InstallationOrder[]
   users        User[]
   branches     Branch[]
 
@@ -1370,6 +1371,10 @@ model SalesLead {
   tenant     Tenant?         @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   activities SalesActivity[]
   chats      SalesChatSession[]
+  quotes        SalesQuote[]
+  paymentOrders SalesPaymentOrder[]
+  accounting    AccountingEntry[]
+  installations InstallationOrder[]
 
   @@index([status, updatedAt])
   @@index([ownerId])
@@ -1417,6 +1422,15 @@ model CommercialSettings {
   agentInstructions String?   @map("agent_instructions")
   houseTenantId     String?   @map("house_tenant_id") @db.Uuid
   publishedAt       DateTime? @map("published_at") @db.Timestamptz(3)
+  /// Emisor e impuestos de las cotizaciones (ADR 049)
+  legalName         String?   @map("legal_name")
+  taxId             String?   @map("tax_id")
+  address           String?
+  taxName           String?   @map("tax_name")
+  taxRate           Decimal?  @map("tax_rate") @db.Decimal(5, 2)
+  pricesIncludeTax  Boolean   @default(false) @map("prices_include_tax")
+  quoteValidityDays Int       @default(15) @map("quote_validity_days")
+  quoteTerms        String?   @map("quote_terms")
   updatedById       String?   @map("updated_by_id") @db.Uuid
   updatedAt         DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
 
@@ -1461,3 +1475,300 @@ model SalesChatMessage {
   @@map("sales_chat_messages")
 }
 
+// ----------------------------------------------------------------- Cotizaciones, contratación y pagos (ADR 049)
+
+enum CatalogItemKind {
+  PLAN
+  USERS
+  MODULE
+  SETUP
+  SERVER
+  INTEGRATION
+  SERVICE
+  SUPPORT
+  MAINTENANCE
+  OTHER
+}
+
+enum BillingCycle {
+  ONE_TIME
+  MONTHLY
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  CANCELLED
+}
+
+enum InitialPayment {
+  ONE_TIME
+  ONE_TIME_AND_FIRST_MONTH
+}
+
+enum PaymentOrderStatus {
+  PENDING
+  PROOF_SUBMITTED
+  PAID
+  CANCELLED
+}
+
+enum InstallationOrderStatus {
+  AUTHORIZED
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+/// Catálogo comercial con precios: lo que se cotiza (lo edita la plataforma)
+model CommercialItem {
+  id          String          @id @default(uuid(7)) @db.Uuid
+  code        String          @unique
+  name        String
+  description String?
+  kind        CatalogItemKind
+  billing     BillingCycle
+  unitPrice   Decimal         @map("unit_price") @db.Decimal(12, 2)
+  currency    String          @db.Char(3)
+  unit        String?
+  planCode    PlanCode?       @map("plan_code")
+  module      String?
+  isActive    Boolean         @default(true) @map("is_active")
+  sort        Int             @default(0)
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  lines SalesQuoteLine[]
+
+  @@map("commercial_items")
+}
+
+/// Versiones del contrato: solo se agregan
+model ContractVersion {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  version     Int      @unique
+  title       String
+  body        String
+  createdById String?  @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  quotes SalesQuote[]
+
+  @@map("contract_versions")
+}
+
+model SalesQuote {
+  id                String          @id @default(uuid(7)) @db.Uuid
+  number            Int             @unique @default(autoincrement())
+  leadId            String          @map("lead_id") @db.Uuid
+  status            QuoteStatus     @default(DRAFT)
+  currency          String          @db.Char(3)
+  country           String?         @db.Char(2)
+  planCode          PlanCode?       @map("plan_code")
+  users             Int?
+  modules           String[]        @default([])
+  deploymentMode    DeploymentMode? @map("deployment_mode")
+  serverResources   String?         @map("server_resources")
+  initialSetup      String?         @map("initial_setup")
+  integrations      String?
+  support           String?
+  maintenance       String?
+  notes             String?
+  initialPayment    InitialPayment  @default(ONE_TIME_AND_FIRST_MONTH) @map("initial_payment")
+  subtotalOneTime   Decimal         @default(0) @map("subtotal_one_time") @db.Decimal(12, 2)
+  subtotalMonthly   Decimal         @default(0) @map("subtotal_monthly") @db.Decimal(12, 2)
+  taxName           String?         @map("tax_name")
+  taxRate           Decimal?        @map("tax_rate") @db.Decimal(5, 2)
+  pricesIncludeTax  Boolean         @default(false) @map("prices_include_tax")
+  taxOneTime        Decimal         @default(0) @map("tax_one_time") @db.Decimal(12, 2)
+  taxMonthly        Decimal         @default(0) @map("tax_monthly") @db.Decimal(12, 2)
+  totalOneTime      Decimal         @default(0) @map("total_one_time") @db.Decimal(12, 2)
+  totalMonthly      Decimal         @default(0) @map("total_monthly") @db.Decimal(12, 2)
+  terms             String?
+  validUntil        DateTime?       @map("valid_until") @db.Date
+  contractVersionId String?         @map("contract_version_id") @db.Uuid
+  /// Emisor y cliente tal como quedaron al enviar
+  issuer            Json?
+  client            Json?
+  accessTokenHash   String?         @map("access_token_hash") @db.Char(64)
+  sentAt            DateTime?       @map("sent_at") @db.Timestamptz(3)
+  sentById          String?         @map("sent_by_id") @db.Uuid
+  acceptedAt        DateTime?       @map("accepted_at") @db.Timestamptz(3)
+  acceptedName      String?         @map("accepted_name")
+  acceptedDocument  String?         @map("accepted_document")
+  acceptedEmail     String?         @map("accepted_email")
+  acceptedIp        String?         @map("accepted_ip")
+  acceptedUserAgent String?         @map("accepted_user_agent")
+  rejectedAt        DateTime?       @map("rejected_at") @db.Timestamptz(3)
+  rejectionReason   String?         @map("rejection_reason")
+  closedAt          DateTime?       @map("closed_at") @db.Timestamptz(3)
+  createdById       String?         @map("created_by_id") @db.Uuid
+  createdAt         DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  lead            SalesLead           @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  contractVersion ContractVersion?    @relation(fields: [contractVersionId], references: [id], onDelete: Restrict)
+  lines           SalesQuoteLine[]
+  paymentOrders   SalesPaymentOrder[]
+  installations   InstallationOrder[]
+
+  @@index([leadId])
+  @@index([status])
+  @@map("sales_quotes")
+}
+
+model SalesQuoteLine {
+  id          String          @id @default(uuid(7)) @db.Uuid
+  quoteId     String          @map("quote_id") @db.Uuid
+  position    Int
+  itemId      String?         @map("item_id") @db.Uuid
+  kind        CatalogItemKind
+  billing     BillingCycle
+  description String
+  quantity    Decimal         @db.Decimal(10, 2)
+  unitPrice   Decimal         @map("unit_price") @db.Decimal(12, 2)
+  total       Decimal         @db.Decimal(12, 2)
+
+  quote SalesQuote      @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  item  CommercialItem? @relation(fields: [itemId], references: [id], onDelete: SetNull)
+
+  @@index([quoteId])
+  @@map("sales_quote_lines")
+}
+
+/// Métodos de pago por país y moneda (instrucciones escritas por la plataforma)
+model PaymentMethodConfig {
+  id           String        @id @default(uuid(7)) @db.Uuid
+  kind         PaymentMethod
+  name         String
+  instructions String
+  countries    String[]      @default([])
+  currencies   String[]      @default([])
+  isActive     Boolean       @default(true) @map("is_active")
+  sort         Int           @default(0)
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@map("payment_methods")
+}
+
+model SalesPaymentOrder {
+  id               String             @id @default(uuid(7)) @db.Uuid
+  number           Int                @unique @default(autoincrement())
+  leadId           String             @map("lead_id") @db.Uuid
+  quoteId          String?            @map("quote_id") @db.Uuid
+  concept          String
+  amount           Decimal            @db.Decimal(12, 2)
+  currency         String             @db.Char(3)
+  country          String?            @db.Char(2)
+  status           PaymentOrderStatus @default(PENDING)
+  allowedMethodIds String[]           @default([]) @map("allowed_method_ids") @db.Uuid
+  accessTokenHash  String?            @map("access_token_hash") @db.Char(64)
+  /// Comprobante declarado por el cliente: { methodId, reference, payer, paidAt, amount, note }
+  proof            Json?
+  proofSubmittedAt DateTime?          @map("proof_submitted_at") @db.Timestamptz(3)
+  paidAt           DateTime?          @map("paid_at") @db.Timestamptz(3)
+  method           PaymentMethod?
+  reference        String?
+  validatedById    String?            @map("validated_by_id") @db.Uuid
+  validatedAt      DateTime?          @map("validated_at") @db.Timestamptz(3)
+  gatewayProvider  String?            @map("gateway_provider")
+  gatewayPaymentId String?            @map("gateway_payment_id")
+  cancelReason     String?            @map("cancel_reason")
+  createdById      String?            @map("created_by_id") @db.Uuid
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  lead         SalesLead           @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  quote        SalesQuote?         @relation(fields: [quoteId], references: [id], onDelete: Restrict)
+  events       SalesPaymentEvent[]
+  accounting   AccountingEntry?
+  installation InstallationOrder?
+
+  @@unique([gatewayProvider, gatewayPaymentId])
+  @@index([leadId])
+  @@index([status])
+  @@map("sales_payment_orders")
+}
+
+/// Historial de la orden de pago: solo se agrega
+model SalesPaymentEvent {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  orderId   String   @map("order_id") @db.Uuid
+  type      String
+  data      Json     @default("{}")
+  userId    String?  @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  order SalesPaymentOrder @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@index([orderId, createdAt])
+  @@map("sales_payment_events")
+}
+
+/// Eventos de pasarela ya procesados (idempotencia)
+model PaymentGatewayEvent {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  provider  String
+  eventId   String   @map("event_id")
+  orderId   String?  @map("order_id") @db.Uuid
+  outcome   String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@unique([provider, eventId])
+  @@map("payment_gateway_events")
+}
+
+/// Libro de ingresos: solo se agregan asientos
+model AccountingEntry {
+  id             String         @id @default(uuid(7)) @db.Uuid
+  number         Int            @unique @default(autoincrement())
+  entryDate      DateTime       @map("entry_date") @db.Date
+  kind           String
+  leadId         String?        @map("lead_id") @db.Uuid
+  paymentOrderId String         @unique @map("payment_order_id") @db.Uuid
+  description    String
+  currency       String         @db.Char(3)
+  gross          Decimal        @db.Decimal(12, 2)
+  tax            Decimal        @db.Decimal(12, 2)
+  net            Decimal        @db.Decimal(12, 2)
+  method         PaymentMethod?
+  reference      String?
+  createdById    String?        @map("created_by_id") @db.Uuid
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  lead         SalesLead?        @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  paymentOrder SalesPaymentOrder @relation(fields: [paymentOrderId], references: [id], onDelete: Restrict)
+
+  @@map("accounting_entries")
+}
+
+/// Orden de instalación: nace solo de un pago validado
+model InstallationOrder {
+  id              String                  @id @default(uuid(7)) @db.Uuid
+  number          Int                     @unique @default(autoincrement())
+  leadId          String                  @map("lead_id") @db.Uuid
+  quoteId         String?                 @map("quote_id") @db.Uuid
+  paymentOrderId  String                  @unique @map("payment_order_id") @db.Uuid
+  status          InstallationOrderStatus @default(AUTHORIZED)
+  deploymentMode  DeploymentMode?         @map("deployment_mode")
+  planCode        PlanCode?               @map("plan_code")
+  users           Int?
+  modules         String[]                @default([])
+  serverResources String?                 @map("server_resources")
+  notes           String?
+  tenantId        String?                 @map("tenant_id") @db.Uuid
+  createdAt       DateTime                @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime                @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  lead         SalesLead         @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  quote        SalesQuote?       @relation(fields: [quoteId], references: [id], onDelete: Restrict)
+  paymentOrder SalesPaymentOrder @relation(fields: [paymentOrderId], references: [id], onDelete: Restrict)
+  tenant       Tenant?           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+
+  @@index([leadId])
+  @@map("installation_orders")
+}

@@ -192,6 +192,40 @@ Públicas (sin sesión, con límite por IP):
 | POST | `/public/chat` | Inicia una conversación: `{id, token, maxMessages}`. 404 `CHAT_DISABLED`, 503 `AGENT_UNAVAILABLE` |
 | POST | `/public/chat/:id/messages` | `{token, text}` → `{reply, handoff, registered, remaining}`. 401 `CHAT_SESSION`, 409 `CHAT_LIMIT` |
 
+### Cotizaciones, contrato y pagos (ADR 049)
+
+Plataforma (`platform:manage`, prefijo `/platform/commerce`):
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET / POST / PUT | `/items`, `/items/:id` | Catálogo: `{code, name, description?, kind, billing: ONE_TIME|MONTHLY, unitPrice, currency, unit?, planCode?, module?, isActive, sort}`. 409 `DUPLICATE_CODE` |
+| GET / POST | `/contracts` | Versiones del contrato `{title, body}` (solo se agregan) |
+| GET / PUT | `/settings` | Emisor, impuesto (`taxName`, `taxRate`, `pricesIncludeTax`), `quoteValidityDays`, `quoteTerms` |
+| GET / POST | `/quotes` (`?status=&leadId=`) | Lista; crear borrador `{leadId, currency, ..., lines[]}` |
+| GET / PUT / DELETE | `/quotes/:id` | Ver; editar o borrar solo en borrador (409 `QUOTE_FROZEN`) |
+| POST | `/quotes/:id/send` | Congela y devuelve `{path, emailed}` (el enlace se muestra una vez). 409 `NO_CONTRACT`, `NO_TERMS`, `NO_ISSUER`, `ZERO_INITIAL_PAYMENT`; 400 `VALIDITY_PAST` |
+| POST | `/quotes/:id/link`, `/quotes/:id/cancel` | Enlace nuevo (el anterior deja de servir); anular `{reason?}` |
+| GET | `/quotes/:id/pdf` | PDF |
+| GET / POST / PUT | `/payment-methods`, `/payment-methods/:id` | `{kind, name, instructions, countries[], currencies[], isActive, sort}` |
+| GET | `/payments` (`?status=&leadId=`), `/payments/:id` | Órdenes con eventos, asiento e instalación |
+| POST | `/payments/:id/validate` | `{method, reference, paidAt, amount, verifiedInAccount: true, note?}`. 400 `AMOUNT_MISMATCH`; 409 `ORDER_PAID`, `LEAD_LOST` |
+| POST | `/payments/:id/reject-proof`, `/payments/:id/cancel` | `{reason}` |
+| POST / PUT | `/payments/:id/link`, `/payments/:id/methods` | Enlace nuevo; `{methodIds[]}` que verá el cliente |
+| GET | `/accounting` (`?from=&to=`), `/accounting/export` | Libro de ingresos con totales por moneda; CSV |
+| GET / POST | `/installations`, `/installations/:id/status` | `{status: IN_PROGRESS|DONE|CANCELLED, note?}`; terminar exige empresa creada |
+
+Públicas (enlace del cliente, `t` = token; límite por IP; enlace inválido → 404 `QUOTE_LINK` / `ORDER_LINK`):
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/public/quotes/:id?t=`, `/public/quotes/:id/pdf?t=` | Propuesta con contrato; PDF |
+| POST | `/public/quotes/:id/accept` | `{token, name, document?, email?, contractVersion, accept: true}` → `{paymentPath}`. 409 `QUOTE_EXPIRED`, `QUOTE_CLOSED`, `CONTRACT_CHANGED` |
+| POST | `/public/quotes/:id/reject` | `{token, reason?}` |
+| GET | `/public/payments/:id?t=` | Orden con los métodos disponibles |
+| POST | `/public/payments/:id/proof` | `{token, methodId, reference, payer, paidAt, amount, note?}`: solo informa, no marca pagado |
+
+No hay ruta de pasarela de pago: se agregará con el adaptador del proveedor que se elija y pruebe.
+
 Panel general (permiso `platform:manage`): `GET /platform/integrations` (servicios del servidor con `configured`, variables de entorno y última prueba; números de WhatsApp por estado y con error; fallos de 7 días) y `POST /platform/integrations/:service/test` (`database, redis, gemini, smtp, n8n, chatwoot`; auditado).
 
 ### Recibir webhooks

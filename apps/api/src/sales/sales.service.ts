@@ -2,6 +2,7 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { z } from 'zod';
 import { DatabaseService, type Tx } from '../database/database.service.js';
 import { AuditService } from '../audit/audit.service.js';
+import { PaymentsService } from '../quotes/payments.service.js';
 import { money } from '../common/pagination.js';
 import { MODULES } from '../common/decorators/module.decorator.js';
 import { TEMPLATE_KEYS } from '../templates/catalog.js';
@@ -93,6 +94,7 @@ export class SalesService {
   constructor(
     private readonly db: DatabaseService,
     private readonly audit: AuditService,
+    private readonly payments: PaymentsService,
   ) {}
 
   owners() {
@@ -304,12 +306,9 @@ export class SalesService {
     if (lead.status !== 'PAYMENT_PENDING') throw new ConflictException({ code: 'NOT_PAYMENT_PENDING', message: 'Solo se valida el pago de un prospecto en «Pendiente de pago»' });
     if (input.paidAt.getTime() > Date.now() + 60_000) throw new BadRequestException('La fecha del pago no puede ser futura');
     const data = { amount: input.amount, currency: input.currency, method: input.method, reference: input.reference, paidAt: input.paidAt.toISOString(), verifiedInAccount: true };
-    await this.db.system.$transaction(async (tx) => {
-      const r = await tx.salesLead.updateMany({ where: { id, status: 'PAYMENT_PENDING' }, data: { status: 'PAYMENT_CONFIRMED', statusChangedAt: new Date() } });
-      if (r.count !== 1) throw new ConflictException({ code: 'STALE_STATUS', message: 'Otra persona cambió la etapa: recarga y vuelve a intentarlo' });
-      await this.log(tx, id, actorId, 'PAYMENT_VALIDATED', input.note ?? null, data);
-      await this.log(tx, id, actorId, 'STATUS_CHANGED', null, { from: 'PAYMENT_PENDING', to: 'PAYMENT_CONFIRMED' });
-    });
+    // Desde la fase C el pago queda como orden pagada, con su asiento de ingreso y su orden de instalación (ADR 049)
+    const orderId = await this.payments.registerManual(actorId, id, { ...input, note: input.note ?? null });
+    Object.assign(data, { paymentOrderId: orderId });
     await this.audit.system({ tenantId: null, userId: actorId, action: 'sales.payment_validated', entityType: 'sales_lead', entityId: id, metadata: data });
     return this.get(id);
   }
@@ -319,9 +318,12 @@ export class SalesService {
     const l = await this.db.system.salesLead.findUnique({ where: { id } });
     if (!l) throw new NotFoundException('Prospecto no encontrado');
     if (l.status !== 'PAYMENT_CONFIRMED' || l.tenantId) throw new ConflictException({ code: 'LEAD_NOT_READY', message: 'Solo se convierte en cliente un prospecto con el pago confirmado y sin empresa creada' });
+    // Lo contratado (orden de instalación del pago validado) manda sobre el interés inicial
+    const inst = await this.db.system.installationOrder.findFirst({ where: { leadId: id, tenantId: null, status: 'AUTHORIZED' }, orderBy: { number: 'desc' } });
     return {
       leadId: l.id, number: l.number, name: l.company ?? l.name, adminName: l.name, adminEmail: l.email, phone: l.phone, contactEmail: l.email,
-      templateKey: l.sector && l.sector !== 'OTHER' ? l.sector : null, deploymentMode: l.interestMode, planCode: l.interestPlan, enabledModules: l.interestModules,
+      templateKey: l.sector && l.sector !== 'OTHER' ? l.sector : null, deploymentMode: inst?.deploymentMode ?? l.interestMode, planCode: inst?.planCode ?? l.interestPlan,
+      enabledModules: inst?.modules.length ? inst.modules : l.interestModules, installationOrderId: inst?.id ?? null,
     };
   }
 

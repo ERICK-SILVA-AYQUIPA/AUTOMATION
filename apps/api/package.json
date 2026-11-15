@@ -1,6 +1,6 @@
 {
   "name": "@aisa/api",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "",
   "author": "",
   "private": true,
@@ -50,6 +50,7 @@
     "nodemailer": "^10.5.0",
     "openai": "7.45.1",
     "papaparse": "^5.7.0",
+    "pdfkit": "0.20.2",
     "pg": "^8.23.1",
     "pino": "^10.4.0",
     "pino-http": "^11.0.0",
@@ -67,6 +68,7 @@
     "@types/node": "^24.0.0",
     "@types/nodemailer": "^8.0.2",
     "@types/papaparse": "^5.5.2",
+    "@types/pdfkit": "0.17.7",
     "@types/pg": "^8.23.1",
     "@types/supertest": "^7.0.0",
     "@vitest/coverage-v8": "^4.1.2",

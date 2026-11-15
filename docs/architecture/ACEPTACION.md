@@ -75,6 +75,22 @@ Pruebas: `api-center.e2e-spec.ts` (API y PostgreSQL) y `api-center.mjs` (navegad
 | Agente por WhatsApp | Responde en la empresa interna con el número que da Meta y deriva a la bandeja (`commercial.e2e-spec.ts`) | Probado en local; **con número real de Meta: pendiente** |
 | Seguimiento con consentimiento | Consentimiento guardado con fecha y canal; seguimiento como tarea del equipo | Parcial: **el envío automático al prospecto no está implementado** |
 
+## Fase C: cotizaciones, contratos y pagos (ADR 049)
+
+| Criterio | Cómo se demuestra | Estado |
+|---|---|---|
+| Generador con plan, usuarios, módulos, instalación, servidor, configuración, integraciones, servicios, soporte, mantenimiento, precio de instalación, mensualidad y vigencia | Editor en la ficha del prospecto (`quotes.mjs`) | Probado en local |
+| Número, cliente, servicios, precios, moneda, impuestos, condiciones, vigencia y estado | `quotes.e2e-spec.ts`; impuesto incluido o agregado calculado en centavos | Probado |
+| Documento PDF profesional | Vista previa del equipo y descarga del cliente (se verifica que es PDF) | Probado |
+| Aceptación con condiciones y versión del contrato | El cliente acepta con nombre y documento; se guardan IP, navegador, fecha y versión; si el contrato cambió no acepta | Probado |
+| Una cotización enviada no se altera | Disparador en la base; el panel ya no permite editar | Probado |
+| Métodos de pago configurables por país y cliente | Métodos por país y moneda; el equipo puede limitar los de una orden | Probado |
+| Un comprobante no prueba el pago | El cliente solo informa; pagado exige validación con importe exacto y la casilla «verifiqué el ingreso en la cuenta», o una pasarela oficial | Probado (API y navegador) |
+| Registro contable | Asiento por pago validado (bruto, impuesto, neto), inalterable y exportable a CSV | Probado |
+| Orden de instalación solo con pago validado | Nace en la misma transacción del pago; la conversión en cliente la enlaza a la empresa | Probado |
+| Pasarela oficial | Confirmación idempotente lista, **sin ruta pública: no hay proveedor elegido ni probado** | Pendiente de Rick |
+| Datos reales (Yape, cuentas, precios, impuesto, contrato) | Se cargan en Cotizaciones y pagos › Catálogo y Configuración | **Pendiente de Rick** |
+
 ## Seguridad (fase 10)
 
 - Dependencias de producción: `pnpm audit --prod` sin vulnerabilidades conocidas (2026-11-13). No se añadieron dependencias en las fases 8 y 9: el ZIP y el actualizador usan solo Node y herramientas del sistema.

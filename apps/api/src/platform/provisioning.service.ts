@@ -99,6 +99,8 @@ export class ProvisioningService {
           if (r.count !== 1) throw new ConflictException({ code: 'LEAD_NOT_READY', message: 'Solo se convierte en cliente un prospecto con el pago confirmado y sin empresa creada' });
           await logSalesActivity(tx, leadId, actorId, 'CONVERTED', null, { tenantId: tenant.id, tenantName: tenant.name, planCode: input.planCode, deploymentMode: profile.deploymentMode });
           await logSalesActivity(tx, leadId, actorId, 'STATUS_CHANGED', null, { from: 'PAYMENT_CONFIRMED', to: 'INSTALLATION_PENDING' });
+          // La orden de instalación del pago validado queda asociada a la empresa creada (ADR 049)
+          await tx.installationOrder.updateMany({ where: { leadId, tenantId: null, status: { in: ['AUTHORIZED', 'IN_PROGRESS'] } }, data: { tenantId: tenant.id, status: 'IN_PROGRESS' } });
         }
         await tx.auditLog.create({
           data: {

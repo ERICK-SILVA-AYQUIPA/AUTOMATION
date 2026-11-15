@@ -156,7 +156,15 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
   - [x] Editor en Plataforma › Página comercial con prueba del agente; conversación del chat en la ficha del prospecto
   - [x] Pruebas: `commercial.e2e-spec.ts` (8) y `commercial.mjs` en navegador (8 pasos)
   - [ ] Seguimiento automático saliente a prospectos (necesita plantillas aprobadas por Meta o SMTP real con baja); textos y testimonios reales los carga la plataforma
-- [ ] Fase C: cotizaciones, contratos y pagos
+- [x] Fase C: cotizaciones, contratos y pagos (ADR 049)
+  - [x] Catálogo comercial editable; emisor, impuesto (incluido o no), vigencia y condiciones generales
+  - [x] Cotización desde la ficha del prospecto (plan, usuarios, módulos, modalidad, servidor, integraciones, soporte, mantenimiento, conceptos del catálogo o libres), congelada al enviarse, con PDF
+  - [x] Enlace del cliente: ver, bajar el PDF, aceptar con la versión del contrato o rechazar
+  - [x] Contrato con versiones que solo se agregan
+  - [x] Orden de pago con métodos por país, moneda u orden; el cliente informa el pago; el equipo valida con el ingreso visto en la cuenta
+  - [x] Asiento de ingreso (CSV) y orden de instalación en la misma transacción; vencimiento automático
+  - [x] Pruebas: `quotes.e2e-spec.ts` (9), `money.spec.ts` (3) y `quotes.mjs` en navegador (8 pasos)
+  - [ ] Pasarela de pago oficial (sin proveedor elegido: la confirmación idempotente existe, sin ruta pública); subir imagen del comprobante; datos reales de Yape/banco, precios, impuesto y contrato: **los carga Rick**
 - [ ] Fase D: gestor de infraestructura
 - [ ] Fase E: orquestador de aprovisionamiento
 - [ ] Fase F: instalación automatizada

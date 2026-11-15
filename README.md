@@ -4,10 +4,10 @@ Plataforma SaaS multiempresa de ventas y atención al cliente por WhatsApp con
 inteligencia artificial: catálogo, inventario, pedidos, clientes, bandeja humana
 y automatizaciones.
 
-> **Estado (0.12.0, 2026-11-15):** las 10 fases de la evolución, el Centro universal de
+> **Estado (0.13.0, 2026-11-15):** las 10 fases de la evolución, el Centro universal de
 > APIs (Claude, Gemini, OpenAI y DeepSeek configurables desde los paneles, ADR 046), el
-> Centro comercial (prospectos, embudo e historial, ADR 047) y la página y el agente
-> comerciales (ADR 048) están
+> Centro comercial (prospectos, embudo e historial, ADR 047), la página y el agente
+> comerciales (ADR 048) y las cotizaciones con contrato, órdenes de pago e ingresos (ADR 049) están
 > implementados y probados en local (ver [`docs/architecture/PLAN.md`](docs/architecture/PLAN.md) y la
 > [lista de aceptación](docs/architecture/ACEPTACION.md)). Lo que depende de servicios
 > o datos reales (servidor y dominio, SMTP, claves de los proveedores de IA, número de WhatsApp de Meta,
@@ -120,7 +120,7 @@ pnpm --filter @aisa/api lint && pnpm --filter @aisa/web lint
 # y DEEPSEEK_BASE_URL=http://127.0.0.1:4997/deepseek: los scripts levantan ahí servidores
 # locales que responden como Meta y los proveedores de IA (no se conectan a los servicios reales).
 set -a; . ./.env; set +a
-for t in smoke provisioning automations assistant whatsapp chatwoot billing integrations api-center sales commercial templates deliveries; do
+for t in smoke provisioning automations assistant whatsapp chatwoot billing integrations api-center sales quotes commercial templates deliveries; do
   MAILPIT_URL=http://localhost:8025 WEB_URL=http://localhost:3000 node apps/web/e2e/$t.mjs
 done
 ```
