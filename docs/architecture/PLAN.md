@@ -198,9 +198,24 @@ Leyenda: [x] hecho y verificado · [~] en curso · [ ] pendiente
   - [x] Instalaciones automáticas: tarjeta «Puesta en marcha y monitoreo» y estado en la lista
   - [x] Pruebas: `orchestrator.e2e-spec.ts` (8), `orchestrator.spec.ts` (7) y `orchestrator.mjs` en navegador (6 pasos)
   - [ ] Ver el reporte de una instalación real (depende de la primera instalación real)
-- [ ] Fase H: pruebas y entrega
-- [ ] Fase I: posventa
-- [ ] Fase J: seguridad, monitoreo y rentabilidad
+- [x] Fase H: pruebas y entrega (ADR 053)
+  - [x] Asistente «Nueva venta e instalación»: 12 pasos calculados con datos reales, progreso, lo que falta y acción de cada paso
+  - [x] Pantalla principal: botón NUEVA VENTA E INSTALACIÓN y accesos (prospecto, cotización, empresa, instalación, proveedor, servidores, pagos, entregas, errores)
+  - [x] Escenario de aceptación (§16) en navegador con dos empresas sin compartir datos ni credenciales: `acceptance.mjs` (16 pasos)
+  - [x] Pruebas: `journey.e2e-spec.ts`, `journey.spec.ts` (4)
+  - [ ] Pasos 12-17 y 19 del escenario con servicios reales: servidor, DNS y HTTPS, Meta, Gemini y correo de entrega (**lo autoriza Rick**)
+- [x] Fase I: posventa (ADR 054)
+  - [x] Centro de soporte de la empresa (`/soporte`): casos con tipo, prioridad y plazo de primera respuesta, historial, respuesta que reabre, encuesta de satisfacción que cierra
+  - [x] Cola del equipo (`/plataforma/soporte`): filtros, búsqueda, primera respuesta vencida, satisfacción de 90 días, notas internas, estado, prioridad y responsable, casos registrados por la empresa
+  - [x] Incidencias automáticas del monitoreo (una por instalación, se resuelven al volver sana)
+  - [x] Renovaciones: avisos 7/3/1 día antes y al vencer, una vez por periodo; próxima acción en el prospecto; panel de vencimientos
+  - [x] Instalación independiente: contacto de soporte (`SUPPORT_CONTACT`) en lugar de casos
+  - [x] Pruebas: `support.e2e-spec.ts` (5), `support.spec.ts` (2), incidencias en `orchestrator.e2e-spec.ts`, `support.mjs` en navegador
+- [x] Fase J: seguridad, monitoreo y rentabilidad (ADR 055)
+  - [x] Panel de rentabilidad (`/plataforma/rentabilidad`): precio de venta, ingreso recurrente, cobrado, costos de servidor e IA medidos, WhatsApp, almacenamiento, servicios externos y soporte registrados, margen estimado solo con todos los datos, pagos pendientes
+  - [x] Moneda base y tipos de cambio definidos por el equipo; presupuestos de IA y de costos totales con alertas por correo una vez por mes y nivel
+  - [x] Revisión de seguridad de §15 con evidencia en pruebas (ver ACEPTACION.md); prueba de política: los agentes de IA no tienen herramientas de infraestructura, pagos ni gastos
+  - [x] Pruebas: `finance.e2e-spec.ts` (4), `profitability.spec.ts` (5), `security-policy.spec.ts` (3), `finance.mjs` en navegador
 
 ## FASE 7: automatizaciones, pedidos, inventario, notificaciones
 ## FASE 8: seguridad, pruebas E2E, optimización, documentación, producción

@@ -7,6 +7,7 @@ import type { Prisma, ProvisioningRun } from '../generated/prisma/client.js';
 import type { ProvisioningStatus } from '../generated/prisma/enums.js';
 import { InfraService } from '../infra/infra.service.js';
 import { MailService } from '../mail/mail.service.js';
+import { SupportService } from '../support/support.service.js';
 import { installNo, orderNo } from '../quotes/quote-pdf.js';
 import { probeInstallation, type ProbeDeps } from './probe.js';
 import { AGENT_STEPS, DEADLINE, FLOW, LABEL, MAX_ATTEMPTS, MONITOR_STALE_MS, POLL, backoff, isActive, serverNameFor } from './steps.js';
@@ -52,6 +53,7 @@ export class ProvisioningEngine {
     private readonly audit: AuditService,
     private readonly infra: InfraService,
     private readonly mail: MailService,
+    private readonly support: SupportService,
   ) {}
 
   secrets(run: Pick<ProvisioningRun, 'secretsEnc'>): RunSecrets {
@@ -192,6 +194,8 @@ export class ProvisioningEngine {
         ? `no reporta desde ${r.lastReportAt ? r.lastReportAt.toISOString() : 'la entrega'} (cada 10 minutos debería)`
         : 'reporta servicios con problemas';
       await this.event(r.id, 'DELIVERED', 'warn', `Monitoreo: la instalación ${what}`, 'engine');
+      // Incidencia en el centro de soporte, una por instalación mientras siga abierta
+      await this.support.openMonitorIncident(r.id, `Instalación ${r.domain}: ${silent ? 'no reporta' : 'servicios con problemas'}`, `El monitoreo detectó que la instalación #${r.number} (${r.domain}) ${what}.`).catch(() => null);
       await this.notifyAdmins(r.id, `Instalación #${r.number} (${r.domain}): ${silent ? 'sin reportar' : 'servicios con problemas'}`,
         `La instalación #${r.number} de ${r.domain} ${what}.\n\nEntra por SSH y revisa ./salud.sh en /opt/aisa/instalacion y el registro /var/log/aisa-reporte.log.`);
     }

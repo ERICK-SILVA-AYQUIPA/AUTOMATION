@@ -109,7 +109,7 @@ if not done: out.insert(len(out) - 1 if out and out[-1] == '' else len(out), f'{
 open(p, 'w').write('\n'.join(out))
 PY
 }
-for k in APP_DOMAIN ACME_EMAIL PLATFORM_ADMIN_EMAIL SMTP_HOST SMTP_PORT SMTP_SECURE SMTP_USER SMTP_PASSWORD MAIL_FROM APP_VERSION; do setenv "$k" "${!k}"; done
+for k in APP_DOMAIN ACME_EMAIL PLATFORM_ADMIN_EMAIL SMTP_HOST SMTP_PORT SMTP_SECURE SMTP_USER SMTP_PASSWORD MAIL_FROM APP_VERSION SUPPORT_CONTACT; do setenv "$k" "${!k:-}"; done
 chmod 600 .env.production
 out="$(./instalar.sh --verificar 2>&1)"; rc=$?
 echo "$out"

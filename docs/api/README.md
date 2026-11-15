@@ -247,6 +247,38 @@ Plataforma (`platform:manage`, prefijo `/platform/infra`). Ningún asistente de 
 | POST | `/servers/:id/refresh`, `/servers/:id/power` | Estado del proveedor; `{action: poweron|shutdown|poweroff|reboot}` |
 | POST | `/servers/:id/delete` | `{confirmName, reason}`: elimina en el proveedor; la fila queda marcada |
 
+### Nueva venta e instalación (ADR 053)
+
+Plataforma (`platform:manage`), solo lectura: `GET /platform/journey` (ventas en curso: prospectos calificados no entregados con su paso) y `GET /platform/journey/:leadId` → `{lead, tenant, mode, current, done, steps: [{n, key, title, state: done|current|pending|blocked|skipped, detail, missing[], action: {label, href} | null}]}`. 404 si el prospecto no existe.
+
+### Soporte y renovaciones (ADR 054)
+
+Empresa (`support:use`: administrador y supervisor), prefijo `/support`:
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/info` | `{tickets, contact, firstResponseHours}`; `tickets: false` en una instalación independiente (se muestra `SUPPORT_CONTACT`) |
+| GET / POST | `/tickets` | Sus casos; abrir `{kind: QUESTION\|INCIDENT\|REQUEST\|BILLING, priority?: LOW\|NORMAL\|HIGH\|URGENT, subject, body}`. 409 `SUPPORT_EXTERNAL` |
+| GET | `/tickets/:id` | Caso con su historial (sin notas internas). 404 si es de otra empresa |
+| POST | `/tickets/:id/messages` | `{body}`; reabre si estaba esperando o resuelto. 409 `TICKET_CLOSED` |
+| POST | `/tickets/:id/rating` | `{rating: 1-5, comment?}`; solo resuelto y una vez; cierra el caso. 409 `NOT_RATABLE` |
+
+Plataforma (`platform:manage`), prefijo `/platform/support`: `GET /summary` (pendientes por prioridad, primera respuesta vencida, satisfacción de 90 días); `GET /tickets` (`?status=active|OPEN|…&tenantId=&q=`) y `POST /tickets` (`{tenantId, kind, priority?, subject, body}`, a nombre de la empresa); `GET /tickets/:id`; `POST /tickets/:id/messages` (`{body, internal?}`); `PATCH /tickets/:id` (`{status?, priority?, assigneeId?}`; al resolver pide la calificación por correo); `GET /renewals` (vencen en 30 días o vencieron hace menos de 30, con estado de acceso y avisos enviados) y `POST /renewals/send` (envía los avisos pendientes; idempotente → `{sent}`).
+
+### Rentabilidad (ADR 055)
+
+Plataforma (`platform:manage`), prefijo `/platform/finance`; `?period=AAAA-MM` (hora de Lima, por defecto el mes actual):
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/` | Todas las empresas: ingreso recurrente, costos por concepto, margen (`value: null` + `missing[]` si falta un dato), pendientes; totales en la moneda base |
+| GET / PUT | `/settings` | `{baseCurrency, rates: {USD: 3.75}}` (unidades de la moneda base por 1 de la otra) |
+| GET | `/tenants/:id` | Detalle: precio, ingreso, cobrado, costos medidos y registrados, margen, pendientes, presupuestos, partidas, servidores, alertas |
+| POST | `/tenants/:id/costs` | `{category: SERVER\|AI\|WHATSAPP\|STORAGE\|EXTERNAL\|SUPPORT, description, amount, currency, cycle: MONTHLY\|ONE_TIME, startsOn, endsOn?}` |
+| PATCH | `/tenants/:id/costs/:costId` | `{endsOn}`: termina la partida (no se borra) |
+| PUT / DELETE | `/tenants/:id/budgets/:scope` | `scope: AI\|TOTAL`; `{amount, currency, thresholdPct?}` |
+| POST | `/alerts/check` | Revisa los presupuestos ahora (lo hace el worker cada hora); idempotente → `{sent}` |
+
 ### Instalaciones automáticas (ADR 051 y 052)
 
 Plataforma (`platform:manage`, prefijo `/platform/provisioning`):

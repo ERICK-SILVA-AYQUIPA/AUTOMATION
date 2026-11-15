@@ -25,6 +25,9 @@ import { CommercialModule } from './commercial/commercial.module.js';
 import { QuotesModule } from './quotes/quotes.module.js';
 import { InfraModule } from './infra/infra.module.js';
 import { OrchestratorModule } from './orchestrator/orchestrator.module.js';
+import { JourneyModule } from './journey/journey.module.js';
+import { SupportModule } from './support/support.module.js';
+import { FinanceModule } from './finance/finance.module.js';
 import { SystemModule } from './system/system.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
 import { REDIS, RedisModule } from './health/redis.provider.js';
@@ -100,6 +103,9 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
     QuotesModule,
     InfraModule,
     OrchestratorModule,
+    JourneyModule,
+    SupportModule,
+    FinanceModule,
     SystemModule,
     DashboardModule,
     QueuesModule,

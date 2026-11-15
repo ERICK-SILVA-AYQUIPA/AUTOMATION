@@ -4,13 +4,16 @@ Plataforma SaaS multiempresa de ventas y atención al cliente por WhatsApp con
 inteligencia artificial: catálogo, inventario, pedidos, clientes, bandeja humana
 y automatizaciones.
 
-> **Estado (0.16.0, 2026-11-15):** las 10 fases de la evolución, el Centro universal de
+> **Estado (0.18.0, 2026-11-15):** las 10 fases de la evolución, el Centro universal de
 > APIs (Claude, Gemini, OpenAI y DeepSeek configurables desde los paneles, ADR 046), el
 > Centro comercial (prospectos, embudo e historial, ADR 047), la página y el agente
 > comerciales (ADR 048), las cotizaciones con contrato, órdenes de pago e ingresos (ADR 049), el gestor de
 > infraestructura con Hetzner (solicitud y aprobación antes de crear, ADR 050) y las instalaciones
 > automáticas (orquestador y agente del servidor, ADR 051) con su monitoreo y puesta en marcha
-> (WhatsApp, IA y automatizaciones de cada instalación, ADR 052) están
+> (WhatsApp, IA y automatizaciones de cada instalación, ADR 052) y el asistente «Nueva venta e
+> instalación» con el escenario de aceptación en dos empresas (ADR 053) la postventa (centro de soporte,
+> encuesta de satisfacción y avisos de renovación, ADR 054) y la rentabilidad por instalación con presupuestos
+> y alertas de consumo (ADR 055) están
 > implementados y probados en local (ver [`docs/architecture/PLAN.md`](docs/architecture/PLAN.md) y la
 > [lista de aceptación](docs/architecture/ACEPTACION.md)). Lo que depende de servicios
 > o datos reales (servidor y dominio, SMTP, claves de los proveedores de IA, número de WhatsApp de Meta,

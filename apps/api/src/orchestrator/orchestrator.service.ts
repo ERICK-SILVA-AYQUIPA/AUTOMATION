@@ -12,6 +12,7 @@ import type { Prisma, ProvisioningRun } from '../generated/prisma/client.js';
 import type { ProvisioningStatus } from '../generated/prisma/enums.js';
 import { InfraService, deleteSchema } from '../infra/infra.service.js';
 import { Queues } from '../queues/queues.module.js';
+import { SupportService } from '../support/support.service.js';
 import { installNo } from '../quotes/quote-pdf.js';
 import { agentEnv, agentScript, cloudInit } from './agent.js';
 import { ProvisioningEngine } from './engine.js';
@@ -78,6 +79,7 @@ export class OrchestratorService implements OnModuleInit {
     private readonly deliveries: DeliveriesService,
     private readonly engine: ProvisioningEngine,
     private readonly queues: Queues,
+    private readonly support: SupportService,
   ) {}
 
   onModuleInit() {
@@ -250,14 +252,14 @@ export class OrchestratorService implements OnModuleInit {
     if (u.count !== 1) throw new ConflictException({ code: 'BOOTSTRAP_USED', message: 'El arranque ya se usó o venció' });
     await this.engine.event(id, run.status, 'info', 'El servidor nuevo se comunicó (arranque de un solo uso)', 'agent');
     await this.kick(id);
-    const settings = run.settings as { smtp: { host: string; port: number; secure: boolean; user: string; from: string } };
+    const settings = run.settings as { supportContact?: string; smtp: { host: string; port: number; secure: boolean; user: string; from: string } };
     const img = this.imagesFile();
     return {
       script: agentScript(),
       env: agentEnv({
         API_URL: this.env.API_PUBLIC_URL, RUN_ID: id, AGENT_TOKEN: agentToken, MONITOR_TOKEN: monitorToken, APP_VERSION, APP_DOMAIN: run.domain, ACME_EMAIL: run.adminEmail, PLATFORM_ADMIN_EMAIL: run.adminEmail,
         SMTP_HOST: settings.smtp.host, SMTP_PORT: String(settings.smtp.port), SMTP_SECURE: String(settings.smtp.secure), SMTP_USER: settings.smtp.user,
-        SMTP_PASSWORD: this.engine.secrets(run).smtpPassword ?? '', MAIL_FROM: settings.smtp.from, IMAGES_SHA256: img?.sha256 ?? '',
+        SMTP_PASSWORD: this.engine.secrets(run).smtpPassword ?? '', MAIL_FROM: settings.smtp.from, SUPPORT_CONTACT: settings.supportContact ?? '', IMAGES_SHA256: img?.sha256 ?? '',
       }),
     };
   }
@@ -311,6 +313,7 @@ export class OrchestratorService implements OnModuleInit {
     });
     if (before !== reportSignature(input)) await this.engine.event(id, run.status, input.healthy ? 'info' : 'warn', `${before ? 'Cambió el estado de la instalación' : 'Primer reporte de la instalación'}: ${reportSummary(input)}`, 'agent');
     else if (recovered) await this.engine.event(id, run.status, 'info', 'La instalación volvió a reportar con servicios sanos', 'agent');
+    if (recovered) await this.support.resolveMonitorIncident(id);
     return { ok: true };
   }
 

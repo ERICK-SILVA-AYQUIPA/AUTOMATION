@@ -116,7 +116,14 @@ export const ModelName = {
   InfraServer: 'InfraServer',
   InfraOperation: 'InfraOperation',
   ProvisioningRun: 'ProvisioningRun',
-  ProvisioningEvent: 'ProvisioningEvent'
+  ProvisioningEvent: 'ProvisioningEvent',
+  SupportTicket: 'SupportTicket',
+  SupportMessage: 'SupportMessage',
+  SubscriptionNotice: 'SubscriptionNotice',
+  TenantCostItem: 'TenantCostItem',
+  TenantBudget: 'TenantBudget',
+  BudgetAlert: 'BudgetAlert',
+  FinanceSettings: 'FinanceSettings'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1413,6 +1420,118 @@ export const ProvisioningEventScalarFieldEnum = {
 } as const
 
 export type ProvisioningEventScalarFieldEnum = (typeof ProvisioningEventScalarFieldEnum)[keyof typeof ProvisioningEventScalarFieldEnum]
+
+
+export const SupportTicketScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  tenantId: 'tenantId',
+  kind: 'kind',
+  priority: 'priority',
+  status: 'status',
+  source: 'source',
+  subject: 'subject',
+  createdById: 'createdById',
+  assigneeId: 'assigneeId',
+  provisioningRunId: 'provisioningRunId',
+  firstResponseAt: 'firstResponseAt',
+  resolvedAt: 'resolvedAt',
+  closedAt: 'closedAt',
+  rating: 'rating',
+  ratingComment: 'ratingComment',
+  ratedAt: 'ratedAt',
+  lastActivityAt: 'lastActivityAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SupportTicketScalarFieldEnum = (typeof SupportTicketScalarFieldEnum)[keyof typeof SupportTicketScalarFieldEnum]
+
+
+export const SupportMessageScalarFieldEnum = {
+  id: 'id',
+  ticketId: 'ticketId',
+  tenantId: 'tenantId',
+  authorKind: 'authorKind',
+  authorId: 'authorId',
+  body: 'body',
+  internal: 'internal',
+  createdAt: 'createdAt'
+} as const
+
+export type SupportMessageScalarFieldEnum = (typeof SupportMessageScalarFieldEnum)[keyof typeof SupportMessageScalarFieldEnum]
+
+
+export const SubscriptionNoticeScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  periodEnd: 'periodEnd',
+  kind: 'kind',
+  recipients: 'recipients',
+  createdAt: 'createdAt'
+} as const
+
+export type SubscriptionNoticeScalarFieldEnum = (typeof SubscriptionNoticeScalarFieldEnum)[keyof typeof SubscriptionNoticeScalarFieldEnum]
+
+
+export const TenantCostItemScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  category: 'category',
+  description: 'description',
+  amount: 'amount',
+  currency: 'currency',
+  cycle: 'cycle',
+  startsOn: 'startsOn',
+  endsOn: 'endsOn',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TenantCostItemScalarFieldEnum = (typeof TenantCostItemScalarFieldEnum)[keyof typeof TenantCostItemScalarFieldEnum]
+
+
+export const TenantBudgetScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  scope: 'scope',
+  amount: 'amount',
+  currency: 'currency',
+  thresholdPct: 'thresholdPct',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TenantBudgetScalarFieldEnum = (typeof TenantBudgetScalarFieldEnum)[keyof typeof TenantBudgetScalarFieldEnum]
+
+
+export const BudgetAlertScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  scope: 'scope',
+  period: 'period',
+  level: 'level',
+  spent: 'spent',
+  budget: 'budget',
+  currency: 'currency',
+  recipients: 'recipients',
+  createdAt: 'createdAt'
+} as const
+
+export type BudgetAlertScalarFieldEnum = (typeof BudgetAlertScalarFieldEnum)[keyof typeof BudgetAlertScalarFieldEnum]
+
+
+export const FinanceSettingsScalarFieldEnum = {
+  id: 'id',
+  baseCurrency: 'baseCurrency',
+  rates: 'rates',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceSettingsScalarFieldEnum = (typeof FinanceSettingsScalarFieldEnum)[keyof typeof FinanceSettingsScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -30,6 +30,7 @@ export const PERMISSIONS = {
   'ai:configure': [Role.TENANT_ADMIN],
   'automations:manage': [Role.TENANT_ADMIN],
   'audit:read': [Role.TENANT_ADMIN],
+  'support:use': [Role.TENANT_ADMIN, Role.SUPERVISOR],
 } as const satisfies Record<string, readonly Role[]>;
 
 export type Permission = keyof typeof PERMISSIONS;

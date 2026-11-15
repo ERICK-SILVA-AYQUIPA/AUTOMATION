@@ -12,6 +12,7 @@ import { PlansEditor } from './plans-editor';
 import { PlatformIntegrations } from './platform-integrations';
 import { ApiCenter } from './api-center';
 import { SystemCard } from './system-card';
+import { QuickActions } from './quick-actions';
 import type { SubscriptionAccess } from '@/lib/types';
 import { Badge, Button, Card, Dialog, EmptyState, ErrorBox, Field, Input, Loading, PageHeader, Pagination, Select, StatCard, Table, Td, Textarea, Th, cn } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
@@ -230,6 +231,7 @@ function Platform() {
     <>
       <PageHeader title="Empresas" description="Administración general de la plataforma. Cobro manual: registra aquí los pagos recibidos por Yape o transferencia."
         actions={<Link href="/plataforma/nueva" className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-fg hover:opacity-90"><Plus className="size-4" />Nueva empresa</Link>} />
+      <QuickActions />
       <ErrorBox error={metrics.error} />
       {m && (
         <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

@@ -3,10 +3,10 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState, type FormEvent } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useState, type FormEvent } from 'react';
 import { RequirePermission } from '@/components/guard';
-import { Badge, Button, Card, Dialog, EmptyState, ErrorBox, Field, Input, Loading, PageHeader, Select } from '@/components/ui';
+import { Badge, Button, Card, Dialog, EmptyState, ErrorBox, Field, Input, Loading, PageHeader, Select, cn } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
 import { ApiError, api } from '@/lib/api';
 import { dateTime } from '@/lib/format';
@@ -21,11 +21,11 @@ interface Options {
   apiPublicUrl: string;
 }
 
-function NewRun({ onClose }: { onClose: () => void }) {
+function NewRun({ onClose, orderId = '' }: { onClose: () => void; orderId?: string }) {
   const toast = useToast();
   const router = useRouter();
   const opts = useQuery({ queryKey: ['prov-options'], queryFn: () => api<Options>('/platform/provisioning/options') });
-  const [f, setF] = useState({ installationOrderId: '', providerId: '', location: '', serverType: '', domain: '', adminEmail: '', systemName: '', supportContact: '', smtpHost: '', smtpPort: '587', smtpSecure: false, smtpUser: '', smtpPassword: '', smtpFrom: '' });
+  const [f, setF] = useState({ installationOrderId: orderId, providerId: '', location: '', serverType: '', domain: '', adminEmail: '', systemName: '', supportContact: '', smtpHost: '', smtpPort: '587', smtpSecure: false, smtpUser: '', smtpPassword: '', smtpFrom: '' });
   const providerId = f.providerId || opts.data?.providers[0]?.id || '';
   const catalog = useQuery({ queryKey: ['infra-catalog', providerId], queryFn: () => api<Catalog>(`/platform/infra/providers/${providerId}/catalog`), enabled: !!providerId });
   const [busy, setBusy] = useState(false);
@@ -33,6 +33,17 @@ function NewRun({ onClose }: { onClose: () => void }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const set = (p: Partial<typeof f>) => setF({ ...f, ...p });
   const order = opts.data?.orders.find((o) => o.id === f.installationOrderId);
+  /** Al elegir la orden se proponen el nombre del sistema y el correo del cliente */
+  function pick(id: string) {
+    const o = opts.data?.orders.find((x) => x.id === id);
+    setF((p) => ({ ...p, installationOrderId: id, systemName: p.systemName || (o ? `Ventas ${o.lead.company ?? o.lead.name}` : ''), adminEmail: p.adminEmail || o?.lead.email || '' }));
+  }
+  // Abierto desde el asistente de venta con la orden ya elegida
+  const [prefilled, setPrefilled] = useState(false);
+  if (orderId && opts.data && !prefilled) {
+    setPrefilled(true);
+    pick(orderId);
+  }
   const types = (catalog.data?.serverTypes ?? []).filter((t) => t.allowed && !t.deprecated && (!f.location || t.availableIn.includes(f.location)));
   const price = catalog.data?.serverTypes.find((t) => t.name === f.serverType)?.prices.find((x) => x.location === f.location);
   const orders = (opts.data?.orders ?? []).filter((o) => o.deploymentMode !== 'SAAS');
@@ -69,7 +80,7 @@ function NewRun({ onClose }: { onClose: () => void }) {
         <p className="text-sm text-muted">Registrar no crea nada que cueste: el servidor se pide como solicitud y una persona lo aprueba en Infraestructura. El resto (Docker, aplicación, migraciones, HTTPS, respaldo) lo hace el servidor solo y lo informa aquí.</p>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Orden de instalación pagada" error={errors.installationOrderId}>
-            <Select value={f.installationOrderId} onChange={(e) => { const o = opts.data?.orders.find((x) => x.id === e.target.value); set({ installationOrderId: e.target.value, systemName: f.systemName || (o ? `Ventas ${o.lead.company ?? o.lead.name}` : ''), adminEmail: f.adminEmail || o?.lead.email || '' }); }} required>
+            <Select value={f.installationOrderId} onChange={(e) => pick(e.target.value)} required>
               <option value="">Elige</option>
               {orders.map((o) => <option key={o.id} value={o.id}>{installNo(o.number)} · {o.lead.company ?? o.lead.name}</option>)}
             </Select>
@@ -118,9 +129,23 @@ function NewRun({ onClose }: { onClose: () => void }) {
   );
 }
 
+const FILTERS = [['todas', 'Todas'], ['curso', 'En curso'], ['problemas', 'Con problemas'], ['entregadas', 'Entregadas']] as const;
+type Filter = (typeof FILTERS)[number][0];
+/** Con problemas: detenida o, ya entregada, sin reportar o con servicios enfermos */
+function matches(r: RunRow, f: Filter) {
+  if (f === 'curso') return ACTIVE.includes(r.status) && !r.stoppedAt;
+  if (f === 'entregadas') return r.status === 'DELIVERED';
+  if (f === 'problemas') return !!r.stoppedAt || ['danger', 'warning'].includes(monitorState(r)?.tone ?? '');
+  return true;
+}
+
 function Runs() {
   const qc = useQueryClient();
-  const [creating, setCreating] = useState(false);
+  // Desde el asistente de venta: ?orden=<id> abre el registro con la orden elegida
+  const params = useSearchParams();
+  const preset = params.get('orden') ?? '';
+  const [creating, setCreating] = useState(!!preset);
+  const [filter, setFilter] = useState<Filter>(() => FILTERS.find(([k]) => k === params.get('estado'))?.[0] ?? 'todas');
   const q = useQuery({ queryKey: ['prov-runs'], queryFn: () => api<RunRow[]>('/platform/provisioning/runs'), refetchInterval: (query) => (query.state.data?.some((r) => ACTIVE.includes(r.status)) ? 5000 : false) });
   return (
     <div className="flex flex-col gap-6">
@@ -129,9 +154,16 @@ function Runs() {
         description="Servidor propio para clientes que pagaron una instalación dedicada: se pide el servidor, se aprueba el gasto y el servidor se instala, migra, publica con HTTPS y se entrega. Cada paso queda registrado."
         actions={<Button icon={<Plus className="size-4" />} onClick={() => setCreating(true)}>Nueva instalación</Button>}
       />
-      {q.isLoading ? <Loading /> : q.error ? <ErrorBox error={q.error} /> : !q.data!.length ? <EmptyState title="Sin instalaciones" description="Registra una a partir de una orden de instalación pagada." /> : (
+      <div className="flex flex-wrap gap-1 text-sm" role="tablist" aria-label="Filtrar instalaciones">
+        {FILTERS.map(([k, label]) => (
+          <button key={k} type="button" role="tab" aria-selected={filter === k} onClick={() => setFilter(k)} className={cn('rounded-md px-3 py-1.5', filter === k ? 'bg-surface-2 font-medium text-text' : 'text-muted hover:text-text')}>
+            {label}{q.data && k !== 'todas' ? ` (${q.data.filter((r) => matches(r, k)).length})` : ''}
+          </button>
+        ))}
+      </div>
+      {q.isLoading ? <Loading /> : q.error ? <ErrorBox error={q.error} /> : !q.data!.filter((r) => matches(r, filter)).length ? <EmptyState title="Sin instalaciones" description={filter === 'todas' ? 'Registra una a partir de una orden de instalación pagada.' : 'Ninguna en este filtro.'} /> : (
         <div className="flex flex-col gap-3">
-          {q.data!.map((r) => {
+          {q.data!.filter((r) => matches(r, filter)).map((r) => {
             const st = RUN_STATUS[r.status] ?? { label: r.status, tone: 'neutral' as const };
             const mon = monitorState(r);
             return (
@@ -150,7 +182,7 @@ function Runs() {
           })}
         </div>
       )}
-      {creating && <NewRun onClose={() => { setCreating(false); void qc.invalidateQueries({ queryKey: ['prov-runs'] }); }} />}
+      {creating && <NewRun orderId={preset} onClose={() => { setCreating(false); void qc.invalidateQueries({ queryKey: ['prov-runs'] }); }} />}
     </div>
   );
 }
@@ -158,7 +190,7 @@ function Runs() {
 export default function ProvisioningPage() {
   return (
     <RequirePermission permission="platform:manage">
-      <Runs />
+      <Suspense fallback={<Loading />}><Runs /></Suspense>
     </RequirePermission>
   );
 }

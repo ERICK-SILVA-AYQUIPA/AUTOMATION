@@ -490,3 +490,52 @@ export const ProvisioningStatus = {
 } as const
 
 export type ProvisioningStatus = (typeof ProvisioningStatus)[keyof typeof ProvisioningStatus]
+
+
+export const SupportKind = {
+  QUESTION: 'QUESTION',
+  INCIDENT: 'INCIDENT',
+  REQUEST: 'REQUEST',
+  BILLING: 'BILLING'
+} as const
+
+export type SupportKind = (typeof SupportKind)[keyof typeof SupportKind]
+
+
+export const SupportPriority = {
+  LOW: 'LOW',
+  NORMAL: 'NORMAL',
+  HIGH: 'HIGH',
+  URGENT: 'URGENT'
+} as const
+
+export type SupportPriority = (typeof SupportPriority)[keyof typeof SupportPriority]
+
+
+export const SupportStatus = {
+  OPEN: 'OPEN',
+  IN_PROGRESS: 'IN_PROGRESS',
+  WAITING_CLIENT: 'WAITING_CLIENT',
+  RESOLVED: 'RESOLVED',
+  CLOSED: 'CLOSED'
+} as const
+
+export type SupportStatus = (typeof SupportStatus)[keyof typeof SupportStatus]
+
+
+export const SupportSource = {
+  TENANT: 'TENANT',
+  PLATFORM: 'PLATFORM',
+  MONITOR: 'MONITOR'
+} as const
+
+export type SupportSource = (typeof SupportSource)[keyof typeof SupportSource]
+
+
+export const SupportAuthor = {
+  CLIENT: 'CLIENT',
+  STAFF: 'STAFF',
+  SYSTEM: 'SYSTEM'
+} as const
+
+export type SupportAuthor = (typeof SupportAuthor)[keyof typeof SupportAuthor]

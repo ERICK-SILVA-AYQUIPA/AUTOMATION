@@ -376,3 +376,38 @@ export type ProvisioningRun = Prisma.ProvisioningRunModel
  * Historial de una instalación: solo se agrega
  */
 export type ProvisioningEvent = Prisma.ProvisioningEventModel
+/**
+ * Model SupportTicket
+ * Caso de soporte o incidencia de una empresa
+ */
+export type SupportTicket = Prisma.SupportTicketModel
+/**
+ * Model SupportMessage
+ * Mensaje de un caso; las notas internas no las ve la empresa
+ */
+export type SupportMessage = Prisma.SupportMessageModel
+/**
+ * Model SubscriptionNotice
+ * Aviso de vencimiento enviado (uno por periodo y tipo)
+ */
+export type SubscriptionNotice = Prisma.SubscriptionNoticeModel
+/**
+ * Model TenantCostItem
+ * Costo de una empresa que el sistema no mide solo (ADR 055): WhatsApp, almacenamiento, servicios externos, soporte…
+ */
+export type TenantCostItem = Prisma.TenantCostItemModel
+/**
+ * Model TenantBudget
+ * Presupuesto mensual de consumo de una empresa (ADR 055)
+ */
+export type TenantBudget = Prisma.TenantBudgetModel
+/**
+ * Model BudgetAlert
+ * Alerta de consumo enviada (una por empresa, alcance, mes y nivel)
+ */
+export type BudgetAlert = Prisma.BudgetAlertModel
+/**
+ * Model FinanceSettings
+ * Moneda base y tipos de cambio para comparar ingresos y costos (ADR 055). Una sola fila (id = 1)
+ */
+export type FinanceSettings = Prisma.FinanceSettingsModel

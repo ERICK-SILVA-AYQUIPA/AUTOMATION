@@ -3,7 +3,7 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { agentEnv, agentScript, cloudInit } from './agent.js';
-import { instanceReportSchema, reportSignature, reportSummary } from './instance-status.js';
+import { type InstanceReport, instanceReportSchema, reportSignature, reportSummary } from './instance-status.js';
 import { probeInstallation } from './probe.js';
 import { FLOW, agentReport, backoff, cleanText, nextOf, serverNameFor } from './steps.js';
 
@@ -57,7 +57,7 @@ describe('orquestador: scripts del servidor', () => {
 });
 
 describe('monitoreo de instalaciones (ADR 052)', () => {
-  const base = { version: '1.2.3', at: '2026-11-15T10:00:00.000Z', healthy: true, tenants: [{ name: 'Ana', status: 'ACTIVE', integrations: [{ key: 'whatsapp', status: 'error', detail: 'token vencido' }], tasks: [{ key: 'whatsapp_verified', label: 'WhatsApp', done: false, required: true }], activeProducts: 0, enabledAutomations: 1 }] };
+  const base: InstanceReport = { version: '1.2.3', at: '2026-11-15T10:00:00.000Z', healthy: true, tenants: [{ name: 'Ana', status: 'ACTIVE', integrations: [{ key: 'whatsapp', status: 'error', detail: 'token vencido' }], tasks: [{ key: 'whatsapp_verified', label: 'WhatsApp', done: false, required: true }], activeProducts: 0, enabledAutomations: 1 }] };
   it('solo acepta estados y conteos: nada de campos de más', () => {
     expect(instanceReportSchema.parse(base)).toEqual(base);
     expect(() => instanceReportSchema.parse({ ...base, logs: 'x' })).toThrow();

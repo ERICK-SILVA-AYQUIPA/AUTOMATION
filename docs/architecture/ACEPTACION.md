@@ -133,6 +133,65 @@ Pruebas: `api-center.e2e-spec.ts` (API y PostgreSQL) y `api-center.mjs` (navegad
 | Alertas sin repetir | Sin reporte en 30 minutos o servicios con problemas → un correo; se rearma al volver a reportar sana | Probado |
 | Revocable | Cancelar revoca el token; en el servidor basta borrar `monitor.env` | Probado |
 
+## Fase H: escenario de aceptación (§16) y asistente (ADR 053)
+
+`apps/web/e2e/acceptance.mjs` recorre el escenario en navegador para **dos empresas** con el mismo código y comprueba que no comparten instalación, servidor, empresa, tokens ni credenciales SMTP (el token de una instalación no sirve en la otra).
+
+| Paso del escenario | Estado |
+|---|---|
+| 1-4. Visita la página, consulta al agente comercial, pide propuesta | Probado (IA del agente: servidor local con el formato del proveedor) |
+| 5. Propuesta real con el catálogo y el contrato | Probado |
+| 6-7. Acepta y se registra el pago (comprobante + validación en la cuenta) | Probado |
+| 8. Orden de instalación | Probado |
+| 9-10. API del proveedor y servidor | Probado contra el servidor local con los formatos de Hetzner; con Hetzner real: pendiente de autorización |
+| 11. Se instala AI Sales Assistant | Probado con el agente real y Docker sustituido |
+| 12, 15, 16. Empresa, catálogo y automatizaciones dentro del servidor | Pendiente en un servidor real (en la prueba, la carga de la empresa ocurre en el Docker sustituido) |
+| 13-14. WhatsApp y Gemini | Pendiente: credenciales reales de Meta y de Gemini del cliente |
+| 17. Pruebas reales desde afuera | Pendiente: dominio, DNS y HTTPS reales |
+| 18. Paquete de entrega | Probado (el agente lo descarga y verifica su huella) |
+| 19. Acceso al cliente | Pendiente: se envía al entregar (paso 17) |
+| 20. El panel sigue monitoreando | Probado (primer reporte con `node dist/cli.js estado` real) |
+
+## Fase I: postventa (ADR 054)
+
+| Funcionalidad | Cómo se probó |
+|---|---|
+| La empresa abre un caso, el equipo recibe correo, otra empresa no lo ve (ni por API ni en la base con el rol de ejecución) | `support.e2e-spec.ts` y `support.mjs` (navegador) |
+| Notas internas invisibles para la empresa; la primera respuesta se mide solo con respuestas reales | `support.e2e-spec.ts` (también consulta directa con RLS) y `support.mjs` |
+| Esperando o resuelto: la respuesta del cliente lo reabre; la encuesta se responde una vez y cierra el caso; el historial no se puede reescribir | `support.e2e-spec.ts` y `support.mjs` |
+| Casos registrados por el equipo a nombre de la empresa; instalación independiente con contacto en lugar de casos | `support.e2e-spec.ts` |
+| Incidencia automática del monitoreo (una sola) y resolución automática al volver sana | `orchestrator.e2e-spec.ts` |
+| Avisos de vencimiento una vez por periodo, próxima acción en el prospecto, panel de renovaciones | `support.e2e-spec.ts` y `support.mjs` (correo real en Mailpit) |
+| Pendiente | El contacto de soporte de las instalaciones independientes lo define Rick (se pide al registrar la instalación). Sin SMTP real, los correos solo se comprobaron en Mailpit |
+
+## Fase J: rentabilidad (ADR 055) y seguridad (§15)
+
+| Funcionalidad | Cómo se probó |
+|---|---|
+| Sin precio o con un costo desconocido no hay margen y se lista lo que falta (incluido el tipo de cambio) | `profitability.spec.ts`, `finance.e2e-spec.ts`, `finance.mjs` |
+| Servidor por horas con tope mensual; IA solo con claves de la plataforma; llamadas sin precio = costo desconocido | `profitability.spec.ts`, `finance.e2e-spec.ts` |
+| Margen con costos en PEN, USD y EUR convertidos con los tipos definidos | `finance.e2e-spec.ts` (43.50) y `finance.mjs` (S/ 59.25, 49.4 %) |
+| Presupuestos y alertas una vez por mes y nivel; presupuesto en otra moneda | `finance.e2e-spec.ts`, `finance.mjs` (correo real en Mailpit) |
+| Costos y márgenes invisibles para las empresas (403 y rol de ejecución sin acceso en la base) | `finance.e2e-spec.ts` |
+
+Controles de §15 y dónde se comprueban:
+
+| Control | Implementación | Evidencia |
+|---|---|---|
+| Cifrado de secretos | AES-GCM con `DATA_ENCRYPTION_KEY` para credenciales de empresas, proveedores de IA e infraestructura y SMTP de instalaciones; solo se muestran los últimos caracteres | `crypto.spec.ts` (AES-256-GCM), `api-center`, `infra` y `orchestrator` e2e (nunca devuelven el secreto) |
+| Permisos y accesos mínimos | Permisos por rol (`permissions.ts`); rol de ejecución con RLS por empresa; tablas de la plataforma sin acceso para ese rol | `tenant-isolation.e2e-spec.ts`; `support` y `finance` e2e con `roleClient('runtime')` |
+| Auditoría | Registro de solo anexar de cada cambio sensible | `ai`, `api-center` y `automation-catalog` e2e revisan los registros; `support` e2e prueba que el historial no se reescribe |
+| Tokens de corta duración | Acceso de 15 min (`JWT_ACCESS_TTL_SECONDS`), sesiones revocables; tokens de un solo uso para el arranque del servidor; token de monitoreo revocado al cancelar | `auth`, `orchestrator` e2e |
+| Rotación de credenciales | Rotación de claves de IA, de proveedores de infraestructura y de secretos de webhooks desde los paneles | `api-center`, `infra` e `integrations` e2e |
+| Restricciones de red | Solo Caddy publica 80/443; firewall del servidor con orígenes SSH permitidos (`sshSourceCidrs`) | `infra.e2e-spec.ts`, instalación real (fase 10) |
+| Protección contra SSRF | `common/net/outbound.ts`: bloquea direcciones privadas, también tras resolver DNS | `outbound.spec.ts` |
+| Validación de webhooks | Firma `X-Hub-Signature-256` de Meta; token Bearer del agente y del monitoreo | `whatsapp` y `orchestrator` e2e |
+| Control de costos y límites de servidores | Presupuesto mensual y máximo de servidores por proveedor (`NO_BUDGET`, `OVER_BUDGET`, `MAX_SERVERS`); presupuestos y alertas por empresa | `infra.e2e-spec.ts`, `finance.e2e-spec.ts` |
+| Confirmación de operaciones destructivas | Borrar un servidor o cancelar con liberación exige escribir su nombre (`CONFIRM_NAME`) y un motivo | `infra`, `orchestrator` e2e |
+| Prevención de órdenes duplicadas | Una orden de pago abierta por cotización (`OPEN_PAYMENT_ORDER`), una orden de instalación por pago (índice único), una instalación por orden (`RUN_EXISTS`), un servidor por orden (`INSTALLATION_HAS_SERVER`), alta de empresa idempotente | `orchestrator` e `infra` e2e (`RUN_EXISTS`, `INSTALLATION_HAS_SERVER`); `provisioning.e2e-spec.ts` (alta idempotente, también en paralelo). `OPEN_PAYMENT_ORDER` está en el código, sin prueba automática dedicada |
+| Registro de operaciones facturables | `infra_operations` (crear, borrar, con costo) y asientos contables de los cobros validados | `infra.e2e-spec.ts` (operaciones) y `quotes.e2e-spec.ts` (asiento al validar el pago) |
+| La IA no crea servidores ni autoriza gastos | Las herramientas de los agentes son una lista cerrada sin infraestructura, pagos ni credenciales; crear servidores exige aprobación de una persona | `security-policy.spec.ts`, `infra.e2e-spec.ts` |
+
 ## Seguridad (fase 10)
 
 - Dependencias de producción: `pnpm audit --prod` sin vulnerabilidades conocidas (2026-11-13). No se añadieron dependencias en las fases 8 y 9: el ZIP y el actualizador usan solo Node y herramientas del sistema.

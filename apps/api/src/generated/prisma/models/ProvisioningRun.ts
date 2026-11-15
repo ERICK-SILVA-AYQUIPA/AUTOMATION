@@ -465,6 +465,7 @@ export type ProvisioningRunWhereInput = {
   serverRequest?: Prisma.XOR<Prisma.InfraServerRequestNullableScalarRelationFilter, Prisma.InfraServerRequestWhereInput> | null
   server?: Prisma.XOR<Prisma.InfraServerNullableScalarRelationFilter, Prisma.InfraServerWhereInput> | null
   events?: Prisma.ProvisioningEventListRelationFilter
+  supportTickets?: Prisma.SupportTicketListRelationFilter
 }
 
 export type ProvisioningRunOrderByWithRelationInput = {
@@ -509,6 +510,7 @@ export type ProvisioningRunOrderByWithRelationInput = {
   serverRequest?: Prisma.InfraServerRequestOrderByWithRelationInput
   server?: Prisma.InfraServerOrderByWithRelationInput
   events?: Prisma.ProvisioningEventOrderByRelationAggregateInput
+  supportTickets?: Prisma.SupportTicketOrderByRelationAggregateInput
 }
 
 export type ProvisioningRunWhereUniqueInput = Prisma.AtLeast<{
@@ -556,6 +558,7 @@ export type ProvisioningRunWhereUniqueInput = Prisma.AtLeast<{
   serverRequest?: Prisma.XOR<Prisma.InfraServerRequestNullableScalarRelationFilter, Prisma.InfraServerRequestWhereInput> | null
   server?: Prisma.XOR<Prisma.InfraServerNullableScalarRelationFilter, Prisma.InfraServerWhereInput> | null
   events?: Prisma.ProvisioningEventListRelationFilter
+  supportTickets?: Prisma.SupportTicketListRelationFilter
 }, "id" | "number">
 
 export type ProvisioningRunOrderByWithAggregationInput = {
@@ -682,6 +685,7 @@ export type ProvisioningRunCreateInput = {
   serverRequest?: Prisma.InfraServerRequestCreateNestedOneWithoutProvisioningRunsInput
   server?: Prisma.InfraServerCreateNestedOneWithoutProvisioningRunsInput
   events?: Prisma.ProvisioningEventCreateNestedManyWithoutRunInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutProvisioningRunInput
 }
 
 export type ProvisioningRunUncheckedCreateInput = {
@@ -722,6 +726,7 @@ export type ProvisioningRunUncheckedCreateInput = {
   updatedAt?: Date | string
   finishedAt?: Date | string | null
   events?: Prisma.ProvisioningEventUncheckedCreateNestedManyWithoutRunInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutProvisioningRunInput
 }
 
 export type ProvisioningRunUpdateInput = {
@@ -761,6 +766,7 @@ export type ProvisioningRunUpdateInput = {
   serverRequest?: Prisma.InfraServerRequestUpdateOneWithoutProvisioningRunsNestedInput
   server?: Prisma.InfraServerUpdateOneWithoutProvisioningRunsNestedInput
   events?: Prisma.ProvisioningEventUpdateManyWithoutRunNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutProvisioningRunNestedInput
 }
 
 export type ProvisioningRunUncheckedUpdateInput = {
@@ -801,6 +807,7 @@ export type ProvisioningRunUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   events?: Prisma.ProvisioningEventUncheckedUpdateManyWithoutRunNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutProvisioningRunNestedInput
 }
 
 export type ProvisioningRunCreateManyInput = {
@@ -1053,6 +1060,11 @@ export type ProvisioningRunScalarRelationFilter = {
   isNot?: Prisma.ProvisioningRunWhereInput
 }
 
+export type ProvisioningRunNullableScalarRelationFilter = {
+  is?: Prisma.ProvisioningRunWhereInput | null
+  isNot?: Prisma.ProvisioningRunWhereInput | null
+}
+
 export type ProvisioningRunCreateNestedManyWithoutInstallationOrderInput = {
   create?: Prisma.XOR<Prisma.ProvisioningRunCreateWithoutInstallationOrderInput, Prisma.ProvisioningRunUncheckedCreateWithoutInstallationOrderInput> | Prisma.ProvisioningRunCreateWithoutInstallationOrderInput[] | Prisma.ProvisioningRunUncheckedCreateWithoutInstallationOrderInput[]
   connectOrCreate?: Prisma.ProvisioningRunCreateOrConnectWithoutInstallationOrderInput | Prisma.ProvisioningRunCreateOrConnectWithoutInstallationOrderInput[]
@@ -1243,6 +1255,22 @@ export type ProvisioningRunUpdateOneRequiredWithoutEventsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProvisioningRunUpdateToOneWithWhereWithoutEventsInput, Prisma.ProvisioningRunUpdateWithoutEventsInput>, Prisma.ProvisioningRunUncheckedUpdateWithoutEventsInput>
 }
 
+export type ProvisioningRunCreateNestedOneWithoutSupportTicketsInput = {
+  create?: Prisma.XOR<Prisma.ProvisioningRunCreateWithoutSupportTicketsInput, Prisma.ProvisioningRunUncheckedCreateWithoutSupportTicketsInput>
+  connectOrCreate?: Prisma.ProvisioningRunCreateOrConnectWithoutSupportTicketsInput
+  connect?: Prisma.ProvisioningRunWhereUniqueInput
+}
+
+export type ProvisioningRunUpdateOneWithoutSupportTicketsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProvisioningRunCreateWithoutSupportTicketsInput, Prisma.ProvisioningRunUncheckedCreateWithoutSupportTicketsInput>
+  connectOrCreate?: Prisma.ProvisioningRunCreateOrConnectWithoutSupportTicketsInput
+  upsert?: Prisma.ProvisioningRunUpsertWithoutSupportTicketsInput
+  disconnect?: Prisma.ProvisioningRunWhereInput | boolean
+  delete?: Prisma.ProvisioningRunWhereInput | boolean
+  connect?: Prisma.ProvisioningRunWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProvisioningRunUpdateToOneWithWhereWithoutSupportTicketsInput, Prisma.ProvisioningRunUpdateWithoutSupportTicketsInput>, Prisma.ProvisioningRunUncheckedUpdateWithoutSupportTicketsInput>
+}
+
 export type ProvisioningRunCreateWithoutInstallationOrderInput = {
   id?: string
   number?: number
@@ -1280,6 +1308,7 @@ export type ProvisioningRunCreateWithoutInstallationOrderInput = {
   serverRequest?: Prisma.InfraServerRequestCreateNestedOneWithoutProvisioningRunsInput
   server?: Prisma.InfraServerCreateNestedOneWithoutProvisioningRunsInput
   events?: Prisma.ProvisioningEventCreateNestedManyWithoutRunInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutProvisioningRunInput
 }
 
 export type ProvisioningRunUncheckedCreateWithoutInstallationOrderInput = {
@@ -1319,6 +1348,7 @@ export type ProvisioningRunUncheckedCreateWithoutInstallationOrderInput = {
   updatedAt?: Date | string
   finishedAt?: Date | string | null
   events?: Prisma.ProvisioningEventUncheckedCreateNestedManyWithoutRunInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutProvisioningRunInput
 }
 
 export type ProvisioningRunCreateOrConnectWithoutInstallationOrderInput = {
@@ -1426,6 +1456,7 @@ export type ProvisioningRunCreateWithoutProviderInput = {
   serverRequest?: Prisma.InfraServerRequestCreateNestedOneWithoutProvisioningRunsInput
   server?: Prisma.InfraServerCreateNestedOneWithoutProvisioningRunsInput
   events?: Prisma.ProvisioningEventCreateNestedManyWithoutRunInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutProvisioningRunInput
 }
 
 export type ProvisioningRunUncheckedCreateWithoutProviderInput = {
@@ -1465,6 +1496,7 @@ export type ProvisioningRunUncheckedCreateWithoutProviderInput = {
   updatedAt?: Date | string
   finishedAt?: Date | string | null
   events?: Prisma.ProvisioningEventUncheckedCreateNestedManyWithoutRunInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutProvisioningRunInput
 }
 
 export type ProvisioningRunCreateOrConnectWithoutProviderInput = {
@@ -1530,6 +1562,7 @@ export type ProvisioningRunCreateWithoutServerRequestInput = {
   provider: Prisma.InfraProviderCreateNestedOneWithoutProvisioningRunsInput
   server?: Prisma.InfraServerCreateNestedOneWithoutProvisioningRunsInput
   events?: Prisma.ProvisioningEventCreateNestedManyWithoutRunInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutProvisioningRunInput
 }
 
 export type ProvisioningRunUncheckedCreateWithoutServerRequestInput = {
@@ -1569,6 +1602,7 @@ export type ProvisioningRunUncheckedCreateWithoutServerRequestInput = {
   updatedAt?: Date | string
   finishedAt?: Date | string | null
   events?: Prisma.ProvisioningEventUncheckedCreateNestedManyWithoutRunInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutProvisioningRunInput
 }
 
 export type ProvisioningRunCreateOrConnectWithoutServerRequestInput = {
@@ -1634,6 +1668,7 @@ export type ProvisioningRunCreateWithoutServerInput = {
   provider: Prisma.InfraProviderCreateNestedOneWithoutProvisioningRunsInput
   serverRequest?: Prisma.InfraServerRequestCreateNestedOneWithoutProvisioningRunsInput
   events?: Prisma.ProvisioningEventCreateNestedManyWithoutRunInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutProvisioningRunInput
 }
 
 export type ProvisioningRunUncheckedCreateWithoutServerInput = {
@@ -1673,6 +1708,7 @@ export type ProvisioningRunUncheckedCreateWithoutServerInput = {
   updatedAt?: Date | string
   finishedAt?: Date | string | null
   events?: Prisma.ProvisioningEventUncheckedCreateNestedManyWithoutRunInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutProvisioningRunInput
 }
 
 export type ProvisioningRunCreateOrConnectWithoutServerInput = {
@@ -1738,6 +1774,7 @@ export type ProvisioningRunCreateWithoutEventsInput = {
   provider: Prisma.InfraProviderCreateNestedOneWithoutProvisioningRunsInput
   serverRequest?: Prisma.InfraServerRequestCreateNestedOneWithoutProvisioningRunsInput
   server?: Prisma.InfraServerCreateNestedOneWithoutProvisioningRunsInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutProvisioningRunInput
 }
 
 export type ProvisioningRunUncheckedCreateWithoutEventsInput = {
@@ -1777,6 +1814,7 @@ export type ProvisioningRunUncheckedCreateWithoutEventsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   finishedAt?: Date | string | null
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutProvisioningRunInput
 }
 
 export type ProvisioningRunCreateOrConnectWithoutEventsInput = {
@@ -1831,6 +1869,7 @@ export type ProvisioningRunUpdateWithoutEventsInput = {
   provider?: Prisma.InfraProviderUpdateOneRequiredWithoutProvisioningRunsNestedInput
   serverRequest?: Prisma.InfraServerRequestUpdateOneWithoutProvisioningRunsNestedInput
   server?: Prisma.InfraServerUpdateOneWithoutProvisioningRunsNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutProvisioningRunNestedInput
 }
 
 export type ProvisioningRunUncheckedUpdateWithoutEventsInput = {
@@ -1870,6 +1909,182 @@ export type ProvisioningRunUncheckedUpdateWithoutEventsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutProvisioningRunNestedInput
+}
+
+export type ProvisioningRunCreateWithoutSupportTicketsInput = {
+  id?: string
+  number?: number
+  serverType: string
+  location: string
+  domain: string
+  adminEmail: string
+  settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  secretsEnc?: string | null
+  status?: $Enums.ProvisioningStatus
+  stoppedAt?: $Enums.ProvisioningStatus | null
+  attempts?: number
+  nextRunAt?: Date | string | null
+  stepStartedAt?: Date | string
+  stepDeadlineAt?: Date | string | null
+  leaseUntil?: Date | string | null
+  lastError?: string | null
+  needs?: string | null
+  bootstrapHash?: string | null
+  bootstrapExpiresAt?: Date | string | null
+  bootstrapUsedAt?: Date | string | null
+  agentHash?: string | null
+  agentSeenAt?: Date | string | null
+  alertedAt?: Date | string | null
+  cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
+  createdById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  finishedAt?: Date | string | null
+  installationOrder: Prisma.InstallationOrderCreateNestedOneWithoutProvisioningRunsInput
+  provider: Prisma.InfraProviderCreateNestedOneWithoutProvisioningRunsInput
+  serverRequest?: Prisma.InfraServerRequestCreateNestedOneWithoutProvisioningRunsInput
+  server?: Prisma.InfraServerCreateNestedOneWithoutProvisioningRunsInput
+  events?: Prisma.ProvisioningEventCreateNestedManyWithoutRunInput
+}
+
+export type ProvisioningRunUncheckedCreateWithoutSupportTicketsInput = {
+  id?: string
+  number?: number
+  installationOrderId: string
+  providerId: string
+  serverType: string
+  location: string
+  domain: string
+  adminEmail: string
+  settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  secretsEnc?: string | null
+  status?: $Enums.ProvisioningStatus
+  stoppedAt?: $Enums.ProvisioningStatus | null
+  attempts?: number
+  nextRunAt?: Date | string | null
+  stepStartedAt?: Date | string
+  stepDeadlineAt?: Date | string | null
+  leaseUntil?: Date | string | null
+  lastError?: string | null
+  needs?: string | null
+  serverRequestId?: string | null
+  serverId?: string | null
+  bootstrapHash?: string | null
+  bootstrapExpiresAt?: Date | string | null
+  bootstrapUsedAt?: Date | string | null
+  agentHash?: string | null
+  agentSeenAt?: Date | string | null
+  alertedAt?: Date | string | null
+  cancelReason?: string | null
+  monitorHash?: string | null
+  lastReportAt?: Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Date | string | null
+  createdById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  finishedAt?: Date | string | null
+  events?: Prisma.ProvisioningEventUncheckedCreateNestedManyWithoutRunInput
+}
+
+export type ProvisioningRunCreateOrConnectWithoutSupportTicketsInput = {
+  where: Prisma.ProvisioningRunWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProvisioningRunCreateWithoutSupportTicketsInput, Prisma.ProvisioningRunUncheckedCreateWithoutSupportTicketsInput>
+}
+
+export type ProvisioningRunUpsertWithoutSupportTicketsInput = {
+  update: Prisma.XOR<Prisma.ProvisioningRunUpdateWithoutSupportTicketsInput, Prisma.ProvisioningRunUncheckedUpdateWithoutSupportTicketsInput>
+  create: Prisma.XOR<Prisma.ProvisioningRunCreateWithoutSupportTicketsInput, Prisma.ProvisioningRunUncheckedCreateWithoutSupportTicketsInput>
+  where?: Prisma.ProvisioningRunWhereInput
+}
+
+export type ProvisioningRunUpdateToOneWithWhereWithoutSupportTicketsInput = {
+  where?: Prisma.ProvisioningRunWhereInput
+  data: Prisma.XOR<Prisma.ProvisioningRunUpdateWithoutSupportTicketsInput, Prisma.ProvisioningRunUncheckedUpdateWithoutSupportTicketsInput>
+}
+
+export type ProvisioningRunUpdateWithoutSupportTicketsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  domain?: Prisma.StringFieldUpdateOperationsInput | string
+  adminEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  secretsEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProvisioningStatusFieldUpdateOperationsInput | $Enums.ProvisioningStatus
+  stoppedAt?: Prisma.NullableEnumProvisioningStatusFieldUpdateOperationsInput | $Enums.ProvisioningStatus | null
+  attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  nextRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepStartedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stepDeadlineAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  leaseUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  needs?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bootstrapHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bootstrapExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bootstrapUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  agentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  installationOrder?: Prisma.InstallationOrderUpdateOneRequiredWithoutProvisioningRunsNestedInput
+  provider?: Prisma.InfraProviderUpdateOneRequiredWithoutProvisioningRunsNestedInput
+  serverRequest?: Prisma.InfraServerRequestUpdateOneWithoutProvisioningRunsNestedInput
+  server?: Prisma.InfraServerUpdateOneWithoutProvisioningRunsNestedInput
+  events?: Prisma.ProvisioningEventUpdateManyWithoutRunNestedInput
+}
+
+export type ProvisioningRunUncheckedUpdateWithoutSupportTicketsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.IntFieldUpdateOperationsInput | number
+  installationOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  providerId?: Prisma.StringFieldUpdateOperationsInput | string
+  serverType?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  domain?: Prisma.StringFieldUpdateOperationsInput | string
+  adminEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  secretsEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProvisioningStatusFieldUpdateOperationsInput | $Enums.ProvisioningStatus
+  stoppedAt?: Prisma.NullableEnumProvisioningStatusFieldUpdateOperationsInput | $Enums.ProvisioningStatus | null
+  attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  nextRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepStartedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stepDeadlineAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  leaseUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  needs?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverRequestId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bootstrapHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bootstrapExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bootstrapUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  agentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agentSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  alertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monitorHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReportAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reportAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  events?: Prisma.ProvisioningEventUncheckedUpdateManyWithoutRunNestedInput
 }
 
 export type ProvisioningRunCreateManyInstallationOrderInput = {
@@ -1946,6 +2161,7 @@ export type ProvisioningRunUpdateWithoutInstallationOrderInput = {
   serverRequest?: Prisma.InfraServerRequestUpdateOneWithoutProvisioningRunsNestedInput
   server?: Prisma.InfraServerUpdateOneWithoutProvisioningRunsNestedInput
   events?: Prisma.ProvisioningEventUpdateManyWithoutRunNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutProvisioningRunNestedInput
 }
 
 export type ProvisioningRunUncheckedUpdateWithoutInstallationOrderInput = {
@@ -1985,6 +2201,7 @@ export type ProvisioningRunUncheckedUpdateWithoutInstallationOrderInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   events?: Prisma.ProvisioningEventUncheckedUpdateManyWithoutRunNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutProvisioningRunNestedInput
 }
 
 export type ProvisioningRunUncheckedUpdateManyWithoutInstallationOrderInput = {
@@ -2099,6 +2316,7 @@ export type ProvisioningRunUpdateWithoutProviderInput = {
   serverRequest?: Prisma.InfraServerRequestUpdateOneWithoutProvisioningRunsNestedInput
   server?: Prisma.InfraServerUpdateOneWithoutProvisioningRunsNestedInput
   events?: Prisma.ProvisioningEventUpdateManyWithoutRunNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutProvisioningRunNestedInput
 }
 
 export type ProvisioningRunUncheckedUpdateWithoutProviderInput = {
@@ -2138,6 +2356,7 @@ export type ProvisioningRunUncheckedUpdateWithoutProviderInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   events?: Prisma.ProvisioningEventUncheckedUpdateManyWithoutRunNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutProvisioningRunNestedInput
 }
 
 export type ProvisioningRunUncheckedUpdateManyWithoutProviderInput = {
@@ -2252,6 +2471,7 @@ export type ProvisioningRunUpdateWithoutServerRequestInput = {
   provider?: Prisma.InfraProviderUpdateOneRequiredWithoutProvisioningRunsNestedInput
   server?: Prisma.InfraServerUpdateOneWithoutProvisioningRunsNestedInput
   events?: Prisma.ProvisioningEventUpdateManyWithoutRunNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutProvisioningRunNestedInput
 }
 
 export type ProvisioningRunUncheckedUpdateWithoutServerRequestInput = {
@@ -2291,6 +2511,7 @@ export type ProvisioningRunUncheckedUpdateWithoutServerRequestInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   events?: Prisma.ProvisioningEventUncheckedUpdateManyWithoutRunNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutProvisioningRunNestedInput
 }
 
 export type ProvisioningRunUncheckedUpdateManyWithoutServerRequestInput = {
@@ -2405,6 +2626,7 @@ export type ProvisioningRunUpdateWithoutServerInput = {
   provider?: Prisma.InfraProviderUpdateOneRequiredWithoutProvisioningRunsNestedInput
   serverRequest?: Prisma.InfraServerRequestUpdateOneWithoutProvisioningRunsNestedInput
   events?: Prisma.ProvisioningEventUpdateManyWithoutRunNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutProvisioningRunNestedInput
 }
 
 export type ProvisioningRunUncheckedUpdateWithoutServerInput = {
@@ -2444,6 +2666,7 @@ export type ProvisioningRunUncheckedUpdateWithoutServerInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   events?: Prisma.ProvisioningEventUncheckedUpdateManyWithoutRunNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutProvisioningRunNestedInput
 }
 
 export type ProvisioningRunUncheckedUpdateManyWithoutServerInput = {
@@ -2491,10 +2714,12 @@ export type ProvisioningRunUncheckedUpdateManyWithoutServerInput = {
 
 export type ProvisioningRunCountOutputType = {
   events: number
+  supportTickets: number
 }
 
 export type ProvisioningRunCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   events?: boolean | ProvisioningRunCountOutputTypeCountEventsArgs
+  supportTickets?: boolean | ProvisioningRunCountOutputTypeCountSupportTicketsArgs
 }
 
 /**
@@ -2512,6 +2737,13 @@ export type ProvisioningRunCountOutputTypeDefaultArgs<ExtArgs extends runtime.Ty
  */
 export type ProvisioningRunCountOutputTypeCountEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ProvisioningEventWhereInput
+}
+
+/**
+ * ProvisioningRunCountOutputType without action
+ */
+export type ProvisioningRunCountOutputTypeCountSupportTicketsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SupportTicketWhereInput
 }
 
 
@@ -2557,6 +2789,7 @@ export type ProvisioningRunSelect<ExtArgs extends runtime.Types.Extensions.Inter
   serverRequest?: boolean | Prisma.ProvisioningRun$serverRequestArgs<ExtArgs>
   server?: boolean | Prisma.ProvisioningRun$serverArgs<ExtArgs>
   events?: boolean | Prisma.ProvisioningRun$eventsArgs<ExtArgs>
+  supportTickets?: boolean | Prisma.ProvisioningRun$supportTicketsArgs<ExtArgs>
   _count?: boolean | Prisma.ProvisioningRunCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["provisioningRun"]>
 
@@ -2692,6 +2925,7 @@ export type ProvisioningRunInclude<ExtArgs extends runtime.Types.Extensions.Inte
   serverRequest?: boolean | Prisma.ProvisioningRun$serverRequestArgs<ExtArgs>
   server?: boolean | Prisma.ProvisioningRun$serverArgs<ExtArgs>
   events?: boolean | Prisma.ProvisioningRun$eventsArgs<ExtArgs>
+  supportTickets?: boolean | Prisma.ProvisioningRun$supportTicketsArgs<ExtArgs>
   _count?: boolean | Prisma.ProvisioningRunCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProvisioningRunIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2715,6 +2949,7 @@ export type $ProvisioningRunPayload<ExtArgs extends runtime.Types.Extensions.Int
     serverRequest: Prisma.$InfraServerRequestPayload<ExtArgs> | null
     server: Prisma.$InfraServerPayload<ExtArgs> | null
     events: Prisma.$ProvisioningEventPayload<ExtArgs>[]
+    supportTickets: Prisma.$SupportTicketPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3155,6 +3390,7 @@ export interface Prisma__ProvisioningRunClient<T, Null = never, ExtArgs extends 
   serverRequest<T extends Prisma.ProvisioningRun$serverRequestArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProvisioningRun$serverRequestArgs<ExtArgs>>): Prisma.Prisma__InfraServerRequestClient<runtime.Types.Result.GetResult<Prisma.$InfraServerRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   server<T extends Prisma.ProvisioningRun$serverArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProvisioningRun$serverArgs<ExtArgs>>): Prisma.Prisma__InfraServerClient<runtime.Types.Result.GetResult<Prisma.$InfraServerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   events<T extends Prisma.ProvisioningRun$eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProvisioningRun$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProvisioningEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  supportTickets<T extends Prisma.ProvisioningRun$supportTicketsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProvisioningRun$supportTicketsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SupportTicketPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3680,6 +3916,30 @@ export type ProvisioningRun$eventsArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.ProvisioningEventScalarFieldEnum | Prisma.ProvisioningEventScalarFieldEnum[]
+}
+
+/**
+ * ProvisioningRun.supportTickets
+ */
+export type ProvisioningRun$supportTicketsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SupportTicket
+   */
+  select?: Prisma.SupportTicketSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SupportTicket
+   */
+  omit?: Prisma.SupportTicketOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SupportTicketInclude<ExtArgs> | null
+  where?: Prisma.SupportTicketWhereInput
+  orderBy?: Prisma.SupportTicketOrderByWithRelationInput | Prisma.SupportTicketOrderByWithRelationInput[]
+  cursor?: Prisma.SupportTicketWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SupportTicketScalarFieldEnum | Prisma.SupportTicketScalarFieldEnum[]
 }
 
 /**

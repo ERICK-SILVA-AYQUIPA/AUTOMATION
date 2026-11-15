@@ -273,14 +273,20 @@ describe('Orquestador de instalaciones', () => {
     expect((await run()).reportAlertedAt).not.toBeNull();
     expect(await engine.monitorCheck()).toBe(0);
     expect((await owner.provisioningEvent.findFirstOrThrow({ where: { runId, level: 'warn', message: { startsWith: 'Monitoreo:' } } })).message).toContain('reporta servicios con problemas');
-    // Sana otra vez: el aviso se rearma
+    // …y una incidencia en el centro de soporte (ADR 054), una sola por instalación
+    const incident = await owner.supportTicket.findFirstOrThrow({ where: { provisioningRunId: runId, source: 'MONITOR' } });
+    expect(incident).toMatchObject({ kind: 'INCIDENT', priority: 'HIGH', status: 'OPEN' });
+    // Sana otra vez: el aviso se rearma y la incidencia automática queda resuelta
     await ctx.http().post(`${agent(runId)}/heartbeat`).set(M).send(report()).expect(200);
     expect((await run()).reportAlertedAt).toBeNull();
+    expect(await owner.supportTicket.findUniqueOrThrow({ where: { id: incident.id } })).toMatchObject({ status: 'RESOLVED', resolvedAt: expect.any(Date) });
     // Deja de reportar (más de 30 minutos): aviso
     await owner.provisioningRun.update({ where: { id: runId }, data: { lastReportAt: new Date(Date.now() - 31 * 60_000) } });
     expect(await engine.monitorCheck()).toBe(1);
     const silent = await owner.provisioningEvent.findMany({ where: { runId, message: { contains: 'no reporta desde' } } });
     expect(silent).toHaveLength(1);
+    // Una incidencia nueva (la anterior ya estaba resuelta)
+    expect(await owner.supportTicket.count({ where: { provisioningRunId: runId, source: 'MONITOR', status: 'OPEN' } })).toBe(1);
   });
 
   it('un fallo del agente o un plazo vencido piden intervención; cancelar exige decidir el servidor', async () => {

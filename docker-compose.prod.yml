@@ -37,6 +37,8 @@ x-app-env: &app-env
   TRIAL_DAYS: ${TRIAL_DAYS:-14}
   BILLING_GRACE_DAYS: ${BILLING_GRACE_DAYS:-3}
   BILLING_CONTACT: ${BILLING_CONTACT:-}
+  # Contacto que ve la empresa en Soporte de una instalación independiente (ADR 054)
+  SUPPORT_CONTACT: ${SUPPORT_CONTACT:-}
   MAIL_FROM: ${MAIL_FROM:?}
   SMTP_HOST: ${SMTP_HOST:?Configura un SMTP real}
   SMTP_PORT: ${SMTP_PORT:-587}

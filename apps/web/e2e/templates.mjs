@@ -85,7 +85,7 @@ try {
     await L(admin, 'Contraseña').fill(process.env.PLATFORM_ADMIN_PASSWORD);
     await admin.getByRole('button', { name: 'Entrar' }).click();
     await admin.waitForURL(/\/plataforma$/);
-    await admin.getByRole('link', { name: 'Nueva empresa' }).click();
+    await admin.getByRole('link', { name: 'Nueva empresa' }).first().click();
     await admin.getByRole('radio', { name: /^Restaurante/ }).check();
     const cats = admin.getByRole('checkbox', { name: /Crear categorías sugeridas/ });
     if (!(await cats.isChecked())) throw new Error('Las categorías sugeridas deberían venir marcadas');

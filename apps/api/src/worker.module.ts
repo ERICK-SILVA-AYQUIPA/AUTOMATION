@@ -15,6 +15,10 @@ import { WebhookDispatcher } from './webhooks/webhook-dispatcher.js';
 import { WebhooksModule } from './webhooks/webhooks.module.js';
 import { MailModule } from './mail/mail.module.js';
 import { ProvisioningEngineModule } from './orchestrator/orchestrator.module.js';
+import { SupportCoreModule } from './support/support.module.js';
+import { SupportWorker } from './support/support.worker.js';
+import { FinanceCoreModule } from './finance/finance.module.js';
+import { FinanceWorker } from './finance/finance.worker.js';
 import { ProvisioningWorker } from './orchestrator/provisioning.worker.js';
 
 /** Proceso worker: consume las colas de WhatsApp, del asistente de IA y de instalaciones, y entrega eventos a n8n. No expone HTTP. */
@@ -41,7 +45,9 @@ import { ProvisioningWorker } from './orchestrator/provisioning.worker.js';
     AiModule,
     MailModule,
     ProvisioningEngineModule,
+    SupportCoreModule,
+    FinanceCoreModule,
   ],
-  providers: [QueueWorkers, AutomationDispatcher, WebhookDispatcher, ProvisioningWorker],
+  providers: [QueueWorkers, AutomationDispatcher, WebhookDispatcher, ProvisioningWorker, SupportWorker, FinanceWorker],
 })
 export class WorkerModule {}

@@ -95,7 +95,7 @@ try {
     await L(admin, 'Contraseña').fill(process.env.PLATFORM_ADMIN_PASSWORD);
     await admin.getByRole('button', { name: 'Entrar' }).click();
     await admin.waitForURL(/\/plataforma$/);
-    await admin.getByRole('link', { name: 'Nueva empresa' }).click();
+    await admin.getByRole('link', { name: 'Nueva empresa' }).first().click();
     // Paso «Sector»: sin plantilla (las plantillas tienen su propia prueba, templates.mjs)
     await admin.getByRole('radio', { name: /^Sin plantilla/ }).check();
     await admin.getByRole('button', { name: 'Siguiente' }).click();

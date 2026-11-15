@@ -1,19 +1,20 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useState } from 'react';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlarmClock, Columns3, List, Plus, Search, Target, UserX } from 'lucide-react';
 import { api } from '@/lib/api';
 import { dateTime, money, num } from '@/lib/format';
-import { Badge, Button, Card, Dialog, EmptyState, ErrorBox, Field, Input, Loading, PageHeader, Pagination, Select, StatCard, Table, Td, Th, cn } from '@/components/ui';
+import { Badge, Button, Card, EmptyState, ErrorBox, Input, Loading, PageHeader, Pagination, Select, StatCard, Table, Td, Th, cn } from '@/components/ui';
 import { useToast } from '@/components/ui/toast';
 import { RequirePermission } from '@/components/guard';
 import {
-  LEAD_STATUS, LeadFields, LostDialog, MANUAL, SECTOR, SOURCE, duplicatesOf, emptyForm, isOverdue, leadNo, payloadOf, useOwners,
+  LEAD_STATUS, LostDialog, MANUAL, SECTOR, SOURCE, isOverdue, leadNo, useOwners,
   type Lead, type LeadStatus,
 } from './shared';
+import { NewLeadDialog } from './new-lead';
 
 interface Column { status: LeadStatus; manual: boolean; count: number; budget: { currency: string; amount: string }[]; items: Lead[] }
 interface Summary { open: number; overdue: number; unassigned: number; openBudget: { currency: string; amount: string }[]; closed90: { won: number; lost: number; winRate: number | null }; bySource: Record<string, number> }
@@ -136,66 +137,6 @@ function Board({ columns, onOpen, onMoved }: { columns: Column[]; onOpen: (id: s
   );
 }
 
-function NewLeadDialog({ open, onClose, onCreated }: { open: boolean; onClose: () => void; onCreated: (id: string) => void }) {
-  const owners = useOwners();
-  const [f, setF] = useState(emptyForm);
-  const [ownerId, setOwnerId] = useState<string>('me');
-  const [nextAction, setNextAction] = useState('');
-  const [nextAt, setNextAt] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<unknown>(null);
-  const dups = duplicatesOf(error);
-  async function submit(e: React.FormEvent, allowDuplicate = false) {
-    e.preventDefault();
-    setBusy(true);
-    setError(null);
-    try {
-      const r = await api<Lead>('/platform/sales/leads', {
-        method: 'POST',
-        body: {
-          ...payloadOf(f), ...(ownerId === 'me' ? {} : { ownerId: ownerId || null }),
-          ...(nextAction.trim() && nextAt ? { nextAction: nextAction.trim(), nextActionAt: new Date(nextAt).toISOString() } : {}),
-          ...(allowDuplicate ? { allowDuplicate: true } : {}),
-        },
-      });
-      setF(emptyForm());
-      setNextAction('');
-      setNextAt('');
-      onCreated(r.id);
-    } catch (err) {
-      setError(err);
-    } finally {
-      setBusy(false);
-    }
-  }
-  return (
-    <Dialog open={open} onClose={onClose} wide title="Nuevo prospecto" footer={<><Button variant="secondary" onClick={onClose}>Cancelar</Button><Button type="submit" form="lead-form" loading={busy}>Registrar prospecto</Button></>}>
-      <form id="lead-form" onSubmit={(e) => submit(e)} className="flex flex-col gap-4">
-        {dups ? (
-          <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm" role="alert">
-            <p className="font-medium">Ya hay un prospecto con ese correo o teléfono</p>
-            <ul className="mt-1 list-disc pl-5">
-              {dups.map((d) => <li key={d.id}><Link className="underline" href={`/plataforma/ventas/${d.id}`}>{leadNo(d.number)} · {d.name}{d.company ? ` (${d.company})` : ''}</Link> · {LEAD_STATUS[d.status].label}</li>)}
-            </ul>
-            <Button type="button" size="sm" variant="secondary" className="mt-2" onClick={(e) => submit(e as unknown as React.FormEvent, true)}>Registrar de todos modos</Button>
-          </div>
-        ) : <ErrorBox error={error} />}
-        <LeadFields f={f} set={(p) => setF({ ...f, ...p })} />
-        <div className="grid gap-4 border-t border-border pt-4 sm:grid-cols-3">
-          <Field label="Responsable">
-            <Select value={ownerId} onChange={(e) => setOwnerId(e.target.value)}>
-              <option value="me">Yo</option>
-              <option value="">Sin responsable</option>
-              {owners.data?.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
-            </Select>
-          </Field>
-          <Field label="Próxima acción (opcional)"><Input value={nextAction} onChange={(e) => setNextAction(e.target.value)} maxLength={300} placeholder="Llamar para agendar demo" /></Field>
-          <Field label="Fecha de la próxima acción"><Input type="datetime-local" value={nextAt} onChange={(e) => setNextAt(e.target.value)} required={!!nextAction.trim()} /></Field>
-        </div>
-      </form>
-    </Dialog>
-  );
-}
 
 function Sales() {
   const router = useRouter();
@@ -209,7 +150,9 @@ function Sales() {
   const [sector, setSector] = useState('');
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
-  const [creating, setCreating] = useState(false);
+  // ?nuevo=1 (accesos del panel principal) abre el registro directamente
+  const params = useSearchParams();
+  const [creating, setCreating] = useState(() => params.get('nuevo') === '1');
   const filters = { q: q.trim() || undefined, ownerId: ownerId || undefined, source: source || undefined, sector: sector || undefined };
   const summary = useQuery({ queryKey: ['sales-summary'], queryFn: () => api<Summary>('/platform/sales/summary') });
   const board = useQuery({ queryKey: ['sales-board', filters], queryFn: () => api<Column[]>('/platform/sales/board', { query: filters }), enabled: view === 'board', placeholderData: keepPreviousData });
@@ -320,5 +263,5 @@ function Sales() {
 }
 
 export default function SalesPage() {
-  return <RequirePermission permission="platform:manage"><Sales /></RequirePermission>;
+  return <RequirePermission permission="platform:manage"><Suspense fallback={<Loading />}><Sales /></Suspense></RequirePermission>;
 }
